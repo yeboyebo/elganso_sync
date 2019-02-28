@@ -14,5 +14,5 @@
         }
     ],
     "fk": "True",
-    "fun_aq": null
+    "fun_aq": "fun_elganso_ctr"
 }
