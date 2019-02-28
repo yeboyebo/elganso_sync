@@ -11,7 +11,152 @@
                 "path": "config/"
             }
         ],
-        "addFile": [],
+        "addFile": [
+            {
+                "name": "model_flfact_tpv__tpv_fechasincrotienda.py",
+                "path": "models/flfact_tpv/"
+            },
+            {
+                "name": "model_flfact_tpv__tpv_fechasincrotienda_def.py",
+                "path": "models/flfact_tpv/"
+            },
+            {
+                "name": "model_flfact_tpv__eg_movibono.py",
+                "path": "models/flfact_tpv/"
+            },
+            {
+                "name": "model_flfact_tpv__eg_movibono_def.py",
+                "path": "models/flfact_tpv/"
+            },
+            {
+                "name": "model_flfact_tpv__eg_bonos.py",
+                "path": "models/flfact_tpv/"
+            },
+            {
+                "name": "model_flfact_tpv__eg_bonos_def.py",
+                "path": "models/flfact_tpv/"
+            },
+            {
+                "name": "model_flfact_tpv__tpv_tarjetaspuntos.py",
+                "path": "models/flfact_tpv/"
+            },
+            {
+                "name": "model_flfact_tpv__tpv_tarjetaspuntos_def.py",
+                "path": "models/flfact_tpv/"
+            },
+            {
+                "name": "model_flfact_tpv__tpv_viajesmultitransstock.py",
+                "path": "models/flfact_tpv/"
+            },
+            {
+                "name": "model_flfact_tpv__tpv_viajesmultitransstock_def.py",
+                "path": "models/flfact_tpv/"
+            },
+            {
+                "name": "model_flfact_tpv__tpv_lineasmultitransstock.py",
+                "path": "models/flfact_tpv/"
+            },
+            {
+                "name": "model_flfact_tpv__tpv_lineasmultitransstock_def.py",
+                "path": "models/flfact_tpv/"
+            },
+            {
+                "name": "model_flfact_tpv__so_comandassincro.py",
+                "path": "models/flfact_tpv/"
+            },
+            {
+                "name": "model_flfact_tpv__so_comandassincro_def.py",
+                "path": "models/flfact_tpv/"
+            },
+            {
+                "name": "model_flfact_tpv__tpv_movpuntos.py",
+                "path": "models/flfact_tpv/"
+            },
+            {
+                "name": "model_flfact_tpv__tpv_movpuntos_def.py",
+                "path": "models/flfact_tpv/"
+            },
+            {
+                "name": "model_flfactalma__movistock.py",
+                "path": "models/flfactalma/"
+            },
+            {
+                "name": "model_flfactalma__movistock_def.py",
+                "path": "models/flfactalma/"
+            },
+            {
+                "name": "model_flfactalma__eg_sincrostockweb.py",
+                "path": "models/flfactalma/"
+            },
+            {
+                "name": "model_flfactalma__eg_sincrostockweb_def.py",
+                "path": "models/flfactalma/"
+            },
+            {
+                "name": "model_flfactalma__mg_customers.py",
+                "path": "models/flfactalma/"
+            },
+            {
+                "name": "model_flfactalma__mg_customers_def.py",
+                "path": "models/flfactalma/"
+            },
+            {
+                "name": "model_flfactalma__mg_datosenviocomanda.py",
+                "path": "models/flfactalma/"
+            },
+            {
+                "name": "model_flfactalma__mg_datosenviocomanda_def.py",
+                "path": "models/flfactalma/"
+            },
+            {
+                "name": "model_flfactalma__atributosarticulos.py",
+                "path": "models/flfactalma/"
+            },
+            {
+                "name": "model_flfactalma__atributosarticulos_def.py",
+                "path": "models/flfactalma/"
+            },
+            {
+                "name": "model_flfactppal__idl_recepciones.py",
+                "path": "models/flfactppal/"
+            },
+            {
+                "name": "model_flfactppal__idl_recepciones_def.py",
+                "path": "models/flfactppal/"
+            },
+            {
+                "name": "model_flsyncppal__eg_diagnosis_def.py",
+                "path": "models/flsyncppal/"
+            },
+            {
+                "name": "model_flsyncppal__mg_updateStocks_def.py",
+                "path": "models/flsyncppal/"
+            },
+            {
+                "name": "model_flsyncppal__mg_importOrders_def.py",
+                "path": "models/flsyncppal/"
+            },
+            {
+                "name": "model_flsyncppal__mg_updatePoints_def.py",
+                "path": "models/flsyncppal/"
+            },
+            {
+                "name": "model_flsyncppal__mg_importDevWeb_def.py",
+                "path": "models/flsyncppal/"
+            },
+            {
+                "name": "model_flsyncppal__mg_importCustomers_def.py",
+                "path": "models/flsyncppal/"
+            },
+            {
+                "name": "model_flsyncppal__eg_importVentas_def.py",
+                "path": "models/flsyncppal/"
+            },
+            {
+                "name": "model_flsyncppal__mg_updatePrices_def.py",
+                "path": "models/flsyncppal/"
+            }
+        ],
         "deleteFile": [],
         "replaceFile": [
             {
@@ -19,6 +164,31 @@
                 "path": "config/"
             }
         ],
-        "patchScript": []
+        "patchScript": [
+            {
+                "name": "app_sync__tasks.py",
+                "path": "apps/sync/"
+            },
+            {
+                "name": "model_flsyncppal__flsyncppal_def.py",
+                "path": "models/flsyncppal/"
+            },
+            {
+                "name": "model_flfact_tpv__tpv_comandas_def.py",
+                "path": "models/flfact_tpv/"
+            },
+            {
+                "name": "model_flfact_tpv__tpv_comandas.py",
+                "path": "models/flfact_tpv/"
+            },
+            {
+                "name": "model_flfact_tpv__tpv_vales.py",
+                "path": "models/flfact_tpv/"
+            },
+            {
+                "name": "model_flfact_tpv__tpv_vales_def.py",
+                "path": "models/flfact_tpv/"
+            }
+        ]
     }
 }

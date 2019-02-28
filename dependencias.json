@@ -1,7 +1,15 @@
 {
     "dependencias": [
         {
-            "key": "baseparche",
+            "key": "flfacturac",
+            "version": "v1.0"
+        },
+        {
+            "key": "flfact_tpv",
+            "version": "v1.0"
+        },
+        {
+            "key": "flsyncppal",
             "version": "v1.0"
         }
     ],
