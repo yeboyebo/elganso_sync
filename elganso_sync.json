@@ -13,6 +13,10 @@
         ],
         "addFile": [
             {
+                "name": "app_sync__tasks.py",
+                "path": "apps/sync/"
+            },
+            {
                 "name": "model_flfact_tpv__tpv_fechasincrotienda.py",
                 "path": "models/flfact_tpv/"
             },
@@ -165,10 +169,6 @@
             }
         ],
         "patchScript": [
-            {
-                "name": "app_sync__tasks.py",
-                "path": "apps/sync/"
-            },
             {
                 "name": "model_flsyncppal__flsyncppal_def.py",
                 "path": "models/flsyncppal/"
