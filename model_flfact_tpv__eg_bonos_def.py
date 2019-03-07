@@ -12,6 +12,7 @@ class interna(qsatype.objetoBase):
 
 # @class_declaration elganso_sync #
 from YBLEGACY.constantes import *
+from random import choice
 
 
 class elganso_sync(interna):
