@@ -13,6 +13,6 @@
             "version": "v1.0"
         }
     ],
-    "fk": "True",
+    "fk": "False",
     "fun_aq": "fun_elganso_ctr"
 }
