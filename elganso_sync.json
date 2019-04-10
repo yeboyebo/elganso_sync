@@ -159,6 +159,22 @@
             {
                 "name": "model_flsyncppal__mg_updatePrices_def.py",
                 "path": "models/flsyncppal/"
+            },
+            {
+                "name": "model_flfact_tpv__eg_devolucionestienda.py",
+                "path": "models/flfact_tpv/"
+            },
+            {
+                "name": "model_flfact_tpv__eg_devolucionestienda_def.py",
+                "path": "models/flfact_tpv/"
+            },
+            {
+                "name": "model_flfact_tpv__eg_motivosdevolucion.py",
+                "path": "models/flfact_tpv/"
+            },
+            {
+                "name": "model_flfact_tpv__eg_motivosdevolucion_def.py",
+                "path": "models/flfact_tpv/"
             }
         ],
         "deleteFile": [],
