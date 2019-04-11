@@ -239,6 +239,22 @@
             {
                 "name": "controller_api_orders__egorder_line_serializer.py",
                 "path": "controllers/api/sync/orders/serializers/"
+            },
+            {
+                "name": "model_flfact_tpv__eg_devolucionestienda.py",
+                "path": "models/flfact_tpv/"
+            },
+            {
+                "name": "model_flfact_tpv__eg_devolucionestienda_def.py",
+                "path": "models/flfact_tpv/"
+            },
+            {
+                "name": "model_flfact_tpv__eg_motivosdevolucion.py",
+                "path": "models/flfact_tpv/"
+            },
+            {
+                "name": "model_flfact_tpv__eg_motivosdevolucion_def.py",
+                "path": "models/flfact_tpv/"
             }
         ],
         "deleteFile": [],

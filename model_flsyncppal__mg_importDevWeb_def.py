@@ -42,7 +42,7 @@ class elganso_sync(interna):
             if qsatype.FLUtil.isInProd():
                 url = 'https://www.elganso.com/syncapi/index.php/refounds/ready'
             else:
-                url = 'http://local.elganso.com/syncapi/index.php/refounds/ready'
+                url = 'http://local2.elganso.com/syncapi/index.php/refounds/ready'
 
             print("Llamando a", url)
             response = requests.get(url, headers=headers)
@@ -80,7 +80,7 @@ class elganso_sync(interna):
                         if qsatype.FLUtil.isInProd():
                             url = 'https://www.elganso.com/syncapi/index.php/refounds/' + str(aOrders[order]) + '/synchronized'
                         else:
-                            url = 'http://local.elganso.com/syncapi/index.php/refounds/' + str(aOrders[order]) + '/synchronized'
+                            url = 'http://local2.elganso.com/syncapi/index.php/refounds/' + str(aOrders[order]) + '/synchronized'
 
                         print("Llamando a", url)
                         response = requests.put(url, headers=headers)
@@ -106,7 +106,6 @@ class elganso_sync(interna):
             if order["refound_id"] in saltar:
                 continue
 
-            print("////////////////////////////creaCabeceraComandaDevWeb")
             if not _i.controlTallasDevolucion(order):
                 continue
 
@@ -116,23 +115,20 @@ class elganso_sync(interna):
                 saltar[order["refound_id"]] = order["refound_id"]
                 aOrders[codigo] = order["refound_id"]
                 continue
-            print("////////////////////////////creaCabeceraComandaDevWeb")
+
             curComanda = _i.creaCabeceraComandaDevWeb(order, codigo)
             if not curComanda:
                 return False
 
-            print("////////////////////////////creaLineaComandaDevWeb")
             for linea in order["items_refunded"]:
                 if not _i.creaLineaComandaDevWeb(linea, curComanda, order["refound_id"], "refounded"):
                     return False
 
-            print("////////////////////////////creaLineaComandaDevWeb2")
             if "items_requested" in order:
                 for linea in order["items_requested"]:
                     if not _i.creaLineaComandaDevWeb(linea, curComanda, order["refound_id"], "requested"):
                         return False
 
-            print("////////////////////////////controlMovBono")
             if str(order["cupon_bono"]) != "None":
                 for linea in order["items_refunded"]:
                     if not _i.controlMovBono(linea, order, curComanda):
@@ -142,16 +138,13 @@ class elganso_sync(interna):
                     if not _i.controlMovPuntos(linea, order, curComanda):
                         return False
 
-            print("////////////////////////////controlMovVale")
             if str(order["vale_description"]) != "None":
                 for linea in order["items_refunded"]:
                     if not _i.controlMovVale(linea, order, curComanda):
                         return False
 
-            print("////////////////////////////calcularTotalesCursor")
             qsatype.FactoriaModulos.get('formRecordtpv_comandas').iface.calcularTotalesCursor(curComanda)
 
-            print("////////////////////////////cerrarVentaWeb")
             if not _i.cerrarVentaWeb(curComanda, order):
                 syncppal.iface.log(ustr("Error. No se pudo cerrar la devolución web ", str(codigo)), "mgsyncdevweb")
                 return False
@@ -160,8 +153,12 @@ class elganso_sync(interna):
                 if not _i.actualizarCantDevueltaOrder(linea, curComanda, order):
                     return False
 
-            print("/////////////RETURN")
-            codigo = ustr("WDV", qsatype.FactoriaModulos.get("flfactppal").iface.cerosIzquierda(ustr(order["increment_id"]), 9))
+            for linea in order["items_refunded"]:
+                if not _i.creaMotivosDevolucion(linea, curComanda, order):
+                    return False
+
+            codigo = "WDV" + qsatype.FactoriaModulos.get("flfactppal").iface.cerosIzquierda(str(order["refound_id"]), 9)
+            aOrders[codigo] = order["refound_id"]
 
         return aOrders
 
@@ -1040,6 +1037,88 @@ class elganso_sync(interna):
             qsatype.debug(e)
             return False
 
+    def elganso_sync_creaMotivosDevolucion(self, linea, curComanda, order):
+        _i = self.iface
+        try:
+            if not _i.creaRegistroDevolucionesTienda(linea, curComanda, order):
+                return False
+
+            if not _i.creaRegistroMotivoDevolucion(linea, curComanda, order):
+                return False
+
+            return True
+
+        except Exception as e:
+            qsatype.debug(e)
+            return False
+
+    def elganso_sync_creaRegistroDevolucionesTienda(self, linea, curComanda, order):
+        _i = self.iface
+        try:
+            curDevolT = qsatype.FLSqlCursor("eg_devolucionestienda")
+            curDevolT.select("codcomandaoriginal = '" + str(curComanda.valueBuffer("codcomandadevol")) + "' AND coddevolucion = '" + str(curComanda.valueBuffer("codigo")) + "'")
+            if(curDevolT.first()):
+                return True
+
+            curDevolT = qsatype.FLSqlCursor("eg_devolucionestienda")
+            curDevolT.setModeAccess(curDevolT.Insert)
+            curDevolT.refreshBuffer()
+            curDevolT.setValueBuffer("codcomandaoriginal", str(curComanda.valueBuffer("codcomandadevol")))
+            curDevolT.setValueBuffer("coddevolucion", str(curComanda.valueBuffer("codigo")))
+            curDevolT.setValueBuffer("sincronizada", True)
+            curDevolT.setValueBuffer("fecha", str(qsatype.Date())[:10])
+            curDevolT.setValueBuffer("hora", _i.obtenerHora(str(qsatype.Date())))
+            curDevolT.setValueBuffer("codtienda", "AWEB")
+
+            if "items_requested" in order:
+                curDevolT.setValueBuffer("codcomandacambio", str(curComanda.valueBuffer("codigo")))
+                curDevolT.setValueBuffer("cambio", True)
+            else:
+                curDevolT.setNull("codcomandacambio")
+                curDevolT.setValueBuffer("cambio", False)
+
+            if not curDevolT.commitBuffer():
+                return False
+
+            curDevolT.select("codcomandaoriginal = '" + str(curComanda.valueBuffer("codcomandadevol")) + "' AND coddevolucion = '" + str(curComanda.valueBuffer("codigo")) + "'")
+            if(curDevolT.first()):
+                curDevolT.setModeAccess(curDevolT.Edit)
+                curDevolT.refreshBuffer()
+                curDevolT.setValueBuffer("idsincro", str(curComanda.valueBuffer("codigo")) + "_" + str(curDevolT.valueBuffer("id")))
+                curDevolT.commitBuffer()
+
+            return True
+
+        except Exception as e:
+            qsatype.debug(e)
+            return False
+
+    def elganso_sync_creaRegistroMotivoDevolucion(self, linea, curComanda, order):
+        _i = self.iface
+        try:
+
+            curMotivos = qsatype.FLSqlCursor("eg_motivosdevolucion")
+            curMotivos.setModeAccess(curMotivos.Insert)
+            curMotivos.refreshBuffer()
+            curMotivos.setValueBuffer("codcomandadevol", str(curComanda.valueBuffer("codigo")))
+            curMotivos.setValueBuffer("referencia", _i.obtenerReferencia(linea["sku"]))
+            curMotivos.setValueBuffer("barcode", _i.obtenerBarcode(linea["sku"]))
+            curMotivos.setValueBuffer("descripcion", _i.obtenerDescripcion(linea["sku"]))
+            curMotivos.setValueBuffer("talla", _i.obtenerTalla(linea["sku"]))
+            curMotivos.setValueBuffer("cantidad", parseFloat(linea["qty"]))
+            curMotivos.setValueBuffer("pvpunitarioiva", parseFloat(linea["original_price"]))
+            curMotivos.setValueBuffer("idsincro", str(curComanda.valueBuffer("codigo")) + "_" + str(curMotivos.valueBuffer("id")))
+            curMotivos.setValueBuffer("motivos", str(linea["reason"]))
+            curMotivos.setValueBuffer("sincronizada", True)
+            if not curMotivos.commitBuffer():
+                return False
+
+            return True
+
+        except Exception as e:
+            qsatype.debug(e)
+            return False
+
     def __init__(self, context=None):
         super(elganso_sync, self).__init__(context)
 
@@ -1147,6 +1226,15 @@ class elganso_sync(interna):
 
     def actualizarCantDevueltaOrder(self, linea, curComanda, order):
         return self.ctx.elganso_sync_actualizarCantDevueltaOrder(linea, curComanda, order)
+
+    def creaMotivosDevolucion(self, linea, curComanda, order):
+        return self.ctx.elganso_sync_creaMotivosDevolucion(linea, curComanda, order)
+
+    def creaRegistroDevolucionesTienda(self, linea, curComanda, order):
+        return self.ctx.elganso_sync_creaRegistroDevolucionesTienda(linea, curComanda, order)
+
+    def creaRegistroMotivoDevolucion(self, linea, curComanda, order):
+        return self.ctx.elganso_sync_creaRegistroMotivoDevolucion(linea, curComanda, order)
 
 
 # @class_declaration head #

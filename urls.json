@@ -58,6 +58,20 @@
         },
         {
             "type": "insertAfterNode",
+            "path": "/models/flfact_tpv/tpv_movpuntos",
+            "value": {
+                "eg_devolucionestienda": null
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/models/flfact_tpv/eg_devolucionestienda",
+            "value": {
+                "eg_motivosdevolucion": null
+            }
+        },
+        {
+            "type": "insertAfterNode",
             "path": "/models/flfactalma/lineasregstocks",
             "value": {
                 "movistock": null
