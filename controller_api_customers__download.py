@@ -6,8 +6,8 @@ from models.flfactalma.objects.egmagento_customer_raw import EgMagentoCustomer
 
 class EgCustomersDownload(AQSyncDownload):
 
-    def __init__(self, params=None):
-        super().__init__("mgsynccust", params)
+    def __init__(self, driver, params=None):
+        super().__init__("mgsynccust", driver, params)
 
         self.set_sync_params({
             "auth": "Basic c2luY3JvOmJVcWZxQk1ub0g=",

@@ -8,8 +8,8 @@ from models.flfact_tpv.objects.egorder_raw import EgOrder
 
 class EgOrdersDownload(AQSyncDownload):
 
-    def __init__(self, params=None):
-        super().__init__("mgsyncorders", params)
+    def __init__(self, driver, params=None):
+        super().__init__("mgsyncorders", driver, params)
 
         self.set_sync_params({
             "auth": "Basic c2luY3JvOmJVcWZxQk1ub0g=",
@@ -22,6 +22,9 @@ class EgOrdersDownload(AQSyncDownload):
 
     def process_data(self, data):
         order_data = EgOrderSerializer().serialize(data)
+        if not order_data:
+            return
+
         order = EgOrder(order_data)
         order.save()
 
