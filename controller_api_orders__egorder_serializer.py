@@ -90,7 +90,8 @@ class EgOrderSerializer(AQSerializer):
             self.data["children"]["lines"].append(line_data)
             iva = item["iva"]
 
-        new_init_data = self.init_data.copy().update({
+        new_init_data = self.init_data.copy()
+        new_init_data.update({
             "iva": iva,
             "codcomanda": self.data["codigo"],
             "fecha": self.data["fecha"]
@@ -101,13 +102,17 @@ class EgOrderSerializer(AQSerializer):
         linea_descuento = EgOrderDiscountLineSerializer().serialize(new_init_data)
         linea_vale = EgOrderVoucherLineSerializer().serialize(new_init_data)
         arqueo_web = EgCashCountSerializer().serialize(self.data)
-        pago_web = EgOrderPaymentSerializer().serialize(new_init_data.copy().update({"idarqueo": arqueo_web["idtpv_arqueo"]}))
+        new_init_data.update({"idarqueo": arqueo_web["idtpv_arqueo"]})
+        pago_web = EgOrderPaymentSerializer().serialize(new_init_data)
 
         self.data["children"]["lines"].append(linea_gastos)
         self.data["children"]["lines"].append(linea_descuento)
         self.data["children"]["lines"].append(linea_vale)
         self.data["children"]["payments"].append(pago_web)
         self.data["children"]["shippingline"] = linea_envio
+
+        if "skip" in arqueo_web and arqueo_web["skip"]:
+            arqueo_web = False
         self.data["children"]["cashcount"] = arqueo_web
 
     def get_codserie(self):

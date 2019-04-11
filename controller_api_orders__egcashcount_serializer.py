@@ -9,13 +9,15 @@ class EgCashCountSerializer(AQSerializer):
         idarqueo = qsatype.FLUtil.sqlSelect("tpv_arqueos", "idtpv_arqueo", "codtienda = 'AWEB' AND diadesde >= '{}' AND idasiento IS NULL ORDER BY diadesde ASC".format(self.init_data["fecha"]))
 
         if idarqueo:
-            return False
+            self.data = {"idtpv_arqueo": idarqueo, "skip": True}
+            return True
 
         fecha = qsatype.Date()
         idarqueo = qsatype.FLUtil.sqlSelect("tpv_arqueos", "idtpv_arqueo", "codtienda = 'AWEB' AND diadesde = '{}'".format(fecha))
 
         if idarqueo:
-            return False
+            self.data = {"idtpv_arqueo": idarqueo, "skip": True}
+            return True
 
         punto_venta = qsatype.FLUtil.sqlSelect("tpv_puntosventa", "codtpv_puntoventa", "codtienda = 'AWEB'")
 
