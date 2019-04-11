@@ -159,6 +159,86 @@
             {
                 "name": "model_flsyncppal__mg_updatePrices_def.py",
                 "path": "models/flsyncppal/"
+            },
+            {
+                "name": "controller_api_prices__upload.py",
+                "path": "controllers/api/sync/prices/"
+            },
+            {
+                "name": "controller_api_orders__download.py",
+                "path": "controllers/api/sync/orders/"
+            },
+            {
+                "name": "controller_api_stocks__upload.py",
+                "path": "controllers/api/sync/stocks/"
+            },
+            {
+                "name": "controller_api_points__upload.py",
+                "path": "controllers/api/sync/points/"
+            },
+            {
+                "name": "controller_api_customers__download.py",
+                "path": "controllers/api/sync/customers/"
+            },
+            {
+                "name": "model_flfactalma__egmagento_customer_raw.py",
+                "path": "models/flfactalma/objects/"
+            },
+            {
+                "name": "model_flfact_tpv__egcashcount_raw.py",
+                "path": "models/flfact_tpv/objects/"
+            },
+            {
+                "name": "model_flfact_tpv__egorder_payment_raw.py",
+                "path": "models/flfact_tpv/objects/"
+            },
+            {
+                "name": "model_flfact_tpv__egorder_line_raw.py",
+                "path": "models/flfact_tpv/objects/"
+            },
+            {
+                "name": "model_flfact_tpv__egorder_raw.py",
+                "path": "models/flfact_tpv/objects/"
+            },
+            {
+                "name": "model_flfact_tpv__egorder_shippingline_raw.py",
+                "path": "models/flfact_tpv/objects/"
+            },
+            {
+                "name": "controller_api_customers__egmagento_customer_serializer.py",
+                "path": "controllers/api/sync/customers/serializers/"
+            },
+            {
+                "name": "controller_api_orders__egorder_shippingline_serializer.py",
+                "path": "controllers/api/sync/orders/serializers/"
+            },
+            {
+                "name": "controller_api_orders__egorder_expensesline_serializer.py",
+                "path": "controllers/api/sync/orders/serializers/"
+            },
+            {
+                "name": "controller_api_orders__egorder_discountline_serializer.py",
+                "path": "controllers/api/sync/orders/serializers/"
+            },
+            {
+                "name": "controller_api_orders__egorder_voucherline_serializer.py",
+                "path": "controllers/api/sync/orders/serializers/"
+            },
+            {
+                "name": "controller_api_orders__egorder_payment_serializer.py",
+                "path": "controllers/api/sync/orders/serializers/"
+            },
+            {
+                "name": "controller_api_orders__egcashcount_serializer.py",
+                "path": "controllers/api/sync/orders/serializers/"
+            },
+            {
+                "name": "controller_api_orders__egorder_serializer.py",
+                "path": "controllers/api/sync/orders/serializers/"
+            },
+            {
+                "name": "controller_api_orders__egorder_line_serializer.py",
+                "path": "controllers/api/sync/orders/serializers/"
             }
         ],
         "deleteFile": [],
