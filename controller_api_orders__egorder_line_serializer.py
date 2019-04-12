@@ -39,6 +39,8 @@ class EgOrderLineSerializer(AQSerializer):
         self.set_data_relation("pvpsindtoiva", "pvpsindtoiva")
         self.set_data_relation("pvptotaliva", "pvptotaliva")
 
+        return True
+
     def get_splitted_sku(self):
         return self.init_data["sku"].split("-")
 

@@ -25,6 +25,8 @@ class EgOrderExpensesLineSerializer(EgOrderLineSerializer):
         self.set_data_value("pvpsindto", gastos_sin_iva)
         self.set_data_value("pvptotal", gastos_sin_iva)
 
+        return True
+
     def get_referencia(self):
         return "0000ATEMP00001"
 

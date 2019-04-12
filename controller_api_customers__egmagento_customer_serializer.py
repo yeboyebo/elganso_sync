@@ -53,3 +53,5 @@ class EgMagentoCustomerSerializer(AQSerializer):
             self.set_string_relation("ciudadenv", "shipping_address//city")
             self.set_string_relation("provinciaenv", "shipping_address//region")
             self.set_string_relation("paisenv", "shipping_address//country_id")
+
+        return True

@@ -20,6 +20,8 @@ class EgOrderPaymentSerializer(AQSerializer):
         self.set_data_relation("importe", "total", default=0)
 
         self.set_string_relation("fecha", "fecha")
-        self.set_string_relation("codpago", "codpago", max_characters=10)
-        self.set_string_relation("codcomanda", "codcomanda", max_characters=12)
         self.set_string_relation("codtpv_puntoventa", "codtpv_puntoventa", max_characters=6)
+        self.set_string_relation("codpago", "codpago", max_characters=10)
+        self.set_string_relation("codcomanda", "codigo", max_characters=12)
+
+        return True

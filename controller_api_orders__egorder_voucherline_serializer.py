@@ -25,6 +25,8 @@ class EgOrderVoucherLineSerializer(EgOrderLineSerializer):
         self.set_data_value("pvpsindto", dto_sin_iva)
         self.set_data_value("pvptotal", dto_sin_iva)
 
+        return True
+
     def get_referencia(self):
         return "0000ATEMP00040"
 

@@ -15,7 +15,8 @@ from controllers.api.sync.orders.serializers.egcashcount_serializer import EgCas
 class EgOrderSerializer(AQSerializer):
 
     def get_data(self):
-        codigo = "WEB{}".format(qsatype.FactoriaModulos.get("flfactppal").iface.cerosIzquierda(str(self.init_data["increment_id"]), 9))
+        increment = str(self.init_data["increment_id"])
+        codigo = "WEB{}".format(qsatype.FactoriaModulos.get("flfactppal").iface.cerosIzquierda(increment, 9))
 
         if qsatype.FLUtil.sqlSelect("tpv_comandas", "idtpv_comanda", "codigo = '{}'".format(codigo)):
             return False
@@ -86,6 +87,10 @@ class EgOrderSerializer(AQSerializer):
             self.data["children"]["payments"] = []
 
         for item in self.init_data["items"]:
+            item.update({
+                "codcomanda": self.data["codigo"]
+            })
+
             line_data = EgOrderLineSerializer().serialize(item)
             self.data["children"]["lines"].append(line_data)
             iva = item["iva"]
@@ -102,8 +107,9 @@ class EgOrderSerializer(AQSerializer):
         linea_descuento = EgOrderDiscountLineSerializer().serialize(new_init_data)
         linea_vale = EgOrderVoucherLineSerializer().serialize(new_init_data)
         arqueo_web = EgCashCountSerializer().serialize(self.data)
-        new_init_data.update({"idarqueo": arqueo_web["idtpv_arqueo"]})
-        pago_web = EgOrderPaymentSerializer().serialize(new_init_data)
+        new_data = self.data.copy()
+        new_data.update({"idarqueo": arqueo_web["idtpv_arqueo"]})
+        pago_web = EgOrderPaymentSerializer().serialize(new_data)
 
         self.data["children"]["lines"].append(linea_gastos)
         self.data["children"]["lines"].append(linea_descuento)
@@ -114,6 +120,8 @@ class EgOrderSerializer(AQSerializer):
         if "skip" in arqueo_web and arqueo_web["skip"]:
             arqueo_web = False
         self.data["children"]["cashcount"] = arqueo_web
+
+        return True
 
     def get_codserie(self):
         pais = self.init_data["billing_address"]["country_id"]

@@ -72,8 +72,8 @@ class EgPointsUpload(AQSyncUpload):
                     "dtopor": self.get_value("tpv_tarjetaspuntos.dtopor"),
                     "fechaalta": self.get_string_value("tpv_tarjetaspuntos.fechaalta"),
                     "fechamod": self.get_string_value("tpv_tarjetaspuntos.fechamod"),
-                    "horaalta": self.get_string_value("tpv_tarjetaspuntos.horaalta")[:8],
-                    "horamod": self.get_string_value("tpv_tarjetaspuntos.horamod")[:8]
+                    "horaalta": self.get_string_value("tpv_tarjetaspuntos.horaalta", max_characters=8),
+                    "horamod": self.get_string_value("tpv_tarjetaspuntos.horamod", max_characters=8)
                 }
 
                 if not self.get_value("tpv_tarjetaspuntos.sincronizada") and former_card not in self._cards:
@@ -90,7 +90,7 @@ class EgPointsUpload(AQSyncUpload):
                     "devolucion": self.get_value("tpv_movpuntos.devolucion"),
                     "borrado": self.get_value("tpv_movpuntos.borrado"),
                     "fechamod": self.get_string_value("tpv_movpuntos.fechamod"),
-                    "horamod": self.get_string_value("tpv_movpuntos.horamod")[:8]
+                    "horamod": self.get_string_value("tpv_movpuntos.horamod", max_characters=8)
                 })
 
                 idmov = self.get_string_value("tpv_movpuntos.idmovpuntos")
@@ -105,12 +105,12 @@ class EgPointsUpload(AQSyncUpload):
     def get_value(self, key):
         return self._q.value(key)
 
-    def get_string_value(self, key):
+    def get_string_value(self, key, max_characters=255):
         value = self.get_value(key)
         if not value:
             return None
 
-        return syncppal.iface.replace(str(value))
+        return syncppal.iface.replace(str(value))[:max_characters]
 
     def after_sync(self, response_data=None):
         if response_data and "request_id" in response_data:

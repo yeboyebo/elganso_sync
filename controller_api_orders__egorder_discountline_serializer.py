@@ -34,6 +34,8 @@ class EgOrderDiscountLineSerializer(EgOrderLineSerializer):
         self.set_data_value("pvpsindto", dto_sin_iva)
         self.set_data_value("pvptotal", dto_sin_iva)
 
+        return True
+
     def get_bono_data(self):
         self.bono = False
 

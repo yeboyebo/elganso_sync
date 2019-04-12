@@ -28,4 +28,4 @@ class EgOrder(AQModel):
         self.children.append(arqueo)
 
         for item in self.data["children"]["payments"]:
-            self.children.append(EgOrderPayment(item.update({"idarqueo": arqueo.data["idtpv_arqueo"]})))
+            self.children.append(EgOrderPayment(item))

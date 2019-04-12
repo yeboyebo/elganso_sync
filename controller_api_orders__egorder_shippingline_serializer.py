@@ -35,3 +35,5 @@ class EgOrderShippingLineSerializer(AQSerializer):
 
         if self.init_data["shipping_method"].startswith("pl_store_pickup"):
             self.set_string_relation("mg_telefonoenv", "billing_address//telephone", max_characters=30)
+
+        return True

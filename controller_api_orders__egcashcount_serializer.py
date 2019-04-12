@@ -32,3 +32,13 @@ class EgCashCountSerializer(AQSerializer):
         self.set_data_value("abierta", True)
         self.set_data_value("sincronizado", True)
         self.set_data_value("idfactura", 0)
+
+        fake_cursor = qsatype.FLSqlCursor("tpv_arqueos")
+        fake_cursor.select("codtienda = 'AWEB'")
+        fake_cursor.first()
+        fake_cursor.refreshBuffer()
+
+        idarqueo = qsatype.FactoriaModulos.get("formRecordtpv_arqueos").iface.codigoArqueo(fake_cursor)
+        self.set_string_value("idtpv_arqueo", idarqueo, max_characters=8)
+
+        return True
