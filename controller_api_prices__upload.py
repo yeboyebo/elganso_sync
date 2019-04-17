@@ -17,7 +17,8 @@ class EgPricesUpload(AQSyncUpload):
             "auth": "Basic c2luY3JvOmJVcWZxQk1ub0g=",
             "test_auth": "Basic dGVzdDp0ZXN0",
             "url": "https://www.elganso.com/syncapi/index.php/productupdates",
-            "test_url": "http://local2.elganso.com/syncapi/index.php/productupdates"
+            "test_url": "http://local2.elganso.com/syncapi/index.php/productupdates",
+            "success_code": 202
         })
 
     def before_sync(self):
