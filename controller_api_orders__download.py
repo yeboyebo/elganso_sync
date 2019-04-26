@@ -15,11 +15,14 @@ class elganso_sync_download(interna_download):
 
     @staticmethod
     def start(pk, data):
-        result = {}
-        status = 200
+        result = None
+        status = None
 
         if "passwd" in data and data["passwd"] == "bUqfqBMnoH":
-            result = task_manager.task_executer("orders_download", data)
+            response = task_manager.task_executer("orders_download", data)
+
+            result = response["data"]
+            status = response["status"]
         else:
             result = {"msg": "Autorización denegada"}
             status = 401

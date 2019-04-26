@@ -15,12 +15,15 @@ class elganso_sync_upload(interna_upload):
 
     @staticmethod
     def start(pk, data):
-        result = {}
-        status = 200
+        result = None
+        status = None
 
         if "passwd" in data and data["passwd"] == "bUqfqBMnoH":
             data.update({"first": True})
-            result = task_manager.task_executer("prices_upload", data)
+            response = task_manager.task_executer("prices_upload", data)
+
+            result = response["data"]
+            status = response["status"]
         else:
             result = {"msg": "Autorización denegada"}
             status = 401
