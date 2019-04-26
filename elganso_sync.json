@@ -255,6 +255,26 @@
             {
                 "name": "model_flfact_tpv__eg_motivosdevolucion_def.py",
                 "path": "models/flfact_tpv/"
+            },
+            {
+                "path": "controllers/api/sync/stocks/controllers/",
+                "name": "controller_api_stocks__egstock_upload.py"
+            },
+            {
+                "path": "controllers/api/sync/prices/controllers/",
+                "name": "controller_api_prices__egprices_upload.py"
+            },
+            {
+                "path": "controllers/api/sync/orders/controllers/",
+                "name": "controller_api_orders__egorders_download.py"
+            },
+            {
+                "path": "controllers/api/sync/points/controllers/",
+                "name": "controller_api_points__egpoints_upload.py"
+            },
+            {
+                "path": "controllers/api/sync/customers/controllers/",
+                "name": "controller_api_customers__egcustomers_download.py"
             }
         ],
         "deleteFile": [],
