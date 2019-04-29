@@ -41,9 +41,8 @@ class elganso_sync(interna):
             url = None
             if qsatype.FLUtil.isInProd():
                 url = 'https://www.elganso.com/syncapi/index.php/orders/unsynchronized'
-                # url = 'https://local.elganso.com/syncapi/index.php/orders/unsynchronized'
             else:
-                url = 'http://local.elganso.com/syncapi/index.php/orders/unsynchronized'
+                url = 'http://local2.elganso.com/syncapi/index.php/orders/unsynchronized'
 
             print("Llamando a", url)
             response = requests.get(url, headers=headers)
@@ -80,9 +79,8 @@ class elganso_sync(interna):
                         url = None
                         if qsatype.FLUtil.isInProd():
                             url = 'https://www.elganso.com/syncapi/index.php/orders/' + str(aOrders[order]) + '/synchronized'
-                            # url = 'http://local.elganso.com/syncapi/index.php/orders/' + str(aOrders[order]) + '/synchronized'
                         else:
-                            url = 'http://local.elganso.com/syncapi/index.php/orders/' + str(aOrders[order]) + '/synchronized'
+                            url = 'http://local2.elganso.com/syncapi/index.php/orders/' + str(aOrders[order]) + '/synchronized'
 
                         print("Llamando a", url)
                         response = requests.put(url, headers=headers)
@@ -157,6 +155,10 @@ class elganso_sync(interna):
 
             if not _i.cerrarVentaWeb(curComanda):
                 syncppal.iface.log(ustr("Error. No se pudo cerrar la venta ", str(codigo)), "mgsyncorders")
+                return False
+
+            if not _i.crearRegistroECommerce(order, curComanda):
+                syncppal.iface.log(ustr("Error. No se pudo crear el registro para Ecommerce", str(codigo)), "mgsyncorders")
                 return False
 
             codigo = ustr("WEB", qsatype.FactoriaModulos.get("flfactppal").iface.cerosIzquierda(ustr(order["increment_id"]), 9))
@@ -819,6 +821,56 @@ class elganso_sync(interna):
             qsatype.debug(e)
             return False
 
+    def elganso_sync_crearRegistroECommerce(self, order, curComanda):
+        try:
+            transIDL = qsatype.FLUtil.sqlSelect("metodosenvio_transportista", "transportista", "LOWER(metodoenviomg) = '" + order["shipping_method"] + "' OR UPPER(metodoenviomg) = '" + order["shipping_method"] + "'")
+
+            if not transIDL:
+                syncppal.iface.log(ustr("Error. No se encuentra el método de envío ", str(order["shipping_method"])), "mgsyncorders")
+                return False
+
+            metodoIDL = qsatype.FLUtil.sqlSelect("metodosenvio_transportista", "metodoenvioidl", "LOWER(metodoenviomg) = '" + order["shipping_method"] + "' OR UPPER(metodoenviomg) = '" + order["shipping_method"] + "'")
+            esRecogidaTienda = qsatype.FLUtil.sqlSelect("metodosenvio_transportista", "recogidaentienda", "LOWER(metodoenviomg) = '" + order["shipping_method"] + "' OR UPPER(metodoenviomg) = '" + order["shipping_method"] + "'")
+            impAlbaran = True
+            impFactura = False
+            impDedicatoria = False
+            esRegalo = False
+            emisor = ""
+            receptor = ""
+            mensajeDedicatoria = ""
+
+            if not esRecogidaTienda and str(order["gift"]) == "None":
+                impAlbaran = False
+
+            if str(order["gift"]) != "None":
+                if "gift_message_id" in order["gift"]:
+                    impDedicatoria = True
+                    esRegalo = True
+                    emisor = str(order["gift"]["sender"])
+                    receptor = str(order["gift"]["recipient"])
+                    mensajeDedicatoria = str(order["gift"]["message"])
+
+            if not esRecogidaTienda:
+                if "country_id" in order["shipping_address"]:
+                    if str(order["shipping_address"]["country_id"]) == "ES":
+                        if "region_id" in order["shipping_address"]:
+                                esProvinciaFactura = qsatype.FLUtil.sqlSelect("provincias", "imprimirfactura", "mg_idprovincia = " + str(order["shipping_address"]["region_id"]))
+                                if esProvinciaFactura:
+                                    impFactura = True
+                    else:
+                        imprimirFacturaPais = qsatype.FLUtil.sqlSelect("paises", "imprimirfactura", "codiso = '" + str(order["shipping_address"]["country_id"]) + "'")
+                        if imprimirFacturaPais:
+                            impFactura = True
+
+            if not qsatype.FLUtil.execSql("INSERT INTO idl_ecommerce (idtpv_comanda,codcomanda,tipo,transportista,metodoenvioidl,imprimiralbaran,imprimirfactura,imprimirdedicatoria,emisor,receptor,mensajededicatoria,esregalo,facturaimpresa,envioidl,numseguimientoinformado) VALUES ('" + str(curComanda.valueBuffer("idtpv_comanda")) + "', '" + str(curComanda.valueBuffer("codigo")) + "', 'VENTA', '" + str(transIDL) + "','" + str(metodoIDL) + "','" + str(impAlbaran) + "','" + str(impFactura) + "','" + str(impDedicatoria) + "','" + str(emisor) + "','" + str(receptor) + "','" + str(mensajeDedicatoria) + "','" + str(esRegalo) + "',false,false,false)"):
+                return False
+
+            return True
+
+        except Exception as e:
+            qsatype.debug(e)
+            return False
+
     def __init__(self, context=None):
         super(elganso_sync, self).__init__(context)
 
@@ -899,6 +951,9 @@ class elganso_sync(interna):
 
     def obtenerCodFactura(self):
         return self.ctx.elganso_sync_obtenerCodFactura()
+
+    def crearRegistroECommerce(self, order, curComanda):
+        return self.ctx.elganso_sync_crearRegistroECommerce(order, curComanda)
 
 
 # @class_declaration head #
