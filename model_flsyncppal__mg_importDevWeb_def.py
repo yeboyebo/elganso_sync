@@ -1147,7 +1147,7 @@ class elganso_sync(interna):
             curMoviStock.refreshBuffer()
             curMoviStock.setValueBuffer("idlineaco", curLinea.valueBuffer("idtpv_linea"))
             curMoviStock.setValueBuffer("estado", "PTE")
-            curMoviStock.setValueBuffer("cantidad", curLinea.valueBuffer("cantidad"))
+            curMoviStock.setValueBuffer("cantidad", (curLinea.valueBuffer("cantidad") * (-1)))
             curMoviStock.setValueBuffer("referencia", curLinea.valueBuffer("referencia"))
             curMoviStock.setValueBuffer("barcode", curLinea.valueBuffer("barcode"))
             curMoviStock.setValueBuffer("idstock", idStock)
@@ -1206,7 +1206,7 @@ class elganso_sync(interna):
                     if imprimirFacturaPais:
                         impFactura = True
 
-            if not qsatype.FLUtil.execSql("INSERT INTO idl_ecommerce (idtpv_comanda,codcomanda,tipo,transportista,metodoenvioidl,imprimiralbaran,imprimirfactura,imprimirdedicatoria,emisor,receptor,mensajededicatoria,esregalo,facturaimpresa,envioidl,numseguimientoinformado) VALUES ('" + str(curComanda.valueBuffer("idtpv_comanda")) + "', '" + str(curComanda.valueBuffer("codigo")) + "', 'CAMBIO', '" + str(transIDL) + "','" + str(metodoIDL) + "','" + str(impAlbaran) + "','" + str(impFactura) + "','" + str(impDedicatoria) + "','" + str(emisor) + "','" + str(receptor) + "','" + str(mensajeDedicatoria) + "','" + str(esRegalo) + "',false,false,false)"):
+            if not qsatype.FLUtil.execSql("INSERT INTO idl_ecommerce (idtpv_comanda,codcomanda,tipo,transportista,metodoenvioidl,imprimiralbaran,imprimirfactura,imprimirdedicatoria,emisor,receptor,mensajededicatoria,esregalo,facturaimpresa,envioidl,numseguimientoinformado,confirmacionenvio) VALUES ('" + str(curComanda.valueBuffer("idtpv_comanda")) + "', '" + str(curComanda.valueBuffer("codigo")) + "', 'CAMBIO', '" + str(transIDL) + "','" + str(metodoIDL) + "','" + str(impAlbaran) + "','" + str(impFactura) + "','" + str(impDedicatoria) + "','" + str(emisor) + "','" + str(receptor) + "','" + str(mensajeDedicatoria) + "','" + str(esRegalo) + "',false,false,false,'No')"):
                 return False
 
             return True
