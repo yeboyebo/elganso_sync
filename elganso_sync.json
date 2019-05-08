@@ -282,6 +282,10 @@
             {
                 "name": "dependencias.json",
                 "path": "config/"
+            },
+            {
+                "path": "AQNEXT/",
+                "name": "settings.py"
             }
         ],
         "patchScript": [
