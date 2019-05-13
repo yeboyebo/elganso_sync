@@ -862,7 +862,7 @@ class elganso_sync(interna):
                         if imprimirFacturaPais:
                             impFactura = True
 
-            if not qsatype.FLUtil.execSql("INSERT INTO idl_ecommerce (idtpv_comanda,codcomanda,tipo,transportista,metodoenvioidl,imprimiralbaran,imprimirfactura,imprimirdedicatoria,emisor,receptor,mensajededicatoria,esregalo,facturaimpresa,envioidl,numseguimientoinformado) VALUES ('" + str(curComanda.valueBuffer("idtpv_comanda")) + "', '" + str(curComanda.valueBuffer("codigo")) + "', 'VENTA', '" + str(transIDL) + "','" + str(metodoIDL) + "','" + str(impAlbaran) + "','" + str(impFactura) + "','" + str(impDedicatoria) + "','" + str(emisor) + "','" + str(receptor) + "','" + str(mensajeDedicatoria) + "','" + str(esRegalo) + "',false,false,false)"):
+            if not qsatype.FLUtil.execSql("INSERT INTO idl_ecommerce (idtpv_comanda,codcomanda,tipo,transportista,metodoenvioidl,imprimiralbaran,imprimirfactura,imprimirdedicatoria,emisor,receptor,mensajededicatoria,esregalo,facturaimpresa,envioidl,numseguimientoinformado,confirmacionenvio) VALUES ('" + str(curComanda.valueBuffer("idtpv_comanda")) + "', '" + str(curComanda.valueBuffer("codigo")) + "', 'VENTA', '" + str(transIDL) + "','" + str(metodoIDL) + "','" + str(impAlbaran) + "','" + str(impFactura) + "','" + str(impDedicatoria) + "','" + str(emisor) + "','" + str(receptor) + "','" + str(mensajeDedicatoria) + "','" + str(esRegalo) + "',false,false,false,'No')"):
                 return False
 
             return True
