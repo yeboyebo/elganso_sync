@@ -275,10 +275,6 @@
             {
                 "path": "controllers/api/sync/customers/controllers/",
                 "name": "controller_api_customers__egcustomers_download.py"
-            },
-            {
-                "path": "/",
-                "name": "mt_masterprocesos.qs"
             }
         ],
         "deleteFile": [],
