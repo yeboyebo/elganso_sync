@@ -143,7 +143,17 @@ class elganso_sync(interna):
                     if not _i.controlMovVale(linea, order, curComanda):
                         return False
 
+            idComanda = curComanda.valueBuffer("idtpv_comanda")
+            curComanda.select("idtpv_comanda = " + str(idComanda))
+            if not curComanda.first():
+                syncppal.iface.log(ustr("Error. No se pudo recuperar la venta guardada para ", str(idCOmanda)), "mgsyncdevweb")
+                return False
+
+            curComanda.setModeAccess(curComanda.Edit)
+            curComanda.refreshBuffer()
             qsatype.FactoriaModulos.get('formRecordtpv_comandas').iface.calcularTotalesCursor(curComanda)
+            if not curComanda.commitBuffer():
+                return False
 
             if not _i.cerrarVentaWeb(curComanda, order):
                 syncppal.iface.log(ustr("Error. No se pudo cerrar la devolución web ", str(codigo)), "mgsyncdevweb")
@@ -155,6 +165,10 @@ class elganso_sync(interna):
 
             for linea in order["items_refunded"]:
                 if not _i.creaMotivosDevolucion(linea, curComanda, order):
+                    return False
+
+            for linea in order["items_refunded"]:
+                if not _i.creaRegistroEcommerce(linea, curComanda, order):
                     return False
 
             codigo = "WDV" + qsatype.FactoriaModulos.get("flfactppal").iface.cerosIzquierda(str(order["refound_id"]), 9)
@@ -228,7 +242,7 @@ class elganso_sync(interna):
             curComanda.setValueBuffer("totaliva", totalIva * (-1))
             curComanda.setValueBuffer("total", totalVenta * (-1))
             curComanda.setValueBuffer("codtarjetapuntos", codtarjetapuntos[:15] if codtarjetapuntos else codtarjetapuntos)
-            curComanda.setValueBuffer("ptesincrofactura", True)
+            curComanda.setValueBuffer("ptesincrofactura", False)
             curComanda.setValueBuffer("egcodfactura", "")
 
             if not curComanda.commitBuffer():
@@ -382,11 +396,11 @@ class elganso_sync(interna):
                 syncppal.iface.log(ustr("Error. No se pudo cerrar la venta ", str(idComanda)), "mgsyncdevweb")
                 return False
 
-            if parseFloat(curComanda.valueBuffer("total")) != 0:
+            """if parseFloat(curComanda.valueBuffer("total")) != 0:
                 egcodfactura = _i.obtenerCodFactura()
                 if not qsatype.FLSqlQuery().execSql(u"UPDATE tpv_comandas SET egcodfactura = '" + str(egcodfactura) + "' WHERE idtpv_comanda = " + str(idComanda)):
                     syncppal.iface.log(ustr("Error al calcular el código de la factura. ", str(idComanda)), "mgsyncdevweb")
-                    return False
+                    return False"""
 
             d = qsatype.Date()
             if not qsatype.FactoriaModulos.get('formtpv_tiendas').iface.marcaFechaSincroTienda("AWEB", "VENTAS_TPV", d):
@@ -504,7 +518,8 @@ class elganso_sync(interna):
             curLinea = qsatype.FLSqlCursor("tpv_lineascomanda")
             curLinea.setModeAccess(curLinea.Insert)
             curLinea.refreshBuffer()
-
+            curLinea.setActivatedCommitActions(False)
+            curLinea.setActivatedCheckIntegrity(False)
             codigo = curComanda.valueBuffer("codigo")
             nl = _i.obtenerNumLineaComanda(increment)
             iva = parseFloat(linea["tax_percent"])
@@ -560,6 +575,9 @@ class elganso_sync(interna):
 
             if not curLinea.commitBuffer():
                 syncppal.iface.log(ustr("Error. No se pudo guardar la línea ", nl, " de la venta ", str(codigo)), "mgsyncdevweb")
+                return False
+
+            if not _i.crearRegistroMovistock(curLinea):
                 return False
 
             return True
@@ -1119,6 +1137,84 @@ class elganso_sync(interna):
             qsatype.debug(e)
             return False
 
+    def elganso_sync_crearRegistroMovistock(self, curLinea):
+        try:
+
+            idStock = str(qsatype.FLUtil.quickSqlSelect("stocks", "idstock", "barcode = '" + str(curLinea.valueBuffer("barcode")) + "' AND codalmacen = 'AWEB'"))
+
+            curMoviStock = qsatype.FLSqlCursor("movistock")
+            curMoviStock.setModeAccess(curMoviStock.Insert)
+            curMoviStock.refreshBuffer()
+            curMoviStock.setValueBuffer("idlineaco", curLinea.valueBuffer("idtpv_linea"))
+            curMoviStock.setValueBuffer("estado", "PTE")
+            curMoviStock.setValueBuffer("cantidad", (curLinea.valueBuffer("cantidad") * (-1)))
+            curMoviStock.setValueBuffer("referencia", curLinea.valueBuffer("referencia"))
+            curMoviStock.setValueBuffer("barcode", curLinea.valueBuffer("barcode"))
+            curMoviStock.setValueBuffer("idstock", idStock)
+            if not curMoviStock.commitBuffer():
+                return False
+
+            return True
+
+        except Exception as e:
+            qsatype.debug(e)
+            return False
+
+    def elganso_sync_creaRegistroEcommerce(self, linea, curComanda, order):
+        _i = self.iface
+        try:
+
+            if not qsatype.FLUtil.execSql("INSERT INTO idl_ecommercedevoluciones (idtpv_comanda,codcomanda,tipo,envioidl) VALUES ('" + str(curComanda.valueBuffer("idtpv_comanda")) + "', '" + str(curComanda.valueBuffer("codigo")) + "', 'DEVOLUCION',false)"):
+                return False
+
+            if "items_requested" in order:
+                for linea in order["items_requested"]:
+                    if not _i.crearRegistroECommerceCambio(linea, curComanda, order):
+                        return False
+
+            return True
+
+        except Exception as e:
+            qsatype.debug(e)
+            return False
+
+    def elganso_sync_crearRegistroECommerceCambio(self, linea, curComanda, order):
+        try:
+            transIDL = qsatype.FLUtil.sqlSelect("metodosenvio_transportista", "transportista", "LOWER(metodoenviomg) = '" + str(order["carrier"]) + "' OR UPPER(metodoenviomg) = '" + str(order["carrier"]) + "'")
+
+            if not transIDL:
+                syncppal.iface.log(ustr("Error. No se encuentra el método de envío ", str(order["carrier"])), "mgsyncorders")
+                return False
+
+            metodoIDL = qsatype.FLUtil.sqlSelect("metodosenvio_transportista", "metodoenvioidl", "LOWER(metodoenviomg) = '" + str(order["carrier"]) + "' OR UPPER(metodoenviomg) = '" + str(order["carrier"]) + "'")
+
+            impAlbaran = False
+            impFactura = False
+            impDedicatoria = False
+            esRegalo = False
+            emisor = ""
+            receptor = ""
+            mensajeDedicatoria = ""
+
+            if "country" in order["pickup_address"]:
+                if str(order["pickup_address"]["country"]) == "ES":
+                    if "postcode" in order["pickup_address"]:
+                        if str(order["pickup_address"]["postcode"]).startswith("38") or str(order["pickup_address"]["postcode"]).startswith("35"):
+                                impFactura = True
+                else:
+                    imprimirFacturaPais = qsatype.FLUtil.sqlSelect("paises", "imprimirfactura", "codiso = '" + str(order["pickup_address"]["country"]) + "'")
+                    if imprimirFacturaPais:
+                        impFactura = True
+
+            if not qsatype.FLUtil.execSql("INSERT INTO idl_ecommerce (idtpv_comanda,codcomanda,tipo,transportista,metodoenvioidl,imprimiralbaran,imprimirfactura,imprimirdedicatoria,emisor,receptor,mensajededicatoria,esregalo,facturaimpresa,envioidl,numseguimientoinformado,confirmacionenvio) VALUES ('" + str(curComanda.valueBuffer("idtpv_comanda")) + "', '" + str(curComanda.valueBuffer("codigo")) + "', 'CAMBIO', '" + str(transIDL) + "','" + str(metodoIDL) + "','" + str(impAlbaran) + "','" + str(impFactura) + "','" + str(impDedicatoria) + "','" + str(emisor) + "','" + str(receptor) + "','" + str(mensajeDedicatoria) + "','" + str(esRegalo) + "',false,false,false,'No')"):
+                return False
+
+            return True
+
+        except Exception as e:
+            qsatype.debug(e)
+            return False
+
     def __init__(self, context=None):
         super(elganso_sync, self).__init__(context)
 
@@ -1235,6 +1331,15 @@ class elganso_sync(interna):
 
     def creaRegistroMotivoDevolucion(self, linea, curComanda, order):
         return self.ctx.elganso_sync_creaRegistroMotivoDevolucion(linea, curComanda, order)
+
+    def crearRegistroMovistock(self, curLinea):
+        return self.ctx.elganso_sync_crearRegistroMovistock(curLinea)
+
+    def creaRegistroEcommerce(self, linea, curComanda, order):
+        return self.ctx.elganso_sync_creaRegistroEcommerce(linea, curComanda, order)
+
+    def crearRegistroECommerceCambio(self, linea, curComanda, order):
+        return self.ctx.elganso_sync_crearRegistroECommerceCambio(linea, curComanda, order)
 
 
 # @class_declaration head #
