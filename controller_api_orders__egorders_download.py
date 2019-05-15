@@ -46,6 +46,13 @@ class EgOrdersDownload(AQSyncDownload):
                 self.after_sync_error(order, e)
                 after_sync_error_records.append(order["increment_id"])
 
+        for order in self.error_data:
+            try:
+                self.send_request("put", replace=[order["entity_id"]])
+            except Exception as e:
+                self.after_sync_error(order, e)
+                after_sync_error_records.append(order["increment_id"])
+
         if success_records:
             self.log("Éxito", "Los siguientes pedidos se han sincronizado correctamente: {}".format(success_records))
 

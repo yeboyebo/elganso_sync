@@ -45,6 +45,13 @@ class EgCustomersDownload(AQSyncDownload):
                 self.after_sync_error(customer, e)
                 after_sync_error_records.append(customer["email"])
 
+        for customer in self.error_data:
+            try:
+                self.send_request("put", replace=[customer["entity_id"]])
+            except Exception as e:
+                self.after_sync_error(customer, e)
+                after_sync_error_records.append(customer["email"])
+
         if success_records:
             success_records = ", ".join(success_records)
             self.log("Éxito", "Los siguientes clientes se han sincronizado correctamente: [{}]".format(success_records))
