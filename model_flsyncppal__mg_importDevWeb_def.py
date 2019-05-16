@@ -1184,7 +1184,7 @@ class elganso_sync(interna):
 
             if not transIDL:
                 syncppal.iface.log(ustr("Error. No se encuentra el método de envío ", str(order["carrier"])), "mgsyncorders")
-                return False
+                return True
 
             metodoIDL = qsatype.FLUtil.sqlSelect("metodosenvio_transportista", "metodoenvioidl", "LOWER(metodoenviomg) = '" + str(order["carrier"]) + "' OR UPPER(metodoenviomg) = '" + str(order["carrier"]) + "'")
 

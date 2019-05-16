@@ -826,8 +826,8 @@ class elganso_sync(interna):
             transIDL = qsatype.FLUtil.sqlSelect("metodosenvio_transportista", "transportista", "LOWER(metodoenviomg) = '" + order["shipping_method"] + "' OR UPPER(metodoenviomg) = '" + order["shipping_method"] + "'")
 
             if not transIDL:
-                syncppal.iface.log(ustr("Error. No se encuentra el método de envío ", str(order["shipping_method"])), "mgsyncorders")
-                return False
+                syncppal.iface.log(ustr("No se encuentra el método de envío ", str(order["shipping_method"])), "mgsyncorders")
+                return True
 
             metodoIDL = qsatype.FLUtil.sqlSelect("metodosenvio_transportista", "metodoenvioidl", "LOWER(metodoenviomg) = '" + order["shipping_method"] + "' OR UPPER(metodoenviomg) = '" + order["shipping_method"] + "'")
             esRecogidaTienda = qsatype.FLUtil.sqlSelect("metodosenvio_transportista", "recogidaentienda", "LOWER(metodoenviomg) = '" + order["shipping_method"] + "' OR UPPER(metodoenviomg) = '" + order["shipping_method"] + "'")
