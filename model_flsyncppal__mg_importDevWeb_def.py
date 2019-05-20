@@ -769,10 +769,10 @@ class elganso_sync(interna):
                 curMoviBono.setValueBuffer("venta", curComanda.valueBuffer("codigo"))
                 curMoviBono.setValueBuffer("importe", importeMovBono)
                 if not curMoviBono.commitBuffer():
-                    return False
+                    return True
 
                 if not qsatype.FLUtil.execSql(ustr(u"UPDATE eg_bonos SET saldoconsumido = (-1) * (SELECT SUM(importe) FROM eg_movibono WHERE codbono = '", str(order["cupon_bono"]), "'), saldopendiente = saldoinicial + (SELECT SUM(importe) FROM eg_movibono WHERE codbono = '", str(order["cupon_bono"]), "') WHERE codbono = '", str(order["cupon_bono"]), "'")):
-                    return False
+                    return True
 
                 return True
 
