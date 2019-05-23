@@ -1164,6 +1164,11 @@ class elganso_sync(interna):
         _i = self.iface
         try:
 
+            existeRegistro = str(qsatype.FLUtil.quickSqlSelect("idl_ecommercedevoluciones", "codcomanda", "codcomanda = '" + str(curComanda.valueBuffer("codigo")) + "'"))
+
+            if str(existeRegistro) != "None":
+                return True
+
             if not qsatype.FLUtil.execSql("INSERT INTO idl_ecommercedevoluciones (idtpv_comanda,codcomanda,tipo,envioidl) VALUES ('" + str(curComanda.valueBuffer("idtpv_comanda")) + "', '" + str(curComanda.valueBuffer("codigo")) + "', 'DEVOLUCION',false)"):
                 return False
 
@@ -1180,6 +1185,12 @@ class elganso_sync(interna):
 
     def elganso_sync_crearRegistroECommerceCambio(self, linea, curComanda, order):
         try:
+
+            existeRegistro = str(qsatype.FLUtil.quickSqlSelect("idl_ecommerce", "codcomanda", "codcomanda = '" + str(curComanda.valueBuffer("codigo")) + "'"))
+
+            if str(existeRegistro) != "None":
+                return True
+
             transIDL = qsatype.FLUtil.sqlSelect("metodosenvio_transportista", "transportista", "LOWER(metodoenviomg) = '" + str(order["carrier"]) + "' OR UPPER(metodoenviomg) = '" + str(order["carrier"]) + "'")
 
             if not transIDL:
