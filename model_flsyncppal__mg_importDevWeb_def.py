@@ -1163,6 +1163,7 @@ class elganso_sync(interna):
             curMoviStock.setValueBuffer("referencia", curLinea.valueBuffer("referencia"))
             curMoviStock.setValueBuffer("barcode", curLinea.valueBuffer("barcode"))
             curMoviStock.setValueBuffer("idstock", idStock)
+            curMoviStock.setValueBuffer("concepto", "DEVOLUCION " + curLinea.valueBuffer("codcomanda"))
             if not curMoviStock.commitBuffer():
                 return False
 
@@ -1181,7 +1182,7 @@ class elganso_sync(interna):
             if str(existeRegistro) != "None":
                 return True
 
-            if not qsatype.FLUtil.execSql("INSERT INTO idl_ecommercedevoluciones (idtpv_comanda,codcomanda,tipo,envioidl,confirmacionrecepcion) VALUES ('" + str(curComanda.valueBuffer("idtpv_comanda")) + "', '" + str(curComanda.valueBuffer("codigo")) + "', 'DEVOLUCION',false,'No')"):
+            if not qsatype.FLUtil.execSql("INSERT INTO idl_ecommercedevoluciones (idtpv_comanda,codcomanda,tipo,envioidl,confirmacionrecepcion,informadomagento) VALUES ('" + str(curComanda.valueBuffer("idtpv_comanda")) + "', '" + str(curComanda.valueBuffer("codigo")) + "', 'DEVOLUCION',false,'No',false)"):
                 return False
 
             if "items_requested" in order:
