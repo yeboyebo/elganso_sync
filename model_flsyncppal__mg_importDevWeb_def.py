@@ -694,19 +694,31 @@ class elganso_sync(interna):
             if not iva or iva == "":
                 iva = 0
 
-            sJson = qsatype.FLUtil.sqlSelect("tpv_parametrostienda", "valor", "param = 'GASTAR_BONOS'")
+            codBono = order["cupon_bono"]
+            strBono = qsatype.FLUtil.sqlSelect("tpv_gestionparametros", "valor", "param = 'GASTAR_BONOS'")
 
-            if not sJson:
-                return False
-            oGastarBono = None
             try:
-                oGastarBono = eval(ustr(u"(", sJson, u")"))
-            except Exception as e:
-                e = traceback.format_exc()
-                sys.warnMsgBox(e)
+                jsonBono = json.loads(strBono)
+            except Exception:
+                pass
 
-            if not oGastarBono:
-                return False
+            if jsonBono and "fechahasta" in jsonBono and jsonBono["fechahasta"] and jsonBono["fechahasta"] != "":
+                if qsatype.FLUtil.daysTo(qsatype.Date(), jsonBono["fechahasta"]) >= 0:
+                    descBono = True
+
+            if descBono:
+                existeBono = str(qsatype.FLUtil.sqlSelect("eg_bonos", "codbono", "codbono = '" + codBono + "'"))
+                if existeBono == "" or existeBono == "None":
+                    descBono = False
+
+            if descBono:
+                ref = jsonBono["referenciabono"]
+                bC = jsonBono["barcodebono"]
+                desc = "BONO " + codBono
+            else:
+                ref = "0000ATEMP00001"
+                bC = "8433613403654"
+                desc = "DESCUENTO " + codBono
 
             codiva = _i.obtenerCodImpuesto(iva)
 
@@ -734,9 +746,9 @@ class elganso_sync(interna):
             curLinea.setValueBuffer("pvpsindtoiva", pvpSinDtoIva)
             curLinea.setValueBuffer("pvptotaliva", pvpTotalIva)
             curLinea.setValueBuffer("iva", iva)
-            curLinea.setValueBuffer("descripcion", "BONO " + order["cupon_bono"])
-            curLinea.setValueBuffer("referencia", oGastarBono["referenciabono"])
-            curLinea.setValueBuffer("barcode", oGastarBono["barcodebono"])
+            curLinea.setValueBuffer("descripcion", desc)
+            curLinea.setValueBuffer("referencia", ref)
+            curLinea.setValueBuffer("barcode", bC)
             curLinea.setValueBuffer("numlinea", nl)
             curLinea.setValueBuffer("ivaincluido", True)
             curLinea.setValueBuffer("codimpuesto", codiva[:10] if codiva else codiva)
