@@ -1204,7 +1204,7 @@ class elganso_sync(interna):
             if str(existeRegistro) != "None":
                 return True
 
-            transIDL = qsatype.FLUtil.sqlSelect("metodosenvio_transportista", "transportista", "LOWER(metodoenviomg) = '" + str(order["carrier"]) + "' OR UPPER(metodoenviomg) = '" + str(order["carrier"]) + "'")
+            transIDL = qsatype.FLUtil.sqlSelect("metodosenvio_transportista", "transportista", "LOWER(metodoenviomg) = '" + str(order["carrier"]) + "' OR UPPER(metodoenviomg) = '" + str(order["carrier"]) + "' OR metodoenviomg = '" + str(order["carrier"]) + "'")
 
             if not transIDL:
                 syncppal.iface.log(ustr("Error. No se encuentra el método de envío ", str(order["carrier"])), "mgsyncorders")

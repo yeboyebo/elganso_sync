@@ -823,7 +823,7 @@ class elganso_sync(interna):
 
     def elganso_sync_crearRegistroECommerce(self, order, curComanda):
         try:
-            transIDL = qsatype.FLUtil.sqlSelect("metodosenvio_transportista", "transportista", "LOWER(metodoenviomg) = '" + order["shipping_method"] + "' OR UPPER(metodoenviomg) = '" + order["shipping_method"] + "'")
+            transIDL = qsatype.FLUtil.sqlSelect("metodosenvio_transportista", "transportista", "LOWER(metodoenviomg) = '" + order["shipping_method"] + "' OR UPPER(metodoenviomg) = '" + order["shipping_method"] + "' OR metodoenviomg = '" + order["shipping_method"] + "'")
 
             if not transIDL:
                 syncppal.iface.log(ustr("No se encuentra el método de envío ", str(order["shipping_method"])), "mgsyncorders")
