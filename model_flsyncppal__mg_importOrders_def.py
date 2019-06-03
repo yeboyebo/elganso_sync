@@ -829,8 +829,8 @@ class elganso_sync(interna):
                 syncppal.iface.log(ustr("No se encuentra el método de envío ", str(order["shipping_method"])), "mgsyncorders")
                 return True
 
-            metodoIDL = qsatype.FLUtil.sqlSelect("metodosenvio_transportista", "metodoenvioidl", "LOWER(metodoenviomg) = '" + order["shipping_method"] + "' OR UPPER(metodoenviomg) = '" + order["shipping_method"] + "'")
-            esRecogidaTienda = qsatype.FLUtil.sqlSelect("metodosenvio_transportista", "recogidaentienda", "LOWER(metodoenviomg) = '" + order["shipping_method"] + "' OR UPPER(metodoenviomg) = '" + order["shipping_method"] + "'")
+            metodoIDL = qsatype.FLUtil.sqlSelect("metodosenvio_transportista", "metodoenvioidl", "LOWER(metodoenviomg) = '" + order["shipping_method"] + "' OR UPPER(metodoenviomg) = '" + order["shipping_method"] + "' OR metodoenviomg = '" + order["shipping_method"] + "'")
+            esRecogidaTienda = qsatype.FLUtil.sqlSelect("metodosenvio_transportista", "recogidaentienda", "LOWER(metodoenviomg) = '" + order["shipping_method"] + "' OR UPPER(metodoenviomg) = '" + order["shipping_method"] + "' OR metodoenviomg = '" + order["shipping_method"] + "'")
             impAlbaran = True
             impFactura = False
             impDedicatoria = False
