@@ -10,6 +10,7 @@ from controllers.api.sync.orders.serializers.egorder_discountline_serializer imp
 from controllers.api.sync.orders.serializers.egorder_voucherline_serializer import EgOrderVoucherLineSerializer
 from controllers.api.sync.orders.serializers.egorder_payment_serializer import EgOrderPaymentSerializer
 from controllers.api.sync.orders.serializers.egcashcount_serializer import EgCashCountSerializer
+from controllers.api.sync.orders.serializers.egidlecommerce_serializer import EgIdlEcommerce
 
 
 class EgOrderSerializer(AQSerializer):
@@ -110,6 +111,7 @@ class EgOrderSerializer(AQSerializer):
         new_data = self.data.copy()
         new_data.update({"idarqueo": arqueo_web["idtpv_arqueo"]})
         pago_web = EgOrderPaymentSerializer().serialize(new_data)
+        idl_ecommerce = EgIdlEcommerce().serialize(new_init_data)
 
         self.data["children"]["lines"].append(linea_gastos)
         self.data["children"]["lines"].append(linea_descuento)
@@ -120,6 +122,7 @@ class EgOrderSerializer(AQSerializer):
         if "skip" in arqueo_web and arqueo_web["skip"]:
             arqueo_web = False
         self.data["children"]["cashcount"] = arqueo_web
+        self.data["children"]["idl_ecommerce"] = idl_ecommerce
 
         return True
 
