@@ -275,6 +275,38 @@
             {
                 "path": "controllers/api/sync/customers/controllers/",
                 "name": "controller_api_customers__egcustomers_download.py"
+            },
+            {
+                "path": "controllers/api/sync/storeorders/",
+                "name": "controller_api_storeorders__download.py"
+            },
+            {
+                "path": "controllers/api/sync/storeorders/controllers/",
+                "name": "controller_api_storeorders__egstoreorders_download.py"
+            },
+            {
+                "path": "controllers/api/sync/storeorders/serializers/",
+                "name": "controller_api_storeorders__egstoreorder_serializer.py"
+            },
+            {
+                "path": "models/flfact_tpv/objects/",
+                "name": "model_flfact_tpv__egstoreorder_raw.py"
+            },
+            {
+                "path": "controllers/api/sync/orders/serializers/",
+                "name": "controller_api_orders__egidlecommerce_serializer.py"
+            },
+            {
+                "path": "models/flfact_tpv/objects/",
+                "name": "model_flfact_tpv__egidlecommerce_raw.py"
+            },
+            {
+                "name": "model_flfact_tpv__idl_ecommerce.py",
+                "path": "models/flfact_tpv/"
+            },
+            {
+                "name": "model_flfact_tpv__idl_ecommerce_def.py",
+                "path": "models/flfact_tpv/"
             }
         ],
         "deleteFile": [],

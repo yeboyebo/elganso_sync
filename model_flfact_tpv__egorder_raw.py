@@ -4,6 +4,7 @@ from models.flfact_tpv.objects.egorder_line_raw import EgOrderLine
 from models.flfact_tpv.objects.egorder_shippingline_raw import EgOrderShippingLine
 from models.flfact_tpv.objects.egorder_payment_raw import EgOrderPayment
 from models.flfact_tpv.objects.egcashcount_raw import EgCashCount
+from models.flfact_tpv.objects.egidlecommerce_raw import EgIdlEcommerce
 
 
 class EgOrder(AQModel):
@@ -29,3 +30,6 @@ class EgOrder(AQModel):
 
         for item in self.data["children"]["payments"]:
             self.children.append(EgOrderPayment(item))
+
+        idlEcommerce = EgIdlEcommerce(self.data["children"]["idl_ecommerce"])
+        self.children.append(idlEcommerce)
