@@ -3,7 +3,7 @@ from YBLEGACY import qsatype
 from controllers.api.sync.base.controllers.aqsync_download import AQSyncDownload
 from controllers.api.sync.storeorders.serializers.egstoreorder_serializer import EgStoreOrderSerializer
 
-from models.flfactalma.objects.egstoreorder_raw import EgStoreOrder
+from models.flfact_tpv.objects.egstoreorder_raw import EgStoreOrder
 
 
 class EgStoreOrdersDownload(AQSyncDownload):
