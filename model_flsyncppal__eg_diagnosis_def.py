@@ -598,7 +598,7 @@ class elganso_sync(interna):
 
         return True
 
-    @periodic_task(run_every=crontab(minute='*/1', hour='*/1'))
+    @periodic_task(run_every=crontab(minute='0', hour='6'))
     def elganso_sync_diagsincroventasobjeto():
         try:
             whereFijo = "sincroactiva AND servidor IS NOT NULL"
