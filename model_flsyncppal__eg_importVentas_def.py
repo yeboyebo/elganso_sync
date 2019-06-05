@@ -281,7 +281,6 @@ class elganso_sync(interna):
         for campo in aCampos:
             print(campo)
             valor = datos[campo]
-
             if valor is None:
                 valor = ""
 
