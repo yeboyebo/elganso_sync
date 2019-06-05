@@ -8,6 +8,7 @@ from YBLEGACY import qsatype
 from YBLEGACY.constantes import *
 
 from models.flsyncppal import flsyncppal_def as syncppal
+from models.flsyncppal import eg_importVentas_def as importVentas
 
 
 class interna(qsatype.objetoBase):
@@ -593,6 +594,117 @@ class elganso_sync(interna):
             print(e)
             qsatype.debug(e)
             syncppal.iface.log("Error. Ocurrió un error durante el proceso de diagnóstico de bloqueos", "diagbloqueos")
+            return False
+
+        return True
+
+    @periodic_task(run_every=crontab(minute='0', hour='6'))
+    def elganso_sync_diagsincroventasobjeto():
+        try:
+            whereFijo = "sincroactiva AND servidor IS NOT NULL"
+            # tiendas = "'" + "','".join(qsatype.FactoriaModulos.get('formtpv_tiendas').iface.dameTiendasSincro("NOCORNER").split(",")) + "'"
+
+            tiendas = "'ACOR','AALM'"
+            proceso = "diagsincroventasobjeto"
+
+            q = qsatype.FLSqlQuery()
+            q.setSelect("codtienda")
+            q.setFrom("tpv_tiendas")
+            q.setWhere(whereFijo + " AND codtienda IN (" + tiendas + ")")
+
+            # print(q.sql_())
+            if not q.exec_():
+                syncppal.iface.log("Error. Falló la consulta de tiendas de sincro de ventas objeto.", proceso)
+                return False
+
+            # try:
+            #    error = cx["cur"].execute("select count(*) from so_comandassincro where fecha >= CURRENT_DATE-7 AND estado = 'ERROR'")
+            #    if error > 0:
+            #        syncppal.iface.log("Error. Hay " + error + " ventas en estado ERROR", proceso)
+            # except Exception as e:
+            #    syncppal.iface.log("Error. " + str(e), proceso)
+            #    return False
+
+            cxC = importVentas.iface.creaConexion("ACEN")
+
+            if not cxC:
+                syncppal.iface.log("Info. No se pudo conectar con la central", proceso)
+                return False
+
+            if not importVentas.iface.comprobarConexion("ACEN", cxC, proceso):
+                return False
+
+            hayError = False
+            while q.next():
+                codTienda = q.value("codtienda")
+                print("antes conectar")
+                cx = importVentas.iface.creaConexion(codTienda)
+                print("despues conectar")
+                if not cx:
+                    syncppal.iface.log("Info. No se pudo conectar con la tienda " + codTienda.upper(), proceso)
+                    continue
+
+                print("antes comprobar conexion")
+                if not importVentas.iface.comprobarConexion(codTienda, cx, proceso):
+                    continue
+
+                cxC["cur"].execute("SELECT count(*) as ventas from tpv_comandas where (fecha >= CURRENT_DATE-37 AND fecha < CURRENT_DATE) AND codtienda = '" + codTienda + "'")
+                rows = cxC["cur"].fetchall()
+                if len(rows) > 0:
+                    for p in rows:
+                        ventasC = p["ventas"]
+
+                cx["cur"].execute("SELECT count(*) as ventas from tpv_comandas where (fecha >= CURRENT_DATE-37 AND fecha < CURRENT_DATE) AND codtienda = '" + codTienda + "'")
+                rows = cx["cur"].fetchall()
+                if len(rows) > 0:
+                    for p in rows:
+                        ventasT = p["ventas"]
+
+                if ventasC != ventasT:
+                    hayError = True
+                    syncppal.iface.log("Error. " + codTienda + " tiene distinto numero de VENTAS", proceso)
+
+                cxC["cur"].execute("SELECT count(*) as lineas from tpv_lineascomanda where codtienda = '" + codTienda + "' AND idtpv_comanda IN (SELECT idtpv_comanda FROM tpv_comandas WHERE (fecha >= CURRENT_DATE-37 AND fecha < CURRENT_DATE))")
+                rows = cxC["cur"].fetchall()
+                if len(rows) > 0:
+                    for p in rows:
+                        lineasC = p["lineas"]
+
+                cx["cur"].execute("SELECT count(*) as lineas from tpv_lineascomanda where codtienda = '" + codTienda + "' AND idtpv_comanda IN (SELECT idtpv_comanda FROM tpv_comandas WHERE (fecha >= CURRENT_DATE-37 AND fecha < CURRENT_DATE))")
+                rows = cx["cur"].fetchall()
+                if len(rows) > 0:
+                    for p in rows:
+                        lineasT = p["lineas"]
+
+                if lineasC != lineasT:
+                    hayError = True
+                    syncppal.iface.log("Error. " + codTienda + " tiene distinto numero de LÍNEAS", proceso)
+
+                cxC["cur"].execute("SELECT count(*) as pagos from tpv_pagoscomanda where codtienda = '" + codTienda + "' AND idtpv_comanda IN (SELECT idtpv_comanda FROM tpv_comandas WHERE (fecha >= CURRENT_DATE-37 AND fecha < CURRENT_DATE))")
+                rows = cxC["cur"].fetchall()
+                if len(rows) > 0:
+                    for p in rows:
+                        pagosC = p["pagos"]
+
+                cx["cur"].execute("SELECT count(*) as pagos from tpv_pagoscomanda where codtienda = '" + codTienda + "' AND idtpv_comanda IN (SELECT idtpv_comanda FROM tpv_comandas WHERE (fecha >= CURRENT_DATE-37 AND fecha < CURRENT_DATE))")
+                rows = cx["cur"].fetchall()
+                if len(rows) > 0:
+                    for p in rows:
+                        pagosT = p["pagos"]
+
+                if pagosC != pagosT:
+                    hayError = True
+                    syncppal.iface.log("Error. " + codTienda + " tiene distinto numero de PAGOS", proceso)
+
+            if not hayError:
+                syncppal.iface.log("Éxito. Están todas las ventas sincroizadas correctamente", proceso)
+
+        except Exception as e:
+            print(e)
+            qsatype.debug(e)
+
+            syncppal.iface.log(e, proceso)
+            # syncppal.iface.log("Error. Ocurrió un error durante el proceso de diagnóstico de sincro de ventas objeto", proceso)
             return False
 
         return True
