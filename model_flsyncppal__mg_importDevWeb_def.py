@@ -476,9 +476,9 @@ class elganso_sync(interna):
                 return False
 
             if "items_requested" in order:
-                for linea in order["items_refunded"]:
-                    if not _i.crearPagoDevWeb(curComanda, idArqueo, order, "Positivo"):
-                        return False
+                if not _i.crearPagoDevWeb(curComanda, idArqueo, order, "Positivo"):
+                    return False
+
             return True
 
         except Exception as e:
