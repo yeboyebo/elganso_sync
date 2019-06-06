@@ -161,23 +161,23 @@
                 "path": "models/flsyncppal/"
             },
             {
-                "name": "controller_api_prices__upload.py",
+                "name": "ctrl_api_sync_prices__upload.py",
                 "path": "controllers/api/sync/prices/"
             },
             {
-                "name": "controller_api_orders__download.py",
+                "name": "ctrl_api_sync_orders__download.py",
                 "path": "controllers/api/sync/orders/"
             },
             {
-                "name": "controller_api_stocks__upload.py",
+                "name": "ctrl_api_sync_stocks__upload.py",
                 "path": "controllers/api/sync/stocks/"
             },
             {
-                "name": "controller_api_points__upload.py",
+                "name": "ctrl_api_sync_points__upload.py",
                 "path": "controllers/api/sync/points/"
             },
             {
-                "name": "controller_api_customers__download.py",
+                "name": "ctrl_api_sync_customers__download.py",
                 "path": "controllers/api/sync/customers/"
             },
             {
@@ -205,39 +205,39 @@
                 "path": "models/flfact_tpv/objects/"
             },
             {
-                "name": "controller_api_customers__egmagento_customer_serializer.py",
+                "name": "ctrl_api_sync_customers__egmagento_customer_serializer.py",
                 "path": "controllers/api/sync/customers/serializers/"
             },
             {
-                "name": "controller_api_orders__egorder_shippingline_serializer.py",
+                "name": "ctrl_api_sync_orders__egorder_shippingline_serializer.py",
                 "path": "controllers/api/sync/orders/serializers/"
             },
             {
-                "name": "controller_api_orders__egorder_expensesline_serializer.py",
+                "name": "ctrl_api_sync_orders__egorder_expensesline_serializer.py",
                 "path": "controllers/api/sync/orders/serializers/"
             },
             {
-                "name": "controller_api_orders__egorder_discountline_serializer.py",
+                "name": "ctrl_api_sync_orders__egorder_discountline_serializer.py",
                 "path": "controllers/api/sync/orders/serializers/"
             },
             {
-                "name": "controller_api_orders__egorder_voucherline_serializer.py",
+                "name": "ctrl_api_sync_orders__egorder_voucherline_serializer.py",
                 "path": "controllers/api/sync/orders/serializers/"
             },
             {
-                "name": "controller_api_orders__egorder_payment_serializer.py",
+                "name": "ctrl_api_sync_orders__egorder_payment_serializer.py",
                 "path": "controllers/api/sync/orders/serializers/"
             },
             {
-                "name": "controller_api_orders__egcashcount_serializer.py",
+                "name": "ctrl_api_sync_orders__egcashcount_serializer.py",
                 "path": "controllers/api/sync/orders/serializers/"
             },
             {
-                "name": "controller_api_orders__egorder_serializer.py",
+                "name": "ctrl_api_sync_orders__egorder_serializer.py",
                 "path": "controllers/api/sync/orders/serializers/"
             },
             {
-                "name": "controller_api_orders__egorder_line_serializer.py",
+                "name": "ctrl_api_sync_orders__egorder_line_serializer.py",
                 "path": "controllers/api/sync/orders/serializers/"
             },
             {
@@ -258,35 +258,35 @@
             },
             {
                 "path": "controllers/api/sync/stocks/controllers/",
-                "name": "controller_api_stocks__egstock_upload.py"
+                "name": "ctrl_api_sync_stocks__egstock_upload.py"
             },
             {
                 "path": "controllers/api/sync/prices/controllers/",
-                "name": "controller_api_prices__egprices_upload.py"
+                "name": "ctrl_api_sync_prices__egprices_upload.py"
             },
             {
                 "path": "controllers/api/sync/orders/controllers/",
-                "name": "controller_api_orders__egorders_download.py"
+                "name": "ctrl_api_sync_orders__egorders_download.py"
             },
             {
                 "path": "controllers/api/sync/points/controllers/",
-                "name": "controller_api_points__egpoints_upload.py"
+                "name": "ctrl_api_sync_points__egpoints_upload.py"
             },
             {
                 "path": "controllers/api/sync/customers/controllers/",
-                "name": "controller_api_customers__egcustomers_download.py"
+                "name": "ctrl_api_sync_customers__egcustomers_download.py"
             },
             {
                 "path": "controllers/api/sync/storeorders/",
-                "name": "controller_api_storeorders__download.py"
+                "name": "ctrl_api_sync_storeorders__download.py"
             },
             {
                 "path": "controllers/api/sync/storeorders/controllers/",
-                "name": "controller_api_storeorders__egstoreorders_download.py"
+                "name": "ctrl_api_sync_storeorders__egstoreorders_download.py"
             },
             {
                 "path": "controllers/api/sync/storeorders/serializers/",
-                "name": "controller_api_storeorders__egstoreorder_serializer.py"
+                "name": "ctrl_api_sync_storeorders__egstoreorder_serializer.py"
             },
             {
                 "path": "models/flfact_tpv/objects/",
@@ -294,7 +294,7 @@
             },
             {
                 "path": "controllers/api/sync/orders/serializers/",
-                "name": "controller_api_orders__egidlecommerce_serializer.py"
+                "name": "ctrl_api_sync_orders__egidlecommerce_serializer.py"
             },
             {
                 "path": "models/flfact_tpv/objects/",
