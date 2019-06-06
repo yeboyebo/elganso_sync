@@ -1,12 +1,12 @@
 from YBLEGACY import qsatype
 
-from controllers.api.sync.base.controllers.aqsync_download import AQSyncDownload
+from controllers.base.default.controllers.download_sync import DownloadSync
 from controllers.api.sync.orders.serializers.egorder_serializer import EgOrderSerializer
 
 from models.flfact_tpv.objects.egorder_raw import EgOrder
 
 
-class EgOrdersDownload(AQSyncDownload):
+class EgOrdersDownload(DownloadSync):
 
     def __init__(self, driver, params=None):
         super().__init__("mgsyncorders", driver, params)

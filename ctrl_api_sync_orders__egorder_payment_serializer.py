@@ -1,7 +1,7 @@
-from controllers.api.sync.base.serializers.aqserializer import AQSerializer
+from controllers.base.default.serializers.default_serializer import DefaultSerializer
 
 
-class EgOrderPaymentSerializer(AQSerializer):
+class EgOrderPaymentSerializer(DefaultSerializer):
 
     def get_data(self):
         idarqueo = self.init_data["idarqueo"]

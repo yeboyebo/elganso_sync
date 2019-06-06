@@ -1,9 +1,9 @@
 from YBLEGACY import qsatype
 
-from controllers.api.sync.base.serializers.aqserializer import AQSerializer
+from controllers.base.default.serializers.default_serializer import DefaultSerializer
 
 
-class EgMagentoCustomerSerializer(AQSerializer):
+class EgMagentoCustomerSerializer(DefaultSerializer):
 
     def get_data(self):
         sexo = "Masculino" if self.init_data["gender"] == 1 else "Femenino" if self.init_data["gender"] == 2 else None

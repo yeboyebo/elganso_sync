@@ -1,7 +1,7 @@
-from controllers.api.sync.base.serializers.aqserializer import AQSerializer
+from controllers.base.default.serializers.default_serializer import DefaultSerializer
 
 
-class EgOrderShippingLineSerializer(AQSerializer):
+class EgOrderShippingLineSerializer(DefaultSerializer):
 
     def get_data(self):
         street = self.init_data["shipping_address"]["street"].split("\n")

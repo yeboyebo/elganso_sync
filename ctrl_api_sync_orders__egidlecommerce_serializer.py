@@ -1,9 +1,9 @@
 from YBLEGACY import qsatype
 
-from controllers.api.sync.base.serializers.aqserializer import AQSerializer
+from controllers.base.default.serializers.default_serializer import DefaultSerializer
 
 
-class EgIdlEcommerce(AQSerializer):
+class EgIdlEcommerce(DefaultSerializer):
 
     def get_data(self):
         metodoEnvio = str(self.init_data["shipping_method"])

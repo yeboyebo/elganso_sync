@@ -1,10 +1,10 @@
 from YBLEGACY import qsatype
 from YBLEGACY.constantes import *
 
-from controllers.api.sync.base.controllers.aqsync_upload import AQSyncUpload
+from controllers.base.default.controllers.upload_sync import UploadSync
 
 
-class EgStockUpload(AQSyncUpload):
+class EgStockUpload(UploadSync):
 
     _ssw = None
 

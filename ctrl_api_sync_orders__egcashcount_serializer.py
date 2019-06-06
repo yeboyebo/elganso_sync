@@ -1,9 +1,9 @@
 from YBLEGACY import qsatype
 
-from controllers.api.sync.base.serializers.aqserializer import AQSerializer
+from controllers.base.default.serializers.default_serializer import DefaultSerializer
 
 
-class EgCashCountSerializer(AQSerializer):
+class EgCashCountSerializer(DefaultSerializer):
 
     def get_data(self):
         idarqueo = qsatype.FLUtil.sqlSelect("tpv_arqueos", "idtpv_arqueo", "codtienda = 'AWEB' AND diadesde >= '{}' AND idasiento IS NULL ORDER BY diadesde ASC".format(self.init_data["fecha"]))

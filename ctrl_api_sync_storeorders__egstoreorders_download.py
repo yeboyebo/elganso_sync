@@ -1,12 +1,12 @@
 from YBLEGACY import qsatype
 
-from controllers.api.sync.base.controllers.aqsync_download import AQSyncDownload
+from controllers.base.default.controllers.download_sync import DownloadSync
 from controllers.api.sync.storeorders.serializers.egstoreorder_serializer import EgStoreOrderSerializer
 
 from models.flfact_tpv.objects.egstoreorder_raw import EgStoreOrder
 
 
-class EgStoreOrdersDownload(AQSyncDownload):
+class EgStoreOrdersDownload(DownloadSync):
 
     def __init__(self, process_name, driver, params=None):
         super().__init__("egsyncvt{}".format(params["codtienda"].lower()), driver, params)

@@ -1,9 +1,9 @@
 from YBLEGACY import qsatype
 
-from controllers.api.sync.base.serializers.aqserializer import AQSerializer
+from controllers.base.default.serializers.default_serializer import DefaultSerializer
 
 
-class EgStoreOrderSerializer(AQSerializer):
+class EgStoreOrderSerializer(DefaultSerializer):
 
     def get_data(self):
         del self.init_data["header"]["idtpv_comanda"]

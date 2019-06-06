@@ -1,7 +1,7 @@
 from YBLEGACY import qsatype
 from YBLEGACY.constantes import *
 
-from controllers.api.sync.base.serializers.aqserializer import AQSerializer
+from controllers.base.default.serializers.default_serializer import DefaultSerializer
 
 from controllers.api.sync.orders.serializers.egorder_line_serializer import EgOrderLineSerializer
 from controllers.api.sync.orders.serializers.egorder_shippingline_serializer import EgOrderShippingLineSerializer
@@ -13,7 +13,7 @@ from controllers.api.sync.orders.serializers.egcashcount_serializer import EgCas
 from controllers.api.sync.orders.serializers.egidlecommerce_serializer import EgIdlEcommerce
 
 
-class EgOrderSerializer(AQSerializer):
+class EgOrderSerializer(DefaultSerializer):
 
     def get_data(self):
         increment = str(self.init_data["increment_id"])

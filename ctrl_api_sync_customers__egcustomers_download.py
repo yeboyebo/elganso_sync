@@ -1,10 +1,10 @@
-from controllers.api.sync.base.controllers.aqsync_download import AQSyncDownload
+from controllers.base.default.controllers.download_sync import DownloadSync
 from controllers.api.sync.customers.serializers.egmagento_customer_serializer import EgMagentoCustomerSerializer
 
 from models.flfactalma.objects.egmagento_customer_raw import EgMagentoCustomer
 
 
-class EgCustomersDownload(AQSyncDownload):
+class EgCustomersDownload(DownloadSync):
 
     def __init__(self, driver, params=None):
         super().__init__("mgsynccust", driver, params)
