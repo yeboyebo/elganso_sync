@@ -12,7 +12,7 @@ class EgProductsUpload(ProductsUpload):
     link_test_url = "http://magento2.local/index.php/rest/default/V1/configurable-products/{}/child"
 
     def __init__(self, process_name, params=None):
-        super().__init__("mgsyncproductsb2b", params)
+        super().__init__("mgb2bproducts", params)
 
         self.set_sync_params({
             "auth": "Bearer 2uvlxkuihd474nzj3dize4f5ezbl3lb6",
