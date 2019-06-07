@@ -307,6 +307,14 @@
             {
                 "name": "model_flfact_tpv__idl_ecommerce_def.py",
                 "path": "models/flfact_tpv/"
+            },
+            {
+                "path": "controllers/api/b2b/products/controllers/",
+                "name": "ctrl_api_b2b_products__eg_products_upload.py"
+            },
+            {
+                "path": "controllers/api/b2b/products/",
+                "name": "ctrl_api_b2b_products__upload.py"
             }
         ],
         "deleteFile": [],
