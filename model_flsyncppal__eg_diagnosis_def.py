@@ -602,9 +602,9 @@ class elganso_sync(interna):
     def elganso_sync_diagsincroventasobjeto():
         try:
             whereFijo = "sincroactiva AND servidor IS NOT NULL"
-            # tiendas = "'" + "','".join(qsatype.FactoriaModulos.get('formtpv_tiendas').iface.dameTiendasSincro("NOCORNER").split(",")) + "'"
+            tiendas = "'" + "','".join(qsatype.FactoriaModulos.get('formtpv_tiendas').iface.dameTiendasSincro("NOCORNER").split(",")) + "'"
 
-            tiendas = "'ACOR','AALM'"
+            # tiendas = "'ACOR','AALM'"
             proceso = "diagsincroventasobjeto"
 
             q = qsatype.FLSqlQuery()
