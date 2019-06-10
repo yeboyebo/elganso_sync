@@ -701,10 +701,55 @@ class elganso_sync(interna):
 
         except Exception as e:
             print(e)
-            qsatype.debug(e)
+            syncppal.iface.log("Error. Ocurrió un error durante el proceso de diagnóstico de sincro de ventas objeto", proceso)
+            return False
 
-            syncppal.iface.log(e, proceso)
-            # syncppal.iface.log("Error. Ocurrió un error durante el proceso de diagnóstico de sincro de ventas objeto", proceso)
+        return True
+
+    @periodic_task(run_every=crontab(minute='0', hour='5'))
+    def elganso_sync_diagmovistockventas():
+        try:
+            whereFijo = "sincroactiva AND servidor IS NOT NULL"
+            tiendas = "'" + "','".join(qsatype.FactoriaModulos.get('formtpv_tiendas').iface.dameTiendasSincro("NOCORNER").split(",")) + "'"
+
+            proceso = "diagmovistockventas"
+
+            qT = qsatype.FLSqlQuery()
+            qT.setSelect("codtienda")
+            qT.setFrom("tpv_tiendas")
+            qT.setWhere(whereFijo + " AND codtienda IN (" + tiendas + ")")
+
+            if not qT.exec_():
+                syncppal.iface.log("Error. Falló la consulta de tiendas para comprobación de movimientos.", proceso)
+                return False
+
+            hayError = False
+            while qT.next():
+                codTienda = str(qT.value("codtienda"))
+                q = qsatype.FLSqlQuery()
+                q.setSelect("count(*)")
+                q.setFrom("tpv_comandas c inner join tpv_lineascomanda l on c.idtpv_comanda = l.idtpv_comanda inner join articulos a on l.referencia = a.referencia left outer join movistock m on l.idtpv_linea = m.idlineaco")
+                q.setWhere("a.nostock = false AND c.codtienda = '" + codTienda + "' AND l.cantidad <> 0 AND m.idmovimiento is null")
+
+                if not q.exec_():
+                    syncppal.iface.log("Error. Falló la consulta de movimientos de stock", proceso)
+                    return False
+
+                if not q.first():
+                    syncppal.iface.log("Error. No se encontraron resultados válidos para diagnóstico de movimientos de stock", proceso)
+                    return False
+
+                if q.value(0) > 0:
+                    hayError = True
+                    syncppal.iface.log("Error. " + codTienda + " Faltan movimientos de stock", proceso)
+
+            if not hayError:
+                syncppal.iface.log("Éxito. Todos los movimientos de stock son correctos", proceso)
+
+        except Exception as e:
+            print(e)
+            # syncppal.iface.log(e, proceso)
+            syncppal.iface.log("Error. Ocurrió un error durante el proceso de comprobación de movimientos", proceso)
             return False
 
         return True
