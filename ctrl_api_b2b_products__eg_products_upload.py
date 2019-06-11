@@ -11,7 +11,7 @@ class EgProductsUpload(ProductsUpload):
     link_url = "http://magento2.local/index.php/rest/default/V1/configurable-products/{}/child"
     link_test_url = "http://magento2.local/index.php/rest/default/V1/configurable-products/{}/child"
 
-    def __init__(self, process_name, params=None):
+    def __init__(self, params=None):
         super().__init__("mgb2bproducts", params)
 
         self.set_sync_params({
@@ -32,7 +32,7 @@ class EgProductsUpload(ProductsUpload):
         q = qsatype.FLSqlQuery()
         q.setSelect("lsc.id, lsc.idsincro, lsc.idobjeto, lsc.descripcion, a.pvp, a.peso, aa.barcode, aa.talla, s.disponible")
         q.setFrom("lineassincro_catalogo lsc INNER JOIN articulos a ON lsc.idobjeto = a.referencia INNER JOIN atributosarticulos aa ON a.referencia = aa.referencia INNER JOIN stocks s ON aa.barcode = s.barcode")
-        q.setWhere("lsc.id = {} GROUP BY lsc.id, lsc.idsincro, lsc.idobjeto, lsc.descripcion, a.pvp, a.peso, aa.barcode, aa.talla, s.disponible".format(self.idlinea))
+        q.setWhere("lsc.id = {} AND s.codalmacen = 'AMAY' GROUP BY lsc.id, lsc.idsincro, lsc.idobjeto, lsc.descripcion, a.pvp, a.peso, aa.barcode, aa.talla, s.disponible".format(self.idlinea))
 
         q.exec_()
 
