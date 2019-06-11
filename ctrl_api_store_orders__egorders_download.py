@@ -1,7 +1,7 @@
 from YBLEGACY import qsatype
 
 from controllers.base.default.controllers.download_sync import DownloadSync
-from controllers.api.sync.storeorders.serializers.egstoreorder_serializer import EgStoreOrderSerializer
+from controllers.api.store.orders.serializers.egorder_serializer import EgStoreOrderSerializer
 
 from models.flfact_tpv.objects.egstoreorder_raw import EgStoreOrder
 

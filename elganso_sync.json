@@ -277,18 +277,6 @@
                 "name": "ctrl_api_sync_customers__egcustomers_download.py"
             },
             {
-                "path": "controllers/api/sync/storeorders/",
-                "name": "ctrl_api_sync_storeorders__download.py"
-            },
-            {
-                "path": "controllers/api/sync/storeorders/controllers/",
-                "name": "ctrl_api_sync_storeorders__egstoreorders_download.py"
-            },
-            {
-                "path": "controllers/api/sync/storeorders/serializers/",
-                "name": "ctrl_api_sync_storeorders__egstoreorder_serializer.py"
-            },
-            {
                 "path": "models/flfact_tpv/objects/",
                 "name": "model_flfact_tpv__egstoreorder_raw.py"
             },
@@ -315,6 +303,18 @@
             {
                 "path": "controllers/api/b2b/products/",
                 "name": "ctrl_api_b2b_products__upload.py"
+            },
+            {
+                "path": "controllers/api/store/orders/controllers/",
+                "name": "ctrl_api_store_orders__egorders_download.py"
+            },
+            {
+                "path": "controllers/api/store/orders/serializers/",
+                "name": "ctrl_api_store_orders__egorder_serializer.py"
+            },
+            {
+                "path": "controllers/api/store/orders/",
+                "name": "ctrl_api_store_orders__download.py"
             }
         ],
         "deleteFile": [],
