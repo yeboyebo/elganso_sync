@@ -8,7 +8,7 @@ from models.flfact_tpv.objects.egstoreorder_raw import EgStoreOrder
 
 class EgStoreOrdersDownload(DownloadSync):
 
-    def __init__(self, process_name, driver, params=None):
+    def __init__(self, driver, params=None):
         super().__init__("egsyncvt{}".format(params["codtienda"].lower()), driver, params)
 
         self.origin_field = "codigo"
@@ -23,13 +23,13 @@ class EgStoreOrdersDownload(DownloadSync):
 
         where = "codtienda = '{}' AND NOT sincronizada AND fecha >= '2018-07-01' AND tipodoc <> 'PRESUPUESTO' AND estado <> 'Abierta' AND codigo NOT LIKE '#%' ORDER BY fecha, hora LIMIT 3".format(self.codtienda)
 
-        headers = self.execute("SELECT * FROM tpv_comandas WHERE {}".format(where))
-        for header in headers:
-            lines = self.execute("SELECT * FROM tpv_lineas WHERE idtpv_comanda = {}".format(header["idtpv_comanda"]))
-            payments = self.execute("SELECT * FROM tpv_pagoscomanda WHERE idtpv_comanda = {}".format(header["idtpv_comanda"]))
-            reasons = self.execute("SELECT * FROM eg_motivosdevolucion WHERE codcomandadevol = '{}'".format(header["codigo"]))
+        cabeceras = self.execute("SELECT * FROM tpv_comandas WHERE {}".format(where))
+        for cabecera in cabeceras:
+            lineas = self.execute("SELECT * FROM tpv_lineascomanda WHERE idtpv_comanda = {}".format(cabecera["idtpv_comanda"]))
+            pagos = self.execute("SELECT * FROM tpv_pagoscomanda WHERE idtpv_comanda = {}".format(cabecera["idtpv_comanda"]))
+            motivos = self.execute("SELECT * FROM eg_motivosdevolucion WHERE codcomandadevol = '{}'".format(cabecera["codigo"]))
 
-            data.append({"header": header, "lines": lines, "payments": payments, "reasons": reasons})
+            data.append({"cabecera": cabecera, "lineas": lineas, "pagos": pagos, "motivos": motivos})
 
         return data
 
@@ -41,13 +41,13 @@ class EgStoreOrdersDownload(DownloadSync):
 
     def after_sync(self):
         success_records = []
-        error_records = [order["header"]["codigo"] for order in self.error_data]
+        error_records = [order["cabecera"]["codigo"] for order in self.error_data]
         after_sync_error_records = []
 
         for order in self.success_data:
             try:
-                code = order["header"]["codigo"]
-                self.execute("UPDATE tpv_comandas SET sincronizada = true WHERE codigo = '{}'".format(code))
+                code = order["cabecera"]["codigo"]
+                self.execute("UPDATE tpv_comandas SET sincronizada = TRUE WHERE codigo = '{}'".format(code))
                 self.driver.commit()
                 success_records.append(code)
             except Exception as e:
@@ -56,8 +56,8 @@ class EgStoreOrdersDownload(DownloadSync):
 
         for order in self.error_data:
             try:
-                code = order["header"]["codigo"]
-                self.execute("UPDATE tpv_comandas SET sincronizada = true WHERE codigo = '{}'".format(code))
+                code = order["cabecera"]["codigo"]
+                self.execute("UPDATE tpv_comandas SET sincronizada = TRUE WHERE codigo = '{}'".format(code))
                 self.driver.commit()
             except Exception as e:
                 self.after_sync_error(order, e)

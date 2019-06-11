@@ -6,42 +6,42 @@ from controllers.base.default.serializers.default_serializer import DefaultSeria
 class EgStoreOrderSerializer(DefaultSerializer):
 
     def get_data(self):
-        del self.init_data["header"]["idtpv_comanda"]
-        del self.init_data["header"]["idfactura"]
-        del self.init_data["header"]["egidfacturarec"]
-        del self.init_data["header"]["idprovincia"]
+        del self.init_data["cabecera"]["idtpv_comanda"]
+        del self.init_data["cabecera"]["idfactura"]
+        del self.init_data["cabecera"]["egidfacturarec"]
+        del self.init_data["cabecera"]["idprovincia"]
 
-        for field in self.init_data:
-            self.init_data[field] = self.format_value(field, self.init_data[field])
+        for field in self.init_data["cabecera"]:
+            self.init_data["cabecera"][field] = self.format_value(field, self.init_data["cabecera"][field])
 
-        for line in self.init_data["lines"]:
-            del line["idtpv_comanda"]
-            del line["idtpv_linea"]
+        for linea in self.init_data["lineas"]:
+            del linea["idtpv_comanda"]
+            del linea["idtpv_linea"]
 
-            for field in line:
-                self.line[field] = self.format_value(field, line[field])
+            for field in linea:
+                linea[field] = self.format_value(field, linea[field])
 
-        for payment in self.init_data["payments"]:
-            del payment["idtpv_comanda"]
-            del payment["idpago"]
-            del payment["idasiento"]
+        for pago in self.init_data["pagos"]:
+            del pago["idtpv_comanda"]
+            del pago["idpago"]
+            del pago["idasiento"]
 
-            for field in payment:
-                self.payment[field] = self.format_value(field, payment[field])
+            for field in pago:
+                pago[field] = self.format_value(field, pago[field])
 
-        for reason in self.init_data["reasons"]:
-            del reason["id"]
+        for motivo in self.init_data["motivos"]:
+            del motivo["id"]
 
-            for field in reason:
-                self.reason[field] = self.format_value(field, reason[field])
+            for field in motivo:
+                motivo[field] = self.format_value(field, motivo[field])
 
-        self.set_string_value("datos", str(self.init_data))
+        self.set_string_value("datos", self.init_data, max_characters=None, skip_replace=True)
         self.set_string_value("estado", "PTE")
         self.set_string_value("fecha", qsatype.FactoriaModulos.get('flfactppal').iface.pub_dameFechaActual())
         self.set_string_value("hora", qsatype.FactoriaModulos.get('flfactppal').iface.pub_dameHoraActual())
 
-        self.set_string_relation("codigo", "header//codigo")
-        self.set_string_relation("codtienda", "header//codtienda")
+        self.set_string_relation("codtienda", "cabecera//codtienda")
+        self.set_string_relation("codigo", "cabecera//codigo")
 
         return True
 
