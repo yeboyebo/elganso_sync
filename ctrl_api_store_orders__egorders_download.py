@@ -80,6 +80,6 @@ class EgStoreOrdersDownload(DownloadSync):
         if id_sincro:
             qsatype.FLSqlQuery().execSql("UPDATE tpv_fechasincrotienda SET fechasincro = '{}', horasincro = '{}' WHERE codtienda = '{}' AND esquema = 'SINCRO_OBJETO'".format(self.start_date, self.start_time, self.codtienda))
         else:
-            qsatype.FLSqlQuery().execSql("INSERT INTO tpv_fechasincrotienda (codtienda, esquema, fechasincro, horasincro) VALUES ('{}', 'SINCRO_OBJETO', '{}', '{}')".format(self.start_date, self.start_time, self.codtienda))
+            qsatype.FLSqlQuery().execSql("INSERT INTO tpv_fechasincrotienda (codtienda, esquema, fechasincro, horasincro) VALUES ('{}', 'SINCRO_OBJETO', '{}', '{}')".format(self.codtienda, self.start_date, self.start_time))
 
         return self.small_sleep
