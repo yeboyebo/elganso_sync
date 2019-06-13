@@ -12,6 +12,54 @@ from models.flsyncppal import eg_importVentas_def as iTdaVentas
 from models.flsyncppal import mg_updatePrices_def as iMgPrices
 from models.flsyncppal import mg_importDevWeb_def as iMgDevWeb
 
+from controllers.base.default.managers.task_manager import TaskManager
+
+from controllers.base.magento.drivers.magento import MagentoDriver
+from controllers.base.store.drivers.psql_store import PsqlStoreDriver
+
+from controllers.api.b2c.stocks.controllers.egstock_upload import EgStockUpload
+from controllers.api.b2c.points.controllers.egpoints_upload import EgPointsUpload
+from controllers.api.b2c.prices.controllers.egprices_upload import EgPricesUpload
+from controllers.api.b2c.orders.controllers.egorders_download import EgOrdersDownload
+from controllers.api.b2c.customers.controllers.egcustomers_download import EgCustomersDownload
+
+from controllers.api.b2b.products.controllers.eg_products_upload import EgProductsUpload as b2bProducts
+
+from controllers.api.store.orders.controllers.egorders_download import EgStoreOrdersDownload
+
+
+sync_object_dict = {
+    "stock_upload": {
+        "sync_object": EgStockUpload,
+        "driver": MagentoDriver
+    },
+    "points_upload": {
+        "sync_object": EgPointsUpload,
+        "driver": MagentoDriver
+    },
+    "prices_upload": {
+        "sync_object": EgPricesUpload,
+        "driver": MagentoDriver
+    },
+    "orders_download": {
+        "sync_object": EgOrdersDownload,
+        "driver": MagentoDriver
+    },
+    "customers_download": {
+        "sync_object": EgCustomersDownload,
+        "driver": MagentoDriver
+    },
+    "store_orders_download": {
+        "sync_object": EgStoreOrdersDownload,
+        "driver": PsqlStoreDriver
+    },
+    "products_b2b_upload": {
+        "sync_object": b2bProducts
+    }
+}
+
+task_manager = TaskManager(sync_object_dict)
+
 globalValues.registrarmodulos()
 cdDef = 10
 

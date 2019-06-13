@@ -1,5 +1,5 @@
 from controllers.base.default.controllers.download_sync import DownloadSync
-from controllers.api.sync.customers.serializers.egmagento_customer_serializer import EgMagentoCustomerSerializer
+from controllers.api.b2c.customers.serializers.egmagento_customer_serializer import EgMagentoCustomerSerializer
 
 from models.flfactalma.objects.egmagento_customer_raw import EgMagentoCustomer
 

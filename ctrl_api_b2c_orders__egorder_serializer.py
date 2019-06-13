@@ -3,14 +3,14 @@ from YBLEGACY.constantes import *
 
 from controllers.base.default.serializers.default_serializer import DefaultSerializer
 
-from controllers.api.sync.orders.serializers.egorder_line_serializer import EgOrderLineSerializer
-from controllers.api.sync.orders.serializers.egorder_shippingline_serializer import EgOrderShippingLineSerializer
-from controllers.api.sync.orders.serializers.egorder_expensesline_serializer import EgOrderExpensesLineSerializer
-from controllers.api.sync.orders.serializers.egorder_discountline_serializer import EgOrderDiscountLineSerializer
-from controllers.api.sync.orders.serializers.egorder_voucherline_serializer import EgOrderVoucherLineSerializer
-from controllers.api.sync.orders.serializers.egorder_payment_serializer import EgOrderPaymentSerializer
-from controllers.api.sync.orders.serializers.egcashcount_serializer import EgCashCountSerializer
-from controllers.api.sync.orders.serializers.egidlecommerce_serializer import EgIdlEcommerce
+from controllers.api.b2c.orders.serializers.egorder_line_serializer import EgOrderLineSerializer
+from controllers.api.b2c.orders.serializers.egorder_shippingline_serializer import EgOrderShippingLineSerializer
+from controllers.api.b2c.orders.serializers.egorder_expensesline_serializer import EgOrderExpensesLineSerializer
+from controllers.api.b2c.orders.serializers.egorder_discountline_serializer import EgOrderDiscountLineSerializer
+from controllers.api.b2c.orders.serializers.egorder_voucherline_serializer import EgOrderVoucherLineSerializer
+from controllers.api.b2c.orders.serializers.egorder_payment_serializer import EgOrderPaymentSerializer
+from controllers.api.b2c.orders.serializers.egcashcount_serializer import EgCashCountSerializer
+from controllers.api.b2c.orders.serializers.egidlecommerce_serializer import EgIdlEcommerce
 
 
 class EgOrderSerializer(DefaultSerializer):

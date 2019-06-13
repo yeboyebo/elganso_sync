@@ -1,7 +1,7 @@
 from YBLEGACY import qsatype
 from YBLEGACY.constantes import *
 
-from controllers.api.sync.orders.serializers.egorder_line_serializer import EgOrderLineSerializer
+from controllers.api.b2c.orders.serializers.egorder_line_serializer import EgOrderLineSerializer
 
 
 class EgOrderDiscountLineSerializer(EgOrderLineSerializer):
