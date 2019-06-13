@@ -768,6 +768,11 @@ class elganso_sync(interna):
 
     def elganso_sync_insertarMovBono(self, linea, order, curComanda, tipoMov):
             try:
+
+                existeBono = str(qsatype.FLUtil.sqlSelect("eg_bonos", "codbono", "codbono = '" + str(order["cupon_bono"]) + "'"))
+                if existeBono == "None":
+                    return True
+
                 importeMovBono = parseFloat(linea["discount"]) * (-1)
 
                 if tipoMov == "BonoPositivo":
