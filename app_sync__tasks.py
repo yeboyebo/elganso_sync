@@ -24,6 +24,7 @@ from controllers.api.b2c.orders.controllers.egorders_download import EgOrdersDow
 from controllers.api.b2c.customers.controllers.egcustomers_download import EgCustomersDownload
 
 from controllers.api.b2b.products.controllers.eg_products_upload import EgProductsUpload as b2bProducts
+from controllers.api.b2b.orders.controllers.orders_download import OrdersDownload as b2bOrders
 
 from controllers.api.store.orders.controllers.egorders_download import EgStoreOrdersDownload
 
@@ -55,6 +56,9 @@ sync_object_dict = {
     },
     "products_b2b_upload": {
         "sync_object": b2bProducts
+    },
+    "orders_b2b_download": {
+        "sync_object": b2bOrders
     }
 }
 
