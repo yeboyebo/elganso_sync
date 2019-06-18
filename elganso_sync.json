@@ -335,6 +335,30 @@
             {
                 "path": "controllers/api/b2b/orders/",
                 "name": "ctrl_api_b2b_orders__download.py"
+            },
+            {
+                "path": "controllers/api/b2b/price/",
+                "name": "ctrl_api_b2b_price__upload.py"
+            },
+            {
+                "path": "controllers/api/b2b/price/controllers/",
+                "name": "ctrl_api_b2b_price__eg_price_upload.py"
+            },
+            {
+                "path": "controllers/api/b2b/tierprice/",
+                "name": "ctrl_api_b2b_tierprice__upload.py"
+            },
+            {
+                "path": "controllers/api/b2b/tierprice/controllers/",
+                "name": "ctrl_api_b2b_tierprice__eg_tierprice_upload.py"
+            },
+            {
+                "path": "controllers/api/b2b/inventory/",
+                "name": "ctrl_api_b2b_inventory__upload.py"
+            },
+            {
+                "path": "controllers/api/b2b/inventory/controllers/",
+                "name": "ctrl_api_b2b_inventory__eg_inventory_upload.py"
             }
         ],
         "deleteFile": [],
