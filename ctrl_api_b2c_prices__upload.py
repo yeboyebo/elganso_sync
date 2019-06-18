@@ -19,7 +19,6 @@ class elganso_sync_upload(interna_upload):
         status = None
 
         if "passwd" in data and data["passwd"] == "bUqfqBMnoH":
-            data.update({"first": True})
             response = task_manager.task_executer("prices_upload", data)
 
             result = response["data"]
