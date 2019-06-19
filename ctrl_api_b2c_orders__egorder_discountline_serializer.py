@@ -18,13 +18,29 @@ class EgOrderDiscountLineSerializer(EgOrderLineSerializer):
         if self.bono:
             dto = self.bono["discount"]
 
-        super().get_data()
+        iva = self.init_data["iva"]
+        if not iva or iva == "":
+            iva = 0
+
+        self.set_string_relation("codcomanda", "codcomanda", max_characters=12)
+
+        self.set_string_value("codtienda", "AWEB")
+        self.set_string_value("referencia", self.get_referencia(), max_characters=18)
+        self.set_string_value("descripcion", self.get_descripcion(), max_characters=100)
+        self.set_string_value("barcode", self.get_barcode(), max_characters=20)
+        self.set_string_value("talla", self.get_talla(), max_characters=50)
+        self.set_string_value("color", self.get_color(), max_characters=50)
+        self.set_string_value("codimpuesto", self.get_codimpuesto(iva), max_characters=10)
+
+        self.set_data_relation("iva", "iva")
+        self.set_data_value("ivaincluido", True)
+        self.set_data_value("cantdevuelta", 0)
+        self.set_data_value("cantidad", self.get_cantidad())
 
         self.set_data_relation("pvpunitarioiva", "discount_amount")
         self.set_data_relation("pvpsindtoiva", "discount_amount")
         self.set_data_relation("pvptotaliva", "discount_amount")
 
-        iva = self.init_data["iva"]
         dto_sin_iva = dto
 
         if iva and iva != 0:

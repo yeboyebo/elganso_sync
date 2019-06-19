@@ -7,7 +7,7 @@ class EgIdlEcommerce(DefaultSerializer):
 
     def get_data(self):
         metodoEnvio = str(self.init_data["shipping_method"])
-        print("///////////////////metodoEnvio: ", metodoEnvio)
+
         transIDL = qsatype.FLUtil.sqlSelect("metodosenvio_transportista", "transportista", "LOWER(metodoenviomg) = '" + metodoEnvio + "' OR UPPER(metodoenviomg) = '" + metodoEnvio + "' OR metodoenviomg = '" + metodoEnvio + "'")
 
         if not transIDL:
