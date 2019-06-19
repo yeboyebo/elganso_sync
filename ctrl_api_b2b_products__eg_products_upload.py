@@ -44,6 +44,8 @@ class EgProductsUpload(ProductsUpload):
         self.referencia = body[0]["lsc.idobjeto"]
 
         for row in body:
+            if row["s.disponible"] > 0:
+                self.stock_disponible = True
             self.indice_tallas.append(row["t.indice"])
 
         return body

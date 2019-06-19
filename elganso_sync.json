@@ -392,6 +392,10 @@
             {
                 "name": "model_flfact_tpv__tpv_vales_def.py",
                 "path": "models/flfact_tpv/"
+            },
+            {
+                "name": "ctrl_base_magento2_products__configurable_product_serializer.py",
+                "path": "controllers/base/magento2/products/serializers/"
             }
         ]
     }
