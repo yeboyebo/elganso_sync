@@ -30,9 +30,9 @@ class EgProductsUpload(ProductsUpload):
         self.idlinea = idlinea
 
         q = qsatype.FLSqlQuery()
-        q.setSelect("lsc.id, lsc.idsincro, lsc.idobjeto, lsc.descripcion, a.pvp, a.peso, aa.barcode, aa.talla, s.disponible, t.indice")
+        q.setSelect("lsc.id, lsc.idsincro, lsc.idobjeto, lsc.descripcion, a.pvp, a.peso, aa.barcode, aa.talla, s.disponible, t.indice, a.mgdescripcion, a.mgdescripcioncorta")
         q.setFrom("lineassincro_catalogo lsc INNER JOIN articulos a ON lsc.idobjeto = a.referencia INNER JOIN atributosarticulos aa ON a.referencia = aa.referencia INNER JOIN stocks s ON aa.barcode = s.barcode  INNER JOIN indicessincrocatalogo t ON aa.talla = t.valor")
-        q.setWhere("lsc.id = {} AND s.codalmacen = 'AMAY' GROUP BY lsc.id, lsc.idsincro, lsc.idobjeto, lsc.descripcion, a.pvp, a.peso, aa.barcode, aa.talla, s.disponible, t.indice".format(self.idlinea))
+        q.setWhere("lsc.id = {} AND s.codalmacen = 'AMAY' GROUP BY lsc.id, lsc.idsincro, lsc.idobjeto, lsc.descripcion, a.pvp, a.peso, aa.barcode, aa.talla, s.disponible, t.indice, a.mgdescripcion, a.mgdescripcioncorta".format(self.idlinea))
 
         q.exec_()
 
