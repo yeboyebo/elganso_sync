@@ -24,9 +24,15 @@ from controllers.api.b2c.orders.controllers.egorders_download import EgOrdersDow
 from controllers.api.b2c.customers.controllers.egcustomers_download import EgCustomersDownload
 
 from controllers.api.b2b.products.controllers.eg_products_upload import EgProductsUpload as b2bProducts
+from controllers.api.b2b.orders.controllers.orders_download import OrdersDownload as b2bOrders
 
 from controllers.api.store.orders.controllers.egorders_download import EgStoreOrdersDownload
 
+from controllers.api.b2b.tierprice.controllers.eg_tierprice_upload import EgB2bTierpriceUpload
+
+from controllers.api.b2b.price.controllers.eg_price_upload import EgB2bPriceUpload
+
+from controllers.api.b2b.inventory.controllers.eg_inventory_upload import EgB2bInventoryUpload
 
 sync_object_dict = {
     "stock_upload": {
@@ -55,6 +61,18 @@ sync_object_dict = {
     },
     "products_b2b_upload": {
         "sync_object": b2bProducts
+    },
+    "orders_b2b_download": {
+        "sync_object": b2bOrders
+    },
+    "b2b_tierprice_upload": {
+        "sync_object": EgB2bTierpriceUpload
+    },
+    "b2b_price_upload": {
+        "sync_object": EgB2bPriceUpload
+    },
+    "b2b_inventory_upload": {
+        "sync_object": EgB2bInventoryUpload
     }
 }
 

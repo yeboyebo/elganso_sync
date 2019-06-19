@@ -315,6 +315,50 @@
             {
                 "name": "ctrl_api_b2c_customers__egmagento_customer_serializer.py",
                 "path": "controllers/api/b2c/customers/serializers/"
+            },
+            {
+                "path": "controllers/api/b2b/orders/controllers/",
+                "name": "ctrl_api_b2b_orders__orders_download.py"
+            },
+            {
+                "path": "models/flfact_tpv/objects/",
+                "name": "model_flfact_tpv__ordersb2b_line_raw.py"
+            },
+            {
+                "path": "models/flfact_tpv/objects/",
+                "name": "model_flfact_tpv__ordersb2b_line_shipping_raw.py"
+            },
+            {
+                "path": "models/flfact_tpv/objects/",
+                "name": "model_flfact_tpv__ordersb2b_raw.py"
+            },
+            {
+                "path": "controllers/api/b2b/orders/",
+                "name": "ctrl_api_b2b_orders__download.py"
+            },
+            {
+                "path": "controllers/api/b2b/price/",
+                "name": "ctrl_api_b2b_price__upload.py"
+            },
+            {
+                "path": "controllers/api/b2b/price/controllers/",
+                "name": "ctrl_api_b2b_price__eg_price_upload.py"
+            },
+            {
+                "path": "controllers/api/b2b/tierprice/",
+                "name": "ctrl_api_b2b_tierprice__upload.py"
+            },
+            {
+                "path": "controllers/api/b2b/tierprice/controllers/",
+                "name": "ctrl_api_b2b_tierprice__eg_tierprice_upload.py"
+            },
+            {
+                "path": "controllers/api/b2b/inventory/",
+                "name": "ctrl_api_b2b_inventory__upload.py"
+            },
+            {
+                "path": "controllers/api/b2b/inventory/controllers/",
+                "name": "ctrl_api_b2b_inventory__eg_inventory_upload.py"
             }
         ],
         "deleteFile": [],

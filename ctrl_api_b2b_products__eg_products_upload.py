@@ -5,17 +5,17 @@ from controllers.base.magento2.products.controllers.products_upload import Produ
 
 class EgProductsUpload(ProductsUpload):
 
-    product_url = "http://magento2.local/index.php/rest/default/V1/products"
+    product_url = "http://b2b.elganso.com/index.php/rest/default/V1/products"
     product_test_url = "http://magento2.local/index.php/rest/default/V1/products"
 
-    link_url = "http://magento2.local/index.php/rest/default/V1/configurable-products/{}/child"
+    link_url = "http://b2b.elganso.com/index.php/rest/default/V1/configurable-products/{}/child"
     link_test_url = "http://magento2.local/index.php/rest/default/V1/configurable-products/{}/child"
 
     def __init__(self, params=None):
         super().__init__("mgb2bproducts", params)
 
         self.set_sync_params({
-            "auth": "Bearer 2uvlxkuihd474nzj3dize4f5ezbl3lb6",
+            "auth": "Bearer 7plp6sabntbe9liboanunxy8l9813f3p",
             "test_auth": "Bearer 2uvlxkuihd474nzj3dize4f5ezbl3lb6"
         })
 
