@@ -6,7 +6,9 @@ from controllers.api.b2c.orders.serializers.egorder_line_serializer import EgOrd
 class EgOrderVoucherLineSerializer(EgOrderLineSerializer):
 
     def get_data(self):
-        if not self.init_data["vale_description"] or not self.init_data["total"]:
+        if "vale_description" not in self.init_data or not self.init_data["vale_description"]:
+            return False
+        if "total" not in self.init_data or not self.init_data["total"]:
             return False
 
         iva = self.init_data["iva"]
