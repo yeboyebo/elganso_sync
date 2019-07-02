@@ -641,9 +641,8 @@ class elganso_sync(interna):
         _i = self.iface
 
         try:
-
-        	if qsatype.FLUtil.sqlSelect("tpv_pagoscomanda", "idpago", "idtpv_comanda = " + str(curComanda.valueBuffer("idtpv_comanda")))
-        		return True
+            if qsatype.FLUtil.sqlSelect("tpv_pagoscomanda", "idpago", "idtpv_comanda = " + str(curComanda.valueBuffer("idtpv_comanda")))
+                return True
 
             importe = parseFloat(qsatype.FLUtil.sqlSelect("tpv_lineascomanda", "SUM(pvptotaliva)", "idtpv_comanda = " + str(curComanda.valueBuffer("idtpv_comanda"))))
 
