@@ -642,6 +642,9 @@ class elganso_sync(interna):
 
         try:
 
+        	if qsatype.FLUtil.sqlSelect("tpv_pagoscomanda", "idpago", "idtpv_comanda = " + str(curComanda.valueBuffer("idtpv_comanda")))
+        		return True
+
             importe = parseFloat(qsatype.FLUtil.sqlSelect("tpv_lineascomanda", "SUM(pvptotaliva)", "idtpv_comanda = " + str(curComanda.valueBuffer("idtpv_comanda"))))
 
             if "items_requested" in order:
