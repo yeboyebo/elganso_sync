@@ -105,8 +105,7 @@ class elganso_sync(interna):
         for order in orders:
             print("id")
             print(order["refound_id"])
-            print("status")
-            print(order["status"])
+            print(order)
             if order["refound_id"] in saltar:
                 continue
 
@@ -115,25 +114,30 @@ class elganso_sync(interna):
 
             codigo = "WDV" + qsatype.FactoriaModulos.get("flfactppal").iface.cerosIzquierda(str(order["refound_id"]), 9)
 
-            if qsatype.FLUtil.sqlSelect("tpv_comandas", "idtpv_comanda", "codigo = '" + codigo + "' AND estado = 'Cerrada'"):
-                saltar[order["refound_id"]] = order["refound_id"]
-                aOrders[codigo] = order["refound_id"]
-                continue
+            # if qsatype.FLUtil.sqlSelect("tpv_comandas", "idtpv_comanda", "codigo = '" + codigo + "' AND estado = 'Cerrada'"):
+            #    saltar[order["refound_id"]] = order["refound_id"]
+            #    aOrders[codigo] = order["refound_id"]
+            #    continue
 
-            if order["status"] != "Complete":
+            if order["status"] != "Complete" or "items_requested" in order:
+                print("creando cabecera")
                 curComanda = _i.creaCabeceraComandaDevWeb(order, codigo)
                 if not curComanda:
+                    print("false cabecera")
                     return False
 
+                print("creando lineas")
                 for linea in order["items_refunded"]:
                     if not _i.creaLineaComandaDevWeb(linea, curComanda, order["refound_id"], "refounded"):
                         return False
 
+                print("items_requested")
                 if "items_requested" in order:
                     for linea in order["items_requested"]:
                         if not _i.creaLineaComandaDevWeb(linea, curComanda, order["refound_id"], "requested"):
                             return False
 
+                print("cupon_bono")
                 if str(order["cupon_bono"]) != "None":
                     for linea in order["items_refunded"]:
                         if not _i.controlMovBono(linea, order, curComanda):
@@ -143,12 +147,14 @@ class elganso_sync(interna):
                         if not _i.controlMovPuntos(linea, order, curComanda):
                             return False
 
+                print("vale_description")
                 if str(order["vale_description"]) != "None":
                     for linea in order["items_refunded"]:
                         if not _i.controlMovVale(linea, order, curComanda):
                             return False
 
                 idComanda = curComanda.valueBuffer("idtpv_comanda")
+                print("comanda creada " + str(idComanda))
             else:
                 idComanda = qsatype.FLUtil.sqlSelect("tpv_comandas", "idtpv_comanda", "codigo = '" + str(codigo) + "'")
                 print("select idtpv_comanda from tpv_comandas where codigo = '" + str(codigo) + "'")
@@ -166,31 +172,39 @@ class elganso_sync(interna):
 
             curComanda.setModeAccess(curComanda.Edit)
             curComanda.refreshBuffer()
+
+            print("calculando totales")
             qsatype.FactoriaModulos.get('formRecordtpv_comandas').iface.calcularTotalesCursor(curComanda)
             if not curComanda.commitBuffer():
                 return False
 
-            if order["status"] == "Complete":
+            if order["status"] == "Complete" or "items_requested" in order:
                 if not _i.cerrarVentaWeb(curComanda, order):
                     syncppal.iface.log(ustr("Error. No se pudo cerrar la devolución web ", str(codigo)), "mgsyncdevweb")
                     return False
 
-            if order["status"] != "Complete":
+            if order["status"] != "Complete" or "items_requested" in order:
+                print("actualizando cantidad devuelta")
                 for linea in order["items_refunded"]:
                     if not _i.actualizarCantDevueltaOrder(linea, curComanda, order):
                         return False
 
+                print("creando motivos")
                 for linea in order["items_refunded"]:
                     if not _i.creaMotivosDevolucion(linea, curComanda, order):
                         return False
 
+                print("creando registroecommerce")
                 for linea in order["items_refunded"]:
                     if not _i.creaRegistroEcommerce(linea, curComanda, order):
                         return False
 
+            print("venta creada")
+
             codigo = "WDV" + qsatype.FactoriaModulos.get("flfactppal").iface.cerosIzquierda(str(order["refound_id"]), 9)
             aOrders[codigo] = order["refound_id"]
 
+            print("codigo " + codigo)
         return aOrders
 
     def elganso_sync_creaCabeceraComandaDevWeb(self, order, codigo):
@@ -220,68 +234,81 @@ class elganso_sync(interna):
             print("///////////////////codComandaDevol: ", codComandaDevol)
             city = order["pickup_address"]["city"]
             codpais = qsatype.FLUtil.quickSqlSelect("tpv_comandas", "codpais", "codigo = '" + str(codComandaDevol) + "'")
+            print("pais " + str(codpais))
             telefonofac = order["phone"]
             codpago = _i.obtenerCodPago(str(order["payment_method"]))
             email = order["email"]
             codtarjetapuntos = order["card_points"]
             region = order["pickup_address"]["region"]
             codDivisa = str(order["currency"])
-
+            print(1)
             totalNeto = parseFloat(order["subtotal_refunded"]) - (parseFloat(order["discount_refunded"]))
             totalIva = parseFloat(order["tax_refunded"])
             totalVenta = parseFloat(order["total_refunded"])
-
+            print(2)
             curComanda.setValueBuffer("codserie", _i.obtenerCodSerie(codpais, order["pickup_address"]["postcode"]))
+            print(3)
             curComanda.setValueBuffer("codejercicio", _i.obtenerEjercicio(str(qsatype.Date())))
+            print(4)
             curComanda.setValueBuffer("codcomandadevol", str(codComandaDevol))
             curComanda.setValueBuffer("codtpv_puntoventa", "AWEB")
             curComanda.setValueBuffer("codtpv_agente", "0350")
             curComanda.setValueBuffer("codalmacen", "AWEB")
             curComanda.setValueBuffer("codtienda", "AWEB")
+            print(5)
             curComanda.setValueBuffer("fecha", str(qsatype.Date())[:10])
             curComanda.setValueBuffer("hora", _i.obtenerHora(str(qsatype.Date())))
+            print(6)
             curComanda.setValueBuffer("nombrecliente", nombreCliente[:100] if nombreCliente else nombreCliente)
+            print(7)
             curComanda.setValueBuffer("cifnif", cif)
             curComanda.setValueBuffer("dirtipovia", dirTipoVia[:100] if dirTipoVia else dirTipoVia)
             curComanda.setValueBuffer("direccion", direccion[:100] if direccion else direccion)
+            print(8)
             curComanda.setValueBuffer("dirnum", dirNum[:100] if dirNum else dirNum)
             curComanda.setValueBuffer("dirotros", dirOtros[:100] if dirOtros else dirOtros)
             curComanda.setValueBuffer("codpostal", codpostal[:10] if codpostal else codpostal)
+            print(9)
             curComanda.setValueBuffer("ciudad", city[:100] if city else city)
             curComanda.setValueBuffer("provincia", region[:100] if region else region)
             curComanda.setValueBuffer("telefono1", telefonofac[:30] if telefonofac else telefonofac)
+            print(10)
             curComanda.setValueBuffer("codpais", codpais)
             curComanda.setValueBuffer("codpago", codpago[:10] if codpago else codpago)
             curComanda.setValueBuffer("coddivisa", codDivisa)
             curComanda.setValueBuffer("tasaconv", 1)
+            print(11)
             curComanda.setValueBuffer("email", email[:100] if email else email)
             curComanda.setValueBuffer("neto", totalNeto * (-1))
             curComanda.setValueBuffer("totaliva", totalIva * (-1))
-
+            print(12)
             total = totalVenta * (-1)
-            tipoDoc = "VENTA";
-            if tipoDoc < 0:
+            tipoDoc = "VENTA"
+            if total < 0:
                 tipoDoc = "DEVOLUCION"
-
+            print(13)
             curComanda.setValueBuffer("total", total)
             curComanda.setValueBuffer("tipodoc", tipoDoc)
-            
+            print(14)
             curComanda.setValueBuffer("codtarjetapuntos", codtarjetapuntos[:15] if codtarjetapuntos else codtarjetapuntos)
             curComanda.setValueBuffer("ptesincrofactura", False)
             curComanda.setValueBuffer("egcodfactura", "")
-
+            print(15)
             if not curComanda.commitBuffer():
                 syncppal.iface.log(ustr("Error. No se pudo guardar la cabecera de la venta ", str(codigo)), "mgsyncdevweb")
+                print("false commit")
                 return False
 
             curComanda.select("codigo = '" + str(codigo) + "'")
             if not curComanda.first():
                 syncppal.iface.log(ustr("Error. No se pudo recuperar la cabecera guardada para ", str(codigo)), "mgsyncdevweb")
+                print("false first")
                 return False
 
             curComanda.setModeAccess(curComanda.Edit)
             curComanda.refreshBuffer()
 
+            print("return curComanda")
             return curComanda
 
         except Exception as e:
@@ -418,8 +445,14 @@ class elganso_sync(interna):
                 syncppal.iface.log(ustr("Error. No se pudo crear el pago para el arqueo ", str(codArqueo)), "mgsyncdevweb")
                 return False
 
-            # Modificado por Lorena el 25/06/2019. Ponemos la fecha actual para que al generar la factura vaya con la fecha del pago
-            if not qsatype.FLSqlQuery().execSql(u"UPDATE tpv_comandas SET estado = 'Cerrada', editable = true, pagado = total, ptesincrofactura = true, fecha = '" + str(qsatype.Date())[:10] + "' WHERE idtpv_comanda = " + str(idComanda)):
+            # Modificado por Lorena el 25/06/2019. Si la venta no tiene ya un idfactura, ponemos la fecha actual y ptesincrofactura a true para que genera la factura vaya con la fecha del pago
+            idFactura = qsatype.FLUtil.sqlSelect("tpv_comandas", "idfactura", "idtpv_comanda = " + str(idComanda))
+            masDatos = ""
+            print("idFactura " + str(idFactura))
+            if (not idFactura or str(idFactura) == "None" or idFactura == 0) and (not "items_requested" in order):
+                print("entra masdatos")
+                masDatos = ", ptesincrofactura = true, fecha = '" + str(qsatype.Date())[:10] + "'";
+            if not qsatype.FLSqlQuery().execSql(u"UPDATE tpv_comandas SET estado = 'Cerrada', editable = true, pagado = total" + masDatos + " WHERE idtpv_comanda = " + str(idComanda)):
                 syncppal.iface.log(ustr("Error. No se pudo cerrar la venta ", str(idComanda)), "mgsyncdevweb")
                 return False
 
@@ -641,8 +674,8 @@ class elganso_sync(interna):
         _i = self.iface
 
         try:
-            if qsatype.FLUtil.sqlSelect("tpv_pagoscomanda", "idpago", "idtpv_comanda = " + str(curComanda.valueBuffer("idtpv_comanda")))
-                return True
+            #if qsatype.FLUtil.sqlSelect("tpv_pagoscomanda", "idpago", "idtpv_comanda = " + str(curComanda.valueBuffer("idtpv_comanda"))):
+            #    return True
 
             importe = parseFloat(qsatype.FLUtil.sqlSelect("tpv_lineascomanda", "SUM(pvptotaliva)", "idtpv_comanda = " + str(curComanda.valueBuffer("idtpv_comanda"))))
 
@@ -656,6 +689,11 @@ class elganso_sync(interna):
                 importe = importe * (-1)
 
             curPago = qsatype.FLSqlCursor("tpv_pagoscomanda")
+            curPago.select("idtpv_comanda = " + str(curComanda.valueBuffer("idtpv_comanda")) + " AND importe = " + str(importe) + " AND codpago = '" + str(codPago) + "'")
+            if curPago.first():
+                print("ya existe el pago. No lo crea")
+                return True
+
             curPago.setModeAccess(curPago.Insert)
             curPago.refreshBuffer()
 
@@ -1224,10 +1262,15 @@ class elganso_sync(interna):
             if not qsatype.FLUtil.execSql("INSERT INTO idl_ecommercedevoluciones (idtpv_comanda,codcomanda,tipo,envioidl,confirmacionrecepcion,informadomagento) VALUES ('" + str(curComanda.valueBuffer("idtpv_comanda")) + "', '" + str(curComanda.valueBuffer("codigo")) + "', 'DEVOLUCION',false,'No',false)"):
                 return False
 
+            print("antes cambio")
             if "items_requested" in order:
+                print("entra if")
                 for linea in order["items_requested"]:
+                    print("for")
                     if not _i.crearRegistroECommerceCambio(linea, curComanda, order):
                         return False
+            else:
+                print("no entra if")
 
             return True
 
