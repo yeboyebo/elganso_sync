@@ -118,6 +118,13 @@
             "value": {
                 "idl_recepciones": null
             }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/models/flfactppal/idl_recepciones",
+            "value": {
+                "solicitudescliente": null
+            }
         }
     ]
 }

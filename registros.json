@@ -127,6 +127,13 @@
             "value": {
                 "movistock": null
             }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/flfactppal/usuarios",
+            "value": {
+                "solicitudescliente": null
+            }
         }
     ]
 }

@@ -359,6 +359,26 @@
             {
                 "path": "controllers/api/b2b/inventory/controllers/",
                 "name": "ctrl_api_b2b_inventory__eg_inventory_upload.py"
+            },
+            {
+                "path": "controllers/api/b2b/customerrequest/serializers/",
+                "name": "ctrl_api_b2b_customerrequest__eg_customerrequest_serializer.py"
+            },
+            {
+                "path": "controllers/api/b2b/customerrequest/controllers/",
+                "name": "ctrl_api_b2b_customerrequest__eg_customerrequest_recieve.py"
+            },
+            {
+                "path": "controllers/api/b2b/customerrequest/",
+                "name": "ctrl_api_b2b_customerrequest__recieve.py"
+            },
+            {
+                "name": "model_flfactppal__solicitudescliente.py",
+                "path": "models/flfactppal/"
+            },
+            {
+                "name": "model_flfactppal__solicitudescliente_def.py",
+                "path": "models/flfactppal/"
             }
         ],
         "deleteFile": [],
@@ -396,6 +416,10 @@
             {
                 "name": "ctrl_base_magento2_products__configurable_product_serializer.py",
                 "path": "controllers/base/magento2/products/serializers/"
+            },
+            {
+                "path": "controllers/base/default/managers/",
+                "name": "ctrl_base_default_managers__task_manager.py"
             }
         ]
     }
