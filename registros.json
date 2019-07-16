@@ -86,6 +86,13 @@
         },
         {
             "type": "insertAfterNode",
+            "path": "/flfact_tpv/idl_ecommerce",
+            "value": {
+                "ew_ventaseciweb": null
+            }
+        },
+        {
+            "type": "insertAfterNode",
             "path": "/flfactalma/articulos",
             "value": {
                 "atributosarticulos": null
