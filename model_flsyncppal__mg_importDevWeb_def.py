@@ -168,9 +168,9 @@ class elganso_sync(interna):
                     return False
 
             if order["status"] != "Complete" or "items_requested" in order:
-                for linea in order["items_refunded"]:
-                    if not _i.actualizarCantDevueltaOrder(linea, curComanda, order):
-                        return False
+                # for linea in order["items_refunded"]:
+                #    if not _i.actualizarCantDevueltaOrder(linea, curComanda, order):
+                #        return False
 
                 for linea in order["items_refunded"]:
                     if not _i.creaMotivosDevolucion(linea, curComanda, order):
