@@ -93,6 +93,13 @@
         },
         {
             "type": "insertAfterNode",
+            "path": "/flfact_tpv/ew_ventaseciweb",
+            "value": {
+                "ew_devolucioneseciweb": null
+            }
+        },
+        {
+            "type": "insertAfterNode",
             "path": "/flfactalma/articulos",
             "value": {
                 "atributosarticulos": null
