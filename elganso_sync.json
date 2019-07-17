@@ -393,16 +393,8 @@
                 "path": "models/flfact_tpv/objects/"
             },
             {
-                "name": "ctrl_api_mirakl_orders__download.cpython-35.pyc",
-                "path": "controllers/api/mirakl/orders/__pycache__/"
-            },
-            {
                 "name": "ctrl_api_mirakl_orders__eg_orders_download.py",
                 "path": "controllers/api/mirakl/orders/controllers/"
-            },
-            {
-                "name": "ctrl_api_mirakl_orders__eg_orders_download.cpython-35.pyc",
-                "path": "controllers/api/mirakl/orders/controllers/__pycache__/"
             },
             {
                 "path": "controllers/api/mirakl/orders/",
