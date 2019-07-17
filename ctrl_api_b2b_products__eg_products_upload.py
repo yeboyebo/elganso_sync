@@ -31,8 +31,8 @@ class EgProductsUpload(ProductsUpload):
 
         q = qsatype.FLSqlQuery()
         q.setSelect("lsc.id, lsc.idsincro, lsc.idobjeto, lsc.descripcion, a.pvp, a.peso, aa.barcode, aa.talla, s.disponible, t.indice, a.mgdescripcion, a.mgdescripcioncorta")
-        q.setFrom("lineassincro_catalogo lsc INNER JOIN articulos a ON lsc.idobjeto = a.referencia INNER JOIN atributosarticulos aa ON a.referencia = aa.referencia INNER JOIN stocks s ON aa.barcode = s.barcode  INNER JOIN indicessincrocatalogo t ON aa.talla = t.valor")
-        q.setWhere("lsc.id = {} AND s.codalmacen = 'AMAY' GROUP BY lsc.id, lsc.idsincro, lsc.idobjeto, lsc.descripcion, a.pvp, a.peso, aa.barcode, aa.talla, s.disponible, t.indice, a.mgdescripcion, a.mgdescripcioncorta".format(self.idlinea))
+        q.setFrom("lineassincro_catalogo lsc INNER JOIN articulos a ON lsc.idobjeto = a.referencia INNER JOIN atributosarticulos aa ON a.referencia = aa.referencia LEFT JOIN stocks s ON aa.barcode = s.barcode AND s.codalmacen = 'AMAY' INNER JOIN indicessincrocatalogo t ON aa.talla = t.valor")
+        q.setWhere("lsc.id = {} GROUP BY lsc.id, lsc.idsincro, lsc.idobjeto, lsc.descripcion, a.pvp, a.peso, aa.barcode, aa.talla, s.disponible, t.indice, a.mgdescripcion, a.mgdescripcioncorta".format(self.idlinea))
 
         q.exec_()
 
@@ -44,6 +44,8 @@ class EgProductsUpload(ProductsUpload):
         self.referencia = body[0]["lsc.idobjeto"]
 
         for row in body:
+            if not row["s.disponible"]:
+                row["s.disponible"] = 0
             if row["s.disponible"] > 0:
                 self.stock_disponible = True
             self.indice_tallas.append(row["t.indice"])

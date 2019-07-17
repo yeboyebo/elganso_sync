@@ -403,6 +403,18 @@
             {
                 "name": "ctrl_api_mirakl_orders__eg_orders_download.cpython-35.pyc",
                 "path": "controllers/api/mirakl/orders/controllers/__pycache__/"
+            },
+            {
+                "path": "controllers/api/mirakl/orders/",
+                "name": "ctrl_api_mirakl_orders__download.py"
+            },
+            {
+                "name": "ctrl_api_mirakl_shippingorders__download.py",
+                "path": "controllers/api/mirakl/shippingorders/"
+            },
+            {
+                "name": "ctrl_api_mirakl_shippingorders__eg_shipping_orders_download.py",
+                "path": "controllers/api/mirakl/shippingorders/controllers/"
             }
         ],
         "deleteFile": [],
@@ -438,12 +450,8 @@
                 "path": "models/flfact_tpv/"
             },
             {
-                "name": "ctrl_base_magento2_products__configurable_product_serializer.py",
-                "path": "controllers/base/magento2/products/serializers/"
-            },
-            {
-                "path": "controllers/base/default/managers/",
-                "name": "ctrl_base_default_managers__task_manager.py"
+                "name": "ctrl_base_mirakl_orders__orders_download.py",
+                "path": "controllers/base/mirakl/orders/controllers/"
             }
         ]
     }
