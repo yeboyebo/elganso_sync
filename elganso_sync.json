@@ -448,10 +448,6 @@
             {
                 "name": "model_flfact_tpv__tpv_vales_def.py",
                 "path": "models/flfact_tpv/"
-            },
-            {
-                "name": "ctrl_base_mirakl_orders__orders_download.py",
-                "path": "controllers/base/mirakl/orders/controllers/"
             }
         ]
     }
