@@ -5,12 +5,8 @@ from controllers.base.mirakl.orders.controllers.shipping_orders_download import 
 
 class EgMiraklShippingOrdersDownload(ShippingOrdersDownload):
 
-    orders_url = "https://marketplace.elcorteingles.es/api/orders?order_state_codes=SHIPPING"
-    orders_test_url = "https://marketplace.elcorteingles.es/api/orders?order_state_codes=SHIPPING"
-
-    # TMP. Falta paginacion y comprobar fechas
-    # orders_url = "https://marketplace.elcorteingles.es/api/orders?order_state_codes=SHIPPING&start_update_date={}"
-    # orders_test_url = "https://marketplace.elcorteingles.es/api/orders?order_state_codes=SHIPPING&start_update_date={}"
+    shipping_url = "https://marketplace.elcorteingles.es/api/orders?order_state_codes=SHIPPING&order_ids={}"
+    shipping_test_url = "https://marketplace.elcorteingles.es/api/orders?order_state_codes=SHIPPING&order_ids={}"
 
     def __init__(self, params=None):
         super().__init__("egmiraklshippingorders", params)

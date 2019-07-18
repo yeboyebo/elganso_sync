@@ -5,12 +5,8 @@ from controllers.base.mirakl.orders.controllers.orders_download import OrdersDow
 
 class EgMiraklOrdersDownload(OrdersDownload):
 
-    orders_url = "https://marketplace.elcorteingles.es/api/orders?order_state_codes=WAITING_ACCEPTANCE"
-    orders_test_url = "https://marketplace.elcorteingles.es/api/orders?order_state_codes=WAITING_ACCEPTANCE"
-
-    # TMP. Falta paginacion y comprobar fechas
-    # orders_url = "https://marketplace.elcorteingles.es/api/orders?order_state_codes=WAITING_ACCEPTANCE&start_update_date={}"
-    # orders_test_url = "https://marketplace.elcorteingles.es/api/orders?order_state_codes=WAITING_ACCEPTANCE&start_update_date={}"
+    orders_url = "https://marketplace.elcorteingles.es/api/orders?order_state_codes=WAITING_ACCEPTANCE&start_date={}"
+    orders_test_url = "https://marketplace.elcorteingles.es/api/orders?order_state_codes=WAITING_ACCEPTANCE&start_date={}"
 
     def __init__(self, params=None):
         super().__init__("egmiraklorders", params)
