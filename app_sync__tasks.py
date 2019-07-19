@@ -29,6 +29,7 @@ from controllers.api.b2b.tierprice.controllers.eg_tierprice_upload import EgB2bT
 from controllers.api.b2b.price.controllers.eg_price_upload import EgB2bPriceUpload
 from controllers.api.b2b.inventory.controllers.eg_inventory_upload import EgB2bInventoryUpload
 from controllers.api.b2b.customerrequest.controllers.eg_customerrequest_recieve import EgB2bCustomerrequestRecieve
+from controllers.api.b2b.customers.controllers.eg_customers_upload import EgB2bCustomerUpload
 
 from controllers.api.store.orders.controllers.egorders_download import EgStoreOrdersDownload
 
@@ -78,6 +79,9 @@ sync_object_dict = {
     },
     "b2b_customerrequest_recieve": {
         "sync_object": EgB2bCustomerrequestRecieve
+    },
+    "b2b_customers_upload": {
+        "sync_object": EgB2bCustomerUpload
     },
     "mirakl_orders_download": {
         "sync_object": EgMiraklOrdersDownload
