@@ -8,7 +8,7 @@ class EgOrderVoucherLineSerializer(EgOrderLineSerializer):
     def get_data(self):
         if "vale_description" not in self.init_data or not self.init_data["vale_description"]:
             return False
-        if "total" not in self.init_data or not self.init_data["total"]:
+        if "vale_total" not in self.init_data or not self.init_data["vale_total"]:
             return False
 
         iva = self.init_data["iva"]
