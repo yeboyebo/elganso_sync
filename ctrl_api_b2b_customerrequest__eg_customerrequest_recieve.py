@@ -13,7 +13,6 @@ class EgB2bCustomerrequestRecieve(RecieveSync):
     def sync(self):
         # verificar antes que los datos están informados
         data = self.get_customerrequest_serializer().serialize(self.params["customer"])
-        print(data)
 
         if not data:
             return {"data": {"log": "Error al obtener los datos de la solicitud"},
