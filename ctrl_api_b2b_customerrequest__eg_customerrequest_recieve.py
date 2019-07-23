@@ -11,7 +11,6 @@ class EgB2bCustomerrequestRecieve(RecieveSync):
         super().__init__("mgb2bcustomerrequest", params)
 
     def sync(self):
-        # verificar antes que los datos están informados
         data = self.get_customerrequest_serializer().serialize(self.params["customer"])
 
         if not data:
@@ -68,7 +67,18 @@ class EgB2bCustomerrequestRecieve(RecieveSync):
                     "status": 500
                 }
 
-        if not qsatype.FLUtil.execSql("INSERT INTO solicitudescliente (codigoweb,estado,nombre,cifnif,email,telefono,direccion,codpostal,ciudad,provincia,pais,codcliente,fechaalta,horaalta) VALUES ('" + str(data["codigoweb"]) + "', '" + str(data["estado"]) + "', '" + str(data["nombre"]) + "', '" + str(data["cifnif"]) + "', '" + str(data["email"]) + "', '" + str(data["telefono"]) + "', '" + str(data["direccion"]) + "', '" + str(data["codpostal"]) + "', '" + str(data["ciudad"]) + "', '" + str(data["provincia"]) + "', '" + str(data["pais"]) + "', NULL, '" + str(data["fechaalta"]) + "', '" + str(data["horaalta"]) + "')"):
+        if "dirtipovia" not in data or not data["dirtipovia"] or data["dirtipovia"] == "":
+            return {"data": {"log": "Error. Dir tipo vía no informado"},
+                    "status": 500
+                }    
+
+        if "dirotros" not in data or not data["dirotros"] or data["dirotros"] == "":
+            return {"data": {"log": "Error. Dir otros no informado"},
+                    "status": 500
+                }
+                    
+
+        if not qsatype.FLUtil.execSql("INSERT INTO solicitudescliente (codigoweb,estado,nombre,cifnif,email,telefono,direccion,codpostal,ciudad,provincia,pais,codcliente,fechaalta,horaalta,dirtipovia,dirotros) VALUES ('" + str(data["codigoweb"]) + "', '" + str(data["estado"]) + "', '" + str(data["nombre"]) + "', '" + str(data["cifnif"]) + "', '" + str(data["email"]) + "', '" + str(data["telefono"]) + "', '" + str(data["direccion"]) + "', '" + str(data["codpostal"]) + "', '" + str(data["ciudad"]) + "', '" + str(data["provincia"]) + "', '" + str(data["pais"]) + "', NULL, '" + str(data["fechaalta"]) + "', '" + str(data["horaalta"]) + "', '" + str(data["dirtipovia"]) + "', '" + str(data["dirotros"]) + "')"):
                 return {"data": {"log": "Error al hacer el insert de la solicitud"},
                     "status": 500
                 }
