@@ -423,6 +423,58 @@
             {
                 "name": "ctrl_api_b2b_customers__eg_customers_upload.py",
                 "path": "controllers/api/b2b/customers/controllers/"
+            },
+            {
+                "name": "model_flfact_tpv__ew_devolucioneseciweb_raw.py",
+                "path": "models/flfact_tpv/objects/"
+            },
+            {
+                "name": "ctrl_api_mirakl_returns__download.py",
+                "path": "controllers/api/mirakl/returns/"
+            },
+            {
+                "name": "ctrl_api_mirakl_returns__eg_returns_download.py",
+                "path": "controllers/api/mirakl/returns/controllers/"
+            },
+            {
+                "path": "models/flfact_tpv/objects/",
+                "name": "model_flfact_tpv__egidlecommercedevoluciones_raw.py"
+            },
+            {
+                "path": "models/flfact_tpv/objects/",
+                "name": "model_flfact_tpv__egreturn_raw.py"
+            },
+            {
+                "path": "controllers/api/mirakl/returns/serializers/",
+                "name": "ctrl_api_mirakl_returns__return_serializer.py"
+            },
+            {
+                "path": "controllers/api/mirakl/returns/serializers/",
+                "name": "ctrl_api_mirakl_returns__return_line_serializer.py"
+            },
+            {
+                "path": "controllers/api/mirakl/returns/serializers/",
+                "name": "ctrl_api_mirakl_returns__idl_ecommercedevoluciones_serializer.py"
+            },
+            {
+                "path": "models/flfact_tpv/",
+                "name": "model_flfact_tpv__idl_ecommercedevoluciones.py"
+            },
+            {
+                "path": "models/flfact_tpv/",
+                "name": "model_flfact_tpv__idl_ecommercedevoluciones_def.py"
+            },
+            {
+                "path": "models/flfact_tpv/objects/",
+                "name": "model_flfact_tpv__egreturn_line_raw.py"
+            },
+            {
+                "name": "model_flfact_tpv__egmovistock_raw.py",
+                "path": "models/flfact_tpv/objects/"
+            },
+            {
+                "name": "ctrl_api_mirakl_returns__movistock_serializer.py",
+                "path": "controllers/api/mirakl/returns/serializers/"
             }
         ],
         "deleteFile": [],
@@ -456,6 +508,14 @@
             {
                 "name": "model_flfact_tpv__tpv_vales_def.py",
                 "path": "models/flfact_tpv/"
+            },
+            {
+                "path": "controllers/base/mirakl/returns/controllers/",
+                "name": "ctrl_base_mirakl_returns__returns_download.py"
+            },
+            {
+                "path": "controllers/base/mirakl/returns/serializers/",
+                "name": "ctrl_base_mirakl_returns__ew_devolucioneseciweb_serializer.py"
             }
         ]
     }

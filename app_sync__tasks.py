@@ -35,6 +35,7 @@ from controllers.api.store.orders.controllers.egorders_download import EgStoreOr
 
 from controllers.api.mirakl.orders.controllers.eg_orders_download import EgMiraklOrdersDownload
 from controllers.api.mirakl.shippingorders.controllers.eg_shipping_orders_download import EgMiraklShippingOrdersDownload
+from controllers.api.mirakl.returns.controllers.eg_returns_download import EgMiraklReturnsDownload
 
 
 sync_object_dict = {
@@ -88,6 +89,9 @@ sync_object_dict = {
     },
     "mirakl_shippingorders_download": {
         "sync_object": EgMiraklShippingOrdersDownload
+    },
+    "mirakl_returns_download": {
+        "sync_object": EgMiraklReturnsDownload
     }
 }
 
