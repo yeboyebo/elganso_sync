@@ -425,14 +425,14 @@
                 "path": "controllers/api/b2b/customers/controllers/"
             },
             {
-<<<<<<< HEAD
                 "name": "ctrl_api_mirakl_offers__upload.py",
                 "path": "controllers/api/mirakl/offers/"
             },
             {
                 "name": "ctrl_api_mirakl_offers__eg_offers_upload.py",
                 "path": "controllers/api/mirakl/offers/controllers/"
-=======
+            },
+            {
                 "name": "model_flfact_tpv__ew_devolucioneseciweb_raw.py",
                 "path": "models/flfact_tpv/objects/"
             },
@@ -483,7 +483,6 @@
             {
                 "name": "ctrl_api_mirakl_returns__movistock_serializer.py",
                 "path": "controllers/api/mirakl/returns/serializers/"
->>>>>>> 0b6f23588a08429b366131564e3d3b2cc3c0facc
             }
         ],
         "deleteFile": [],
