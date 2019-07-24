@@ -423,6 +423,14 @@
             {
                 "name": "ctrl_api_b2b_customers__eg_customers_upload.py",
                 "path": "controllers/api/b2b/customers/controllers/"
+            },
+            {
+                "name": "ctrl_api_mirakl_offers__upload.py",
+                "path": "controllers/api/mirakl/offers/"
+            },
+            {
+                "name": "ctrl_api_mirakl_offers__eg_offers_upload.py",
+                "path": "controllers/api/mirakl/offers/controllers/"
             }
         ],
         "deleteFile": [],

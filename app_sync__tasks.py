@@ -4,12 +4,6 @@ from YBUTILS import globalValues
 from YBUTILS import DbRouter
 
 from models.flsyncppal import flsyncppal_def as syncppal
-from models.flsyncppal import mg_importOrders_def as iMgOrders
-from models.flsyncppal import mg_updateStocks_def as iMgStocks
-from models.flsyncppal import mg_updatePoints_def as iMgPoints
-from models.flsyncppal import mg_importCustomers_def as iMgCust
-from models.flsyncppal import eg_importVentas_def as iTdaVentas
-from models.flsyncppal import mg_updatePrices_def as iMgPrices
 from models.flsyncppal import mg_importDevWeb_def as iMgDevWeb
 
 from controllers.base.default.managers.task_manager import TaskManager
@@ -35,6 +29,7 @@ from controllers.api.store.orders.controllers.egorders_download import EgStoreOr
 
 from controllers.api.mirakl.orders.controllers.eg_orders_download import EgMiraklOrdersDownload
 from controllers.api.mirakl.shippingorders.controllers.eg_shipping_orders_download import EgMiraklShippingOrdersDownload
+from controllers.api.mirakl.offers.controllers.eg_offers_upload import EgMiraklOffersUpload
 
 
 sync_object_dict = {
@@ -88,6 +83,9 @@ sync_object_dict = {
     },
     "mirakl_shippingorders_download": {
         "sync_object": EgMiraklShippingOrdersDownload
+    },
+    "mirakl_offers_upload": {
+        "sync_object": EgMiraklOffersUpload
     }
 }
 
