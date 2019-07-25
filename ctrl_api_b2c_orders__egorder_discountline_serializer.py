@@ -1,3 +1,5 @@
+import json
+
 from YBLEGACY import qsatype
 from YBLEGACY.constantes import *
 
