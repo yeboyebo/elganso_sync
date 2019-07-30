@@ -8,7 +8,7 @@ class elganso_sync(flfact_tpv):
     def elganso_sync_mgSyncDevWeb(self, params):
         if "passwd" in params and params['passwd'] == "bUqfqBMnoH":
             tasks.getUnsynchronizedDevWeb.delay(params['fakeRequest'])
-            return True
+            return {"msg": "Tarea encolada correctamente"}
         else:
             print("no tengo contraseña")
 
