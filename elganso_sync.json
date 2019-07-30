@@ -524,6 +524,10 @@
             {
                 "path": "controllers/base/mirakl/returns/serializers/",
                 "name": "ctrl_base_mirakl_returns__ew_devolucioneseciweb_serializer.py"
+            },
+            {
+                "name": "ctrl_base_mirakl_orders__shipping_orders_download.py",
+                "path": "controllers/base/mirakl/orders/controllers/"
             }
         ]
     }
