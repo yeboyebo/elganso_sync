@@ -1,6 +1,9 @@
 from YBLEGACY import qsatype
 from YBLEGACY.constantes import *
 
+from datetime import datetime
+import time
+
 from models.flsyncppal import flsyncppal_def as syncppal
 from controllers.base.default.serializers.default_serializer import DefaultSerializer
 from controllers.api.mirakl.returns.serializers.return_line_serializer import ReturnLineSerializer
@@ -39,7 +42,14 @@ class ReturnSerializer(DefaultSerializer):
         self.set_data_value("editable", True)
         self.set_data_value("tasaconv", 1)
         self.set_data_value("ptesincrofactura", False)
-        self.set_string_value("fecha", self.get_fecha())
+
+        utcCreatedDtate = datetime.strptime(self.get_init_value("date_created"), '%Y-%m-%dT%H:%M:%SZ')
+        localCreatedDate = self.utcToLocal(utcCreatedDtate)
+        fecha = str(localCreatedDate)[:10]
+        hora = str(localCreatedDate)[-8:]
+        self.set_string_value("fecha", fecha)
+        self.set_string_value("hora", hora)
+
         self.set_string_value("codpostal", "-")
         self.set_string_value("ciudad", "-")
         self.set_string_value("provincia", "-")
@@ -48,8 +58,9 @@ class ReturnSerializer(DefaultSerializer):
         self.set_string_value("nombrecliente", str(qC.value("c.nombrecliente")))
         self.set_string_relation("direccion", "datosdevol//Mensaje//Recogida//direccionRecogida", max_characters=100)
         self.set_string_value("codserie", self.get_codserie())
-        self.set_string_value("codejercicio", self.get_codejercicio())
-        self.set_string_value("hora", self.get_hora())
+
+        codejercicio = fecha = str(localCreatedDate)[:4]
+        self.set_string_value("codejercicio", codejercicio)
         self.set_string_value("codpago", self.get_codpago(), max_characters=10)
         self.set_string_value("egcodfactura", "NULL")
 
@@ -162,3 +173,8 @@ class ReturnSerializer(DefaultSerializer):
         ultima_vta = ultima_vta + 1
 
         return "{}{}".format(prefix, qsatype.FactoriaModulos.get("flfactppal").iface.cerosIzquierda(str(ultima_vta), 12 - len(prefix)))
+
+    def utcToLocal(self, utc_datetime):
+        now_timestamp = time.time()
+        offset = datetime.fromtimestamp(now_timestamp) - datetime.utcfromtimestamp(now_timestamp)
+        return utc_datetime + offset
