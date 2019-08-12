@@ -5,11 +5,11 @@ from controllers.base.magento2.products.controllers.products_upload import Produ
 
 class EgProductsUpload(ProductsUpload):
 
-    product_url = "http://b2b.elganso.com/index.php/rest/default/V1/products"
-    product_test_url = "http://magento2.local/index.php/rest/default/V1/products"
+    product_url = "http://b2b.elganso.com/index.php/rest/{}/V1/products"
+    product_test_url = "http://magento2.local/index.php/rest/{}/V1/products"
 
-    link_url = "http://b2b.elganso.com/index.php/rest/default/V1/configurable-products/{}/child"
-    link_test_url = "http://magento2.local/index.php/rest/default/V1/configurable-products/{}/child"
+    link_url = "http://b2b.elganso.com/index.php/rest/all/V1/configurable-products/{}/child"
+    link_test_url = "http://magento2.local/index.php/rest/all/V1/configurable-products/{}/child"
 
     def __init__(self, params=None):
         super().__init__("mgb2bproducts", params)
