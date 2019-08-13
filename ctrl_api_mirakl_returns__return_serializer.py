@@ -39,7 +39,6 @@ class ReturnSerializer(DefaultSerializer):
 
         # TMP. Codigo agente
         self.set_string_value("codtpv_agente", "0350")
-        self.set_string_value("estado", "Abierta")
         self.set_data_value("editable", True)
         self.set_data_value("tasaconv", 1)
         self.set_data_value("ptesincrofactura", False)
@@ -105,15 +104,21 @@ class ReturnSerializer(DefaultSerializer):
         })
 
         self.set_data_value("total", total)
-        self.set_data_value("pagado", 0)
-        self.set_data_value("pendiente", total)
         self.set_data_value("neto", neto)
         self.set_data_value("totaliva", total - neto)
 
         if self.init_data["valdemoro"] == False:
+            self.set_string_value("estado", "Abierta")
+            self.set_data_value("pagado", 0)
+            self.set_data_value("pendiente", total)
+
             idl_ecommerceDev = IdlEcommerceDevolucionesSerializer().serialize(new_init_data)
             self.data["children"]["idl_ecommercedevoluciones"] = idl_ecommerceDev
         else:
+            self.set_string_value("estado", "Cerrada")
+            self.set_data_value("pagado", total)
+            self.set_data_value("pendiente", 0)
+
             if "payments" not in self.data["children"]:
                 self.data["children"]["payments"] = []
 
