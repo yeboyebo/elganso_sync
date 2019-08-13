@@ -8,8 +8,7 @@ from models.flsyncppal import flsyncppal_def as syncppal
 from controllers.base.default.serializers.default_serializer import DefaultSerializer
 from controllers.api.mirakl.returns.serializers.return_line_serializer import ReturnLineSerializer
 from controllers.api.mirakl.returns.serializers.idl_ecommercedevoluciones_serializer import IdlEcommerceDevolucionesSerializer
-from controllers.base.mirakl.orders.serializers.order_payment_serializer import OrderPaymentSerializer
-from controllers.base.mirakl.orders.serializers.cashcount_serializer import CashCountSerializer
+
 
 class ReturnSerializer(DefaultSerializer):
 
@@ -110,23 +109,8 @@ class ReturnSerializer(DefaultSerializer):
         self.set_data_value("neto", neto)
         self.set_data_value("totaliva", total - neto)
 
-        if self.init_data["valdemoro"] == False:
-            idl_ecommerceDev = IdlEcommerceDevolucionesSerializer().serialize(new_init_data)
-            self.data["children"]["idl_ecommercedevoluciones"] = idl_ecommerceDev
-        else:
-            if "payments" not in self.data["children"]:
-                self.data["children"]["payments"] = []
-
-            arqueo_web = CashCountSerializer().serialize(self.data)
-            new_data = self.data.copy()
-            new_data.update({"idarqueo": arqueo_web["idtpv_arqueo"]})
-            pago_web = OrderPaymentSerializer().serialize(new_data)
-
-            if "skip" in arqueo_web and arqueo_web["skip"]:
-                arqueo_web = False
-            self.data["children"]["cashcount"] = arqueo_web
-
-            self.data["children"]["payments"].append(pago_web)
+        idl_ecommerceDev = IdlEcommerceDevolucionesSerializer().serialize(new_init_data)
+        self.data["children"]["idl_ecommercedevoluciones"] = idl_ecommerceDev
 
         return True
 

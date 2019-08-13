@@ -2,7 +2,8 @@ from models.flsyncppal.objects.aqmodel_raw import AQModel
 from models.flsyncppal import flsyncppal_def as syncppal
 from models.flfact_tpv.objects.egreturn_line_raw import EgReturnLine
 from models.flfact_tpv.objects.egidlecommercedevoluciones_raw import EgIdlEcommerceDevoluciones
-
+from models.flfact_tpv.objects.egorder_payment_raw import EgOrderPayment
+from models.flfact_tpv.objects.egcashcount_raw import EgCashCount
 
 class EgReturn(AQModel):
 
@@ -26,8 +27,15 @@ class EgReturn(AQModel):
         else:
             syncppal.iface.log("Error. No se encontraron los datos de líneas", "egmiraklreturns")
 
-        if "idl_ecommercedevoluciones" in self.data["children"]:
-            idlEcommerceDev = EgIdlEcommerceDevoluciones(self.data["children"]["idl_ecommercedevoluciones"])
-            self.children.append(idlEcommerceDev)
+        if self.data["valdemoro"] == True:
+            arqueo = EgCashCount(self.data["children"]["cashcount"])
+            self.children.append(arqueo)
+
+            for item in self.data["children"]["payments"]:
+                self.children.append(EgOrderPayment(item))
         else:
-            syncppal.iface.log("Error. No se encontraron los datos de idl_ecommercedevoluciones", "egmiraklreturns")
+            if "idl_ecommercedevoluciones" in self.data["children"]:
+                idlEcommerceDev = EgIdlEcommerceDevoluciones(self.data["children"]["idl_ecommercedevoluciones"])
+                self.children.append(idlEcommerceDev)
+            else:
+                syncppal.iface.log("Error. No se encontraron los datos de idl_ecommercedevoluciones", "egmiraklreturns")

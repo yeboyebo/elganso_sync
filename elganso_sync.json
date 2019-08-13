@@ -483,6 +483,34 @@
             {
                 "name": "ctrl_api_mirakl_returns__movistock_serializer.py",
                 "path": "controllers/api/mirakl/returns/serializers/"
+            },
+            {
+                "name": "ctrl_api_mirakl_returnsvaldemoro__download.py",
+                "path": "controllers/api/mirakl/returnsvaldemoro/"
+            },
+            {
+                "name": "ctrl_api_mirakl_returnsvaldemoro__ew_devolucioneseciweb_serializer.cpython-35.pyc",
+                "path": "controllers/api/mirakl/returnsvaldemoro/serializers/__pycache__/"
+            },
+            {
+                "name": "ctrl_api_mirakl_returnsvaldemoro__download.cpython-35.pyc",
+                "path": "controllers/api/mirakl/returnsvaldemoro/__pycache__/"
+            },
+            {
+                "name": "ctrl_api_mirakl_returnsvaldemoro__eg_returnsvaldemoro_download.py",
+                "path": "controllers/api/mirakl/returnsvaldemoro/controllers/"
+            },
+            {
+                "name": "ctrl_api_mirakl_returnsvaldemoro__returnsvaldemoro_download.cpython-35.pyc",
+                "path": "controllers/api/mirakl/returnsvaldemoro/controllers/__pycache__/"
+            },
+            {
+                "name": "ctrl_api_mirakl_returnsvaldemoro__eg_returnsvaldemoro_download.cpython-35.pyc",
+                "path": "controllers/api/mirakl/returnsvaldemoro/controllers/__pycache__/"
+            },
+            {
+                "name": "ctrl_api_mirakl_returnsvaldemoro__returnvaldemoro_serializer.py",
+                "path": "controllers/api/mirakl/returnsvaldemoro/serializers/"
             }
         ],
         "deleteFile": [],
