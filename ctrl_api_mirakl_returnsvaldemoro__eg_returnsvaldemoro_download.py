@@ -9,8 +9,8 @@ from models.flfact_tpv.objects.egreturn_raw import EgReturn
 
 class EgMiraklReturnsValdemoroDownload(ReturnsValdemoroDownload, ABC):
 
-    returns_url = "https://marketplace.elcorteingles.es/api/messages"
-    returns_test_url = "https://marketplace.elcorteingles.es/api/messages"
+    returns_url = "https://marketplace.elcorteingles.es/api/messages?start_date={}"
+    returns_test_url = "https://marketplace.elcorteingles.es/api/messages?start_date={}"
 
     def __init__(self, params=None):
         super().__init__("egmiraklreturnsvaldemoro", params)
