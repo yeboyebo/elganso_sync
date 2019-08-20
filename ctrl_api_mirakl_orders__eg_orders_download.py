@@ -12,6 +12,6 @@ class EgMiraklOrdersDownload(OrdersDownload):
         super().__init__("egmiraklorders", params)
 
         self.set_sync_params({
-            "auth": "1737f9fc-d5fc-4130-b127-72d15ee0870e",
-            "test_auth": "1737f9fc-d5fc-4130-b127-72d15ee0870e"
+            "auth": "a83379cd-1f31-4b05-8175-5c5173620a4a",
+            "test_auth": "a83379cd-1f31-4b05-8175-5c5173620a4a"
         })
