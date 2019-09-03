@@ -4,44 +4,48 @@ from YBLEGACY.constantes import *
 from controllers.base.default.serializers.default_serializer import DefaultSerializer
 
 
-class EgOrderLineSerializer(DefaultSerializer):
+class EgRefoundLineSerializer(DefaultSerializer):
 
     def get_data(self):
-        iva = self.init_data["iva"]
+
+        iva = self.init_data["tax_percent"]
         if not iva or iva == "":
             iva = 0
 
-        if not self.comprobar_talla():
-            return False
-
         self.set_string_value("codtienda", "AWEB")
-
         self.set_string_value("referencia", self.get_referencia(), max_characters=18)
         self.set_string_value("descripcion", self.get_descripcion(), max_characters=100)
         self.set_string_value("barcode", self.get_barcode(), max_characters=20)
         self.set_string_value("talla", self.get_talla(), max_characters=50)
         self.set_string_value("color", self.get_color(), max_characters=50)
         self.set_string_value("codimpuesto", self.get_codimpuesto(iva), max_characters=10)
-
         self.set_string_relation("codcomanda", "codcomanda", max_characters=12)
 
-        pvpunitario = parseFloat(self.init_data["pvpunitarioiva"] / ((100 + iva) / 100))
-        pvpsindto = parseFloat(self.init_data["pvpsindtoiva"] / ((100 + iva) / 100))
-        pvptotal = parseFloat(self.init_data["pvptotaliva"] / ((100 + iva) / 100))
+        cant = parseFloat(self.init_data["qty"])
+        pvpunitario = parseFloat(self.init_data["price"])
+        pvpsindto = parseFloat(self.init_data["price"]) * cant
+        pvptotal = parseFloat(self.init_data["price"]) * cant
+        pvpunitarioiva = parseFloat(self.init_data["original_price"])
+        pvpsindtoiva = parseFloat(self.init_data["original_price"]) * cant
+        pvptotaliva = parseFloat(self.init_data["original_price"]) * cant
 
-        self.set_data_value("cantdevuelta", 0)
-        self.set_data_value("cantidad", self.get_cantidad())
+        if self.init_data["tipo_linea"] == "refounded":
+            pvpsindto = pvpsindto * (-1)
+            pvptotal = pvptotal * (-1)
+            pvpsindtoiva = pvpsindtoiva * (-1)
+            pvptotaliva = pvptotaliva * (-1)
+            cant = cant * (-1)
 
+        self.set_string_value("cantidad", cant)
+        self.set_string_value("cantdevuelta", 0)
+        self.set_string_value("pvpunitario", pvpunitario)
+        self.set_string_value("pvpsindto", pvpsindto)
+        self.set_string_value("pvptotal", pvptotal)
+        self.set_string_value("pvpunitarioiva", pvpunitarioiva)
+        self.set_string_value("pvpsindtoiva", pvpsindtoiva)
+        self.set_string_value("pvptotaliva", pvptotaliva)
+        self.set_string_value("iva", iva)
         self.set_data_value("ivaincluido", True)
-        self.set_data_value("pvpunitario", pvpunitario)
-        self.set_data_value("pvpsindto", pvpsindto)
-        self.set_data_value("pvptotal", pvptotal)
-
-        self.set_data_relation("iva", "iva")
-        self.set_data_relation("pvpunitarioiva", "pvpunitarioiva")
-        self.set_data_relation("pvpsindtoiva", "pvpsindtoiva")
-        self.set_data_relation("pvptotaliva", "pvptotaliva")
-
         return True
 
     def get_splitted_sku(self):
@@ -100,14 +104,4 @@ class EgOrderLineSerializer(DefaultSerializer):
         return self.init_data["cantidad"]
 
 
-    def comprobar_talla(self):
-        splitted_sku = self.get_splitted_sku()
 
-        if len(splitted_sku) == 1:
-            referencia = splitted_sku[0]
-            cant_tallas = qsatype.FLUtil.quickSqlSelect("atributosarticulos", "COUNT(*)", "referencia = '{}'".format(referencia))
-
-            if float(cant_tallas) > 0:
-                raise NameError("Error. Se ha indicado una referencia con varias tallas asociadas, revisar JSON")
-
-        return True

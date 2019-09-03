@@ -16,6 +16,8 @@ from controllers.api.b2c.points.controllers.egpoints_upload import EgPointsUploa
 from controllers.api.b2c.prices.controllers.egprices_upload import EgPricesUpload
 from controllers.api.b2c.orders.controllers.egorders_download import EgOrdersDownload
 from controllers.api.b2c.customers.controllers.egcustomers_download import EgCustomersDownload
+from controllers.api.b2c.refounds.controllers.egrefounds_download import EgRefoundsDownload
+
 
 from controllers.api.b2b.products.controllers.eg_products_upload import EgProductsUpload as b2bProducts
 from controllers.api.b2b.orders.controllers.orders_download import OrdersDownload as b2bOrders
@@ -57,6 +59,10 @@ sync_object_dict = {
     "store_orders_download": {
         "sync_object": EgStoreOrdersDownload,
         "driver": PsqlStoreDriver
+    },
+    "refounds_download": {
+        "sync_object": EgRefoundsDownload,
+        "driver": MagentoDriver
     },
     "products_b2b_upload": {
         "sync_object": b2bProducts
@@ -100,26 +106,3 @@ task_manager = TaskManager(sync_object_dict)
 
 globalValues.registrarmodulos()
 cdDef = 10
-
-
-@app.task
-def getUnsynchronizedDevWeb(r):
-    DbRouter.ThreadLocalMiddleware.process_request_celery(None, r)
-
-    try:
-        cdTime = iMgDevWeb.iface.getUnsynchronizedDevWeb() or cdDef
-    except Exception:
-        syncppal.iface.log("Error. Fallo en tasks", "mgsyncdevweb")
-        cdTime = cdDef
-
-    activo = False
-    try:
-        resul = qsatype.FLSqlQuery().execSql("SELECT activo FROM yb_procesos WHERE proceso = 'mgsyncdevweb'", "yeboyebo")
-        activo = resul[0][0]
-    except Exception:
-        activo = False
-
-    if activo:
-        getUnsynchronizedDevWeb.apply_async((r,), countdown=cdTime)
-    else:
-        syncppal.iface.log("Info. Proceso detenido", "mgsyncdevweb")
