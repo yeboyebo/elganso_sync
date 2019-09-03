@@ -107,7 +107,7 @@ class EgOrderLineSerializer(DefaultSerializer):
             referencia = splitted_sku[0]
             cant_tallas = qsatype.FLUtil.quickSqlSelect("atributosarticulos", "COUNT(*)", "referencia = '{}'".format(referencia))
 
-            if float(cant_tallas) > 0:
+            if float(cant_tallas) > 1:
                 raise NameError("Error. Se ha indicado una referencia con varias tallas asociadas, revisar JSON")
 
         return True
