@@ -30,7 +30,7 @@ class EgRefoundsDownload(DownloadSync):
 
     def after_sync(self):
         self.set_sync_params({
-            "url": "http://local2.elganso.com/syncapi/index.php/refounds/{}/synchronized",
+            "url": "https://www.elganso.com/syncapi/index.php/refounds/{}/synchronized",
             "test_url": "http://local2.elganso.com/syncapi/index.php/refounds/{}/synchronized"
         })
 
