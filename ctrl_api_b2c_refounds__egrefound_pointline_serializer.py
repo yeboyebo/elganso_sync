@@ -42,7 +42,7 @@ class EgRefoundPointLineSerializer(EgRefoundLineSerializer):
         pvpSinDtoIva = pvpUnitarioIva
         pvpTotalIva = pvpUnitarioIva
 
-        if self.init_data["tipo_linea"] == "PuntosNegativos":
+        if self.init_data["tipo_linea"] == "PuntosPositivos":
             pvpSinDto = pvpSinDto * (-1)
             pvpTotal = pvpTotal * (-1)
             pvpSinDtoIva = pvpUnitarioIva * (-1)
@@ -75,9 +75,8 @@ class EgRefoundPointLineSerializer(EgRefoundLineSerializer):
         return 1
 
     def crear_registro_puntos(self):
-        
         canPuntos = parseFloat(self.init_data["points_used"])
-        if self.init_data["tipo_linea"] == "PuntosNegativos":
+        if self.init_data["tipo_linea"] == "PuntosPositivos":
             canPuntos = canPuntos * (-1)
 
         curMP = qsatype.FLSqlCursor("tpv_movpuntos")
