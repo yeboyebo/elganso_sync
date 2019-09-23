@@ -563,6 +563,22 @@
             {
                 "name": "ctrl_api_b2c_refounds__egidlecommercedevoluciones_serializer.py",
                 "path": "controllers/api/b2c/refounds/serializers/"
+            },
+            {
+                "name": "ctrl_api_b2c_orders__egorder_lineaecommerceexcluida_serializer.py",
+                "path": "controllers/api/b2c/orders/serializers/"
+            },
+            {
+                "name": "model_flfact_tpv__egorder_lineaecommerceexcluida_raw.py",
+                "path": "models/flfact_tpv/objects/"
+            },
+            {
+                "name": "model_flfact_tpv__eg_lineasecommerceexcluidas.py",
+                "path": "models/flfact_tpv/"
+            },
+            {
+                "name": "model_flfact_tpv__eg_lineasecommerceexcluidas_def.py",
+                "path": "models/flfact_tpv/"
             }
         ],
         "deleteFile": [],

@@ -2,6 +2,7 @@ from YBLEGACY import qsatype
 from YBLEGACY.constantes import *
 
 from controllers.base.default.serializers.default_serializer import DefaultSerializer
+from controllers.api.b2c.orders.serializers.egorder_lineaecommerceexcluida_serializer import EgLineaEcommerceExcluida
 
 
 class EgOrderLineSerializer(DefaultSerializer):
@@ -41,6 +42,10 @@ class EgOrderLineSerializer(DefaultSerializer):
         self.set_data_relation("pvpunitarioiva", "pvpunitarioiva")
         self.set_data_relation("pvpsindtoiva", "pvpsindtoiva")
         self.set_data_relation("pvptotaliva", "pvptotaliva")
+        print("//////////////almacen: ", str(self.init_data["almacen"]))
+        if str(self.init_data["almacen"]) != "AWEB":
+            linea_ecommerce_excluida = EgLineaEcommerceExcluida().serialize(self.init_data)
+            self.data["children"]["lineaecommerceexcluida"] = linea_ecommerce_excluida
 
         return True
 

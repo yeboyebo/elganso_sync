@@ -15,14 +15,14 @@ class EgStockUpload(UploadSync):
             "auth": "Basic c2luY3JvOmJVcWZxQk1ub0g=",
             "test_auth": "Basic dGVzdDp0ZXN0",
             "url": "https://www.elganso.com/syncapi/index.php/productupdates",
-            "test_url": "http://local2.elganso.com/syncapi/index.php/productupdates",
+            "test_url": "http://local1.elganso.com/syncapi/index.php/productupdates",
             "success_code": 202
         })
 
     def get_data(self):
         q = qsatype.FLSqlQuery()
-        q.setSelect("aa.referencia, aa.talla, aa.barcode, s.disponible, ssw.idssw")
-        q.setFrom("articulos a INNER JOIN atributosarticulos aa ON a.referencia = aa.referencia INNER JOIN stocks s ON (aa.barcode = s.barcode AND s.codalmacen = 'AWEB') LEFT OUTER JOIN eg_sincrostockweb ssw ON s.idstock = ssw.idstock")
+        q.setSelect("aa.referencia, aa.talla, aa.barcode, s.disponible, ssw.idssw, s.codalmacen")
+        q.setFrom("articulos a INNER JOIN atributosarticulos aa ON a.referencia = aa.referencia INNER JOIN stocks s ON aa.barcode = s.barcode LEFT OUTER JOIN eg_sincrostockweb ssw ON s.idstock = ssw.idstock")
         q.setWhere("NOT ssw.sincronizado OR ssw.sincronizado = false ORDER BY aa.referencia LIMIT 25")
 
         q.exec_()
@@ -34,8 +34,19 @@ class EgStockUpload(UploadSync):
         while q.next():
             sku = self.dame_sku(q.value("aa.referencia"), q.value("aa.talla"))
             qty = parseInt(self.dame_stock(q.value("s.disponible")))
+            
+            aListaAlmacenes = self.dame_almacenessincroweb().split(",")
+            if q.value("s.codalmacen") not in aListaAlmacenes:
+                raise NameError("Error. Existe un registro cuyo almacén no está en la lista de almacenes de sincronización con Magento. " + str(q.value("ssw.idssw")))
 
-            body.append({"sku": sku, "qty": qty, "sincroStock": True})
+            cant_disponible = qty
+            if str(q.value("s.codalmacen")) != "AWEB":
+                cant_reservada = self.get_cantreservada(q.value("s.codalmacen"))
+                cant_disponible = parseFloat(qty) - parseFloat(cant_reservada)
+                if cant_disponible < 0:
+                    cant_disponible = 0
+
+            body.append({"sku": sku, "qty": cant_disponible, "sincroStock": True, "almacen": q.value("s.codalmacen")})
 
             if not self._ssw:
                 self._ssw = ""
@@ -66,3 +77,20 @@ class EgStockUpload(UploadSync):
             raise NameError("No se recibió una respuesta correcta del servidor")
 
         return self.small_sleep
+
+    def dame_almacenessincroweb(self):
+
+        listaAlmacenes = qsatype.FLUtil.sqlSelect("param_parametros", "valor", "nombre = 'ALMACENES_SINCRO'")
+        if not listaAlmacenes or listaAlmacenes == "" or str(listaAlmacenes) == "None" or listaAlmacenes == None:
+            return "AWEB"
+
+        return listaAlmacenes
+
+    def get_cantreservada(self, codalmacen):
+
+        cant_reservada = qsatype.FLUtil.sqlSelect("param_parametros", "valor", "nombre = 'RSTOCK_" + str(codalmacen) + "'")
+        if not cant_reservada or cant_reservada == "" or str(cant_reservada) == "None" or cant_reservada == None:
+            return 0
+
+        return parseFloat(cant_reservada)
+

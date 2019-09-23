@@ -2,6 +2,7 @@ from YBLEGACY import qsatype
 from YBLEGACY.constantes import *
 
 from models.flsyncppal.objects.aqmodel_raw import AQModel
+from models.flfact_tpv.objects.egorder_lineaecommerceexcluida_raw import EgOrderLineaEcommerceExcluida
 
 
 class EgOrderLine(AQModel):
@@ -16,6 +17,13 @@ class EgOrderLine(AQModel):
         self.dump_to_cursor()
         idsincro = qsatype.FactoriaModulos.get("formRecordlineaspedidoscli").iface.pub_commonCalculateField("idsincro", self.cursor)
         self.set_string_value("idsincro", idsincro, max_characters=30)
+
+    def get_children_data(self):
+
+        if "lineaecommerceexcluida" in self.data["children"]:
+            print("/////////////ENTRA en get children")
+            if self.data["children"]["lineaecommerceexcluida"]:
+                self.children.append(EgOrderLineaEcommerceExcluida(self.data["children"]["lineaecommerceexcluida"]))
 
     def get_numlinea(self):
         numlinea = parseInt(qsatype.FLUtil.quickSqlSelect("tpv_comandas", "count(*)", "idtpv_comanda = {}".format(self.data["idtpv_comanda"])))

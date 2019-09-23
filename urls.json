@@ -100,6 +100,13 @@
         },
         {
             "type": "insertAfterNode",
+            "path": "/models/flfact_tpv/ew_devolucioneseciweb",
+            "value": {
+                "eg_lineasecommerceexcluidas": null
+            }
+        },
+        {
+            "type": "insertAfterNode",
             "path": "/models/flfactalma/lineasregstocks",
             "value": {
                 "movistock": null
