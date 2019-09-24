@@ -29,7 +29,6 @@ class EgOrdersDownload(DownloadSync):
         order.save()
 
     def after_sync(self):
-        return True
         self.set_sync_params({
             "url": "https://www.elganso.com/syncapi/index.php/orders/{}/synchronized",
             "test_url": "http://local1.elganso.com/syncapi/index.php/orders/{}/synchronized"
