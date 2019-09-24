@@ -21,7 +21,7 @@ class EgStockUpload(UploadSync):
 
     def get_data(self):
         q = qsatype.FLSqlQuery()
-        q.setSelect("aa.referencia, aa.talla, aa.barcode, s.disponible, ssw.idssw, s.codalmacen")
+        q.setSelect("aa.referencia, aa.talla, aa.barcode, s.disponible, s.cantidad, s.idstock, ssw.idssw, s.codalmacen")
         q.setFrom("articulos a INNER JOIN atributosarticulos aa ON a.referencia = aa.referencia INNER JOIN stocks s ON aa.barcode = s.barcode LEFT OUTER JOIN eg_sincrostockweb ssw ON s.idstock = ssw.idstock")
         q.setWhere("NOT ssw.sincronizado OR ssw.sincronizado = false ORDER BY aa.referencia LIMIT 25")
 
@@ -33,8 +33,14 @@ class EgStockUpload(UploadSync):
 
         while q.next():
             sku = self.dame_sku(q.value("aa.referencia"), q.value("aa.talla"))
-            qty = parseInt(self.dame_stock(q.value("s.disponible")))
-            
+            # qty = parseInt(self.dame_stock(q.value("s.disponible")))
+            hoy = qsatype.Date()
+            stockReservado = qsatype.FLUtil.sqlSelect("eg_anulacionstockreservado", "idstock", "idstock = {} AND activo = true AND fechatope >= '{}'".format(q.value("s.idstock"), hoy))
+            if stockReservado and stockReservado != 0:
+            	qty = parseInt(self.dame_stock(q.value("s.cantidad")))
+            else:
+            	qty = parseInt(self.dame_stock(q.value("s.disponible")))
+
             aListaAlmacenes = self.dame_almacenessincroweb().split(",")
             if q.value("s.codalmacen") not in aListaAlmacenes:
                 raise NameError("Error. Existe un registro cuyo almacén no está en la lista de almacenes de sincronización con Magento. " + str(q.value("ssw.idssw")))
