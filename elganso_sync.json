@@ -579,6 +579,14 @@
             {
                 "name": "model_flfact_tpv__eg_lineasecommerceexcluidas_def.py",
                 "path": "models/flfact_tpv/"
+            },
+            {
+                "path": "controllers/api/b2c/stock_inicial/",
+                "name": "ctrl_api_b2c_stock_inicial__recieve.py"
+            },
+            {
+                "path": "controllers/api/b2c/stock_inicial/controllers/",
+                "name": "ctrl_api_b2c_stock_inicial__egstock_inicial_recieve.py"
             }
         ],
         "deleteFile": [],

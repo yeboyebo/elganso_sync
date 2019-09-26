@@ -17,6 +17,7 @@ from controllers.api.b2c.prices.controllers.egprices_upload import EgPricesUploa
 from controllers.api.b2c.orders.controllers.egorders_download import EgOrdersDownload
 from controllers.api.b2c.customers.controllers.egcustomers_download import EgCustomersDownload
 from controllers.api.b2c.refounds.controllers.egrefounds_download import EgRefoundsDownload
+from controllers.api.b2c.stock_inicial.controllers.egstock_inicial_recieve import EgStockInicialRecieve
 
 
 from controllers.api.b2b.products.controllers.eg_products_upload import EgProductsUpload as b2bProducts
@@ -63,6 +64,9 @@ sync_object_dict = {
     "refounds_download": {
         "sync_object": EgRefoundsDownload,
         "driver": MagentoDriver
+    },
+    "stock_inicial_recieve": {
+        "sync_object": EgStockInicialRecieve
     },
     "products_b2b_upload": {
         "sync_object": b2bProducts
