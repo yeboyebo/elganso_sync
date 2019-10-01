@@ -37,9 +37,13 @@ class EgStockUpload(UploadSync):
             hoy = qsatype.Date()
             stockReservado = qsatype.FLUtil.sqlSelect("eg_anulacionstockreservado", "idstock", "idstock = {} AND activo = true AND fechatope >= '{}'".format(q.value("s.idstock"), hoy))
             if stockReservado and stockReservado != 0:
-            	qty = parseInt(self.dame_stock(q.value("s.cantidad")))
+                cantA = parseInt(qsatype.FLUtil.sqlSelect("eg_anulacionstockreservado", "cantstockreservadoanulado", "idstock = {} AND activo = true AND fechatope >= '{}'".format(q.value("s.idstock"), hoy)))
+                if not cantA:
+                    cantA = 0
+
+                qty = parseInt(self.dame_stock(q.value("s.disponible"))) + cantA
             else:
-            	qty = parseInt(self.dame_stock(q.value("s.disponible")))
+                qty = parseInt(self.dame_stock(q.value("s.disponible")))
 
             aListaAlmacenes = self.dame_almacenessincroweb().split(",")
             if q.value("s.codalmacen") not in aListaAlmacenes:
