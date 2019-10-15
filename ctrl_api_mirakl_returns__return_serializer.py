@@ -36,6 +36,8 @@ class ReturnSerializer(DefaultSerializer):
         self.set_string_value("codtpv_puntoventa", codtienda)
         self.set_string_value("codalmacen", codtienda)
         self.set_string_value("codtienda", codtienda)
+        self.set_string_value("codcomandadevol", str(qC.value("c.codigo")))
+        self.set_string_value("tipodoc", "DEVOLUCION")
 
         # TMP. Codigo agente
         self.set_string_value("codtpv_agente", "0350")
