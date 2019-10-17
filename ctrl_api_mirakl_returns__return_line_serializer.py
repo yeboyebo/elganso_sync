@@ -9,7 +9,6 @@ from controllers.api.mirakl.returns.serializers.movistock_serializer import EgMo
 class ReturnLineSerializer(DefaultSerializer):
 
     def get_data(self):
-
         qL = qsatype.FLSqlQuery()
         qL.setSelect("codimpuesto, pvpunitario, iva")
         qL.setFrom("tpv_lineascomanda")
@@ -50,8 +49,11 @@ class ReturnLineSerializer(DefaultSerializer):
         self.set_data_value("pvpunitarioiva", pvpUnitario + ((pvpUnitario * iva) / 100))
         self.set_data_value("pvpsindtoiva", pvptotal + ((pvptotal * iva) / 100))
         self.set_data_value("pvptotaliva", pvptotal + ((pvptotal * iva) / 100))
-
+       
         new_data = self.data.copy()
+        new_data.update({
+            "codalmacen": self.init_data["codalmacen"]
+        })
         movistock_data = EgMovistockSerializer().serialize(new_data)
         self.data["children"]["movistock"] = movistock_data
         return True

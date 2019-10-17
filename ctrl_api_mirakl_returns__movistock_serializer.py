@@ -17,7 +17,7 @@ class EgMovistockSerializer(DefaultSerializer):
         return True
 
     def get_idstock(self):
-        idStock = str(qsatype.FLUtil.quickSqlSelect("stocks", "idstock", "barcode = '" + str(self.data["barcode"]) + "' AND codalmacen = 'AWEB'"))
+        idStock = str(qsatype.FLUtil.quickSqlSelect("stocks", "idstock", "barcode = '" + str(self.data["barcode"]) + "' AND codalmacen = '" + self.init_data["codalmacen"] + "'"))
 
         if not idStock or idStock == "None":
             raise NameError("No se encontró el stock para el artículo {} en el almacén AWEB".format(str(self.data["barcode"])))

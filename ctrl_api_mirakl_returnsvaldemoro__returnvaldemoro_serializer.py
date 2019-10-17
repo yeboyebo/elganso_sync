@@ -32,8 +32,9 @@ class ReturnSerializer(DefaultSerializer):
         self.set_string_value("codigo", codigo, max_characters=15)
 
         codtienda = self.get_codtienda()
+        codalmacen = qsatype.FLUtil.quickSqlSelect("tpv_tiendas", "codalmacen", "codtienda = '{}'".format(codtienda))
         self.set_string_value("codtpv_puntoventa", codtienda)
-        self.set_string_value("codalmacen", codtienda)
+        self.set_string_value("codalmacen", codalmacen)
         self.set_string_value("codtienda", codtienda)
         self.set_string_value("codcomandadevol", str(qC.value("c.codigo")))
         self.set_string_value("tipodoc", "DEVOLUCION")
@@ -78,6 +79,7 @@ class ReturnSerializer(DefaultSerializer):
                     return False
 
                 item.update({
+                	"codalmacen": codalmacen,
                     "codcomanda": codigo,
                     "idcomandaO": str(qC.value("c.idtpv_comanda"))
                 })
@@ -91,6 +93,7 @@ class ReturnSerializer(DefaultSerializer):
                 return False
 
             itemA.update({
+                "codalmacen": codalmacen,
                 "codcomanda": codigo,
                 "idcomandaO": str(qC.value("c.idtpv_comanda"))
             })
@@ -149,7 +152,6 @@ class ReturnSerializer(DefaultSerializer):
 
     def get_codejercicio(self):
         date = self.init_data["date_created"][:10]
-        print(date)
         splitted_date = date.split("-")
 
         return splitted_date[0]

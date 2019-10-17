@@ -366,7 +366,6 @@ class EgRefoundsSerializer(DefaultSerializer):
         self.data["children"]["payments"].append(pago_web)
 
         if "items_requested" in self.init_data:
-            print("entra")
             new_init_data = self.init_data.copy()
             new_init_data.update(
                 {"idarqueo": arqueo_web["idtpv_arqueo"],
