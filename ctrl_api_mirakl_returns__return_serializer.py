@@ -34,7 +34,9 @@ class ReturnSerializer(DefaultSerializer):
 
         codtienda = self.get_codtienda()
         codalmacen = qsatype.FLUtil.quickSqlSelect("tpv_tiendas", "codalmacen", "codtienda = '{}'".format(codtienda))
-        self.set_string_value("codtpv_puntoventa", codtienda)
+        punto_venta = qsatype.FLUtil.sqlSelect("tpv_puntosventa", "codtpv_puntoventa", "codtienda = '{}'".format(codtienda))
+        
+        self.set_string_value("codtpv_puntoventa", punto_venta)
         self.set_string_value("codalmacen", codalmacen)
         self.set_string_value("codtienda", codtienda)
         self.set_string_value("codcomandadevol", str(qC.value("c.codigo")))

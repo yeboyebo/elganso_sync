@@ -637,14 +637,11 @@ class elganso_sync(interna):
             hayError = False
             while q.next():
                 codTienda = q.value("codtienda")
-                print("antes conectar")
                 cx = importVentas.iface.creaConexion(codTienda)
-                print("despues conectar")
                 if not cx:
                     syncppal.iface.log("Info. No se pudo conectar con la tienda " + codTienda.upper(), proceso)
                     continue
 
-                print("antes comprobar conexion")
                 if not importVentas.iface.comprobarConexion(codTienda, cx, proceso):
                     continue
 
