@@ -301,6 +301,9 @@ class elganso_sync(interna):
         cx = {}
         datosCX = self.iface.dameDatosConexion(codTienda)
         cx["conn"] = self.iface.conectaBd(datosCX)
+        if not cx["conn"]:
+            return False
+
         cx["cur"] = cx["conn"].cursor(cursor_factory=RealDictCursor)
 
         return cx
