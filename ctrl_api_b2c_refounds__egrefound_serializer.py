@@ -441,14 +441,124 @@ class EgRefoundsSerializer(DefaultSerializer):
 
     def crear_registros_ecommerce(self):
         new_init_data = self.init_data.copy()
+        excluir_idl = False
+        if str(self.init_data["warehouse"]) != "AWEB":
+            excluir_idl = True
+
         new_init_data.update({
             "codcomanda": self.data["codigo"],
+            "excluir_idl": excluir_idl
         })
+
+        if excluir_idl == True:
+            if not self.crear_viaje_recogidatienda(self.data["codigo"]):
+                raise NameError("Error al crear el viaje de recogida en tienda.")
+
         idl_ecommerce_devolucion = EgIdlEcommerceDevoluciones().serialize(new_init_data)
         self.data["children"]["idl_ecommerce_devolucion"] = idl_ecommerce_devolucion
 
+        excluir_idl = False
         if "items_requested" in self.init_data:
             idl_ecommerce = EgIdlEcommerce().serialize(new_init_data)
             self.data["children"]["idl_ecommerce"] = idl_ecommerce
+
+        return True
+
+    def crear_viaje_recogidatienda(self, codcomanda):
+
+        id_viaje =  qsatype.FactoriaModulos.get("formRecordtpv_comandas").iface.obtenerIdViaje()
+
+        if not id_viaje or str(id_viaje) == "None" or id_viaje == None:
+            raise NameError("No se ha podido calcular el idviaje.")
+            return False
+
+        cantidad_viaje = 0
+        for linea in self.init_data["items_refunded"]:
+            cantidad_viaje += parseFloat(linea["qty"])
+
+        if cantidad_viaje <= 0:
+            raise NameError("La cantidad para crear el viaje es menor o igual que cero.")
+            return False
+
+        nombre_destino = str(qsatype.FLUtil.quickSqlSelect("almacenes", "nombre", "codalmacen = '" + str(self.init_data["warehouse"]) + "'"))
+        curViaje = qsatype.FLSqlCursor("tpv_viajesmultitransstock")
+        curViaje.setModeAccess(curViaje.Insert)
+        curViaje.refreshBuffer()
+        curViaje.setValueBuffer("idviajemultitrans", id_viaje)
+        curViaje.setValueBuffer("fecha", qsatype.Date())
+        curViaje.setValueBuffer("codalmaorigen", "AWEB");
+        curViaje.setValueBuffer("nombreorigen", "WEB");
+        curViaje.setValueBuffer("codalmadestino", str(self.init_data["warehouse"]));
+        curViaje.setValueBuffer("nombredestino", nombre_destino);
+        curViaje.setValueBuffer("cantidad", cantidad_viaje);
+        curViaje.setValueBuffer("estado", "EN TRANSITO");
+        curViaje.setValueBuffer("enviocompletado", True);
+        curViaje.setValueBuffer("ptesincroenvio", True);
+        curViaje.setValueBuffer("recepcioncompletada", False);
+        curViaje.setValueBuffer("azkarok", False);
+        curViaje.setValueBuffer("egnumseguimiento", codcomanda);
+
+        if not curViaje.commitBuffer():
+            raise NameError("Error al guardar la cabecera del viaje.")
+            return False
+
+        num_linea = 1
+        for linea in self.init_data["items_refunded"]:
+            if not self.crear_lineas_viaje_recogidatienda(id_viaje, linea, num_linea):
+                raise NameError("Error al crear las líneas del viaje.")
+                return False
+            num_linea += 1            
+
+        return True
+
+    def crear_lineas_viaje_recogidatienda(self, id_viaje, linea, num_linea):
+
+        if parseFloat(linea["qty"]) <= 0:
+            raise NameError("La cantidad de la línea es menor o igual que cero.")
+            return False
+
+        curLV = qsatype.FLSqlCursor("tpv_lineasmultitransstock")
+        curLV.setModeAccess(curLV.Insert)
+        curLV.setActivatedCommitActions(False)
+        curLV.setActivatedCheckIntegrity(False)
+        curLV.refreshBuffer()
+        curLV.setValueBuffer("idviajemultitrans", id_viaje)
+        curLV.setValueBuffer("referencia", self.get_referencia(linea["sku"]));
+        curLV.setValueBuffer("descripcion", self.get_descripcion(linea["sku"]));
+        curLV.setValueBuffer("barcode", self.get_barcode(linea["sku"]));
+        curLV.setValueBuffer("talla", self.get_talla(linea["sku"]));
+        curLV.setValueBuffer("codalmaorigen", "AWEB");
+        curLV.setValueBuffer("codalmadestino", str(self.init_data["warehouse"]));
+        curLV.setValueBuffer("estado", "EN TRANSITO");
+        curLV.setValueBuffer("cantidad", parseFloat(linea["qty"]));
+        curLV.setValueBuffer("numlinea", num_linea);
+        curLV.setValueBuffer("cantpteenvio", 0);
+        curLV.setValueBuffer("cantenviada", parseFloat(linea["qty"]));
+        curLV.setValueBuffer("cantpterecibir", parseFloat(linea["qty"]));
+        curLV.setValueBuffer("cantrecibida", 0);
+        curLV.setValueBuffer("excentral", "OK");
+        curLV.setValueBuffer("extienda", "OK");
+        curLV.setValueBuffer("rxcentral", "PTE");
+        curLV.setValueBuffer("rxtienda", "PTE");
+        curLV.setValueBuffer("ptestockcentral", False);
+        curLV.setValueBuffer("cerradorx", False);
+        curLV.setValueBuffer("cerradoex", False);
+        curLV.setValueBuffer("revisada", False);
+        curLV.setValueBuffer("ptestockrx", True);
+        curLV.setValueBuffer("fechaex", str(qsatype.Date())[:10]);
+        curLV.setValueBuffer("horaex", self.get_hora(str(qsatype.Date())));
+        curLV.setValueBuffer("idsincro", "CENTRAL_" + str(curLV.valueBuffer("idlinea")));
+
+        if not curLV.commitBuffer():
+            raise NameError("Error al guardar la línea del viaje.")
+            return False
+
+        if not qsatype.FactoriaModulos.get("flfactalma").iface.generarEstructuraMTOrigen(curLV):
+            raise NameError("No se ha podido crear los movimientos de stock de origen.")
+            return False
+
+        if not qsatype.FactoriaModulos.get("flfactalma").iface.generarEstructuraMTDestino(curLV):
+            raise NameError("No se ha podido crear los movimientos de stock de destino.")
+            return False
 
         return True

@@ -23,7 +23,7 @@ class EgIdlEcommerce(DefaultSerializer):
         receptor = ""
         mensajeDedicatoria = ""
 
-        id_region = False
+        """id_region = False
         if "region_id" in self.init_data["pickup_address"]:
             id_region = str(self.init_data["pickup_address"]["region_id"])
             if  id_region == "None":
@@ -38,7 +38,7 @@ class EgIdlEcommerce(DefaultSerializer):
             else:
                 imprimirFacturaPais = qsatype.FLUtil.sqlSelect("paises", "imprimirfactura", "codiso = '" + str(self.init_data["pickup_address"]["country"]) + "'")
                 if imprimirFacturaPais:
-                    impFactura = True
+                    impFactura = True"""
 
         self.set_string_relation("codcomanda", "codcomanda", max_characters=12)
         self.set_string_value("tipo", 'CAMBIO')

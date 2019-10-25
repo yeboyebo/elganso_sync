@@ -36,6 +36,11 @@ class EgRefoundLineSerializer(DefaultSerializer):
             pvptotaliva = pvptotaliva * (-1)
             cant = cant * (-1)
 
+        if iva == 0:
+            pvpunitarioiva = parseFloat(pvpunitario)
+            pvpsindtoiva = parseFloat(pvpsindto)
+            pvptotaliva = parseFloat(pvptotal)
+
         self.set_string_value("cantidad", cant)
         self.set_string_value("cantdevuelta", 0)
         self.set_string_value("pvpunitario", pvpunitario)

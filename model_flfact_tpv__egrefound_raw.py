@@ -41,7 +41,12 @@ class EgRefound(AQModel):
 
     def get_children_data(self):
         for item in self.data["children"]["lines"]:
-            self.children.append(EgRefoundLine(item))
+            if item:
+                if "idl_ecommerce_devolucion" in self.data["children"]:
+                    if self.data["children"]["idl_ecommerce_devolucion"]:
+                        if "codtiendaentrega" in self.data["children"]["idl_ecommerce_devolucion"]:
+                            item["codtiendaentrega"] = self.data["children"]["idl_ecommerce_devolucion"]["codtiendaentrega"]
+                self.children.append(EgRefoundLine(item))
 
         if "cashcount" in self.data["children"]:
             if self.data["children"]["cashcount"]:

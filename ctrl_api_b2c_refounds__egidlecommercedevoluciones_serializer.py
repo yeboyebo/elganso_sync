@@ -11,5 +11,7 @@ class EgIdlEcommerceDevoluciones(DefaultSerializer):
         self.set_data_value("envioidl", False)
         self.set_data_value("informadomagento", False)
         self.set_string_value("confirmacionrecepcion", 'No')
+        self.set_data_value("excluirenvioidl", self.init_data["excluir_idl"])
+        self.set_string_value("codtiendaentrega", self.init_data["warehouse"])
 
         return True
