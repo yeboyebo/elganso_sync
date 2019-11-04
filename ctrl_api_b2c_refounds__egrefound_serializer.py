@@ -509,6 +509,11 @@ class EgRefoundsSerializer(DefaultSerializer):
                 return False
             num_linea += 1            
 
+
+        if not qsatype.FLUtil.execSql("INSERT INTO eg_viajestiendaemail (idviajemultitrans, email, correoenviado) VALUES ('" + str(id_viaje) + "', '" + str(self.init_data["warehouse_email"]) + "', false)"):
+            raise NameError("Error al insertar el registro en eg_viajestiendaemail.")
+            return False
+        
         return True
 
     def crear_lineas_viaje_recogidatienda(self, id_viaje, linea, num_linea):
