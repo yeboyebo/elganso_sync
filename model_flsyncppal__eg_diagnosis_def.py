@@ -199,7 +199,7 @@ class elganso_sync(interna):
                 syncppal.iface.log("Error. No se pudo conectar con la central", proceso)
                 return False
 
-            cxC["cur"].execute("SELECT c.codigo AS codigo FROM tpv_comandas c LEFT OUTER JOIN tpv_lineascomanda p ON c.idtpv_comanda = p.idtpv_comanda WHERE c.fecha >= '2019-05-01' AND c.total <> 0 AND p.idtpv_linea IS NULL AND c.codtienda <> 'PROD';")
+            cxC["cur"].execute("SELECT c.codigo AS codigo FROM tpv_comandas c LEFT OUTER JOIN tpv_lineascomanda p ON c.idtpv_comanda = p.idtpv_comanda WHERE c.fecha >= '2019-05-01' AND c.total <> 0 AND p.idtpv_linea IS NULL AND c.codtienda <> 'PROD'")
             rows = cxC["cur"].fetchall()
             codigos = ""
             if len(rows) > 0:
@@ -407,7 +407,7 @@ class elganso_sync(interna):
                 syncppal.iface.log("Error. No se pudo conectar con la central", proceso)
                 return False
 
-            hayError = False;
+            hayError = False
             cxC["cur"].execute("SELECT count(*) AS ventas FROM tpv_comandas c LEFT OUTER JOIN facturascli f ON c.egcodfactura = f.codigo INNER JOIN tpv_tiendas t ON c.codtienda = t.codtienda INNER JOIN empresa e ON t.idempresa = e.id LEFT OUTER JOIN idl_ecommercedevoluciones d ON c.codigo = d.codcomanda WHERE c.fecha >= CURRENT_DATE - 15 AND c.fecha <= CURRENT_DATE - 1 AND c.codtienda = 'AWEB' AND e.contintegrada AND f.idfactura is NULL AND c.codigo NOT LIKE '#%' AND NOT (c.codigo LIKE 'WDV%' AND c.total = 0) AND (d.confirmacionrecepcion = 'Si' OR d.confirmacionrecepcion IS NULL) AND c.estado = 'Cerrada'")
 
             rows = cxC["cur"].fetchall()
@@ -541,7 +541,7 @@ class elganso_sync(interna):
 
         return True
 
-
+    # aqui
     @periodic_task(run_every=crontab(minute='20', hour='6'))
     def elganso_sync_diagmovimientosviajes():
         proceso = "diagmovimientosviajes"
