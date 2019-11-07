@@ -587,6 +587,14 @@
             {
                 "path": "controllers/api/b2c/stock_inicial/controllers/",
                 "name": "ctrl_api_b2c_stock_inicial__egstock_inicial_recieve.py"
+            },
+            {
+                "path": "controllers/api/mirakl/offersdate/",
+                "name": "ctrl_api_mirakl_offersdate__upload.py"
+            },
+            {
+                "path": "controllers/api/mirakl/offersdate/controllers/",
+                "name": "ctrl_api_mirakl_offersdate__eg_offersdate_upload.py"
             }
         ],
         "deleteFile": [],
