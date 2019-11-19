@@ -541,7 +541,7 @@ class elganso_sync(interna):
 
         return True
 
-    # aqui
+
     @periodic_task(run_every=crontab(minute='20', hour='6'))
     def elganso_sync_diagmovimientosviajes():
         proceso = "diagmovimientosviajes"
@@ -879,37 +879,37 @@ class elganso_sync(interna):
         return True
 
 
-    @periodic_task(run_every=crontab(minute='38', hour='6'))
-    def elganso_sync_diagviajestransferenciaidl():
-        proceso = "diagviajestransferenciaidl"
+    # @periodic_task(run_every=crontab(minute='38', hour='6'))
+    # def elganso_sync_diagviajestransferenciaidl():
+    #     proceso = "diagviajestransferenciaidl"
 
-        try:
-            cxC = importVentas.iface.creaConexion("ACEN")
+    #     try:
+    #         cxC = importVentas.iface.creaConexion("ACEN")
 
-            if not cxC:
-                syncppal.iface.log("Error. No se pudo conectar con la central", proceso)
-                return False
+    #         if not cxC:
+    #             syncppal.iface.log("Error. No se pudo conectar con la central", proceso)
+    #             return False
 
-            if not importVentas.iface.comprobarConexion("ACEN", cxC, proceso):
-                syncppal.iface.log("Error. No se pudo conectar con la central", proceso)
-                return False
+    #         if not importVentas.iface.comprobarConexion("ACEN", cxC, proceso):
+    #             syncppal.iface.log("Error. No se pudo conectar con la central", proceso)
+    #             return False
 
-            hayError = False
-            cxC["cur"].execute("SELECT count(*) AS viajestransferencia FROM tpv_viajesmultitransstock v LEFT JOIN tpv_multitransstock m ON v.codmultitransstock = m.codmultitransstock INNER JOIN almacenesidl a ON v.codalmaorigen = a.codalmacen INNER JOIN almacenes d ON v.codalmadestino = d.codalmacen LEFT OUTER JOIN paises pa ON d.codpais = pa.codpais WHERE v.codalbarancd IS NULL AND (m.estado = 'Aceptado' OR m.estado IS NULL) AND v.fecha >= '2018-07-18' AND v.idviajemultitrans IN (SELECT idviajemultitrans FROM tpv_lineasmultitransstock WHERE idviajemultitrans = v.idviajemultitrans) AND v.estado = 'PTE ENVIO' AND v.codalmaorigen IN (SELECT codalmacen FROM almacenesidl) AND v.codalmadestino IN (SELECT codalmacen FROM almacenesidl) AND azkarok = false")
-            rows = cxC["cur"].fetchall()
-            if len(rows) > 0:
-                if rows[0]["viajestransferencia"] > 0:
-                    syncppal.iface.log("Error. Hay viajes transferencia no enviados a IDL", proceso)
-                    hayError = True
+    #         hayError = False
+    #         cxC["cur"].execute("SELECT count(*) AS viajestransferencia FROM tpv_viajesmultitransstock v LEFT JOIN tpv_multitransstock m ON v.codmultitransstock = m.codmultitransstock INNER JOIN almacenesidl a ON v.codalmaorigen = a.codalmacen INNER JOIN almacenes d ON v.codalmadestino = d.codalmacen LEFT OUTER JOIN paises pa ON d.codpais = pa.codpais WHERE v.codalbarancd IS NULL AND (m.estado = 'Aceptado' OR m.estado IS NULL) AND v.fecha >= '2018-07-18' AND v.idviajemultitrans IN (SELECT idviajemultitrans FROM tpv_lineasmultitransstock WHERE idviajemultitrans = v.idviajemultitrans) AND v.estado = 'PTE ENVIO' AND v.codalmaorigen IN (SELECT codalmacen FROM almacenesidl) AND v.codalmadestino IN (SELECT codalmacen FROM almacenesidl) AND azkarok = false")
+    #         rows = cxC["cur"].fetchall()
+    #         if len(rows) > 0:
+    #             if rows[0]["viajestransferencia"] > 0:
+    #                 syncppal.iface.log("Error. Hay viajes transferencia no enviados a IDL", proceso)
+    #                 hayError = True
 
-            if not hayError:
-                syncppal.iface.log("Éxito. Viajes transferencia enviados a IDL Correctamente", proceso)
+    #         if not hayError:
+    #             syncppal.iface.log("Éxito. Viajes transferencia enviados a IDL Correctamente", proceso)
 
-        except Exception as e:
-            syncppal.iface.log("Error. Ocurrió un error durante el proceso de diagnóstico de viajes transferencia IDL", proceso)
-            return False
+    #     except Exception as e:
+    #         syncppal.iface.log("Error. Ocurrió un error durante el proceso de diagnóstico de viajes transferencia IDL", proceso)
+    #         return False
 
-        return True
+    #     return True
 
 
     @periodic_task(run_every=crontab(minute='39', hour='6'))

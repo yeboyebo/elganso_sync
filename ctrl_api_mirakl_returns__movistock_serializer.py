@@ -10,7 +10,7 @@ class EgMovistockSerializer(DefaultSerializer):
         self.set_string_relation("referencia", "referencia")
         self.set_string_relation("barcode", "barcode")
         self.set_string_value("estado", "PTE")
-        self.set_string_relation("cantidad", "cantidad")
+        self.set_string_value("cantidad", int(self.init_data["cantidad"]) * -1)
         self.set_string_value("concepto", "DEVOLUCION " + self.init_data["codcomanda"])
         self.set_string_value("idstock", self.get_idstock())
 
