@@ -39,7 +39,7 @@ class EgRefoundLine(AQModel):
         curMoviStock.setModeAccess(curMoviStock.Insert)
         curMoviStock.refreshBuffer()
         curMoviStock.setValueBuffer("idlineaco", cursor.valueBuffer("idtpv_linea"))
-        if str(codtiendaentrega) == "AWEB" and parseFloat(cursor.valueBuffer("cantidad")) < 0:
+        if str(codtiendaentrega) == "AWEB":
             curMoviStock.setValueBuffer("estado", "PTE")
         else:
             curMoviStock.setValueBuffer("estado", "HECHO")

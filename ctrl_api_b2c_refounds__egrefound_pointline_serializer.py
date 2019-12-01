@@ -32,17 +32,17 @@ class EgRefoundPointLineSerializer(EgRefoundLineSerializer):
         self.set_data_value("ivaincluido", True)
         self.set_data_relation("iva", "iva")
 
-        points_used = round(parseFloat(self.init_data["points_used"]) * (-1), 2)
-        dto_sin_iva = points_used
+        discount_refunded = round(parseFloat(self.init_data["discount_refunded"]) * (-1), 2)
+        dto_sin_iva = discount_refunded
 
-        pvpUnitario = (parseFloat(self.init_data["points_used"])) / ((100 + iva) / 100)
+        pvpUnitario = (parseFloat(self.init_data["discount_refunded"])) / ((100 + iva) / 100)
         pvpSinDto = pvpUnitario
         pvpTotal = pvpSinDto
-        pvpUnitarioIva = (parseFloat(self.init_data["points_used"]))
+        pvpUnitarioIva = (parseFloat(self.init_data["discount_refunded"]))
         pvpSinDtoIva = pvpUnitarioIva
         pvpTotalIva = pvpUnitarioIva
 
-        if self.init_data["tipo_linea"] == "PuntosPositivos":
+        if self.init_data["tipo_linea"] == "PuntosNegativos":
             pvpSinDto = pvpSinDto * (-1)
             pvpTotal = pvpTotal * (-1)
             pvpSinDtoIva = pvpUnitarioIva * (-1)
@@ -75,8 +75,8 @@ class EgRefoundPointLineSerializer(EgRefoundLineSerializer):
         return 1
 
     def crear_registro_puntos(self):
-        canPuntos = parseFloat(self.init_data["points_used"])
-        if self.init_data["tipo_linea"] == "PuntosPositivos":
+        canPuntos = parseFloat(self.init_data["discount_refunded"])
+        if self.init_data["tipo_linea"] == "PuntosNegativos":
             canPuntos = canPuntos * (-1)
 
         curMP = qsatype.FLSqlCursor("tpv_movpuntos")
