@@ -15,7 +15,7 @@ class EgOrdersDownload(DownloadSync):
             "auth": "Basic c2luY3JvOmJVcWZxQk1ub0g=",
             "test_auth": "Basic dGVzdDp0ZXN0",
             "url": "https://www.elganso.com/syncapi/index.php/orders/unsynchronized",
-            "test_url": "http://local1.elganso.com/syncapi/index.php/orders/unsynchronized"
+            "test_url": "http://local2.elganso.com/syncapi/index.php/orders/unsynchronized"
         })
 
         self.origin_field = "increment_id"
@@ -31,7 +31,7 @@ class EgOrdersDownload(DownloadSync):
     def after_sync(self):
         self.set_sync_params({
             "url": "https://www.elganso.com/syncapi/index.php/orders/{}/synchronized",
-            "test_url": "http://local1.elganso.com/syncapi/index.php/orders/{}/synchronized"
+            "test_url": "http://local2.elganso.com/syncapi/index.php/orders/{}/synchronized"
         })
 
         success_records = []

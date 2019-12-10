@@ -8,6 +8,7 @@ class EgLineaEcommerceExcluida(DefaultSerializer):
     def get_data(self):
 
         if not self.init_data["almacen"] or str(self.init_data["almacen"]) == "" or str(self.init_data["almacen"]) == "None" or self.init_data["almacen"] == None:
+            raise NameError("Error. Almacén de la línea incorrecto {}".format(str(self.init_data["almacen"])))
             return False
 
         self.set_string_value("codalmacen", str(self.init_data["almacen"]))

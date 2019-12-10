@@ -22,6 +22,13 @@ class EgOrderSerializer(DefaultSerializer):
         if qsatype.FLUtil.sqlSelect("tpv_comandas", "idtpv_comanda", "codigo = '{}'".format(codigo)):
             return False
 
+        now = str(qsatype.Date())
+        self.start_date = now[:10]
+        self.start_time = now[-(8):]
+
+        qsatype.FLSqlQuery().execSql("DELETE FROM eg_logpedidosweb WHERE fechaalta < CURRENT_DATE-30")
+        qsatype.FLSqlQuery().execSql("INSERT INTO eg_logpedidosweb (fechaalta, horaalta, cuerpolog, codcomanda) VALUES ('{}', '{}', '{}', '{}')".format(now[:10], now[-(8):], str(self.init_data).replace("'", "\""), codigo))
+
         self.set_string_value("codigo", codigo, max_characters=15)
 
         self.set_string_value("codtpv_puntoventa", "AWEB")
