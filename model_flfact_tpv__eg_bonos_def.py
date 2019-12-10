@@ -26,7 +26,7 @@ class elganso_sync(interna):
                 q.setTablesList(u"eg_bonos")
                 q.setSelect(u"codbono, venta, email")
                 q.setFrom(u"eg_bonos")
-                q.setWhere("venta like '%FIDELIZACION%' AND email = '" + params["email"] + "'")
+                q.setWhere("venta like '%FIDELIZACION%' AND email = '" + params["email"].lower() + "'")
                 if not q.exec_():
                     return {"Error": "Bono incorrecto", "status": -1}
                 if q.size() == 0:
@@ -142,8 +142,8 @@ class elganso_sync(interna):
                     importeminimo = params["importeMinimo"]
 
                 # tarjeta = qsatype.FLUtil.sqlSelect(u"tpv_tarjetaspuntos", u"codtarjetapuntos", ustr(u"email = '", params['email'], u"'"))
-                deempleado = qsatype.FLUtil.sqlSelect(u"tpv_tarjetaspuntos", u"deempleado", ustr(u"email = '", params['email'], u"'"))
-                dtoespecial = qsatype.FLUtil.sqlSelect(u"tpv_tarjetaspuntos", u"dtoespecial", ustr(u"email = '", params['email'], u"'"))
+                deempleado = qsatype.FLUtil.sqlSelect(u"tpv_tarjetaspuntos", u"deempleado", ustr(u"email = '", params['email'].lower(), u"'"))
+                dtoespecial = qsatype.FLUtil.sqlSelect(u"tpv_tarjetaspuntos", u"dtoespecial", ustr(u"email = '", params['email'].lower(), u"'"))
                 if deempleado or dtoespecial:
                     return {"Error": "Es un cliente especial", "status": -3}
                 # venta = params['codigoVenta']
@@ -153,7 +153,7 @@ class elganso_sync(interna):
                 horaalta = str(qsatype.Date())[-8:]
                 while codbono == qsatype.FLUtil.sqlSelect(u"eg_bonos", u"codbono", ustr(u"codbono = '", codbono, u"'")):
                     codbono = self.generaCodBono()
-                if not qsatype.FLUtil.sqlInsert(u"eg_bonos", [u"codbono", u"fecha", u"fechaalta", u"horaalta", u"venta", u"saldoinicial", u"saldoconsumido", u"saldopendiente", u"activo", u"fechaexpiracion", u"coddivisa", u"email", u"observaciones", u"importeminimo", u"correoenviado"], [codbono, str(qsatype.Date())[:10], str(qsatype.Date())[:10], horaalta, params['codigoVenta'], importe, 0, importe, True, fechaexpiracion, params['divisa'], params['email'], observaciones, importeminimo, True]):
+                if not qsatype.FLUtil.sqlInsert(u"eg_bonos", [u"codbono", u"fecha", u"fechaalta", u"horaalta", u"venta", u"saldoinicial", u"saldoconsumido", u"saldopendiente", u"activo", u"fechaexpiracion", u"coddivisa", u"email", u"observaciones", u"importeminimo", u"correoenviado"], [codbono, str(qsatype.Date())[:10], str(qsatype.Date())[:10], horaalta, params['codigoVenta'], importe, 0, importe, True, fechaexpiracion, params['divisa'], params['email'].lower(), observaciones, importeminimo, True]):
                     return {"Error": "Error en insercion de bono", "status": -2}
                 return {"codigoBono": codbono, "importeBono": importe, "status": 1}
             else:
