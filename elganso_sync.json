@@ -595,6 +595,14 @@
             {
                 "path": "controllers/api/mirakl/offersdate/controllers/",
                 "name": "ctrl_api_mirakl_offersdate__eg_offersdate_upload.py"
+            },
+            {
+                "name": "ctrl_api_mirakl_returnsvaldemoroid__download.py",
+                "path": "controllers/api/mirakl/returnsvaldemoroid/"
+            },
+            {
+                "name": "ctrl_api_mirakl_returnsvaldemoroid__eg_returnsvaldemoroid_download.py",
+                "path": "controllers/api/mirakl/returnsvaldemoroid/controllers/"
             }
         ],
         "deleteFile": [],

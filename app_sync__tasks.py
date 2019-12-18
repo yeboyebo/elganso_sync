@@ -35,6 +35,7 @@ from controllers.api.mirakl.shippingorders.controllers.eg_shipping_orders_downlo
 from controllers.api.mirakl.returns.controllers.eg_returns_download import EgMiraklReturnsDownload
 from controllers.api.mirakl.offers.controllers.eg_offers_upload import EgMiraklOffersUpload
 from controllers.api.mirakl.returnsvaldemoro.controllers.eg_returnsvaldemoro_download import EgMiraklReturnsValdemoroDownload
+from controllers.api.mirakl.returnsvaldemoroid.controllers.eg_returnsvaldemoroid_download import EgMiraklReturnsValdemoroIdDownload
 from controllers.api.mirakl.offersdate.controllers.eg_offersdate_upload import EgMiraklOffersDateUpload
 
 sync_object_dict = {
@@ -104,6 +105,9 @@ sync_object_dict = {
     },
     "mirakl_returnsvaldemoro_download": {
         "sync_object": EgMiraklReturnsValdemoroDownload
+    },
+    "mirakl_returnsvaldemoroid_download": {
+        "sync_object": EgMiraklReturnsValdemoroIdDownload
     },
     "mirakl_offersdate_upload": {
         "sync_object": EgMiraklOffersDateUpload
