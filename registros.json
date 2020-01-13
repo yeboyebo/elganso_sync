@@ -158,6 +158,13 @@
         },
         {
             "type": "insertAfterNode",
+            "path": "/flfactalma/movistock",
+            "value": {
+                "eg_anulacionstockreservado": null
+            }
+        },
+        {
+            "type": "insertAfterNode",
             "path": "/flfactppal/usuarios",
             "value": {
                 "solicitudescliente": null

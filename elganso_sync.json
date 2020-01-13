@@ -603,6 +603,14 @@
             {
                 "name": "ctrl_api_mirakl_returnsvaldemoroid__eg_returnsvaldemoroid_download.py",
                 "path": "controllers/api/mirakl/returnsvaldemoroid/controllers/"
+            },
+            {
+                "path": "models/flfactalma/",
+                "name": "model_flfactalma__eg_anulacionstockreservado.py"
+            },
+            {
+                "path": "models/flfactalma/",
+                "name": "model_flfactalma__eg_anulacionstockreservado_def.py"
             }
         ],
         "deleteFile": [],

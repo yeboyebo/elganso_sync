@@ -142,6 +142,13 @@
         },
         {
             "type": "insertAfterNode",
+            "path": "/models/flfactalma/atributosarticulos",
+            "value": {
+                "eg_anulacionstockreservado": null
+            }
+        },
+        {
+            "type": "insertAfterNode",
             "path": "/models/flfactppal/zonasgeo",
             "value": {
                 "idl_recepciones": null
