@@ -1,5 +1,8 @@
 # @class_declaration interna #
 import datetime
+import json
+import requests
+import http.client
 
 from celery.task import periodic_task
 from celery.schedules import crontab
@@ -251,7 +254,7 @@ class elganso_sync(interna):
 
         return True
 
-    @periodic_task(run_every=crontab(minute='55', hour='5'))
+    @periodic_task(run_every=crontab(minute='22', hour='6'))
     def elganso_sync_diagdirectordersnoidl():
         proceso = "diagdirectordersnoidl"
         try:
@@ -265,20 +268,21 @@ class elganso_sync(interna):
                 syncppal.iface.log("Error. No se pudo conectar con la central", proceso)
                 return False
 
-            cxC["cur"].execute("SELECT c.codigo AS codigo, c.idtpv_comanda AS idcomanda, c.codpais AS pais from tpv_comandas c left outer join idl_ecommerce e on c.idtpv_comanda = e.idtpv_comanda where c.fecha >= '2019-10-01' and c.egcodpedidoweb is not null and c.egcodpedidoweb like '20190%' and e.id is null")
+            cxC["cur"].execute("SELECT c.codigo AS codigo, c.idtpv_comanda AS idcomanda, c.codpais AS pais from tpv_comandas c left outer join idl_ecommerce e on c.idtpv_comanda = e.idtpv_comanda where c.fecha >= '2019-10-01' and c.egcodpedidoweb is not null and c.egcodpedidoweb like date_part('year', CURRENT_DATE) || '%' and e.id is null")
             rows = cxC["cur"].fetchall()
             codigos = ""
             if len(rows) > 0:
                 for p in rows:
                     if codigos != "":
                         codigos += ", "
-                    codigos += p["codigo"] + "-" + p["idcomanda"] + "-" + p["pais"]
+                    codigos += str(p["codigo"]) + "-" + str(p["idcomanda"]) + "-" + str(p["pais"])
 
                 syncppal.iface.log("Error. Hay direct orders sin enviar a idl: " + codigos, proceso)
             else:
                 syncppal.iface.log("Éxito. No hay direct orders sin enviar a idl", proceso)
 
         except Exception as e:
+            print(e)
             syncppal.iface.log("Error. Ocurrió un error durante el proceso de diagnóstico de direct orders sin enviar a idl", proceso)
             return False
 
@@ -1011,7 +1015,7 @@ class elganso_sync(interna):
         return True
 
 
-    @periodic_task(run_every=crontab(minute='42', hour='6'))
+    @periodic_task(run_every=crontab(minute='30', hour='6'))
     def elganso_sync_diagdevecomagento():
         proceso = "diagdevecomagento"
 
@@ -1039,6 +1043,58 @@ class elganso_sync(interna):
 
         except Exception as e:
             syncppal.iface.log("Error. Ocurrió un error durante el proceso de diagnóstico de devolucionse ecommerce informadas a magento", proceso)
+            return False
+
+        return True
+
+
+    @periodic_task(run_every=crontab(minute='26', hour='6'))
+    def elganso_sync_diagarticulosactivosmirakl():
+        proceso = "diagarticulosactivosmirakl"
+
+        try:
+            cxC = importVentas.iface.creaConexion("ACEN")
+            if not cxC:
+                syncppal.iface.log("Error. No se pudo conectar con la central", proceso)
+                return False
+            if not importVentas.iface.comprobarConexion("ACEN", cxC, proceso):
+                syncppal.iface.log("Error. No se pudo conectar con la central", proceso)
+                return False
+            hayError = False
+            cxC["cur"].execute("SELECT count(*) AS articulos FROM ew_jsonarticulosactivos")
+            rows = cxC["cur"].fetchall()
+            if len(rows) > 0:
+                if rows[0]["articulos"] > 0:
+                    syncppal.iface.log("Error. Hay registros en ew_jsonarticulosactivos", proceso)
+                    hayError = True
+            cxC["cur"].execute("SELECT count(*) AS articulos FROM ew_articuloseciweb")
+            rows = cxC["cur"].fetchall()
+            if len(rows) > 0:
+                numArtAbanQ = rows[0]["articulos"]
+                cxC["cur"].execute("SELECT valor FROM param_parametros WHERE NOMBRE = 'WSEW_ARTPUBLICADOS'")
+                row = cxC["cur"].fetchall()
+                valor = row[0]["valor"]
+                datosCX = json.loads(valor)
+                url = datosCX["url"]
+                auth = datosCX["auth"]
+                params = {"max":"1"}
+                url = url + "?max=1" 
+                
+                headers = {
+                    "Content-Type": "application/json",
+                    "Authorization": auth
+                }
+                response = requests.get(url,  headers=headers)
+                result = response.text.encode("utf-8").decode("ISO8859-15")
+                jSResult = json.loads(result)
+                totalCount = jSResult["total_count"]
+                if totalCount > numArtAbanQ:
+                    syncppal.iface.log("Error. El número de artícuos en mirakl es mayor que el de abanq", proceso)
+                    hayError = True
+            if not hayError:
+                syncppal.iface.log("Éxito. No hay registros en ew_jsonarticulosactivos", proceso)
+        except Exception as e:
+            syncppal.iface.log("Error. Ocurrió un error durante el proceso de diagnóstico de articulos eciweb en abanq", proceso)
             return False
 
         return True
