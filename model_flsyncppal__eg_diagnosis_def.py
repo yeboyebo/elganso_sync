@@ -303,28 +303,26 @@ class elganso_sync(interna):
                 syncppal.iface.log("Error. No se pudo conectar con la central", proceso)
                 return False
 
-            cxC["cur"].execute("SELECT valor FROM param_parametros WHERE nombre = 'FECHA_FACTURAS_ECI'")
-            rows = cxC["cur"].fetchall()
-            if len(rows) <= 0:
-                syncppal.iface.log("Error. No se pudo obtener la fecha de diagnóstico de facturación ECI", proceso)
-                return False
+            # cxC["cur"].execute("SELECT valor FROM param_parametros WHERE nombre = 'FECHA_FACTURAS_ECI'")
+            # rows = cxC["cur"].fetchall()
+            # if len(rows) <= 0:
+            #     syncppal.iface.log("Error. No se pudo obtener la fecha de diagnóstico de facturación ECI", proceso)
+            #     return False
 
-            fecha = rows[0]["valor"]
-            cxC["cur"].execute("SELECT facturascli.enviadoeciedicom AS enviadas, count(*) AS count FROM facturascli WHERE facturascli.codcliente IN ('001039') AND facturascli.total > 0 AND facturascli.codeci IS NOT NULL AND facturascli.codeci <> '' AND facturascli.pedidoeci IS NOT NULL AND facturascli.pedidoeci <> '' AND facturascli.albaraneci IS NOT NULL AND facturascli.albaraneci <> '' AND facturascli.departamentoeci IS NOT NULL AND facturascli.departamentoeci <> '' AND facturascli.codejercicio IN ('2019') AND facturascli.codserie <> 'MY' AND facturascli.automatica = false AND facturascli.fecha >= '" + str(fecha) + "' GROUP BY facturascli.enviadoeciedicom")
-
+            # fecha = rows[0]["valor"]
+            cxC["cur"].execute("SELECT count(*) AS facturas FROM facturascli WHERE facturascli.codcliente IN ('001039','010683') AND facturascli.total > 0 AND facturascli.enviadoeciedicom = false AND facturascli.codeci IS NOT NULL AND facturascli.codeci <> '' AND facturascli.pedidoeci IS NOT NULL AND facturascli.pedidoeci <> '' AND facturascli.albaraneci IS NOT NULL AND facturascli.albaraneci <> '' AND facturascli.departamentoeci IS NOT NULL AND facturascli.departamentoeci <> '' AND facturascli.codejercicio IN ('2018','2019','2020','2021','2022','2023','2024','2025') GROUP BY facturascli.enviadoeciedicom")
+              
             rows = cxC["cur"].fetchall()
             enviadas = 0
             noenviadas = 0
             if len(rows) > 0:
                 for p in rows:
-                    if p["enviadas"]:
-                        enviadas = p["count"]
-                    if not p["enviadas"]:
-                        noenviadas = p["count"]
-
-                syncppal.iface.log("Error. Hay facturas ECI. Enviadas: " + str(enviadas) + " No enviadas: " + str(noenviadas), proceso)
+                    if p["facturas"] > 0:     
+                        syncppal.iface.log("Error. Hay " + str(p["facturas"]) + " facturas ECI sin enviar a EDICOM"), proceso)
+                    else:
+                        syncppal.iface.log("Éxito. No hay facturas ECI sin enviar a EDICOM", proceso)
             else:
-                syncppal.iface.log("Éxito. No hay facturas ECI", proceso)
+                syncppal.iface.log("Éxito. No hay facturas ECI sin enviar a EDICOM", proceso)
 
         except Exception as e:
             syncppal.iface.log("Error. Ocurrió un error durante el proceso de diagnóstico de facturación ECI", proceso)
@@ -484,7 +482,7 @@ class elganso_sync(interna):
         return True
 
 
-    @periodic_task(run_every=crontab(minute='7', hour='11'))
+    @periodic_task(run_every=crontab(minute='11', hour='6'))
     def elganso_sync_diagfichprocesados():
         proceso = "diagfichprocesados"
 
@@ -1048,7 +1046,7 @@ class elganso_sync(interna):
         return True
 
 
-    @periodic_task(run_every=crontab(minute='26', hour='6'))
+    @periodic_task(run_every=crontab(minute='0', hour='6'))
     def elganso_sync_diagarticulosactivosmirakl():
         proceso = "diagarticulosactivosmirakl"
 
@@ -1064,7 +1062,7 @@ class elganso_sync(interna):
             cxC["cur"].execute("SELECT count(*) AS articulos FROM ew_jsonarticulosactivos")
             rows = cxC["cur"].fetchall()
             if len(rows) > 0:
-                if rows[0]["articulos"] > 0:
+                if rows[0]["articulos"] > 1:
                     syncppal.iface.log("Error. Hay registros en ew_jsonarticulosactivos", proceso)
                     hayError = True
             cxC["cur"].execute("SELECT count(*) AS articulos FROM ew_articuloseciweb")
