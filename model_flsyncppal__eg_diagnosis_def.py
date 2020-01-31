@@ -318,7 +318,7 @@ class elganso_sync(interna):
             if len(rows) > 0:
                 for p in rows:
                     if p["facturas"] > 0:     
-                        syncppal.iface.log("Error. Hay " + str(p["facturas"]) + " facturas ECI sin enviar a EDICOM"), proceso)
+                        syncppal.iface.log("Error. Hay " + str(p["facturas"]) + " facturas ECI sin enviar a EDICOM", proceso)
                     else:
                         syncppal.iface.log("Éxito. No hay facturas ECI sin enviar a EDICOM", proceso)
             else:
