@@ -32,6 +32,10 @@ class EgOrderSerializer(DefaultSerializer):
         if str(self.init_data["status"]) == "holded" or str(self.init_data["status"]) == "closed":
             return False
         elif str(self.init_data["status"]) == "seurpro_pending_cashondelivery" or str(self.init_data["status"]) == "fraud" or str(self.init_data["status"]) == "payment_review" or str(self.init_data["status"]) == "redsyspro_pending" or str(self.init_data["status"]) == "pending":
+            if qsatype.FLUtil.sqlSelect("pedidoscli", "idpedido", "observaciones = '{}'".format(codigo)):
+                raise NameError("Pedido ya creado.")
+                return False
+
             if not self.crear_pedido_reserva_stock(codigo):
                 raise NameError("Error al crear el pedido de reserva de stock.")
                 return False
@@ -50,6 +54,14 @@ class EgOrderSerializer(DefaultSerializer):
                 if not self.eliminar_pedido_reserva_stock(codigo):
                     raise NameError("Error al eliminar el pedido de reserva de stock.")
                     return False
+
+            num_lineas = 0
+            for item in self.init_data["items"]:
+                num_lineas = num_lineas + float(item["cantidad"])
+
+            if float(num_lineas) != float(self.init_data["units"]):
+                raise NameError("El número de unidades indicadas y la cantidad de líneas no coincide.")
+                return False
 
             self.set_string_value("codigo", codigo, max_characters=15)
 
