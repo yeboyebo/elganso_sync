@@ -8,6 +8,11 @@ class EgOrderPayment(AQModel):
     def __init__(self, init_data, params=None):
         super().__init__("tpv_pagoscomanda", init_data, params)
 
+    def get_cursor(self):
+        cursor = super().get_cursor()
+        cursor.setActivatedCommitActions(False)
+        return cursor
+
     def get_parent_data(self, parent_cursor):
         self.set_data_value("idtpv_comanda", parent_cursor.valueBuffer("idtpv_comanda"))
 
