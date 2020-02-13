@@ -8,20 +8,15 @@ from models.flfact_tpv.objects.egreturn_raw import EgReturn
 
 
 class EgMiraklReturnsDownload(ReturnsDownload):
-    returns_url = "https://marketplace.elcorteingles.es/api/messages?start_date={}"
-    returns_test_url = "https://marketplace.elcorteingles.es/api/messages?start_date={}"
-
-    # Para Test
-    #returns_url = "https://marketplace.elcorteingles.es/api/messages"
-    #returns_test_url = "https://marketplace.elcorteingles.es/api/messages"
 
     def __init__(self, params=None):
         super().__init__("egmiraklreturns", params)
 
-        self.set_sync_params({
-            "auth": "a83379cd-1f31-4b05-8175-5c5173620a4a",
-            "test_auth": "a83379cd-1f31-4b05-8175-5c5173620a4a"
-        })
+        returns_params = self.get_param_sincro('miraklReturnsDownload')
+        self.returns_url = returns_params['url']
+        self.returns_test_url = returns_params['test_url']
+
+        self.set_sync_params(self.get_param_sincro('mirakl'))
 
     def masAccionesProcessData(self, eciweb_data):
         eciweb_data["datosdevol"] = json.loads(json.dumps(xmltodict.parse(eciweb_data["datosdevol"])))

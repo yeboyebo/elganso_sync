@@ -11,12 +11,8 @@ class EgRefoundsDownload(DownloadSync):
     def __init__(self, driver, params=None):
         super().__init__("mgsyncdevweb", driver, params)
 
-        self.set_sync_params({
-            "auth": "Basic c2luY3JvOmJVcWZxQk1ub0g=",
-            "test_auth": "Basic dGVzdDp0ZXN0",
-            "url": "https://www.elganso.com/syncapi/index.php/refounds/ready",
-            "test_url": "http://local2.elganso.com/syncapi/index.php/refounds/ready"
-        })
+        self.set_sync_params(self.get_param_sincro('b2c'))
+        self.set_sync_params(self.get_param_sincro('b2cRefoundsDownload'))
 
         self.origin_field = "refound_id"
 
@@ -29,10 +25,7 @@ class EgRefoundsDownload(DownloadSync):
         refound.save()
 
     def after_sync(self):
-        self.set_sync_params({
-            "url": "https://www.elganso.com/syncapi/index.php/refounds/{}/synchronized",
-            "test_url": "http://local2.elganso.com/syncapi/index.php/refounds/{}/synchronized"
-        })
+        self.set_sync_params(self.get_param_sincro('b2cRefoundsDownloadSync'))
 
         success_records = []
         error_records = [refound["refound_id"] for refound in self.error_data]

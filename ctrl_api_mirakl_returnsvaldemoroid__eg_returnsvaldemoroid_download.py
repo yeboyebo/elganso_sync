@@ -4,22 +4,18 @@ import json
 import xmltodict
 
 from controllers.api.mirakl.returnsvaldemoro.controllers.eg_returnsvaldemoro_download import ReturnsValdemoroDownload
-from controllers.api.mirakl.returns.serializers.return_serializer import ReturnSerializer
-from models.flfact_tpv.objects.egreturn_raw import EgReturn
+
 
 class EgMiraklReturnsValdemoroIdDownload(ReturnsValdemoroDownload, ABC):
-
-    returns_url = "https://marketplace.elcorteingles.es/api/messages?order_id={}"
-    returns_test_url = "https://marketplace.elcorteingles.es/api/messages?order_id={}"
 
     def __init__(self, params=None):
         super().__init__("egmiraklreturnsvaldemoroid", params)
 
-        self.set_sync_params({
-            "auth": "a83379cd-1f31-4b05-8175-5c5173620a4a",
-            "test_auth": "a83379cd-1f31-4b05-8175-5c5173620a4a"
-        })
+        returns_params = self.get_param_sincro('miraklReturnsValdemoroIdDownload')
+        self.returns_url = returns_params['url']
+        self.returns_test_url = returns_params['test_url']
 
+        self.set_sync_params(self.get_param_sincro('mirakl'))
 
     def process_all_data(self, all_data):
         if all_data["messages"] == []:
@@ -51,12 +47,11 @@ class EgMiraklReturnsValdemoroIdDownload(ReturnsValdemoroDownload, ABC):
             except Exception as e:
                 self.sync_error(data, e)
 
-        if processData == False:
+        if not processData:
             self.log("Éxito", "No hay datos que sincronizar")
             return False
 
         return True
-
 
     def get_data(self):
         returns_url = self.returns_url if self.driver.in_production else self.returns_test_url
@@ -67,7 +62,6 @@ class EgMiraklReturnsValdemoroIdDownload(ReturnsValdemoroDownload, ABC):
 
         result = self.send_request("get", url=returns_url.format(orderId))
         return result
-
 
     def after_sync(self):
         if self.success_data:

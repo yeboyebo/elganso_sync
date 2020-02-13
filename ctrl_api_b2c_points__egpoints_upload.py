@@ -15,13 +15,8 @@ class EgPointsUpload(UploadSync):
     def __init__(self, driver, params=None):
         super().__init__("mgsyncpoints", driver, params)
 
-        self.set_sync_params({
-            "auth": "Basic c2luY3JvOmJVcWZxQk1ub0g=",
-            "test_auth": "Basic dGVzdDp0ZXN0",
-            "url": "https://www.elganso.com/syncapi/index.php/pointsupdates",
-            "test_url": "http://local2.elganso.com/syncapi/index.php/pointsupdates",
-            "success_code": 202
-        })
+        self.set_sync_params(self.get_param_sincro('b2c'))
+        self.set_sync_params(self.get_param_sincro('b2cPointsUpload'))
 
         self._cards = []
         self._movements = []

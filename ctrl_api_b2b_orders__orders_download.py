@@ -5,13 +5,11 @@ from controllers.base.magento2.orders.controllers.orders_download import OrdersD
 
 class OrdersDownload(OrdersDownload):
 
-    orders_url = "http://b2b.elganso.com/index.php/rest/V1/unsynchronized/orders/"
-    orders_test_url = "http://magento2.local/index.php/rest/V1/unsynchronized/orders/"
-
     def __init__(self, params=None):
         super().__init__("mgb2borders", params)
 
-        self.set_sync_params({
-            "auth": "Bearer 7plp6sabntbe9liboanunxy8l9813f3p",
-            "test_auth": "Bearer 2uvlxkuihd474nzj3dize4f5ezbl3lb6"
-        })
+        orders_params = self.get_param_sincro('b2bOrdersDownload')
+        self.orders_url = orders_params['url']
+        self.orders_test_url = orders_params['test_url']
+
+        self.set_sync_params(self.get_param_sincro('b2b'))

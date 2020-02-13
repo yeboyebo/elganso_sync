@@ -5,13 +5,11 @@ from controllers.base.magento2.inventory.controllers.inventory_upload import Inv
 
 class EgB2bInventoryUpload(InventoryUpload):
 
-    inventory_url = "https://b2b.elganso.com/index.php/rest/default/V1/inventory/source-items"
-    inventory_test_url = "http://magento2.local/index.php/rest/default/V1/inventory/source-items"
-
     def __init__(self, params=None):
         super().__init__("mgb2binventory", params)
 
-        self.set_sync_params({
-            "auth": "Bearer 7plp6sabntbe9liboanunxy8l9813f3p",
-            "test_auth": "Bearer 2uvlxkuihd474nzj3dize4f5ezbl3lb6"
-        })
+        inventory_params = self.get_param_sincro('b2bInventoryUpload')
+        self.inventory_url = inventory_params['url']
+        self.inventory_test_url = inventory_params['test_url']
+
+        self.set_sync_params(self.get_param_sincro('b2b'))

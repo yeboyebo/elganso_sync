@@ -5,13 +5,11 @@ from controllers.base.mirakl.orders.controllers.orders_download import OrdersDow
 
 class EgMiraklOrdersDownload(OrdersDownload):
 
-    orders_url = "https://marketplace.elcorteingles.es/api/orders?order_state_codes=WAITING_ACCEPTANCE&start_date={}"
-    orders_test_url = "https://marketplace.elcorteingles.es/api/orders?order_state_codes=WAITING_ACCEPTANCE&start_date={}"
-
     def __init__(self, params=None):
         super().__init__("egmiraklorders", params)
 
-        self.set_sync_params({
-            "auth": "a83379cd-1f31-4b05-8175-5c5173620a4a",
-            "test_auth": "a83379cd-1f31-4b05-8175-5c5173620a4a"
-        })
+        orders_params = self.get_param_sincro('miraklOrdersDownload')
+        self.orders_url = orders_params['url']
+        self.orders_test_url = orders_params['test_url']
+
+        self.set_sync_params(self.get_param_sincro('mirakl'))

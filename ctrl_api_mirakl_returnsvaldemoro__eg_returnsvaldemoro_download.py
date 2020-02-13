@@ -7,18 +7,17 @@ from controllers.base.mirakl.returnsvaldemoro.controllers.returnsvaldemoro_downl
 from controllers.api.mirakl.returns.serializers.return_serializer import ReturnSerializer
 from models.flfact_tpv.objects.egreturn_raw import EgReturn
 
-class EgMiraklReturnsValdemoroDownload(ReturnsValdemoroDownload, ABC):
 
-    returns_url = "https://marketplace.elcorteingles.es/api/messages?start_date={}"
-    returns_test_url = "https://marketplace.elcorteingles.es/api/messages?start_date={}"
+class EgMiraklReturnsValdemoroDownload(ReturnsValdemoroDownload, ABC):
 
     def __init__(self, params=None):
         super().__init__("egmiraklreturnsvaldemoro", params)
 
-        self.set_sync_params({
-            "auth": "a83379cd-1f31-4b05-8175-5c5173620a4a",
-            "test_auth": "a83379cd-1f31-4b05-8175-5c5173620a4a"
-        })
+        returns_params = self.get_param_sincro('miraklReturnsValdemoroDownload')
+        self.returns_url = returns_params['url']
+        self.returns_test_url = returns_params['test_url']
+
+        self.set_sync_params(self.get_param_sincro('mirakl'))
 
     def masAccionesProcessData(self, eciweb_data):
         print("entra masAccionesProcessData")

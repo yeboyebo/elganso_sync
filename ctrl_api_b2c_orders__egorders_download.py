@@ -11,12 +11,8 @@ class EgOrdersDownload(DownloadSync):
     def __init__(self, driver, params=None):
         super().__init__("mgsyncorders", driver, params)
 
-        self.set_sync_params({
-            "auth": "Basic c2luY3JvOmJVcWZxQk1ub0g=",
-            "test_auth": "Basic dGVzdDp0ZXN0",
-            "url": "https://www.elganso.com/syncapi/index.php/orders/unsynchronized",
-            "test_url": "http://local2.elganso.com/syncapi/index.php/orders/unsynchronized"
-        })
+        self.set_sync_params(self.get_param_sincro('b2c'))
+        self.set_sync_params(self.get_param_sincro('b2cOrdersDownload'))
 
         self.origin_field = "increment_id"
 
@@ -29,10 +25,7 @@ class EgOrdersDownload(DownloadSync):
         order.save()
 
     def after_sync(self):
-        self.set_sync_params({
-            "url": "https://www.elganso.com/syncapi/index.php/orders/{}/{}/synchronized",
-            "test_url": "http://local2.elganso.com/syncapi/index.php/orders/{}/{}/synchronized"
-        })
+        self.set_sync_params(self.get_param_sincro('b2cOrdersDownloadSync'))
 
         success_records = []
         error_records = [order["increment_id"] for order in self.error_data]
