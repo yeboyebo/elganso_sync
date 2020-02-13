@@ -133,31 +133,7 @@
                 "path": "models/flsyncppal/"
             },
             {
-                "name": "model_flsyncppal__mg_updateStocks_def.py",
-                "path": "models/flsyncppal/"
-            },
-            {
-                "name": "model_flsyncppal__mg_importOrders_def.py",
-                "path": "models/flsyncppal/"
-            },
-            {
-                "name": "model_flsyncppal__mg_updatePoints_def.py",
-                "path": "models/flsyncppal/"
-            },
-            {
-                "name": "model_flsyncppal__mg_importDevWeb_def.py",
-                "path": "models/flsyncppal/"
-            },
-            {
-                "name": "model_flsyncppal__mg_importCustomers_def.py",
-                "path": "models/flsyncppal/"
-            },
-            {
                 "name": "model_flsyncppal__eg_importVentas_def.py",
-                "path": "models/flsyncppal/"
-            },
-            {
-                "name": "model_flsyncppal__mg_updatePrices_def.py",
                 "path": "models/flsyncppal/"
             },
             {

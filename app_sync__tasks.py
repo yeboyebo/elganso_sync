@@ -1,10 +1,5 @@
-from AQNEXT.celery import app
 from YBLEGACY import qsatype
 from YBUTILS import globalValues
-from YBUTILS import DbRouter
-
-from models.flsyncppal import flsyncppal_def as syncppal
-from models.flsyncppal import mg_importDevWeb_def as iMgDevWeb
 
 from controllers.base.default.managers.task_manager import TaskManager
 
