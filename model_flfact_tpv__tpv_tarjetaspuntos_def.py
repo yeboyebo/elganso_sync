@@ -12,16 +12,19 @@ class interna(qsatype.objetoBase):
 
 # @class_declaration elganso_sync #
 from YBLEGACY.constantes import *
+from models.flsyncppal import flsyncppal_def as syncppal
 
 
 class elganso_sync(interna):
+
+    params = syncppal.iface.get_param_sincro('apipass')
 
     def elganso_sync_getDesc(self):
         return None
 
     def elganso_sync_desuscribesm(self, params):
         try:
-            if "passwd" in params and params['passwd'] == "bUqfqBMnoH":
+            if "passwd" in params and params['passwd'] == self.params['auth']:
                 if "email" not in params:
                     return {"Error": "Formato Incorrecto", "status": -1}
                 qsatype.debug(ustr(u"desuscribesm: ", params['email']))
@@ -57,7 +60,7 @@ class elganso_sync(interna):
 
     def elganso_sync_suscribesm(self, params):
         try:
-            if "passwd" in params and params['passwd'] == "bUqfqBMnoH":
+            if "passwd" in params and params['passwd'] == self.params['auth']:
                 if "email" not in params:
                     return {"Error": "Formato Incorrecto", "status": -1}
                 qsatype.debug(ustr(u"suscribesm: ", params['email']))

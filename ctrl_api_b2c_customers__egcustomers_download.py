@@ -9,12 +9,14 @@ class EgCustomersDownload(DownloadSync):
     def __init__(self, driver, params=None):
         super().__init__("mgsynccust", driver, params)
 
-        self.set_sync_params({
-            "auth": "Basic c2luY3JvOmJVcWZxQk1ub0g=",
-            "test_auth": "Basic dGVzdDp0ZXN0",
-            "url": "https://www.elganso.com/syncapi/index.php/customers/unsynchronized",
-            "test_url": "http://local2.elganso.com/syncapi/index.php/customers/unsynchronized"
-        })
+        # self.set_sync_params({
+        #     "auth": "Basic c2luY3JvOmJVcWZxQk1ub0g=",
+        #     "test_auth": "Basic dGVzdDp0ZXN0",
+        #     "url": "https://www.elganso.com/syncapi/index.php/customers/unsynchronized",
+        #     "test_url": "http://local2.elganso.com/syncapi/index.php/customers/unsynchronized"
+        # })
+        self.set_sync_params(self.get_param_sincro('b2c'))
+        self.set_sync_params(self.get_param_sincro('b2cCustomersDownload'))
 
         self.origin_field = "email"
 
@@ -28,10 +30,11 @@ class EgCustomersDownload(DownloadSync):
         customer.save()
 
     def after_sync(self):
-        self.set_sync_params({
-            "url": "https://www.elganso.com/syncapi/index.php/customers/{}/synchronized",
-            "test_url": "http://local2.elganso.com/syncapi/index.php/customers/{}/synchronized"
-        })
+        # self.set_sync_params({
+        #     "url": "https://www.elganso.com/syncapi/index.php/customers/{}/synchronized",
+        #     "test_url": "http://local2.elganso.com/syncapi/index.php/customers/{}/synchronized"
+        # })
+        self.set_sync_params(self.get_param_sincro('b2cCustomersDownloadSync'))
 
         success_records = []
         error_records = [customer["email"] if "email" in customer and customer["email"] else "{}-{}".format(customer["entity_id"], customer["firstname"]) for customer in self.error_data]

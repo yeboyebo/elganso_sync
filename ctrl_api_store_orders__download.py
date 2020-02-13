@@ -11,6 +11,9 @@ class interna_download():
 
 
 # @class_declaration elganso_sync_download #
+from models.flsyncppal import flsyncppal_def as syncppal
+
+
 class elganso_sync_download(interna_download):
 
     @staticmethod
@@ -18,7 +21,7 @@ class elganso_sync_download(interna_download):
         result = None
         status = None
 
-        if "passwd" in data and data["passwd"] == "bUqfqBMnoH":
+        if "passwd" in data and data["passwd"] == syncppal.iface.get_param_sincro('apipass')['auth']:
             if "codtienda" not in data or not data["codtienda"]:
                 result = {"msg": "Se requiere un código de tienda"}
                 status = 400

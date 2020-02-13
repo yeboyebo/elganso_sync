@@ -11,6 +11,9 @@ class interna_upload():
 
 
 # @class_declaration elganso_sync_upload #
+from models.flsyncppal import flsyncppal_def as syncppal
+
+
 class elganso_sync_upload(interna_upload):
 
     @staticmethod
@@ -18,7 +21,7 @@ class elganso_sync_upload(interna_upload):
         result = None
         status = None
 
-        if "passwd" in data and data["passwd"] == "bUqfqBMnoH":
+        if "passwd" in data and data["passwd"] == syncppal.iface.get_param_sincro('apipass')['auth']:
             response = task_manager.task_executer("points_upload", data)
 
             result = response["data"]

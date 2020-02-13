@@ -11,6 +11,9 @@ class interna_download():
 
 
 # @class_declaration elganso_sync_download #
+from models.flsyncppal import flsyncppal_def as syncppal
+
+
 class elganso_sync_download(interna_download):
 
     @staticmethod
@@ -18,7 +21,7 @@ class elganso_sync_download(interna_download):
         result = None
         status = None
 
-        if "passwd" in data and data["passwd"] == "bUqfqBMnoH":
+        if "passwd" in data and data["passwd"] == syncppal.iface.get_param_sincro('apipass')['auth']:
             response = task_manager.task_executer("mirakl_returnsvaldemoro_download", data)
             result = response["data"]
             status = response["status"]

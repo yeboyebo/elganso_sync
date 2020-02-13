@@ -10,6 +10,9 @@ class interna_recieve():
     pass
 
 # @class_declaration elganso_sync_recieve #
+from models.flsyncppal import flsyncppal_def as syncppal
+
+
 class elganso_sync_recieve(interna_recieve):
 
     @staticmethod
@@ -17,7 +20,7 @@ class elganso_sync_recieve(interna_recieve):
         result = None
         status = None
 
-        if "passwd" in data and data["passwd"] == "bUqfqBMnoH":
+        if "passwd" in data and data["passwd"] == syncppal.iface.get_param_sincro('apipass')['auth']:
             response = task_manager.task_executer("stock_inicial_recieve", data)
             if response:
                 result = response["data"]
