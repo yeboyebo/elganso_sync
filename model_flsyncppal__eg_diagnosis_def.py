@@ -1099,6 +1099,34 @@ class elganso_sync(interna):
         return True
 
 
+    @periodic_task(run_every=crontab(minute='25', hour='12'))
+    def elganso_sync_diagurlsimagenessinprocesar():
+        proceso = "diagurlsimagenessinprocesar"
+
+        try:
+            cxC = importVentas.iface.creaConexion("ACEN")
+            if not cxC:
+                syncppal.iface.log("Error. No se pudo conectar con la central", proceso)
+                return False
+            if not importVentas.iface.comprobarConexion("ACEN", cxC, proceso):
+                syncppal.iface.log("Error. No se pudo conectar con la central", proceso)
+                return False
+            hayError = False
+            cxC["cur"].execute("SELECT count(*) AS urls FROM eg_jsonurlsimagenesarticulos")
+            rows = cxC["cur"].fetchall()
+            if len(rows) > 0:
+                if rows[0]["urls"] > 1:
+                    syncppal.iface.log("Error. Hay registros en eg_jsonurlsimagenesarticulos", proceso)
+                    hayError = True
+            if not hayError:
+                syncppal.iface.log("Éxito. No hay registros en eg_jsonurlsimagenesarticulos", proceso)
+        except Exception as e:
+            syncppal.iface.log("Error. Ocurrió un error durante el proceso de diagnóstico de sincro de urls imagenes", proceso)
+            return False
+
+        return True
+
+
     def __init__(self, context=None):
         super(elganso_sync, self).__init__(context)
 
