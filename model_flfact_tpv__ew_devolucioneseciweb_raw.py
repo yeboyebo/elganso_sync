@@ -10,18 +10,18 @@ class EwDevolucioneseciweb(AQModel):
 
     def get_cursor(self):
         cursor = qsatype.FLSqlCursor(self.table)
-        cursor.select("idventaweb = '{}'".format(self.data["idventaweb"]))
+        # cursor.select("idventaweb = '{}'".format(self.data["idventaweb"]))
 
-        if cursor.first():
-            cursor.setModeAccess(cursor.Edit)
-            cursor.refreshBuffer()
+        # if cursor.first():
+        #     cursor.setModeAccess(cursor.Edit)
+        #     cursor.refreshBuffer()
 
-            self.is_insert = False
-        else:
-            cursor.setModeAccess(cursor.Insert)
-            cursor.refreshBuffer()
+        #     self.is_insert = False
+        # else:
+        cursor.setModeAccess(cursor.Insert)
+        cursor.refreshBuffer()
 
-            self.is_insert = True
+        self.is_insert = True
         return cursor
 
     def get_parent_data(self, parent_cursor):

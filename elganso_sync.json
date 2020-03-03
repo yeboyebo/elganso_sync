@@ -632,6 +632,10 @@
             {
                 "name": "ctrl_base_mirakl_orders__shipping_orders_download.py",
                 "path": "controllers/base/mirakl/orders/controllers/"
+            },
+            {
+                "name": "ctrl_base_mirakl_returnsvaldemoro__returnsvaldemoro_download.py",
+                "path": "controllers/base/mirakl/returnsvaldemoro/controllers/"
             }
         ]
     }
