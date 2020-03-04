@@ -61,6 +61,53 @@ class EgMiraklReturnsValdemoroDownload(ReturnsValdemoroDownload, ABC):
         
         return True
 
+    def process_all_data(self, all_data):
+        if all_data["messages"] == []:
+            self.log("Éxito", "No hay datos que sincronizar")
+            return False
+
+        processData = False
+        for data in all_data["messages"]:
+            try:
+                fecha = data["date_created"]
+                if self.fecha_sincro != "":
+                    if fecha > self.fecha_sincro:
+                        self.fecha_sincro = fecha
+                else:
+                    self.fecha_sincro = fecha
+
+                if data["subject"] != "Devolución artículo":
+                    continue
+
+                if not data["body"].startswith("<?xml"):
+                    continue
+
+                datosDevol = json.loads(json.dumps(xmltodict.parse(data["body"])))
+                tipoMsg = datosDevol["Mensaje"]["tipoMensaje"]
+
+                if tipoMsg != "001":
+                    continue
+
+                if not "Devolucion" in datosDevol["Mensaje"]:
+                    continue;
+
+                dirRecogida = datosDevol["Mensaje"]["Recogida"]["direccionRecogida"]
+                # if dirRecogida.find("VALDEMORO") == -1:
+                if dirRecogida != "CTRA/ANDALUCIA KM 23,5S/N,(ATT.DVD). CP: 28343. VALDEMORO":
+                    continue
+
+                processData = True
+                if self.process_data(data):
+                    self.success_data.append(data)
+            except Exception as e:
+                self.sync_error(data, e)
+
+        if processData == False:
+            self.log("Éxito", "No hay datos que sincronizar")
+            return False
+
+        return True
+
     def masAccionesProcessData(self, eciweb_data):
         print("entra masAccionesProcessData")
         eciweb_data["datosdevol"] = json.loads(json.dumps(xmltodict.parse(eciweb_data["datosdevol"])))
