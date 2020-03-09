@@ -89,7 +89,7 @@ class EgMiraklReturnsValdemoroDownload(ReturnsValdemoroDownload, ABC):
                     continue
 
                 if not "Devolucion" in datosDevol["Mensaje"]:
-                    continue;
+                    continue
 
                 dirRecogida = datosDevol["Mensaje"]["Recogida"]["direccionRecogida"]
                 # if dirRecogida.find("VALDEMORO") == -1:
