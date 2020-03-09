@@ -88,7 +88,7 @@ class EgMiraklReturnsDownload(ReturnsDownload):
                     continue
 
                 if not "Devolucion" in datosDevol["Mensaje"]:
-                    continue;
+                    continue
 
                 dirRecogida = datosDevol["Mensaje"]["Recogida"]["direccionRecogida"]
                 # if dirRecogida.find("VALDEMORO") != -1:
@@ -100,6 +100,10 @@ class EgMiraklReturnsDownload(ReturnsDownload):
                     self.success_data.append(data)
             except Exception as e:
                 self.sync_error(data, e)
+
+        if not self.guarda_fechasincrotienda(self.esquema, self.codtienda):
+            self.log("Error", "Falló al guardar fecha última sincro")
+            return self.small_sleep
 
         if processData == False:
             self.log("Éxito", "No hay datos que sincronizar")
