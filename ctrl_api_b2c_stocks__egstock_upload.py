@@ -18,7 +18,7 @@ class EgStockUpload(UploadSync):
         q = qsatype.FLSqlQuery()
         q.setSelect("aa.referencia, aa.talla, aa.barcode, s.disponible, s.cantidad, s.idstock, ssw.idssw, s.codalmacen")
         q.setFrom("articulos a INNER JOIN atributosarticulos aa ON a.referencia = aa.referencia INNER JOIN stocks s ON aa.barcode = s.barcode LEFT OUTER JOIN eg_sincrostockweb ssw ON s.idstock = ssw.idstock")
-        q.setWhere("NOT ssw.sincronizado OR ssw.sincronizado = false ORDER BY aa.referencia LIMIT 1000")
+        q.setWhere("NOT ssw.sincronizado OR ssw.sincronizado = false ORDER BY aa.referencia LIMIT 25")
 
         q.exec_()
 
