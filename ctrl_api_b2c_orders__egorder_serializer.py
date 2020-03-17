@@ -328,7 +328,15 @@ class EgOrderSerializer(DefaultSerializer):
             curPedido.refreshBuffer()
             if not curPedido.commitBuffer():
                 return False
-
+        else:
+            for linea in self.init_data["items"]:
+                id_stock = qsatype.FLUtil.quickSqlSelect("stocks", "idstock", "codalmacen = 'AWEB' AND barcode = '{}'".format(self.get_barcode(linea["sku"])))
+                if id_stock:
+                    existe_sincroweb = qsatype.FLUtil.quickSqlSelect("eg_sincrostockweb", "idstock", "idstock = '{}'".format(id_stock))
+                    if existe_sincroweb:
+                        qsatype.FLSqlQuery().execSql("UPDATE eg_sincrostockweb SET sincronizado = FALSE, fecha = CURRENT_DATE, hora = CURRENT_TIME WHERE idstock = {}".format(id_stock))
+                    else:
+                        qsatype.FLSqlQuery().execSql("INSERT INTO eg_sincrostockweb (fecha,hora,sincronizado,idstock,sincronizadoeci) VALUES (CURRENT_DATE,CURRENT_TIME,false,{},true)".format(id_stock))
         return True
 
     def get_splitted_sku(self, refArticulo):
