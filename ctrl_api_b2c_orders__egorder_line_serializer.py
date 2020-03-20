@@ -24,7 +24,7 @@ class EgOrderLineSerializer(DefaultSerializer):
         self.set_string_value("color", self.get_color(), max_characters=50)
         self.set_string_value("codimpuesto", self.get_codimpuesto(iva), max_characters=10)
 
-        self.set_string_relation("codcomanda", "codcomanda", max_characters=12)
+        self.set_string_relation("codcomanda", "codcomanda", max_characters=15)
 
         pvpunitario = parseFloat(self.init_data["pvpunitarioiva"] / ((100 + iva) / 100))
         pvpsindto = parseFloat(self.init_data["pvpsindtoiva"] / ((100 + iva) / 100))

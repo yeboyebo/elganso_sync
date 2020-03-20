@@ -12,7 +12,7 @@ class EgLineaEcommerceExcluida(DefaultSerializer):
             return False
 
         self.set_string_value("codalmacen", str(self.init_data["almacen"]))
-        self.set_string_relation("codcomanda", "codcomanda", max_characters=12)
+        self.set_string_relation("codcomanda", "codcomanda", max_characters=15)
         self.set_string_value("viajecreado", False)
 
         return True

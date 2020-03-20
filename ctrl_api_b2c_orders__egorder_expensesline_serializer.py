@@ -22,7 +22,7 @@ class EgOrderExpensesLineSerializer(EgOrderLineSerializer):
         self.set_string_value("color", self.get_color(), max_characters=50)
         self.set_string_value("codimpuesto", self.get_codimpuesto(iva), max_characters=10)
 
-        self.set_string_relation("codcomanda", "codcomanda", max_characters=12)
+        self.set_string_relation("codcomanda", "codcomanda", max_characters=15)
 
         self.set_data_value("cantdevuelta", 0)
         self.set_data_value("cantidad", self.get_cantidad())

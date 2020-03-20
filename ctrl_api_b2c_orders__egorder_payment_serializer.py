@@ -22,6 +22,6 @@ class EgOrderPaymentSerializer(DefaultSerializer):
         self.set_string_relation("fecha", "fecha")
         self.set_string_relation("codtpv_puntoventa", "codtpv_puntoventa", max_characters=6)
         self.set_string_relation("codpago", "codpago", max_characters=10)
-        self.set_string_relation("codcomanda", "codigo", max_characters=12)
+        self.set_string_relation("codcomanda", "codigo", max_characters=15)
 
         return True

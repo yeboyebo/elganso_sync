@@ -24,7 +24,7 @@ class EgOrderDiscountLineSerializer(EgOrderLineSerializer):
         if not iva or iva == "":
             iva = 0
 
-        self.set_string_relation("codcomanda", "codcomanda", max_characters=12)
+        self.set_string_relation("codcomanda", "codcomanda", max_characters=15)
 
         self.set_string_value("codtienda", "AWEB")
         self.set_string_value("referencia", self.get_referencia(), max_characters=18)
