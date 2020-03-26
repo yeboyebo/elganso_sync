@@ -25,9 +25,11 @@ class interna(qsatype.objetoBase):
 # @class_declaration elganso_sync #
 class elganso_sync(interna):
 
-    @periodic_task(run_every=crontab(minute='30', hour='5'))
+    @periodic_task(run_every=crontab(minute='13', hour='10'))
     def elganso_sync_diagsincroventasobjeto():
         proceso = "diagsincroventasobjeto"
+        syncppal.iface.log("Éxito. Proceso parado temporalmente", proceso)
+        return True;
         try:
             whereFijo = "sincroactiva AND servidor IS NOT NULL"
             tiendas = "'" + "','".join(qsatype.FactoriaModulos.get('formtpv_tiendas').iface.dameTiendasSincro("NOCORNER").split(",")) + "'"
