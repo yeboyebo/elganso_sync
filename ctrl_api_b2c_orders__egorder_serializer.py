@@ -64,6 +64,40 @@ class EgOrderSerializer(DefaultSerializer):
                 return False
 
             self.set_string_value("codigo", codigo, max_characters=15)
+            self.set_string_relation("fecha", "created_at", max_characters=10)
+
+            iva = 0
+            ivaLinea = 0
+
+            if "lines" not in self.data["children"]:
+                self.data["children"]["lines"] = []
+
+            if "payments" not in self.data["children"]:
+                self.data["children"]["payments"] = []
+
+            ivaInformado = False
+            for item in self.init_data["items"]:
+                item.update({
+                    "codcomanda": self.data["codigo"]
+                })
+
+                line_data = EgOrderLineSerializer().serialize(item)
+                self.data["children"]["lines"].append(line_data)
+
+                ivaLinea = item["iva"] 
+                if ivaInformado == False and item["pvpunitarioiva"] != 0:
+                    iva = ivaLinea
+                    ivaInformado = True
+
+            if not ivaInformado:
+                iva = ivaLinea
+
+            new_init_data = self.init_data.copy()
+            new_init_data.update({
+                "iva": iva,
+                "codcomanda": self.data["codigo"],
+                "fecha": self.data["fecha"]
+            })
 
             self.set_string_value("codtpv_puntoventa", "AWEB")
             self.set_string_value("codtpv_agente", "0350")
@@ -76,7 +110,7 @@ class EgOrderSerializer(DefaultSerializer):
             self.set_data_value("tasaconv", 1)
             self.set_data_value("ptesincrofactura", True)
 
-            iva = self.init_data["items"][-1]["iva"]
+            #iva = self.init_data["items"][-1]["iva"]
             neto = round(parseFloat(self.init_data["grand_total"] / ((100 + iva) / 100)), 2)
             total_iva = self.init_data["grand_total"] - neto
 
@@ -88,8 +122,7 @@ class EgOrderSerializer(DefaultSerializer):
             self.set_string_relation("email", "email", max_characters=100)
             self.set_string_relation("codtarjetapuntos", "card_points", max_characters=15)
             self.set_string_relation("cifnif", "cif", max_characters=20, default="-")
-            self.set_string_relation("fecha", "created_at", max_characters=10)
-
+            
             self.set_string_relation("codpostal", "billing_address//postcode", max_characters=10)
             self.set_string_relation("ciudad", "billing_address//city", max_characters=100)
             self.set_string_relation("provincia", "billing_address//region", max_characters=100)
@@ -119,30 +152,6 @@ class EgOrderSerializer(DefaultSerializer):
             self.set_string_value("hora", self.get_hora())
             self.set_string_value("codpago", self.get_codpago(), max_characters=10)
             self.set_string_value("egcodfactura", self.get_codfactura(), max_characters=12)
-
-            iva = 0
-
-            if "lines" not in self.data["children"]:
-                self.data["children"]["lines"] = []
-
-            if "payments" not in self.data["children"]:
-                self.data["children"]["payments"] = []
-
-            for item in self.init_data["items"]:
-                item.update({
-                    "codcomanda": self.data["codigo"]
-                })
-
-                line_data = EgOrderLineSerializer().serialize(item)
-                self.data["children"]["lines"].append(line_data)
-                iva = item["iva"]
-
-            new_init_data = self.init_data.copy()
-            new_init_data.update({
-                "iva": iva,
-                "codcomanda": self.data["codigo"],
-                "fecha": self.data["fecha"]
-            })
 
             linea_envio = EgOrderShippingLineSerializer().serialize(new_init_data)
             linea_gastos = EgOrderExpensesLineSerializer().serialize(new_init_data)
