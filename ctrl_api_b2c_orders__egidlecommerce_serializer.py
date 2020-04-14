@@ -46,6 +46,10 @@ class EgIdlEcommerce(DefaultSerializer):
                     if imprimirFacturaPais:
                         impFactura = True
 
+        fecha_prevista_envio = str(self.get_init_value("delayed_shipping_date"))
+        if fecha_prevista_envio != "None" and fecha_prevista_envio != "" and fecha_prevista_envio != None:
+            self.set_string_value("fechaprevistaenvio", fecha_prevista_envio)
+
         self.set_string_relation("codcomanda", "codcomanda", max_characters=15)
         self.set_string_value("tipo", 'VENTA')
         self.set_string_value("transportista", str(transIDL))

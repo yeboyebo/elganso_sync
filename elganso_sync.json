@@ -636,6 +636,10 @@
             {
                 "name": "ctrl_base_mirakl_returnsvaldemoro__returnsvaldemoro_download.py",
                 "path": "controllers/base/mirakl/returnsvaldemoro/controllers/"
+            },
+            {
+                "path": "controllers/base/mirakl/orders/serializers/",
+                "name": "ctrl_base_mirakl_orders__idl_ecommerce_serializer.py"
             }
         ]
     }
