@@ -442,8 +442,8 @@ class EgRefoundsSerializer(DefaultSerializer):
     def crear_registros_ecommerce(self):
         new_init_data = self.init_data.copy()
         excluir_idl = False
-        if str(self.init_data["warehouse"]) != "AWEB":
-            excluir_idl = True
+        """if str(self.init_data["warehouse"]) != "AWEB":
+            excluir_idl = True"""
 
         new_init_data.update({
             "codcomanda": self.data["codigo"],
