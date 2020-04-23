@@ -42,8 +42,13 @@ class EgOrderLine(AQModel):
     def crear_registro_movistock(self, cursor):
         idStock = str(qsatype.FLUtil.quickSqlSelect("stocks", "idstock", "barcode = '" + str(cursor.valueBuffer("barcode")) + "' AND codalmacen = 'AWEB'"))
         if not idStock or str(idStock) == "None":
-            raise NameError("No se ha encontrado idstock para el barcode: " + str(cursor.valueBuffer("barcode")))
-            return False
+            oArticulo = {}
+            oArticulo["referencia"] = str(cursor.valueBuffer("referencia"));
+            oArticulo["barcode"] = str(cursor.valueBuffer("barcode"));
+            idStock = qsatype.FactoriaModulos.get('flfactalma').iface.crearStock("AWEB", oArticulo);
+            if not idStock or str(idStock) == "None":
+                raise NameError("No se ha encontrado idstock para el barcode: " + str(cursor.valueBuffer("barcode")))
+                return False
 
         curMoviStock = qsatype.FLSqlCursor("movistock")
         curMoviStock.setModeAccess(curMoviStock.Insert)
