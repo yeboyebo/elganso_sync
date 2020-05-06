@@ -587,6 +587,14 @@
             {
                 "path": "models/flfactalma/",
                 "name": "model_flfactalma__eg_anulacionstockreservado_def.py"
+            },
+            {
+                "name": "ctrl_api_b2c_orders__egidlecommercedevoluciones_serializer.py",
+                "path": "controllers/api/b2c/orders/serializers/"
+            },
+            {
+                "name": "ctrl_api_b2c_orders__egorder_soles4soul_serializer.py",
+                "path": "controllers/api/b2c/orders/serializers/"
             }
         ],
         "deleteFile": [],

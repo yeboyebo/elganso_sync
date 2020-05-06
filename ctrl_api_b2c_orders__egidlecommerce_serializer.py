@@ -8,6 +8,10 @@ class EgIdlEcommerce(DefaultSerializer):
     def get_data(self):
         metodoEnvio = str(self.init_data["shipping_method"])
 
+        if "imagen_recoger" in self.init_data:
+            if str(self.init_data["imagen_recoger"]) != "None" and self.init_data["imagen_recoger"] != None and self.init_data["imagen_recoger"] != False:
+                metodoEnvio = "i4seur_31_2"
+
         transIDL = qsatype.FLUtil.sqlSelect("metodosenvio_transportista", "transportista", "LOWER(metodoenviomg) = '" + metodoEnvio + "' OR UPPER(metodoenviomg) = '" + metodoEnvio + "' OR metodoenviomg = '" + metodoEnvio + "'")
 
         if not transIDL:
@@ -51,7 +55,14 @@ class EgIdlEcommerce(DefaultSerializer):
             self.set_string_value("fechaprevistaenvio", fecha_prevista_envio)
 
         self.set_string_relation("codcomanda", "codcomanda", max_characters=15)
-        self.set_string_value("tipo", 'VENTA')
+        if "imagen_recoger" in self.init_data:
+            if str(self.init_data["imagen_recoger"]) != "None" and self.init_data["imagen_recoger"] != None and self.init_data["imagen_recoger"] != False:
+                self.set_string_value("tipo", 'CAMBIO')
+                print("URLL: ", str(self.init_data["imagen_recoger"]))
+                self.set_data_relation("urlimagen", "imagen_recoger")
+                #self.set_string_value("urlimagen", str(self.init_data["imagen_recoger"]))
+        else:
+            self.set_string_value("tipo", 'VENTA')
         self.set_string_value("transportista", str(transIDL))
         self.set_string_value("metodoenvioidl", str(metodoIDL))
         self.set_data_value("imprimiralbaran", impAlbaran)
@@ -64,6 +75,7 @@ class EgIdlEcommerce(DefaultSerializer):
         self.set_data_value("facturaimpresa", False)
         self.set_data_value("envioidl", False)
         self.set_data_value("numseguimientoinformado", False)
+        self.set_data_value("bonocreado", False)
         self.set_string_value("confirmacionenvio", 'No')
 
         return True
