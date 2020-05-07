@@ -8,9 +8,9 @@ class EgIdlEcommerce(DefaultSerializer):
     def get_data(self):
         metodoEnvio = str(self.init_data["shipping_method"])
 
-        if "imagen_recoger" in self.init_data:
+        """if "imagen_recoger" in self.init_data:
             if str(self.init_data["imagen_recoger"]) != "None" and self.init_data["imagen_recoger"] != None and self.init_data["imagen_recoger"] != False:
-                metodoEnvio = "i4seur_31_2"
+                metodoEnvio = "i4seur_31_2"""
 
         transIDL = qsatype.FLUtil.sqlSelect("metodosenvio_transportista", "transportista", "LOWER(metodoenviomg) = '" + metodoEnvio + "' OR UPPER(metodoenviomg) = '" + metodoEnvio + "' OR metodoenviomg = '" + metodoEnvio + "'")
 
