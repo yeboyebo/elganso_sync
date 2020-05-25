@@ -587,6 +587,14 @@
             {
                 "path": "models/flfactalma/",
                 "name": "model_flfactalma__eg_anulacionstockreservado_def.py"
+            },
+            {
+                "name": "ctrl_api_b2c_movistock__upload.py",
+                "path": "controllers/api/b2c/movistock/"
+            },
+            {
+                "name": "ctrl_api_b2c_movistock__egmovistock_upload.py",
+                "path": "controllers/api/b2c/movistock/controllers/"
             }
         ],
         "deleteFile": [],

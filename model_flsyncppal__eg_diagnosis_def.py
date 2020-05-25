@@ -1128,6 +1128,42 @@ class elganso_sync(interna):
 
         return True
 
+    @periodic_task(run_every=crontab(minute='46', hour='10'))
+    def elganso_sync_diagsincromovistockweb():
+        proceso = "diagsincromovistockweb"
+
+        try:
+            cxC = importVentas.iface.creaConexion("ACEN")
+            if not cxC:
+                syncppal.iface.log("Error. No se pudo conectar con la central", proceso)
+                return False
+            if not importVentas.iface.comprobarConexion("ACEN", cxC, proceso):
+                syncppal.iface.log("Error. No se pudo conectar con la central", proceso)
+                return False
+
+            hayError = False
+            cxC["cur"].execute("SELECT count(*) AS pedidoserror FROM eg_logpedidosweb WHERE estadoprocesado = 'ERROR'")
+            rows = cxC["cur"].fetchall()
+            if len(rows) > 0:
+                if rows[0]["pedidoserror"] > 1:
+                    syncppal.iface.log("Error. Hay registros en eg_logpedidosweb en estado ERROR", proceso)
+                    hayError = True
+
+            cxC["cur"].execute("SELECT count(*) AS noprocesados FROM eg_logpedidosweb WHERE NOT procesado or procesado IS NULL")
+            rows = cxC["cur"].fetchall()
+            if len(rows) > 0:
+                if rows[0]["noprocesados"] > 10:
+                    syncppal.iface.log("Error. Hay más de 10 registros en eg_logpedidosweb sin procesar", proceso)
+                    hayError = True
+
+            if not hayError:
+                syncppal.iface.log("Éxito. Pedidos magento procesados correctamente", proceso)
+        except Exception as e:
+            syncppal.iface.log("Error. Ocurrió un error durante el proceso de diagnóstico de sincro de pedidos magento", proceso)
+            return False
+
+        return True
+
 
     def __init__(self, context=None):
         super(elganso_sync, self).__init__(context)
