@@ -11,6 +11,8 @@ from controllers.api.b2c.orders.serializers.egorder_voucherline_serializer impor
 from controllers.api.b2c.orders.serializers.egorder_payment_serializer import EgOrderPaymentSerializer
 from controllers.api.b2c.orders.serializers.egcashcount_serializer import EgCashCountSerializer
 from controllers.api.b2c.orders.serializers.egidlecommerce_serializer import EgIdlEcommerce
+from controllers.api.b2c.orders.serializers.egidlecommercedevoluciones_serializer import EgIdlEcommerceDevoluciones
+from controllers.api.b2c.orders.serializers.egorder_soles4soul_serializer import EgOrderSoles4soulLineSerializer
 
 
 class EgOrderSerializer(DefaultSerializer):
@@ -157,15 +159,23 @@ class EgOrderSerializer(DefaultSerializer):
             linea_gastos = EgOrderExpensesLineSerializer().serialize(new_init_data)
             linea_descuento = EgOrderDiscountLineSerializer().serialize(new_init_data)
             linea_vale = EgOrderVoucherLineSerializer().serialize(new_init_data)
+            linea_soles4soul = EgOrderSoles4soulLineSerializer().serialize(new_init_data)
             arqueo_web = EgCashCountSerializer().serialize(self.data)
             new_data = self.data.copy()
             new_data.update({"idarqueo": arqueo_web["idtpv_arqueo"]})
             pago_web = EgOrderPaymentSerializer().serialize(new_data)
             idl_ecommerce = EgIdlEcommerce().serialize(new_init_data)
 
+            if "imagen_recoger" in self.init_data:
+                if str(self.init_data["imagen_recoger"]) != "None" and self.init_data["imagen_recoger"] != None and self.init_data["imagen_recoger"] != False:
+                    idl_ecommerce_devolucion = EgIdlEcommerceDevoluciones().serialize(new_init_data)
+                    self.data["children"]["idl_ecommerce_devolucion"] = idl_ecommerce_devolucion
+
             self.data["children"]["lines"].append(linea_gastos)
             self.data["children"]["lines"].append(linea_descuento)
             self.data["children"]["lines"].append(linea_vale)
+            if linea_soles4soul:
+                self.data["children"]["lines"].append(linea_soles4soul)
             self.data["children"]["payments"].append(pago_web)
             self.data["children"]["shippingline"] = linea_envio
 

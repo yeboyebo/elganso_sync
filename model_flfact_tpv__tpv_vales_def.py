@@ -15,7 +15,7 @@ class elganso_sync(flfact_tpv):
                 codvaleweb = params['codvaleweb']
                 q = qsatype.FLSqlQuery()
                 q.setTablesList(u"tpv_vales")
-                q.setSelect(u"saldoconsumido, codigo, total, codvaleweb, saldopendiente, coddivisa")
+                q.setSelect(u"saldoconsumido, referencia, total, codvaleweb, saldopendiente, coddivisa")
                 q.setFrom(u"tpv_vales")
                 q.setWhere(ustr(u"codvaleweb = '", codvaleweb, u"'"))
                 if not q.exec_():
@@ -26,7 +26,7 @@ class elganso_sync(flfact_tpv):
                     return {"Error": "Vale incorrecto", "status": -3}
 
                 saldoconsumido = q.value("saldoconsumido")
-                codigo = q.value("codigo")
+                codigo = q.value("referencia")
                 total = q.value("total")
                 codvaleweb = q.value("codvaleweb")
                 saldopendiente = q.value("saldopendiente")
@@ -55,7 +55,7 @@ class elganso_sync(flfact_tpv):
                 curVale = qsatype.FLSqlCursor(u"tpv_vales")
                 curVale.setModeAccess(curVale.Edit)
                 curVale.refreshBuffer()
-                curVale.select(ustr(u"codigo = '", codigo, u"'"))
+                curVale.select(ustr(u"referencia = '", codigo, u"'"))
 
                 # Comprobaciones
                 if not curVale.first():
