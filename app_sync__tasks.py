@@ -7,6 +7,7 @@ from controllers.base.magento.drivers.magento import MagentoDriver
 from controllers.base.store.drivers.psql_store import PsqlStoreDriver
 
 from controllers.api.b2c.stocks.controllers.egstock_upload import EgStockUpload
+from controllers.api.b2c.movistock.controllers.egmovistock_upload import EgMovistockUpload
 from controllers.api.b2c.points.controllers.egpoints_upload import EgPointsUpload
 from controllers.api.b2c.prices.controllers.egprices_upload import EgPricesUpload
 from controllers.api.b2c.orders.controllers.egorders_download import EgOrdersDownload
@@ -36,6 +37,10 @@ from controllers.api.mirakl.offersdate.controllers.eg_offersdate_upload import E
 sync_object_dict = {
     "stock_upload": {
         "sync_object": EgStockUpload,
+        "driver": MagentoDriver
+    },
+    "movistock_upload": {
+        "sync_object": EgMovistockUpload,
         "driver": MagentoDriver
     },
     "points_upload": {

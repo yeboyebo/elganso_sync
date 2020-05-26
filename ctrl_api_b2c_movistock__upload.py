@@ -23,13 +23,12 @@ class elganso_sync_upload(interna_upload):
 
         if "passwd" in data and data["passwd"] == syncppal.iface.get_param_sincro('apipass')['auth']:
             response = task_manager.task_executer("movistock_upload", data)
-
             result = response["data"]
             status = response["status"]
         else:
             result = {"msg": "Autorización denegada"}
             status = 401
-
+        
         return HttpResponse(json.dumps(result), status=status, content_type="application/json")
 
 

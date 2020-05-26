@@ -36,24 +36,23 @@ class EgMovistockUpload(UploadSync):
                 raise NameError("Error. Existe un registro cuyo almacén no está en la lista de almacenes de sincronización con Magento. " + str(q.value("ssw.idssw")))
 
 
-            body.append({"sku": sku, "qty": cant_disponible, "sincroStock": True, "almacen": q.value("s.codalmacen")})
+            body.append({"sku": sku, "qty": cant_disponible, "almacen": q.value("s.codalmacen")})
 
-            if not self.__smsw:
-                self.__smsw = ""
+            if not self._smsw:
+                self._smsw = ""
             else:
-                self.__smsw += ","
-            self.__smsw += str(q.value("smw.id"))
+                self._smsw += ","
+            self._smsw += str(q.value("smw.id"))
 
         return body
 
     def after_sync(self, response_data=None):
-        if response_data and "request_id" in response_data:
-            qsatype.FLSqlQuery().execSql("UPDATE eg_sincromovistockweb SET sincronizado = true WHERE id IN ({})".format(self.__smsw))
-            qsatype.FLSqlQuery().execSql("UPDATE tpv_fechasincrotienda SET fechasincro = '{}', horasincro = '{}' WHERE codtienda = 'AWEB' AND esquema = 'MOVISTOCK_WEB'".format(self.start_date, self.start_time))
-            self.log("Éxito", "Stock sincronizado correctamente (id: {})".format(response_data["request_id"]))
-        else:
-            raise NameError("No se recibió una respuesta correcta del servidor")
+        qsatype.FLSqlQuery().execSql("UPDATE eg_sincromovistockweb SET sincronizado = true WHERE id IN ({})".format(self._smsw))
 
+        qsatype.FLSqlQuery().execSql("UPDATE tpv_fechasincrotienda SET fechasincro = '{}', horasincro = '{}' WHERE codtienda = 'AWEB' AND esquema = 'MOVISTOCK_WEB'".format(self.start_date, self.start_time))
+
+        self.log("Éxito", "Movistocks sincronizados correctamente ({})".format(self._smsw))
+        
         return self.small_sleep
 
     def dame_sku(self, referencia, talla):
