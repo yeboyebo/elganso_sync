@@ -20,6 +20,13 @@ class EgRefoundsSerializer(DefaultSerializer):
 
         codigo = "WDV" + qsatype.FactoriaModulos.get("flfactppal").iface.cerosIzquierda(str(self.init_data["refound_id"]), 9)
 
+        now = str(qsatype.Date())
+        self.start_date = now[:10]
+        self.start_time = now[-(8):]
+
+        qsatype.FLSqlQuery().execSql("DELETE FROM eg_logpedidosweb WHERE fechaalta < CURRENT_DATE-30")
+        qsatype.FLSqlQuery().execSql("INSERT INTO eg_logpedidosweb (fechaalta, horaalta, cuerpolog, codcomanda) VALUES ('{}', '{}', '{}', '{}')".format(now[:10], now[-(8):], str(self.init_data).replace("'", "\""), codigo))
+
         if self.init_data["status"] != "Complete" or "items_requested" in self.init_data:
 
             idComanda = qsatype.FLUtil.sqlSelect("tpv_comandas", "idtpv_comanda", "codigo = '" + str(codigo) + "'")
@@ -323,6 +330,11 @@ class EgRefoundsSerializer(DefaultSerializer):
             self.data["children"]["lines"].append(linea_vale)
 
     def cerrar_devolucionweb(self, codigo):
+
+        idComandaPago = qsatype.FLUtil.sqlSelect("tpv_comandas c INNER JOIN tpv_pagoscomanda p ON c.idtpv_comanda = p.idtpv_comanda", "p.idtpv_comanda", "c.codigo = '" + str(codigo) + "'")
+        if idComandaPago:
+            raise NameError("La devolución ya tiene un pago creado.")
+            return False
 
         self.data.update({
             "fecha": qsatype.Date()

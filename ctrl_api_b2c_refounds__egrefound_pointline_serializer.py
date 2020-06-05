@@ -47,6 +47,8 @@ class EgRefoundPointLineSerializer(EgRefoundLineSerializer):
             pvpTotal = pvpTotal * (-1)
             pvpSinDtoIva = pvpUnitarioIva * (-1)
             pvpTotalIva = pvpUnitarioIva * (-1)
+            pvpUnitario = pvpUnitario * (-1)
+            pvpUnitarioIva = pvpUnitarioIva * (-1)
 
 
         self.set_data_value("pvpunitario", pvpUnitario)
