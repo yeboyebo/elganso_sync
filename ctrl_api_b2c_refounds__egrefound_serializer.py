@@ -10,6 +10,7 @@ from controllers.api.b2c.orders.serializers.egcashcount_serializer import EgCash
 from controllers.api.b2c.refounds.serializers.egrefound_payment_serializer import EgRefoundPaymentSerializer
 from controllers.api.b2c.refounds.serializers.egidlecommerce_serializer import EgIdlEcommerce
 from controllers.api.b2c.refounds.serializers.egidlecommercedevoluciones_serializer import EgIdlEcommerceDevoluciones
+from controllers.api.b2c.refounds.serializers.egrefound_expensesline_serializer import EgRefoundExpensesLineSerializer
 
 
 class EgRefoundsSerializer(DefaultSerializer):
@@ -69,6 +70,7 @@ class EgRefoundsSerializer(DefaultSerializer):
             self.crear_registros_descuentos(iva)
             self.crear_registros_puntos(iva)
             self.crear_registros_vales(iva)
+            self.crear_registros_gastosenvio(iva)
             self.data["children"]["cashcount"] = False
         else:
 
@@ -127,7 +129,7 @@ class EgRefoundsSerializer(DefaultSerializer):
         codDivisa = str(self.init_data["currency"])
 
         totalIva = parseFloat(self.init_data["tax_refunded"])
-        totalVenta = parseFloat(self.init_data["subtotal_refunded"]) - parseFloat(self.init_data["discount_refunded"]) - parseFloat(self.init_data["vale_total"])
+        totalVenta = parseFloat(self.init_data["subtotal_refunded"]) - parseFloat(self.init_data["discount_refunded"]) - parseFloat(self.init_data["vale_total"]) + parseFloat(self.init_data["shipping_price"])
         totalNeto = totalVenta - totalIva
 
         if "items_requested" in self.init_data:
@@ -579,3 +581,26 @@ class EgRefoundsSerializer(DefaultSerializer):
             return False
 
         return True
+
+    def crear_registros_gastosenvio(self, iva):
+
+        new_init_data = self.init_data.copy()
+        new_init_data.update({
+            "codcomanda": self.data["codigo"],
+            "iva": iva,
+            "tipo_linea": "GastosNegativos"
+        })
+        linea_gastosenvio = EgRefoundExpensesLineSerializer().serialize(new_init_data)
+        self.data["children"]["lines"].append(linea_gastosenvio)
+
+        if "items_requested" in self.init_data:
+            new_init_data = self.init_data.copy()
+            new_init_data.update({
+                "codcomanda": self.data["codigo"],
+                "iva": iva,
+                "tipo_linea": "GastosPositivos"
+            })
+            linea_gastosenvio = EgRefoundExpensesLineSerializer().serialize(new_init_data)
+            self.data["children"]["lines"].append(linea_gastosenvio)
+
+    

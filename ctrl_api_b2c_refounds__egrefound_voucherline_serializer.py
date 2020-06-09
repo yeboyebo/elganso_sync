@@ -39,10 +39,10 @@ class EgRefoundVoucherLineSerializer(EgRefoundLineSerializer):
         pvpTotalIva = pvpUnitarioIva
 
         if self.init_data["tipo_linea"] == "ValesNegativos":
-                pvpSinDto = pvpSinDto * (-1)
-                pvpTotal = pvpTotal * (-1)
-                pvpSinDtoIva = pvpUnitarioIva * (-1)
-                pvpTotalIva = pvpUnitarioIva * (-1)
+            pvpSinDto = pvpSinDto * (-1)
+            pvpTotal = pvpTotal * (-1)
+            pvpSinDtoIva = pvpUnitarioIva * (-1)
+            pvpTotalIva = pvpUnitarioIva * (-1)
 
         self.set_data_value("pvpunitario", pvpUnitario)
         self.set_data_value("pvpsindto", pvpSinDto)

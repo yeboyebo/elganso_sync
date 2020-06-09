@@ -25,6 +25,7 @@ class EgRefoundsDownload(DownloadSync):
         refound.save()
 
     def after_sync(self):
+        return True
         self.set_sync_params(self.get_param_sincro('b2cRefoundsDownloadSync'))
 
         success_records = []
