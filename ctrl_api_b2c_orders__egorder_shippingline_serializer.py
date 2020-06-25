@@ -29,6 +29,7 @@ class EgOrderShippingLineSerializer(DefaultSerializer):
         self.set_string_relation("mg_codpostalenv", "shipping_address//postcode", max_characters=10)
         self.set_string_relation("mg_ciudadenv", "shipping_address//city", max_characters=100)
         self.set_string_relation("mg_paisenv", "shipping_address//country_id", max_characters=100)
+        self.set_string_relation("mg_provinciaenv", "shipping_address//region", max_characters=100)
         self.set_string_relation("mg_telefonoenv", "shipping_address//telephone", max_characters=30)
 
         self.set_data_value("mg_confac", False)
