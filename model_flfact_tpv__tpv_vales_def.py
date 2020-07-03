@@ -9,6 +9,8 @@ class elganso_sync(flfact_tpv):
 
     def elganso_sync_consultavale(self, params):
         try:
+            if "passwd" not in params:
+                params = syncppal.iface.get_param_sincro('apipass')
             if "passwd" in params and params['passwd'] == self.params['auth']:
                 if "codvaleweb" not in params:
                     return {"Error": "Formato Incorrecto", "status": 0}
@@ -45,6 +47,8 @@ class elganso_sync(flfact_tpv):
 
     def elganso_sync_actualizavale(self, params):
         try:
+            if "passwd" not in params:
+                params = syncppal.iface.get_param_sincro('apipass')
             if "passwd" in params and params['passwd'] == self.params['auth']:
                 if "refvale" not in params or "idsincropago" not in params or "total" not in params:
                     return {"Error": "Formato Incorrecto", "status": -1}

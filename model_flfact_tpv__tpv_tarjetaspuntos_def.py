@@ -24,6 +24,8 @@ class elganso_sync(interna):
 
     def elganso_sync_desuscribesm(self, params):
         try:
+            if "passwd" not in params:
+                params = syncppal.iface.get_param_sincro('apipass')
             if "passwd" in params and params['passwd'] == self.params['auth']:
                 if "email" not in params:
                     return {"Error": "Formato Incorrecto", "status": -1}
@@ -60,6 +62,8 @@ class elganso_sync(interna):
 
     def elganso_sync_suscribesm(self, params):
         try:
+            if "passwd" not in params:
+                params = syncppal.iface.get_param_sincro('apipass')
             if "passwd" in params and params['passwd'] == self.params['auth']:
                 if "email" not in params:
                     return {"Error": "Formato Incorrecto", "status": -1}
