@@ -25,7 +25,7 @@ class elganso_sync(interna):
     def elganso_sync_desuscribesm(self, params):
         try:
             bdparams = self.params
-            if "passwd" not in params:
+            if "passwd" not in bdparams:
                 bdparams = syncppal.iface.get_param_sincro('apipass')
             if "passwd" in params and params['passwd'] == bdparams['auth']:
                 if "email" not in params:
@@ -64,7 +64,7 @@ class elganso_sync(interna):
     def elganso_sync_suscribesm(self, params):
         try:
             bdparams = self.params
-            if "passwd" not in params:
+            if "passwd" not in bdparams:
                 bdparams = syncppal.iface.get_param_sincro('apipass')
             if "passwd" in params and params['passwd'] == bdparams['auth']:
                 if "email" not in params:
