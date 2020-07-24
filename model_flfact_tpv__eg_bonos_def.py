@@ -23,7 +23,7 @@ class elganso_sync(interna):
     def elganso_sync_tienebonoregistro(self, params):
         try:
             bdparams = self.params
-            if "passwd" not in bdparams:
+            if "auth" not in bdparams:
                 bdparams = syncppal.iface.get_param_sincro('apipass')
             if "passwd" in params and params['passwd'] == bdparams['auth']:
                 if "email" not in params:
@@ -50,7 +50,7 @@ class elganso_sync(interna):
     def elganso_sync_consultabonoventa(self, params):
         try:
             bdparams = self.params
-            if "passwd" not in bdparams:
+            if "auth" not in bdparams:
                 bdparams = syncppal.iface.get_param_sincro('apipass')
             if "passwd" in params and params['passwd'] == bdparams['auth']:
                 if "codigoVenta" not in params:
@@ -83,7 +83,7 @@ class elganso_sync(interna):
     def elganso_sync_consultabono(self, params):
         try:
             bdparams = self.params
-            if "passwd" not in bdparams:
+            if "auth" not in bdparams:
                 bdparams = syncppal.iface.get_param_sincro('apipass')
             if "passwd" in params and params['passwd'] == bdparams['auth']:
                 if "codigoBono" not in params:
@@ -131,7 +131,7 @@ class elganso_sync(interna):
     def elganso_sync_creabono(self, params):
         try:
             bdparams = self.params
-            if "passwd" not in bdparams:
+            if "auth" not in bdparams:
                 bdparams = syncppal.iface.get_param_sincro('apipass')
             if "passwd" in params and params['passwd'] == bdparams['auth']:
                 if "importeVenta" not in params or "codigoVenta" not in params or "divisa" not in params or "email" not in params:
@@ -180,7 +180,7 @@ class elganso_sync(interna):
     def elganso_sync_actualizabono(self, params):
         try:
             bdparams = self.params
-            if "passwd" not in bdparams:
+            if "auth" not in bdparams:
                 bdparams = syncppal.iface.get_param_sincro('apipass')
             if "passwd" in params and params['passwd'] == bdparams['auth']:
                 if "importeVenta" not in params or "codigoBono" not in params or "codigoVenta" not in params or "divisa" not in params:
