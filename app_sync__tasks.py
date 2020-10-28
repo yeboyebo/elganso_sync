@@ -44,6 +44,7 @@ from controllers.api.amazon.prices.controllers.az_prices_upload import AzPricesU
 from controllers.api.amazon.images.controllers.az_images_upload import AzImagesUpload
 from controllers.api.amazon.relationships.controllers.az_relationships_upload import AzRelationshipsUpload
 from controllers.api.amazon.feedresult.controllers.az_feedresult_get import AzFeedResultGet
+from controllers.api.amazon.feedresult.controllers.az_feedresult_process import AzFeedResultProcess
 
 sync_object_dict = {
     "stock_upload": {
@@ -140,6 +141,9 @@ sync_object_dict = {
     },
     "amazon_feedresult_get": {
         "sync_object": AzFeedResultGet
+    },
+    "amazon_feedresult_process": {
+        "sync_object": AzFeedResultProcess
     }
 }
 

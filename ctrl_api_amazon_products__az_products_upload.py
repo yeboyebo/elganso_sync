@@ -54,9 +54,9 @@ class AzProductsUpload(AzFeedsUpload, ABC):
         if not amazon_id:
             return self.large_sleep
 
-        # qsatype.FLSqlQuery().execSql("UPDATE lineassincro_catalogo SET sincronizado = true WHERE id IN ({})".format(','.join([str(key) for key in self.ids])))
-        # qsatype.FLSqlQuery().execSql("UPDATE sincro_catalogo s SET ptesincro = false WHERE ptesincro = true AND NOT EXISTS (SELECT lsc.id FROM lineassincro_catalogo lsc WHERE lsc.idsincro = s.idsincro AND sincronizado = false)")
+        qsatype.FLSqlQuery().execSql("UPDATE lineassincro_catalogo SET sincronizado = true WHERE id IN ({})".format(','.join([str(key) for key in self.ids])))
+        qsatype.FLSqlQuery().execSql("UPDATE sincro_catalogo s SET ptesincro = false WHERE ptesincro = true AND NOT EXISTS (SELECT lsc.id FROM lineassincro_catalogo lsc WHERE lsc.idsincro = s.idsincro AND sincronizado = false)")
 
-        # qsatype.FLSqlQuery().execSql("UPDATE az_articulosamazon SET sincroarticulo = true, idlog_articulo = (SELECT id FROM az_logamazon WHERE idamazon = '{}') WHERE referencia IN ('{}')".format(amazon_id, "','".join(self.referencias)))
+        qsatype.FLSqlQuery().execSql("UPDATE az_articulosamazon SET sincroarticulo = true, idlog_articulo = (SELECT id FROM az_logamazon WHERE idamazon = '{}') WHERE referencia IN ('{}')".format(amazon_id, "','".join(self.referencias)))
 
         return self.small_sleep
