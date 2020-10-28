@@ -165,6 +165,27 @@
         },
         {
             "type": "insertAfterNode",
+            "path": "/flfactalma/eg_anulacionstockreservado",
+            "value": {
+                "az_articulosamazon": null
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/flfactalma/az_articulosamazon",
+            "value": {
+                "az_error": null
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/flfactalma/az_error",
+            "value": {
+                "az_logamazon": null
+            }
+        },
+        {
+            "type": "insertAfterNode",
             "path": "/flfactppal/usuarios",
             "value": {
                 "solicitudescliente": null

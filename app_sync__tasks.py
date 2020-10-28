@@ -1,11 +1,12 @@
 from YBLEGACY import qsatype
 from YBUTILS import globalValues
 
+# Base
 from controllers.base.default.managers.task_manager import TaskManager
-
 from controllers.base.magento.drivers.magento import MagentoDriver
 from controllers.base.store.drivers.psql_store import PsqlStoreDriver
 
+# B2C
 from controllers.api.b2c.stocks.controllers.egstock_upload import EgStockUpload
 from controllers.api.b2c.movistock.controllers.egmovistock_upload import EgMovistockUpload
 from controllers.api.b2c.points.controllers.egpoints_upload import EgPointsUpload
@@ -15,7 +16,7 @@ from controllers.api.b2c.customers.controllers.egcustomers_download import EgCus
 from controllers.api.b2c.refounds.controllers.egrefounds_download import EgRefoundsDownload
 from controllers.api.b2c.stock_inicial.controllers.egstock_inicial_recieve import EgStockInicialRecieve
 
-
+# B2B
 from controllers.api.b2b.products.controllers.eg_products_upload import EgProductsUpload as b2bProducts
 from controllers.api.b2b.orders.controllers.orders_download import OrdersDownload as b2bOrders
 from controllers.api.b2b.tierprice.controllers.eg_tierprice_upload import EgB2bTierpriceUpload
@@ -24,8 +25,10 @@ from controllers.api.b2b.inventory.controllers.eg_inventory_upload import EgB2bI
 from controllers.api.b2b.customerrequest.controllers.eg_customerrequest_recieve import EgB2bCustomerrequestRecieve
 from controllers.api.b2b.customers.controllers.eg_customers_upload import EgB2bCustomerUpload
 
+# Tiendas
 from controllers.api.store.orders.controllers.egorders_download import EgStoreOrdersDownload
 
+# Mirakl
 from controllers.api.mirakl.orders.controllers.eg_orders_download import EgMiraklOrdersDownload
 from controllers.api.mirakl.shippingorders.controllers.eg_shipping_orders_download import EgMiraklShippingOrdersDownload
 from controllers.api.mirakl.returns.controllers.eg_returns_download import EgMiraklReturnsDownload
@@ -33,6 +36,14 @@ from controllers.api.mirakl.offers.controllers.eg_offers_upload import EgMiraklO
 from controllers.api.mirakl.returnsvaldemoro.controllers.eg_returnsvaldemoro_download import EgMiraklReturnsValdemoroDownload
 from controllers.api.mirakl.returnsvaldemoroid.controllers.eg_returnsvaldemoroid_download import EgMiraklReturnsValdemoroIdDownload
 from controllers.api.mirakl.offersdate.controllers.eg_offersdate_upload import EgMiraklOffersDateUpload
+
+# Amazon
+from controllers.api.amazon.products.controllers.az_products_upload import AzProductsUpload
+from controllers.api.amazon.stocks.controllers.az_stocks_upload import AzStocksUpload
+from controllers.api.amazon.prices.controllers.az_prices_upload import AzPricesUpload
+from controllers.api.amazon.images.controllers.az_images_upload import AzImagesUpload
+from controllers.api.amazon.relationships.controllers.az_relationships_upload import AzRelationshipsUpload
+from controllers.api.amazon.feedresult.controllers.az_feedresult_get import AzFeedResultGet
 
 sync_object_dict = {
     "stock_upload": {
@@ -111,6 +122,24 @@ sync_object_dict = {
     },
     "mirakl_offersdate_upload": {
         "sync_object": EgMiraklOffersDateUpload
+    },
+    "amazon_products_upload": {
+        "sync_object": AzProductsUpload
+    },
+    "amazon_stocks_upload": {
+        "sync_object": AzStocksUpload
+    },
+    "amazon_prices_upload": {
+        "sync_object": AzPricesUpload
+    },
+    "amazon_images_upload": {
+        "sync_object": AzImagesUpload
+    },
+    "amazon_relationships_upload": {
+        "sync_object": AzRelationshipsUpload
+    },
+    "amazon_feedresult_get": {
+        "sync_object": AzFeedResultGet
     }
 }
 
