@@ -24,7 +24,7 @@ class AzRelationshipsUpload(AzFeedsUpload, ABC):
         if not amazon_id:
             return self.large_sleep
 
-        qsatype.FLSqlQuery().execSql("UPDATE az_articulosamazon SET sincrorelacion = true, idlog_relacion = {} WHERE referencia IN ('{}')".format(amazon_id, "','".join(self.referencias)))
+        qsatype.FLSqlQuery().execSql("UPDATE az_articulosamazon SET sincrorelacion = true, idlog_relacion = (SELECT id FROM az_logamazon WHERE idamazon = '{}') WHERE referencia IN ('{}')".format(amazon_id, "','".join(self.referencias)))
 
         return self.small_sleep
 

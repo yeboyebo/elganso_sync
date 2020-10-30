@@ -101,9 +101,9 @@ class AzFeedResultProcess(DownloadSync, ABC):
                 referencias.append(referencia)
                 qsatype.FLSqlQuery().execSql("UPDATE az_articulosamazon SET id_error = {}, errorsincro = true, descerror = '{}' WHERE referencia = '{}'".format(idlog, self.format_error(self.procesamientos[idlog]['errores'][referencia]), referencia))
 
-            bool_field = self.get_bool_field(self.procesamientos[idlog])
-            nextbool_field = self.get_nextbool_field(self.procesamientos[idlog])
-            idlog_field = self.get_idlog_field(self.procesamientos[idlog])
+            bool_field = self.get_bool_field(self.procesamientos[idlog]['tipo'])
+            nextbool_field = self.get_nextbool_field(self.procesamientos[idlog]['tipo'])
+            idlog_field = self.get_idlog_field(self.procesamientos[idlog]['tipo'])
 
             if nextbool_field:
                 qsatype.FLSqlQuery().execSql("UPDATE az_articulosamazon SET articulocreado = true, {} = true, {} = false, id_error = NULL, errorsincro = false, descerror = NULL WHERE {} = {} AND referencia NOT IN ('{}')".format(bool_field, nextbool_field, idlog_field, idlog, "','".join(referencias)))

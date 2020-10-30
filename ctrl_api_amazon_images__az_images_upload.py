@@ -55,7 +55,7 @@ class AzImagesUpload(AzFeedsUpload, ABC):
         if not amazon_id:
             return self.large_sleep
 
-        qsatype.FLSqlQuery().execSql("UPDATE az_articulosamazon SET sincroimagenes = true, idlog_imagenes = {} WHERE referencia IN ('{}')".format(amazon_id, "','".join(self.referencias)))
+        qsatype.FLSqlQuery().execSql("UPDATE az_articulosamazon SET sincroimagenes = true, idlog_imagenes = (SELECT id FROM az_logamazon WHERE idamazon = '{}') WHERE referencia IN ('{}')".format(amazon_id, "','".join(self.referencias)))
 
         return self.small_sleep
 
