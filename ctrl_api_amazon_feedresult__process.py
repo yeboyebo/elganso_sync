@@ -21,7 +21,7 @@ class elganso_sync_process(interna_process):
         result = None
         status = None
 
-        if "passwd" in data and data["passwd"] == syncppal.iface.process_param_sincro('apipass')['auth']:
+        if "passwd" in data and data["passwd"] == syncppal.iface.get_param_sincro('apipass')['auth']:
             response = task_manager.task_executer("amazon_feedresult_process", data)
 
             result = response["data"]

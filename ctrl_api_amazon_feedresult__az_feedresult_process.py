@@ -13,7 +13,13 @@ class AzFeedResultProcess(DownloadSync, ABC):
     def __init__(self, params=None):
         super().__init__("azfeedresultprocess", AmazonDriver(), params)
 
+        self.set_sync_params(self.get_param_sincro('amazon'))
+
+        self.origin_field = "idamazon"
+
     def get_data(self):
+        self.procesamientos = {}
+
         body = []
 
         q = self.get_query()
@@ -28,83 +34,127 @@ class AzFeedResultProcess(DownloadSync, ABC):
 
     def get_query(self):
         q = qsatype.FLSqlQuery()
-        q.setSelect("id, idamazon, respuesta")
+        q.setSelect("id, idamazon, tipo, respuesta")
         q.setFrom("az_logamazon")
-        q.setWhere("procesadoaz AND NOT procesadoaq ORDER BY fecha, hora")
+        q.setWhere("procesadoaz AND NOT procesadoaq ORDER BY fecha, hora LIMIT 1")
 
         return q
 
     def process_data(self, data):
-        for d in data:
-            idlog = d['id']
-            idamazon = d['idamazon']
-            response = xml2dict(d['respuesta'])
+        idlog = data['id']
+        idamazon = data['idamazon']
+        tipo = data['tipo']
 
-            print(response)
+        response = xml2dict(bytes(data['respuesta'], 'utf-8'))
 
-            for message in response.Message:
-                for result in message.ProcessingReport.Result:
-                    error = result.ResultCode == 'Error'
-                    desc = result.ResultDescription
-                    sku = False
-                    if 'AdditionalInfo' in result:
-                        sku = result.AdditionalInfo.SKU
+        barcode_error = {}
+        for result in response.Message.ProcessingReport.Result:
+            error = result.ResultCode == 'Error'
+            desc = result.ResultDescription
+            sku = False
 
-                    barcode_error = {}
-                    if error and desc and sku:
-                        if sku not in barcode_error:
-                            barcode_error[sku] = []
-                        barcode_error[sku].append(error)
+            if hasattr(result, 'AdditionalInfo'):
+                sku = str(result.AdditionalInfo.SKU)
 
-            q = qsatype.FLSqlQuery()
-            q.setSelect("referencia, barcode")
-            q.setFrom("atributosarticulos")
-            q.setWhere("barcode IN ('{}')".format("','".join([barcode for barcode in barcode_error])))
+            if error and desc is not None and sku:
+                if sku not in barcode_error:
+                    barcode_error[sku] = []
+                barcode_error[sku].append(desc)
 
-            body = self.fetch_query(q)
+        q = qsatype.FLSqlQuery()
+        q.setSelect("referencia, barcode")
+        q.setFrom("atributosarticulos")
+        q.setWhere("barcode IN ('{}')".format("','".join([str(barcode) for barcode in barcode_error])))
 
-            referencia_error = {}
-            for row in body:
-                referencia = row['referencia']
-                barcode = row['barcode']
+        q.exec_()
+        body = self.fetch_query(q)
 
-                if referencia not in referencia_error:
-                    referencia_error[referencia] = []
+        referencia_error = {}
+        for row in body:
+            referencia = row['referencia']
+            barcode = row['barcode']
 
-                if barcode in barcode_error:
-                    referencia_error[referencia].append("{} -> {}".format(barcode, barcode_error[barcode]))
+            if referencia not in referencia_error:
+                referencia_error[referencia] = []
 
-            self.procesamientos[idlog] = {
-                'idamazon': idamazon,
-                'errores': referencia_error
-            }
+            if barcode in barcode_error:
+                for error in barcode_error[barcode]:
+                    referencia_error[referencia].append("{} -> {}".format(barcode, error))
 
-            # Procesar messages (Message[])
-            # Comprobar ProcessingReport.StatusCode Complete?
-            # Procesar results (Result[])
-            # ResultCode Error o Warning?
-            # ResultDescription
-            # Comprobar si hay AdditionalInfo.SKU, si no, es general
-
-            # * Guardar errores por barcode en un dict barcode - array_errores
-            # * Agrupar por referencia en un dict referencia - array_barcode_+_error
-            # * Guardar log_amazon como procesado
-            # * Marcar referencia como errorsincro = true
-            # * Guardar errores en descerror
-            # Guardar un registro de az_error? No parece tener mucho sentido
+        self.procesamientos[idlog] = {
+            'idamazon': idamazon,
+            'tipo': tipo,
+            'errores': referencia_error
+        }
 
     def after_sync(self, response_data=None):
         if not self.procesamientos:
             self.log("Error", "No se han podido procesar resultados")
-            return
+            return self.large_sleep
 
-        qsatype.FLSqlQuery().execSql("UPDATE az_logamazon SET procesadoaq = true WHERE id IN ({})".format(",".join([idlog for idlog in self.procesamientos])))
+        qsatype.FLSqlQuery().execSql("UPDATE az_logamazon SET procesadoaq = true WHERE id IN ({})".format(",".join([str(idlog) for idlog in self.procesamientos])))
 
         for idlog in self.procesamientos:
-            for referencia in self.procesamientos[idlog]['errores']:
-                qsatype.FLSqlQuery().execSql("UPDATE az_articulosamazon SET id_error = {}, errorsincro = true, descerror = '{}' WHERE referencia = '{}'".format(idlog, "\n".join(self.procesamientos[idlog]['errores'][referencia]), referencia))
+            referencias = []
 
-        self.log("Éxito", "Resultados procesados correctamente (ids_amazon: {})".format([self.procesamientos[idlog]['idamazon'] for idlog in self.procesamientos]))
+            for referencia in self.procesamientos[idlog]['errores']:
+                referencias.append(referencia)
+                qsatype.FLSqlQuery().execSql("UPDATE az_articulosamazon SET id_error = {}, errorsincro = true, descerror = '{}' WHERE referencia = '{}'".format(idlog, self.format_error(self.procesamientos[idlog]['errores'][referencia]), referencia))
+
+            bool_field = self.get_bool_field(self.procesamientos[idlog]['tipo'])
+            nextbool_field = self.get_nextbool_field(self.procesamientos[idlog]['tipo'])
+            idlog_field = self.get_idlog_field(self.procesamientos[idlog]['tipo'])
+
+            if nextbool_field:
+                qsatype.FLSqlQuery().execSql("UPDATE az_articulosamazon SET articulocreado = true, {} = true, {} = false, id_error = NULL, errorsincro = false, descerror = NULL WHERE {} = {} AND referencia NOT IN ('{}')".format(bool_field, nextbool_field, idlog_field, idlog, "','".join(referencias)))
+            else:
+                qsatype.FLSqlQuery().execSql("UPDATE az_articulosamazon SET articulocreado = true, {} = true, id_error = NULL, errorsincro = false, descerror = NULL WHERE {} = {} AND referencia NOT IN ('{}')".format(bool_field, idlog_field, idlog, "','".join(referencias)))
+
+        self.log("Éxito", "Resultados procesados correctamente (ids_amazon: {})".format([str(self.procesamientos[idlog]['idamazon']) for idlog in self.procesamientos]))
+
+        return self.small_sleep
+
+    def get_bool_field(self, tipo):
+        if tipo == 'Product':
+            return 'sincroarticulo'
+        if tipo == 'Relationship':
+            return 'sincrorelacion'
+        if tipo == 'Inventory':
+            return 'sincrostock'
+        if tipo == 'Price':
+            return 'sincroprecio'
+        if tipo == 'ProductImage':
+            return 'sincroimagenes'
+        return False
+
+    def get_nextbool_field(self, tipo):
+        if tipo == 'Product':
+            return 'sincrorelacion'
+        if tipo == 'Relationship':
+            return 'sincroimagenes'
+        if tipo == 'Price':
+            return 'sincrostock'
+        if tipo == 'ProductImage':
+            return 'sincroprecio'
+        return False
+
+    def get_idlog_field(self, tipo):
+        if tipo == 'Product':
+            return 'idlog_articulo'
+        if tipo == 'Relationship':
+            return 'idlog_relacion'
+        if tipo == 'Inventory':
+            return 'idlog_stock'
+        if tipo == 'Price':
+            return 'idlog_precio'
+        if tipo == 'ProductImage':
+            return 'idlog_imagenes'
+        return False
+
+    def format_error(self, errors):
+        errors = "\n".join(errors)
+        errors = errors.replace("'", "\"")
+        return errors
 
     def fetch_query(self, q):
         field_list = [field.strip() for field in q.select().split(",")]

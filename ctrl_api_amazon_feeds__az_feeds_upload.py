@@ -33,8 +33,8 @@ class AzFeedsUpload(UploadSync, ABC):
         data = dict2xml(self.get_serializer().serialize(data), 'AmazonEnvelope')
 
         data = '<?xml version="1.0" encoding="utf-8"?>' + data
+        data = self.replace_special_chars(data)
         self.request_data = bytes(data, 'iso-8859-1').decode('utf-8', 'ignore')
-        # self.request_data = data
 
         return self.request_data
 
@@ -113,7 +113,7 @@ class AzFeedsUpload(UploadSync, ABC):
             "Action": "SubmitFeed",
             "Merchant": self.driver.azMerchant,
             "SignatureVersion": "2",
-            "Timestamp": (datetime.now() - timedelta(hours=2)).strftime('%Y-%m-%dT%H:%M:%SZ'),
+            "Timestamp": (datetime.now() - timedelta(hours=1)).strftime('%Y-%m-%dT%H:%M:%SZ'),
             "Version": "2009-01-01",
             "ContentMD5Value": self.get_hash(data),
             "SignatureMethod": "HmacSHA256",
@@ -152,3 +152,25 @@ class AzFeedsUpload(UploadSync, ABC):
                 ).digest()
             ).decode('utf-8')
         )
+
+    def replace_special_chars(self, data):
+        data = data.replace("Á", "&#193;")
+        data = data.replace("É", "&#201;")
+        data = data.replace("Í", "&#205;")
+        data = data.replace("Ó", "&#211;")
+        data = data.replace("Ú", "&#218;")
+        data = data.replace("á", "&#225;")
+        data = data.replace("é", "&#233;")
+        data = data.replace("í", "&#237;")
+        data = data.replace("ó", "&#243;")
+        data = data.replace("ú", "&#250;")
+        data = data.replace("Ñ", "&#209;")
+        data = data.replace("ñ", "&#241;")
+        data = data.replace("Ç", "&#199;")
+        data = data.replace("ç", "&#231;")
+        data = data.replace("Ü", "&#220;")
+        data = data.replace("ü", "&#252;")
+        data = data.replace("º", "&#176;")
+        data = data.replace("@", "&#64;")
+        data = data.replace("\r", "\n")
+        return data

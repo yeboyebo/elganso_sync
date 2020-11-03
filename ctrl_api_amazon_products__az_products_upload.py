@@ -25,7 +25,7 @@ class AzProductsUpload(AzFeedsUpload, ABC):
 
     def get_query(self):
         q = qsatype.FLSqlQuery()
-        q.setSelect("lsc.id, lsc.idsincro, lsc.idobjeto, lsc.descripcion, az.referencia, aa.barcode, aa.talla, a.mgdescripcion, a.mgdescripcioncorta, a.egcomposicion, a.egsignoslavado, a.origenproduccion, a.codgrupomoda, f.codfamiliaaz")
+        q.setSelect("lsc.id, lsc.idsincro, lsc.idobjeto, lsc.descripcion, az.referencia, aa.barcode, aa.talla, a.egcolor, a.mgdescripcion, a.mgdescripcioncorta, a.codgrupomoda, f.codfamiliaaz")
         q.setFrom("lineassincro_catalogo lsc INNER JOIN az_articulosamazon az ON lsc.idobjeto = az.referencia INNER JOIN articulos a ON lsc.idobjeto = a.referencia INNER JOIN atributosarticulos aa ON a.referencia = aa.referencia INNER JOIN familias f ON a.codfamilia = f.codfamilia")
         q.setWhere("tiposincro = 'Enviar productos' AND NOT sincronizado AND website = 'AMAZON'")
 
@@ -54,9 +54,9 @@ class AzProductsUpload(AzFeedsUpload, ABC):
         if not amazon_id:
             return self.large_sleep
 
-        # qsatype.FLSqlQuery().execSql("UPDATE lineassincro_catalogo SET sincronizado = true WHERE id IN ({})".format(','.join([str(key) for key in self.ids])))
-        # qsatype.FLSqlQuery().execSql("UPDATE sincro_catalogo s SET ptesincro = false WHERE ptesincro = true AND NOT EXISTS (SELECT lsc.id FROM lineassincro_catalogo lsc WHERE lsc.idsincro = s.idsincro AND sincronizado = false)")
+        qsatype.FLSqlQuery().execSql("UPDATE lineassincro_catalogo SET sincronizado = true WHERE id IN ({})".format(','.join([str(key) for key in self.ids])))
+        qsatype.FLSqlQuery().execSql("UPDATE sincro_catalogo s SET ptesincro = false WHERE ptesincro AND (SELECT COUNT(lsc.id) FROM lineassincro_catalogo lsc WHERE lsc.idsincro = s.idsincro AND NOT sincronizado) = 0")
 
-        # qsatype.FLSqlQuery().execSql("UPDATE az_articulosamazon SET sincroarticulo = true, idlog_articulo = (SELECT id FROM az_logamazon WHERE idamazon = '{}') WHERE referencia IN ('{}')".format(amazon_id, "','".join(self.referencias)))
+        qsatype.FLSqlQuery().execSql("UPDATE az_articulosamazon SET sincroarticulo = true, idlog_articulo = (SELECT id FROM az_logamazon WHERE idamazon = '{}') WHERE referencia IN ('{}')".format(amazon_id, "','".join(self.referencias)))
 
         return self.small_sleep
