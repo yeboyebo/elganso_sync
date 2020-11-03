@@ -731,6 +731,30 @@
             {
                 "name": "ctrl_api_amazon_feedresult__az_feedresult_process.py",
                 "path": "controllers/api/amazon/feedresult/controllers/"
+            },
+            {
+                "path": "controllers/api/mirakl/returnsnew/",
+                "name": "ctrl_api_mirakl_returnsnew__download.py"
+            },
+            {
+                "path": "controllers/api/mirakl/returnsnew/controllers/",
+                "name": "ctrl_api_mirakl_returnsnew__eg_returnsnew_download.py"
+            },
+            {
+                "path": "controllers/api/mirakl/returnsnew/serializers/",
+                "name": "ctrl_api_mirakl_returnsnew__returnnew_serializer.py"
+            },
+            {
+                "path": "controllers/api/mirakl/returnsnew/serializers/",
+                "name": "ctrl_api_mirakl_returnsnew__movistock_serializer.py"
+            },
+            {
+                "path": "controllers/api/mirakl/returnsnew/serializers/",
+                "name": "ctrl_api_mirakl_returnsnew__return_line_serializer.py"
+            },
+            {
+                "path": "controllers/api/mirakl/returnsnew/serializers/",
+                "name": "ctrl_api_mirakl_returnsnew__idl_ecommercedevoluciones_serializer.py"
             }
         ],
         "deleteFile": [],
