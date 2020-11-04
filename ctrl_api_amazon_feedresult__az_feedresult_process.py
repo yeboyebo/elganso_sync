@@ -48,18 +48,19 @@ class AzFeedResultProcess(DownloadSync, ABC):
         response = xml2dict(bytes(data['respuesta'], 'utf-8'))
 
         barcode_error = {}
-        for result in response.Message.ProcessingReport.Result:
-            error = result.ResultCode == 'Error'
-            desc = result.ResultDescription
-            sku = False
+        if hasattr(response.Message.ProcessingReport, 'Result'):
+            for result in response.Message.ProcessingReport.Result:
+                error = result.ResultCode == 'Error'
+                desc = result.ResultDescription
+                sku = False
 
-            if hasattr(result, 'AdditionalInfo'):
-                sku = str(result.AdditionalInfo.SKU)
+                if hasattr(result, 'AdditionalInfo'):
+                    sku = str(result.AdditionalInfo.SKU)
 
-            if error and desc is not None and sku:
-                if sku not in barcode_error:
-                    barcode_error[sku] = []
-                barcode_error[sku].append(desc)
+                if error and desc is not None and sku:
+                    if sku not in barcode_error:
+                        barcode_error[sku] = []
+                    barcode_error[sku].append(desc)
 
         q = qsatype.FLSqlQuery()
         q.setSelect("referencia, barcode")

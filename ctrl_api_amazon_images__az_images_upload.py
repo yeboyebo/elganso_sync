@@ -12,7 +12,7 @@ class AzImagesUpload(AzFeedsUpload, ABC):
 
     def get_query(self):
         q = qsatype.FLSqlQuery()
-        q.setSelect("az.referencia, urls.text")
+        q.setSelect("az.referencia, urls.urls")
         q.setFrom("az_articulosamazon az LEFT JOIN eg_urlsimagenesarticulosmgt urls ON az.referencia = urls.referencia")
         q.setWhere("az.sincroarticulo AND az.articulocreado AND az.sincrorelacion AND NOT az.sincroimagenes AND NOT az.errorsincro")
 
@@ -35,7 +35,7 @@ class AzImagesUpload(AzFeedsUpload, ABC):
 
             imgtype = None
 
-            urls = row['urls.text'].split(',')
+            urls = row['urls.urls'].split(',')
             for idx, url in enumerate(urls):
                 if idx == 0:
                     imgtype = 'Main'

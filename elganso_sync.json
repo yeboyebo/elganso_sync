@@ -788,6 +788,10 @@
             {
                 "name": "ctrl_base_default_drivers__web_driver.py",
                 "path": "controllers/base/default/drivers/"
+            },
+            {
+                "name": "ctrl_base_default_controllers__upload_sync.py",
+                "path": "controllers/base/default/controllers/"
             }
         ]
     }
