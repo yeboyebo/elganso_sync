@@ -8,14 +8,6 @@ class StockSerializer(DefaultSerializer):
         self.set_string_value("OperationType", "Update")
 
         self.set_string_relation("Inventory//SKU", "aa.barcode")
-        # if self.init_data["aa.barcode"] == '8445005225577':
-        #     self.set_string_value("Inventory//SKU", "1050s200003-XXL")
-        # elif self.init_data["aa.barcode"] == '8445005225546':
-        #     self.set_string_value("Inventory//SKU", "1050s200003-S")
-        # elif self.init_data["aa.barcode"] == '8445005225553':
-        #     self.set_string_value("Inventory//SKU", "1050s200003-L")
-        # elif self.init_data["aa.barcode"] == '8445005225560':
-        #     self.set_string_value("Inventory//SKU", "1050s200003-XL")
 
         disponible = int(self.init_data["s.disponible"])
         reserva = int(self.init_data["p.valor"])

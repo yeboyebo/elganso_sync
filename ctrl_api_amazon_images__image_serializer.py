@@ -7,7 +7,7 @@ class ImageSerializer(DefaultSerializer):
         self.set_string_relation("MessageID", "messageId")
         self.set_string_value("OperationType", "Update")
 
-        self.set_string_relation("ProductImage//SKU", "az.referencia")
+        self.set_string_relation("ProductImage//SKU", "idobjeto")
         self.set_string_relation("ProductImage//ImageType", "imgtype")
 
         self.set_string_relation(

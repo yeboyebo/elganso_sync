@@ -12,6 +12,7 @@ class ParentProductSerializer(ProductSerializer):
             self.set_string_value("Product//ProductData//Shoes//VariationData//Parentage", "parent")
 
             # del self.data["Product"]["ProductData"]["Shoes"]["VariationData"]["Color"]
+            del self.data["Product"]["ProductData"]["Shoes"]["ClassificationData"]["SizeMap"]
             del self.data["Product"]["ProductData"]["Shoes"]["ShoeSizeComplianceData"]
         else:
             self.set_string_value("Product//ProductData//Clothing//VariationData//Parentage", "parent")
@@ -20,6 +21,7 @@ class ParentProductSerializer(ProductSerializer):
             del self.data["Product"]["ProductData"]["Clothing"]["ClassificationData"]["Color"]
             del self.data["Product"]["ProductData"]["Clothing"]["ClassificationData"]["Department"]
             del self.data["Product"]["ProductData"]["Clothing"]["ClassificationData"]["OuterMaterial"]
+            del self.data["Product"]["ProductData"]["Clothing"]["ClassificationData"]["SizeMap"]
 
         del self.data["Product"]["StandardProductID"]
         del self.data["Product"]["DescriptionData"]["Brand"]

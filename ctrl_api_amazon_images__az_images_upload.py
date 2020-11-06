@@ -12,8 +12,8 @@ class AzImagesUpload(AzFeedsUpload, ABC):
 
     def get_query(self):
         q = qsatype.FLSqlQuery()
-        q.setSelect("az.referencia, urls.urls")
-        q.setFrom("az_articulosamazon az LEFT JOIN eg_urlsimagenesarticulosmgt urls ON az.referencia = urls.referencia")
+        q.setSelect("az.referencia, aa.barcode, urls.urls")
+        q.setFrom("az_articulosamazon az INNER JOIN atributosarticulos aa ON az.referencia = aa.referencia LEFT JOIN eg_urlsimagenesarticulosmgt urls ON az.referencia = urls.referencia")
         q.setWhere("az.sincroarticulo AND az.articulocreado AND az.sincrorelacion AND NOT az.sincroimagenes AND NOT az.errorsincro")
 
         return q
@@ -31,11 +31,18 @@ class AzImagesUpload(AzFeedsUpload, ABC):
 
         url_body = []
         for row in body:
-            self.referencias.append(row['az.referencia'])
+            new_ref = False
+            if row['az.referencia'] not in self.referencias:
+                new_ref = True
+                self.referencias.append(row['az.referencia'])
 
             imgtype = None
 
             urls = row['urls.urls'].split(',')
+
+            if not urls or urls == '':
+                continue
+
             for idx, url in enumerate(urls):
                 if idx == 0:
                     imgtype = 'Main'
@@ -45,7 +52,9 @@ class AzImagesUpload(AzFeedsUpload, ABC):
                     imgtype = None
 
                 if imgtype is not None:
-                    url_body.append({'az.referencia': row['az.referencia'], 'url': url, 'imgtype': imgtype})
+                    if new_ref:
+                        url_body.append({'idobjeto': row['az.referencia'], 'url': url, 'imgtype': imgtype})
+                    url_body.append({'idobjeto': row['aa.barcode'], 'url': url, 'imgtype': imgtype})
 
         return url_body
 

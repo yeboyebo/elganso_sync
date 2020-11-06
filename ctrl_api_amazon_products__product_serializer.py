@@ -26,6 +26,7 @@ class ProductSerializer(DefaultSerializer):
             self.set_string_value("Product//ProductData//Shoes//VariationData//Parentage", "child")
             # self.set_string_relation("Product//ProductData//Shoes//VariationData//Color", "a.egcolor")
             self.set_string_value("Product//ProductData//Shoes//VariationData//VariationTheme", "Size")
+            self.set_string_relation("Product//ProductData//Shoes//ClassificationData//SizeMap", "aa.talla")
             self.set_string_value("Product//ProductData//Shoes//ClassificationData//TargetGender", self.get_target(self.init_data["a.codgrupomoda"]))
 
             self.set_string_value("Product//ProductData//Shoes//ShoeSizeComplianceData//AgeRangeDescription", "adult")
@@ -43,6 +44,7 @@ class ProductSerializer(DefaultSerializer):
             self.set_string_relation("Product//ProductData//Clothing//ClassificationData//ClothingType", "f.codfamiliaaz")
             self.set_string_value("Product//ProductData//Clothing//ClassificationData//Department", "casual")
             self.set_string_value("Product//ProductData//Clothing//ClassificationData//OuterMaterial", "material")
+            self.set_string_relation("Product//ProductData//Clothing//ClassificationData//SizeMap", "aa.talla")
             self.set_string_value("Product//ProductData//Clothing//ClassificationData//TargetGender", self.get_target(self.init_data["a.codgrupomoda"]))
 
         return True

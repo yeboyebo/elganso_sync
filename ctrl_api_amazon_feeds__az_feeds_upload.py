@@ -23,6 +23,8 @@ class AzFeedsUpload(UploadSync, ABC):
     def __init__(self, process_name, params=None):
         super().__init__(process_name, AmazonDriver(), params)
 
+        self.referencias = []
+
         self.set_sync_params(self.get_param_sincro('amazon'))
 
     def get_data(self):
