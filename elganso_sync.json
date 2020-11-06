@@ -755,6 +755,22 @@
             {
                 "path": "controllers/api/mirakl/returnsnew/serializers/",
                 "name": "ctrl_api_mirakl_returnsnew__idl_ecommercedevoluciones_serializer.py"
+            },
+            {
+                "name": "ctrl_api_amazon_orderfulfillment__upload.py",
+                "path": "controllers/api/amazon/orderfulfillment/"
+            },
+            {
+                "name": "ctrl_api_amazon_orderfulfillment__az_orderfulfillment_upload.py",
+                "path": "controllers/api/amazon/orderfulfillment/controllers/"
+            },
+            {
+                "name": "ctrl_api_amazon_orderacknowledgement__upload.py",
+                "path": "controllers/api/amazon/orderacknowledgement/"
+            },
+            {
+                "name": "ctrl_api_amazon_orderacknowledgement__az_orderacknowledgement_upload.py",
+                "path": "controllers/api/amazon/orderacknowledgement/controllers/"
             }
         ],
         "deleteFile": [],
