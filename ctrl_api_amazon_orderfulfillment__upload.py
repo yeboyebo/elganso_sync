@@ -21,7 +21,7 @@ class elganso_sync_upload(interna_upload):
         result = None
         status = None
 
-        if "passwd" in data and data["passwd"] == syncppal.iface.upload_param_sincro('apipass')['auth']:
+        if "passwd" in data and data["passwd"] == syncppal.iface.get_param_sincro('apipass')['auth']:
             response = task_manager.task_executer("amazon_orderfulfillment_upload", data)
 
             result = response["data"]

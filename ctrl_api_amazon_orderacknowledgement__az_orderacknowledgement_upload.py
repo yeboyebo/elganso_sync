@@ -2,7 +2,7 @@ from abc import ABC
 from YBLEGACY import qsatype
 
 from controllers.api.amazon.feeds.controllers.az_feeds_upload import AzFeedsUpload
-# from controllers.api.amazon.images.serializers.image_serializer import ImageSerializer
+from controllers.api.amazon.orderacknowledgement.serializers.acknowledgement_serializer import AcknowledgementSerializer
 
 
 class AzOrderAcknowledgementUpload(AzFeedsUpload, ABC):
@@ -10,11 +10,13 @@ class AzOrderAcknowledgementUpload(AzFeedsUpload, ABC):
     def __init__(self, params=None):
         super().__init__("azorderacknowledgementupload", params)
 
+        self.id_field = 'azv.idamazon'
+
     def get_query(self):
         q = qsatype.FLSqlQuery()
-        # q.setSelect("az.referencia, aa.barcode, urls.urls")
-        # q.setFrom("az_articulosamazon az INNER JOIN atributosarticulos aa ON az.referencia = aa.referencia LEFT JOIN eg_urlsimagenesarticulosmgt urls ON az.referencia = urls.referencia")
-        # q.setWhere("az.sincroarticulo AND az.articulocreado AND az.sincrorelacion AND NOT az.sincroimagenes AND NOT az.errorsincro")
+        q.setSelect("azv.idamazon, c.codigo")
+        q.setFrom("az_ventasamazon azv INNER JOIN tpv_comandas c ON azv.idtpv_comanda = c.idtpv_comanda")
+        q.setWhere("azv.lineassincronizadas AND NOT pedidoinformado")
 
         return q
 
@@ -24,13 +26,12 @@ class AzOrderAcknowledgementUpload(AzFeedsUpload, ABC):
         if not amazon_id:
             return self.large_sleep
 
-        # qsatype.FLSqlQuery().execSql("UPDATE az_articulosamazon SET sincroprecio = true, idlog_precio = (SELECT id FROM az_logamazon WHERE idamazon = '{}') WHERE referencia IN ('{}')".format(amazon_id, "','".join(self.referencias)))
+        qsatype.FLSqlQuery().execSql("UPDATE az_ventasamazon SET pedidoinformado = true WHERE azv.idamazon IN ('{}')".format("','".join(self.referencias)))
 
         return self.small_sleep
 
     def get_child_serializer(self):
-        # return PriceSerializer()
-        return None
+        return AcknowledgementSerializer()
 
     def get_msgtype(self):
         return 'OrderAcknowledgement'

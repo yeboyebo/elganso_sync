@@ -170,6 +170,13 @@
         },
         {
             "type": "insertAfterNode",
+            "path": "/models/flfactalma/az_logamazon",
+            "value": {
+                "az_ventasamazon": null
+            }
+        },
+        {
+            "type": "insertAfterNode",
             "path": "/models/flfactppal/zonasgeo",
             "value": {
                 "idl_recepciones": null

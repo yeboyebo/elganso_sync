@@ -2,13 +2,15 @@ from abc import ABC
 from YBLEGACY import qsatype
 
 from controllers.api.amazon.feeds.controllers.az_feeds_upload import AzFeedsUpload
-# from controllers.api.amazon.images.serializers.image_serializer import ImageSerializer
+from controllers.api.amazon.orderfulfillment.serializers.fulfillment_serializer import FulfillmentSerializer
 
 
 class AzOrderFulfillmentUpload(AzFeedsUpload, ABC):
 
     def __init__(self, params=None):
         super().__init__("azorderfulfillmentupload", params)
+
+        # self.id_field = 'azv.idamazon'
 
     def get_query(self):
         q = qsatype.FLSqlQuery()
@@ -29,8 +31,7 @@ class AzOrderFulfillmentUpload(AzFeedsUpload, ABC):
         return self.small_sleep
 
     def get_child_serializer(self):
-        # return PriceSerializer()
-        return None
+        return FulfillmentSerializer()
 
     def get_msgtype(self):
         return 'OrderFulfillment'

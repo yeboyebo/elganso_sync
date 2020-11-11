@@ -771,6 +771,22 @@
             {
                 "name": "ctrl_api_amazon_orderacknowledgement__az_orderacknowledgement_upload.py",
                 "path": "controllers/api/amazon/orderacknowledgement/controllers/"
+            },
+            {
+                "name": "ctrl_api_amazon_orderacknowledgement__acknowledgement_serializer.py",
+                "path": "controllers/api/amazon/orderacknowledgement/serializers/"
+            },
+            {
+                "name": "ctrl_api_amazon_orderfulfillment__fulfillment_serializer.py",
+                "path": "controllers/api/amazon/orderfulfillment/serializers/"
+            },
+            {
+                "name": "model_flfactalma__az_ventasamazon.py",
+                "path": "models/flfactalma/"
+            },
+            {
+                "name": "model_flfactalma__az_ventasamazon_def.py",
+                "path": "models/flfactalma/"
             }
         ],
         "deleteFile": [],

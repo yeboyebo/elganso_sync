@@ -186,6 +186,13 @@
         },
         {
             "type": "insertAfterNode",
+            "path": "/flfactalma/az_logamazon",
+            "value": {
+                "az_ventasamazon": null
+            }
+        },
+        {
+            "type": "insertAfterNode",
             "path": "/flfactppal/usuarios",
             "value": {
                 "solicitudescliente": null

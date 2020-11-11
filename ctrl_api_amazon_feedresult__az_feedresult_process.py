@@ -36,7 +36,7 @@ class AzFeedResultProcess(DownloadSync, ABC):
         q = qsatype.FLSqlQuery()
         q.setSelect("id, idamazon, tipo, respuesta")
         q.setFrom("az_logamazon")
-        q.setWhere("procesadoaz AND NOT procesadoaq ORDER BY fecha, hora LIMIT 1")
+        q.setWhere("procesadoaz AND NOT procesadoaq AND tipo NOT IN ('OrderAcknowledgement', 'OrderFulfillment') ORDER BY fecha, hora LIMIT 1")
 
         return q
 

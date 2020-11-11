@@ -24,6 +24,7 @@ class AzFeedsUpload(UploadSync, ABC):
         super().__init__(process_name, AmazonDriver(), params)
 
         self.referencias = []
+        self.id_field = 'az.referencia'
 
         self.set_sync_params(self.get_param_sincro('amazon'))
 
@@ -52,8 +53,8 @@ class AzFeedsUpload(UploadSync, ABC):
         body = self.fetch_query(q)
 
         for row in body:
-            if row['az.referencia'] not in self.referencias:
-                self.referencias.append(row['az.referencia'])
+            if row[self.id_field] not in self.referencias:
+                self.referencias.append(row[self.id_field])
 
         return body
 
