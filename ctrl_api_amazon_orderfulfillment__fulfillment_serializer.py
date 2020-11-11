@@ -6,24 +6,23 @@ class FulfillmentSerializer(DefaultSerializer):
     def get_data(self):
         self.set_string_relation("MessageID", "messageId")
 
-        self.set_string_relation("OrderFulfillment//MerchantOrderID", "c.codigo")
-        # Codigo de nose, envio interno? Opcional
-        self.set_string_relation("OrderFulfillment//MerchantFulfillmentID", "c.codigo")
-        # Fecha de envio Opcional 2002-05-01T15:36:33-08:00
-        self.set_string_relation("OrderFulfillment//FulfillmentDate", "c.codigo")
+        self.set_string_relation("OrderFulfillment//MerchantOrderID", "s.coddocumento")
+        # self.set_string_relation("OrderFulfillment//MerchantFulfillmentID", "c.codigo")
+        self.set_string_value("OrderFulfillment//FulfillmentDate", self.get_fulfillment_date())
 
-        # Transportista Todo esto opcional
-        transportista = None
+        transportista = self.init_data['e.transportista']
         if transportista in self.get_carrier_codes():
-            self.set_string_relation("OrderFulfillment//FulfillmentData//CarrierCode", "c.codigo")
+            self.set_string_value("OrderFulfillment//FulfillmentData//CarrierCode", transportista)
         else:
-            self.set_string_relation("OrderFulfillment//FulfillmentData//CarrierName", "c.codigo")
-        # Shipping Method String
-        self.set_string_relation("OrderFulfillment//FulfillmentData//ShippingMethod", "c.codigo")
-        # TrackingNumber
-        self.set_string_relation("OrderFulfillment//FulfillmentData//ShipperTrackingNumber", "c.codigo")
+            self.set_string_value("OrderFulfillment//FulfillmentData//CarrierName", transportista)
+
+        self.set_string_relation("OrderFulfillment//FulfillmentData//ShippingMethod", "e.metodoenvioidl")
+        self.set_string_relation("OrderFulfillment//FulfillmentData//ShipperTrackingNumber", "e.numseguimiento")
 
         return True
 
     def get_carrier_codes(self):
         return ['USPS', 'UPS', 'FedEx', 'DHL', 'Fastway', 'GLS', 'Go!', 'Hermes Logistik Gruppe', 'Royal Mail', 'Parcelforce', 'City Link', 'TNT', 'Target', 'SagawaExpress', 'NipponExpress', 'YamatoTransport']
+
+    def get_fulfillment_date(self):
+        return '{}T{}'.format(self.init_data['p.fechapreparacion'], self.init_data['p.horapreparacion'])

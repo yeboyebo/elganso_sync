@@ -10,13 +10,13 @@ class AzOrderFulfillmentUpload(AzFeedsUpload, ABC):
     def __init__(self, params=None):
         super().__init__("azorderfulfillmentupload", params)
 
-        # self.id_field = 'azv.idamazon'
+        self.id_field = 'azv.idamazon'
 
     def get_query(self):
         q = qsatype.FLSqlQuery()
-        # q.setSelect("az.referencia, aa.barcode, urls.urls")
-        # q.setFrom("az_articulosamazon az INNER JOIN atributosarticulos aa ON az.referencia = aa.referencia LEFT JOIN eg_urlsimagenesarticulosmgt urls ON az.referencia = urls.referencia")
-        # q.setWhere("az.sincroarticulo AND az.articulocreado AND az.sincrorelacion AND NOT az.sincroimagenes AND NOT az.errorsincro")
+        q.setSelect("azv.idamazon, s.coddocumento, e.numseguimiento, e.transportista, e.metodoenvioidl, p.fechapreparacion, p.horapreparacion")
+        q.setFrom("az_ventasamazon azv INNER JOIN idl_ecommerce e ON azv.idtpv_comanda = e.idtpv_comanda INNER JOIN eg_seguimientoenvios s ON e.codcomanda = s.coddocumento INNER JOIN idl_preparaciones p on p.idpreparacion = e.idpreparacion")
+        q.setWhere("NOT azv.envioinformado AND s.numseguimiento IS NOT NULL AND s.numseguimiento <> ''")
 
         return q
 
@@ -26,7 +26,7 @@ class AzOrderFulfillmentUpload(AzFeedsUpload, ABC):
         if not amazon_id:
             return self.large_sleep
 
-        # qsatype.FLSqlQuery().execSql("UPDATE az_articulosamazon SET sincroprecio = true, idlog_precio = (SELECT id FROM az_logamazon WHERE idamazon = '{}') WHERE referencia IN ('{}')".format(amazon_id, "','".join(self.referencias)))
+        qsatype.FLSqlQuery().execSql("UPDATE az_ventasamazon SET envioinformado = true WHERE idamazon IN ('{}')".format("','".join(self.referencias)))
 
         return self.small_sleep
 

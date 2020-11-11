@@ -26,7 +26,7 @@ class AzOrderAcknowledgementUpload(AzFeedsUpload, ABC):
         if not amazon_id:
             return self.large_sleep
 
-        qsatype.FLSqlQuery().execSql("UPDATE az_ventasamazon SET pedidoinformado = true WHERE azv.idamazon IN ('{}')".format("','".join(self.referencias)))
+        qsatype.FLSqlQuery().execSql("UPDATE az_ventasamazon SET pedidoinformado = true WHERE idamazon IN ('{}')".format("','".join(self.referencias)))
 
         return self.small_sleep
 
