@@ -61,6 +61,7 @@ class AzFeedsUpload(UploadSync, ABC):
     def get_serializer(self):
         serializer = FeedSerializer()
         serializer.msg_type = self.get_msgtype()
+        serializer.merchant_id = self.driver.azMerchant
         serializer.child_serializer = self.get_child_serializer()
 
         return serializer

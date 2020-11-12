@@ -5,6 +5,7 @@ class FeedSerializer(DefaultSerializer):
 
     def get_data(self):
         self.set_string_value("Header//DocumentVersion", "1.01")
+        self.set_string_value("Header//MerchantIdentifier", self.merchant_id)
 
         self.set_string_value("MessageType", self.msg_type)
         # self.set_string_value("PurgeAndReplace", "true")
