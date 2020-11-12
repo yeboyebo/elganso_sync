@@ -787,6 +787,22 @@
             {
                 "name": "model_flfactalma__az_ventasamazon_def.py",
                 "path": "models/flfactalma/"
+            },
+            {
+                "name": "ctrl_api_amazon_listorderitems__get.py",
+                "path": "controllers/api/amazon/listorderitems/"
+            },
+            {
+                "name": "ctrl_api_amazon_listorderitems__az_listorderitems_get.py",
+                "path": "controllers/api/amazon/listorderitems/controllers/"
+            },
+            {
+                "name": "ctrl_api_amazon_orders__get.py",
+                "path": "controllers/api/amazon/orders/"
+            },
+            {
+                "name": "ctrl_api_amazon_orders__az_orders_get.py",
+                "path": "controllers/api/amazon/orders/controllers/"
             }
         ],
         "deleteFile": [],
