@@ -50,6 +50,9 @@ from controllers.api.amazon.feedresult.controllers.az_feedresult_process import 
 from controllers.api.amazon.orderacknowledgement.controllers.az_orderacknowledgement_upload import AzOrderAcknowledgementUpload
 from controllers.api.amazon.orderfulfillment.controllers.az_orderfulfillment_upload import AzOrderFulfillmentUpload
 
+from controllers.api.amazon.orders.controllers.az_orders_get import AzOrdersResultGet
+from controllers.api.amazon.listorderitems.controllers.az_listorderitems_get import AzListOrderItemsResultGet
+
 
 sync_object_dict = {
     "stock_upload": {
@@ -158,6 +161,12 @@ sync_object_dict = {
     },
     "amazon_orderfulfillment_upload": {
         "sync_object": AzOrderFulfillmentUpload
+    },
+    "amazon_orders_get": {
+        "sync_object": AzOrdersResultGet
+    },
+    "amazon_listorderitems_get": {
+        "sync_object": AzListOrderItemsResultGet
     }
 }
 
