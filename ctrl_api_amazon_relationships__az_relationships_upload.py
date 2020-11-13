@@ -14,7 +14,7 @@ class AzRelationshipsUpload(AzFeedsUpload, ABC):
         q = qsatype.FLSqlQuery()
         q.setSelect("az.referencia, aa.barcode")
         q.setFrom("az_articulosamazon az INNER JOIN atributosarticulos aa ON az.referencia = aa.referencia")
-        q.setWhere("az.sincroarticulo AND az.articulocreado AND NOT az.sincrorelacion AND NOT az.errorsincro")
+        q.setWhere("az.referencia IN (SELECT referencia FROM az_articulosamazon WHERE sincroarticulo AND articulocreado AND NOT sincrorelacion AND NOT errorsincro LIMIT 15)")
 
         return q
 

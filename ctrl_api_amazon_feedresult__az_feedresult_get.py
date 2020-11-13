@@ -31,7 +31,6 @@ class AzFeedResultGet(AzFeedsUpload, ABC):
         q = qsatype.FLSqlQuery()
         q.setSelect("idamazon")
         q.setFrom("az_logamazon")
-        # Añadir X tiempo despues de la peticion
         q.setWhere("NOT procesadoaz ORDER BY fecha, hora LIMIT 1")
 
         return q

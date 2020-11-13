@@ -16,7 +16,7 @@ class AzOrderAcknowledgementUpload(AzFeedsUpload, ABC):
         q = qsatype.FLSqlQuery()
         q.setSelect("azv.idamazon, c.codigo")
         q.setFrom("az_ventasamazon azv INNER JOIN tpv_comandas c ON azv.idtpv_comanda = c.idtpv_comanda")
-        q.setWhere("azv.lineassincronizadas AND NOT pedidoinformado")
+        q.setWhere("azv.lineassincronizadas AND NOT pedidoinformado LIMIT 1")
 
         return q
 

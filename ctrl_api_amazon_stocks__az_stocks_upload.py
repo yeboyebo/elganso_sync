@@ -14,7 +14,7 @@ class AzStocksUpload(AzFeedsUpload, ABC):
         q = qsatype.FLSqlQuery()
         q.setSelect("az.referencia, aa.barcode, s.disponible, p.valor")
         q.setFrom("az_articulosamazon az INNER JOIN atributosarticulos aa ON az.referencia = aa.referencia LEFT JOIN stocks s ON aa.barcode = s.barcode INNER JOIN param_parametros p ON p.nombre = 'RSTOCK_AMAZ'")
-        q.setWhere("s.codalmacen = 'AWEB' AND az.articulocreado AND NOT az.sincrostock")
+        q.setWhere("az.referencia IN (SELECT referencia FROM az_articulosamazon WHERE articulocreado AND NOT sincrostock LIMIT 15) AND s.codalmacen = 'AWEB'")
 
         return q
 

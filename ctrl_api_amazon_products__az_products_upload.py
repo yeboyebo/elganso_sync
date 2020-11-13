@@ -27,13 +27,14 @@ class AzProductsUpload(AzFeedsUpload, ABC):
         q = qsatype.FLSqlQuery()
         q.setSelect("lsc.id, lsc.idsincro, lsc.idobjeto, lsc.descripcion, az.referencia, aa.barcode, aa.talla, a.egcolor, a.mgdescripcion, a.mgdescripcioncorta, a.codgrupomoda, f.codfamiliaaz")
         q.setFrom("lineassincro_catalogo lsc INNER JOIN az_articulosamazon az ON lsc.idobjeto = az.referencia INNER JOIN articulos a ON lsc.idobjeto = a.referencia INNER JOIN atributosarticulos aa ON a.referencia = aa.referencia INNER JOIN familias f ON a.codfamilia = f.codfamilia")
-        q.setWhere("tiposincro = 'Enviar productos' AND NOT sincronizado AND website = 'AMAZON'")
+        q.setWhere("lsc.idobjeto IN (SELECT idobjeto FROM lineassincro_catalogo WHERE tiposincro = 'Enviar productos' AND NOT sincronizado AND website = 'AMAZON' LIMIT 15)")
 
         return q
 
     def get_serializer(self):
         serializer = ProductFeedSerializer()
         serializer.msg_type = self.get_msgtype()
+        serializer.merchant_id = self.driver.azMerchant
         serializer.parent_serializer = ParentProductSerializer()
         serializer.child_serializer = self.get_child_serializer()
 
