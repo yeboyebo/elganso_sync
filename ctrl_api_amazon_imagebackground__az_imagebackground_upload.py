@@ -1,0 +1,89 @@
+from abc import ABC
+from YBLEGACY import qsatype
+
+from controllers.api.amazon.drivers.apibg_driver import ApiBgDriver
+from controllers.base.default.controllers.upload_sync import UploadSync
+from controllers.api.amazon.imagebackground.serializers.imagebackground_serializer import ImageBackgroundSerializer
+
+
+class AzImageBackgroundUpload(UploadSync, ABC):
+
+    def __init__(self, params=None):
+        super().__init__("azimagebackgroundupload", ApiBgDriver(), params)
+
+        self.set_sync_params(self.get_param_sincro('apibackgroundimage'))
+
+    def get_data(self):
+        data = self.get_db_data()
+        if data == []:
+            return data
+
+        body = []
+        for d in data:
+            body.append(self.get_serializer().serialize(d))
+
+        print(body)
+
+        return body
+
+    def get_db_data(self):
+        body = []
+
+        q = self.get_query()
+        q.exec_()
+
+        if not q.size():
+            return body
+
+        body = self.fetch_query(q)
+        data = []
+        for row in body:
+            urls = row['urls.urls'].split(',')
+
+            for url in urls:
+                splitted = url.split('/')
+                data.append({'referencia': row['az.referencia'], 'name': splitted[-1], 'url': url})
+
+        return data
+
+    def get_query(self):
+        q = qsatype.FLSqlQuery()
+        q.setSelect("az.referencia, urls.urls")
+        q.setFrom("az_articulosamazon az INNER JOIN eg_urlsimagenesarticulosmgt urls ON az.referencia = urls.referencia")
+        q.setWhere("az.articulocreado AND NOT az.sincroimagenes AND urls.urls IS NOT NULL AND urls.urls <> '' AND (urls.urls_sinfondo IS NULL OR urls.urls_sinfondo = '') LIMIT 1")
+
+        return q
+
+    def send_data(self, data):
+        for d in data:
+            print(d['serialized'])
+            resp = self.driver.send_request("post", url=self.driver.apiBgImageUrl, data=d['serialized'])
+            image_path = '{}{}'.format(self.driver.apiBgImagePath, d['name'])
+
+            with open(image_path, 'wb') as out:
+                out.write(resp.content)
+
+            d['new_url'] = '{}{}'.format(self.driver.apiBgImageNewUrl, d['name'])
+
+        return data
+
+    def after_sync(self, response_data=None):
+        print(response_data)
+
+        referencia = response_data[0]['referencia']
+        new_urls = []
+
+        for data in response_data:
+            new_urls.append(data['new_url'])
+
+        qsatype.FLSqlQuery().execSql("UPDATE eg_urlsimagenesarticulosmgt SET urls_sinfondo = '{}' WHERE referencia = '{}'".format(','.join(new_urls), referencia))
+
+        self.log("Éxito", "Esquema '{}' sincronizado correctamente (referencias: {})".format(self.get_msgtype(), referencia))
+
+        return self.small_sleep
+
+    def get_serializer(self):
+        return ImageBackgroundSerializer()
+
+    def get_msgtype(self):
+        return 'ImageBackground'

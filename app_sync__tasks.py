@@ -53,6 +53,8 @@ from controllers.api.amazon.orderfulfillment.controllers.az_orderfulfillment_upl
 from controllers.api.amazon.orders.controllers.az_orders_get import AzOrdersResultGet
 from controllers.api.amazon.listorderitems.controllers.az_listorderitems_get import AzListOrderItemsResultGet
 
+from controllers.api.amazon.imagebackground.controllers.az_imagebackground_upload import AzImageBackgroundUpload
+
 
 sync_object_dict = {
     "stock_upload": {
@@ -167,6 +169,9 @@ sync_object_dict = {
     },
     "amazon_listorderitems_get": {
         "sync_object": AzListOrderItemsResultGet
+    },
+    "amazon_imagebackground_upload": {
+        "sync_object": AzImageBackgroundUpload
     }
 }
 

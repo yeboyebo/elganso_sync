@@ -803,6 +803,22 @@
             {
                 "name": "ctrl_api_amazon_orders__az_orders_get.py",
                 "path": "controllers/api/amazon/orders/controllers/"
+            },
+            {
+                "name": "ctrl_api_amazon_drivers__apibg_driver.py",
+                "path": "controllers/api/amazon/drivers/"
+            },
+            {
+                "name": "ctrl_api_amazon_imagebackground__upload.py",
+                "path": "controllers/api/amazon/imagebackground/"
+            },
+            {
+                "name": "ctrl_api_amazon_imagebackground__az_imagebackground_upload.py",
+                "path": "controllers/api/amazon/imagebackground/controllers/"
+            },
+            {
+                "name": "ctrl_api_amazon_imagebackground__imagebackground_serializer.py",
+                "path": "controllers/api/amazon/imagebackground/serializers/"
             }
         ],
         "deleteFile": [],
