@@ -158,6 +158,14 @@ class AzFeedsUpload(UploadSync, ABC):
         )
 
     def replace_special_chars(self, data):
+        data = data.replace("&", "&amp;")
+        data = data.replace("<", "&lt;")
+        data = data.replace(">", "&gt;")
+        data = data.replace("€", "&euro;")
+        data = data.replace("©", "&copy;")
+        data = data.replace("®", "&reg;")
+
+        data = data.replace("#", "&#35;")
         data = data.replace("Á", "&#193;")
         data = data.replace("É", "&#201;")
         data = data.replace("Í", "&#205;")
@@ -177,4 +185,13 @@ class AzFeedsUpload(UploadSync, ABC):
         data = data.replace("º", "&#176;")
         data = data.replace("@", "&#64;")
         data = data.replace("\r", "\n")
+
+        data = data.replace("!", "&#33;")
+        data = data.replace("”", "&#34;")
+        data = data.replace("$", "&#36;")
+        data = data.replace("%", "&#37;")
+        data = data.replace("’", "&#39;")
+        data = data.replace("(", "&#40;")
+        data = data.replace(")", "&#41;")
+
         return data
