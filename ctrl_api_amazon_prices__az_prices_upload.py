@@ -13,8 +13,8 @@ class AzPricesUpload(AzFeedsUpload, ABC):
     def get_query(self):
         q = qsatype.FLSqlQuery()
         q.setSelect("az.referencia, aa.barcode, at.pvp, a.pvp")
-        q.setFrom("az_articulosamazon az INNER JOIN articulos a ON az.referencia = a.referencia INNER JOIN atributosarticulos aa ON az.referencia = aa.referencia LEFT OUTER JOIN articulostarifas at on a.referencia = at.referencia LEFT OUTER JOIN param_parametros p on at.codtarifa = p.valor")
-        q.setWhere("az.referencia IN (SELECT referencia FROM az_articulosamazon WHERE sincroarticulo AND articulocreado AND sincroimagenes AND sincrorelacion AND NOT sincroprecio AND NOT errorsincro LIMIT 15) AND p.nombre = 'TARIFA_AMAZON'")
+        q.setFrom("az_articulosamazon az INNER JOIN articulos a ON az.referencia = a.referencia INNER JOIN atributosarticulos aa ON az.referencia = aa.referencia LEFT OUTER JOIN articulostarifas at ON (a.referencia = at.referencia AND at.codtarifa = (SELECT valor FROM param_parametros WHERE nombre = 'TARIFA_AMAZON'))")
+        q.setWhere("az.referencia IN (SELECT referencia FROM az_articulosamazon WHERE sincroarticulo AND articulocreado AND sincroimagenes AND sincrorelacion AND NOT sincroprecio AND NOT errorsincro LIMIT 15) group by az.referencia, aa.barcode, at.pvp, a.pvp order by az.referencia, aa.barcode")
 
         return q
 
