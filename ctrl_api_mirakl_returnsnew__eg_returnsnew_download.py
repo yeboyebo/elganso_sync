@@ -39,7 +39,6 @@ class EgMiraklReturnsNewDownload(ReturnsDownload):
         # Tmp. Para pruebas. Quitar en producción
         #self.fecha_sincro = "2000-01-01T00:00:01Z"
         result = self.send_request("get", url=returns_url.format(self.fecha_sincro))
-        #result = json.loads(json.dumps({"messages": [{"body": "{'message':{'return_info':'Le informamos que se ha iniciado un proceso de devolución con abono al cliente mediante TPV en Centro Comercial.','type':'R10', 'collection_address':'Calle Cerrajeros 31. Parque Logístico Módulo 4. 28830. San Fernando de Henares. Madrid Calle Cerrajeros 31. Parque Logístico Módulo 4. 28830. San Fernando de Henares. Madrid', 'returns': [{'ean':'008433614139774', 'order_line_id':'20190813153200-UATG111970173-A-1','quantity':'1'},{'ean':'008433614147113', 'order_line_id':'20190813153200-UATG111970173-A-1','quantity':'1'}]}}","commercial_id": "00100900293869620200616112759_1","date_created": "2020-06-17T10:35:33Z","from_id": "1","from_name": "Operator","from_type": "OPERATOR","id": "1006718","order_id": "20190813153200-UATG111970173-A","read": "False","subject": "R10 - Return done in store","to_shop_archived": "False","to_shop_id": "2076","to_shop_name":"Mkp Sterling Directa Cloud008 Prov 01"},{"body": "{'message':{'return_info':'Le informamos que se ha iniciado un proceso de devolución con abono al cliente mediante TPV en Centro Comercial.','type':'R02', 'collection_address':'Calla Falsa Numero 1 Almansa', 'returns': [{'ean':'008445005237662', 'order_line_id':'20200305203757-UATG251093894-A-1','quantity':'1'}]}}","commercial_id": "00100900293869620200616112759_1","date_created": "2020-06-17T10:35:33Z","from_id": "1","from_name": "Operator","from_type": "OPERATOR","id": "1006718","order_id": "20200305203757-UATG251093894-A","read": "False","subject": "R02 - Return done in store","to_shop_archived": "False","to_shop_id": "2076","to_shop_name":"Mkp Sterling Directa Cloud008 Prov 01"}]}))
         return result
 
     def process_all_data(self, all_data):
@@ -51,6 +50,9 @@ class EgMiraklReturnsNewDownload(ReturnsDownload):
         for data in all_data["messages"]:
             try:
                 if "body" not in data:
+                    continue
+
+                if str(data["body"]).startswith("<?xml"):
                     continue
 
                 bodyMensaje = str(data["body"])
@@ -96,9 +98,9 @@ class EgMiraklReturnsNewDownload(ReturnsDownload):
         bodyMensaje = bodyMensaje.replace("__aqcomillas__", "'")
         mensajeDevol = json.loads(bodyMensaje)
         for devolucion in mensajeDevol['message']['returns']:
-            barcode = str(devolucion["ean"])[2:15]
-            cantidad = int(devolucion["quantity"])
-            cantDev = int(qsatype.FLUtil.quickSqlSelect("tpv_lineascomanda", "cantdevuelta", "idtpv_comanda = {} AND barcode = '{}'".format(idComandaO, barcode)))
+            barcode = str(devolucion["ean"])
+            cantidad = float(devolucion["quantity"])
+            cantDev = float(qsatype.FLUtil.quickSqlSelect("tpv_lineascomanda", "cantdevuelta", "idtpv_comanda = {} AND barcode = '{}'".format(idComandaO, barcode)))
             if not cantDev or cantDev == "None":
                 cantDev = 0
 

@@ -71,7 +71,7 @@ class ReturnLineSerializer(DefaultSerializer):
         return qsatype.FLUtil.sqlSelect("articulos", "descripcion", "referencia = '{}'".format(self.get_referencia())) or "TU"
 
     def get_barcode(self):
-        return self.get_init_value("ean")[2:]
+        return self.get_init_value("ean")
 
     def get_talla(self):
         return qsatype.FLUtil.sqlSelect("atributosarticulos", "talla", "barcode = '{}'".format(self.get_barcode())) or "TU"
@@ -86,4 +86,4 @@ class ReturnLineSerializer(DefaultSerializer):
             return "EXT"
 
     def get_cantidad(self):
-        return int(self.get_init_value("quantity")) * -1 or 0
+        return float(self.get_init_value("quantity")) * -1 or 0
