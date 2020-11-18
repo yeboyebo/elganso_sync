@@ -13,7 +13,7 @@ class ImageBackgroundSerializer(DefaultSerializer):
             max_characters=None,
             skip_replace=True
         )
-        self.set_string_value("serialized//size", "full")
+        self.set_string_value("serialized//size", "auto")
         self.set_string_value("serialized//format", "jpg")
 
         return True

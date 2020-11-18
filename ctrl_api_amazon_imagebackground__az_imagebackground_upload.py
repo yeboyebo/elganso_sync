@@ -1,3 +1,4 @@
+import requests
 from abc import ABC
 from YBLEGACY import qsatype
 
@@ -55,13 +56,22 @@ class AzImageBackgroundUpload(UploadSync, ABC):
         return q
 
     def send_data(self, data):
+        referencia = data[0]['referencia']
+
         for d in data:
             print(d['serialized'])
-            resp = self.driver.send_request("post", url=self.driver.apiBgImageUrl, data=d['serialized'])
             image_path = '{}{}'.format(self.driver.apiBgImagePath, d['name'])
 
-            with open(image_path, 'wb') as out:
-                out.write(resp.content)
+            response = requests.post(
+                self.driver.apiBgImageUrl,
+                data=d['serialized'],
+                headers={'X-Api-Key': self.driver.apiBgImageKey}
+            )
+            if response.status_code == requests.codes.ok:
+                with open(image_path, 'wb') as out:
+                    out.write(response.content)
+            else:
+                raise NameError("Esquema: '{}' - Referencia: '{}' ({})".format(self.get_msgtype(), referencia, response.text))
 
             d['new_url'] = '{}{}'.format(self.driver.apiBgImageNewUrl, d['name'])
 
