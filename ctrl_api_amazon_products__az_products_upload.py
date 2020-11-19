@@ -27,7 +27,7 @@ class AzProductsUpload(AzFeedsUpload, ABC):
         q = qsatype.FLSqlQuery()
         q.setSelect("lsc.id, lsc.idsincro, lsc.idobjeto, lsc.descripcion, az.referencia, aa.barcode, aa.talla, a.egcolor, a.mgdescripcion, a.mgdescripcioncorta, a.codgrupomoda, f.codfamiliaaz")
         q.setFrom("lineassincro_catalogo lsc INNER JOIN az_articulosamazon az ON lsc.idobjeto = az.referencia INNER JOIN articulos a ON lsc.idobjeto = a.referencia INNER JOIN atributosarticulos aa ON a.referencia = aa.referencia INNER JOIN familias f ON a.codfamilia = f.codfamilia")
-        q.setWhere("lsc.idobjeto IN (SELECT idobjeto FROM lineassincro_catalogo WHERE tiposincro = 'Enviar productos' AND NOT sincronizado AND website = 'AMAZON' LIMIT 15)")
+        q.setWhere("lsc.id IN (SELECT id FROM lineassincro_catalogo WHERE tiposincro = 'Enviar productos' AND NOT sincronizado AND website = 'AMAZON' LIMIT 15)")
 
         return q
 
