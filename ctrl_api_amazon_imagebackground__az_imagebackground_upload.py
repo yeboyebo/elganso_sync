@@ -69,6 +69,7 @@ class AzImageBackgroundUpload(UploadSync, ABC):
                 with open(image_path, 'wb') as out:
                     out.write(response.content)
             else:
+                qsatype.FLSqlQuery().execSql("UPDATE az_articulosamazon SET errorsincro = true, descerror = '{}' WHERE referencia = '{}'".format(response.text, referencia))
                 raise NameError("Esquema: '{}' - Referencia: '{}' ({})".format(self.get_msgtype(), referencia, response.text))
 
             d['new_url'] = '{}{}'.format(self.driver.apiBgImageNewUrl, d['name'])
