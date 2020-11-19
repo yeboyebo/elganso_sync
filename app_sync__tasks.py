@@ -54,6 +54,7 @@ from controllers.api.amazon.orders.controllers.az_orders_get import AzOrdersResu
 from controllers.api.amazon.listorderitems.controllers.az_listorderitems_get import AzListOrderItemsResultGet
 
 from controllers.api.amazon.imagebackground.controllers.az_imagebackground_upload import AzImageBackgroundUpload
+from controllers.api.amazon.returns.controllers.az_returns_get import AzReturnsResultGet
 
 
 sync_object_dict = {
@@ -172,6 +173,9 @@ sync_object_dict = {
     },
     "amazon_imagebackground_upload": {
         "sync_object": AzImageBackgroundUpload
+    },
+    "amazon_returns_get": {
+        "sync_object": AzReturnsResultGet
     }
 }
 
