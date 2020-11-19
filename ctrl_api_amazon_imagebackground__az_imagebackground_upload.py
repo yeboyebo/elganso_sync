@@ -49,7 +49,7 @@ class AzImageBackgroundUpload(UploadSync, ABC):
         q = qsatype.FLSqlQuery()
         q.setSelect("az.referencia, urls.urls")
         q.setFrom("az_articulosamazon az INNER JOIN eg_urlsimagenesarticulosmgt urls ON az.referencia = urls.referencia")
-        q.setWhere("az.articulocreado AND NOT az.sincroimagenes AND urls.urls IS NOT NULL AND urls.urls <> '' AND (urls.urls_sinfondo IS NULL OR urls.urls_sinfondo = '') LIMIT 1")
+        q.setWhere("az.articulocreado AND NOT az.sincroimagenes AND NOT az.errorsincro AND urls.urls IS NOT NULL AND urls.urls <> '' AND (urls.urls_sinfondo IS NULL OR urls.urls_sinfondo = '') LIMIT 1")
 
         return q
 
