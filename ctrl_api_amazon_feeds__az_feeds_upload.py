@@ -90,8 +90,6 @@ class AzFeedsUpload(UploadSync, ABC):
         return self.driver.send_request("post", url=url, data=data)
 
     def after_sync(self, response_data=None):
-        print("_")
-        print("_")
         print(response_data)
 
         response = xml2dict(response_data)
@@ -159,8 +157,6 @@ class AzFeedsUpload(UploadSync, ABC):
 
     def replace_special_chars(self, data):
         data = data.replace("&", "&amp;")
-        # data = data.replace("<", "&lt;")
-        # data = data.replace(">", "&gt;")
         data = data.replace("€", "&euro;")
         data = data.replace("©", "&copy;")
         data = data.replace("®", "&reg;")
@@ -186,6 +182,7 @@ class AzFeedsUpload(UploadSync, ABC):
         data = data.replace("@", "&#64;")
         data = data.replace("\r", "\n")
 
+        data = data.replace("|", "&#124;")
         data = data.replace("!", "&#33;")
         data = data.replace("”", "&#34;")
         data = data.replace("$", "&#36;")
@@ -193,5 +190,7 @@ class AzFeedsUpload(UploadSync, ABC):
         data = data.replace("’", "&#39;")
         data = data.replace("(", "&#40;")
         data = data.replace(")", "&#41;")
+
+        data = data.replace("<br>", "\n")
 
         return data

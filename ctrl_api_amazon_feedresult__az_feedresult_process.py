@@ -48,6 +48,7 @@ class AzFeedResultProcess(DownloadSync, ABC):
         response = xml2dict(bytes(data['respuesta'], 'utf-8'))
 
         barcode_error = {}
+        referencia_error = {}
         if hasattr(response.Message.ProcessingReport, 'Result'):
             for result in response.Message.ProcessingReport.Result:
                 error = result.ResultCode == 'Error'
@@ -57,10 +58,26 @@ class AzFeedResultProcess(DownloadSync, ABC):
                 if hasattr(result, 'AdditionalInfo'):
                     sku = str(result.AdditionalInfo.SKU)
 
-                if error and desc is not None and sku:
-                    if sku not in barcode_error:
-                        barcode_error[sku] = []
-                    barcode_error[sku].append(desc)
+                    if error and desc is not None and sku:
+                        if sku not in barcode_error:
+                            barcode_error[sku] = []
+                        barcode_error[sku].append(desc)
+                else:
+                    if error and hasattr(result, 'MessageID') and result.MessageID == '0':
+                        q = qsatype.FLSqlQuery()
+                        q.setSelect("referencia")
+                        q.setFrom("az_articulosamazon")
+                        q.setWhere("{} = {}".format(self.get_idlog_field(tipo), idlog))
+
+                        q.exec_()
+                        body = self.fetch_query(q)
+
+                        for row in body:
+                            referencia = row['referencia']
+                            if referencia not in referencia_error:
+                                referencia_error[referencia] = []
+
+                            referencia_error[referencia].append("{} -> {}".format(referencia, desc))
 
         q = qsatype.FLSqlQuery()
         q.setSelect("referencia, barcode")
@@ -70,13 +87,16 @@ class AzFeedResultProcess(DownloadSync, ABC):
         q.exec_()
         body = self.fetch_query(q)
 
-        referencia_error = {}
         for row in body:
             referencia = row['referencia']
             barcode = row['barcode']
 
             if referencia not in referencia_error:
                 referencia_error[referencia] = []
+
+            if referencia in barcode_error:
+                for error in barcode_error[referencia]:
+                    referencia_error[referencia].append("{} -> {}".format(referencia, error))
 
             if barcode in barcode_error:
                 for error in barcode_error[barcode]:

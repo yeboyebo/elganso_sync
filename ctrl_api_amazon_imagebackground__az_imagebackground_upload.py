@@ -23,8 +23,6 @@ class AzImageBackgroundUpload(UploadSync, ABC):
         for d in data:
             body.append(self.get_serializer().serialize(d))
 
-        print(body)
-
         return body
 
     def get_db_data(self):
