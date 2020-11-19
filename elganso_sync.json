@@ -819,6 +819,42 @@
             {
                 "name": "ctrl_api_amazon_imagebackground__imagebackground_serializer.py",
                 "path": "controllers/api/amazon/imagebackground/serializers/"
+            },
+            {
+                "path": "controllers/api/amazon/returns/controllers/",
+                "name": "ctrl_api_amazon_returns__az_returns_get.py"
+            },
+            {
+                "path": "controllers/api/amazon/returns/serializers/",
+                "name": "ctrl_api_amazon_returns__movistock_serializer.py"
+            },
+            {
+                "path": "controllers/api/amazon/returns/serializers/",
+                "name": "ctrl_api_amazon_returns__return_serializer.py"
+            },
+            {
+                "path": "controllers/api/amazon/returns/serializers/",
+                "name": "ctrl_api_amazon_returns__return_line_serializer.py"
+            },
+            {
+                "path": "controllers/api/amazon/returns/serializers/",
+                "name": "ctrl_api_amazon_returns__idl_ecommercedevoluciones_serializer.py"
+            },
+            {
+                "path": "models/flfact_tpv/objects/",
+                "name": "model_flfact_tpv__azmovistock_raw.py"
+            },
+            {
+                "path": "models/flfact_tpv/objects/",
+                "name": "model_flfact_tpv__azreturn_raw.py"
+            },
+            {
+                "path": "models/flfact_tpv/objects/",
+                "name": "model_flfact_tpv__azreturn_line_raw.py"
+            },
+            {
+                "path": "controllers/api/amazon/returns/",
+                "name": "ctrl_api_amazon_returns__get.py"
             }
         ],
         "deleteFile": [],
