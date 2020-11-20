@@ -1,4 +1,5 @@
 import requests
+from os import path
 from abc import ABC
 from YBLEGACY import qsatype
 
@@ -60,17 +61,18 @@ class AzImageBackgroundUpload(UploadSync, ABC):
             print(d['serialized'])
             image_path = '{}{}'.format(self.driver.apiBgImagePath, d['name'])
 
-            response = requests.post(
-                self.driver.apiBgImageUrl,
-                data=d['serialized'],
-                headers={'X-Api-Key': self.driver.apiBgImageKey}
-            )
-            if response.status_code == requests.codes.ok:
-                with open(image_path, 'wb') as out:
-                    out.write(response.content)
-            else:
-                qsatype.FLSqlQuery().execSql("UPDATE az_articulosamazon SET errorsincro = true, descerror = '{}' WHERE referencia = '{}'".format(response.text, referencia))
-                raise NameError("Esquema: '{}' - Referencia: '{}' ({})".format(self.get_msgtype(), referencia, response.text))
+            if not path.isfile(image_path):
+                response = requests.post(
+                    self.driver.apiBgImageUrl,
+                    data=d['serialized'],
+                    headers={'X-Api-Key': self.driver.apiBgImageKey}
+                )
+                if response.status_code == requests.codes.ok:
+                    with open(image_path, 'wb') as out:
+                        out.write(response.content)
+                else:
+                    self.log("Error", "Esquema '{}' - Referencia: '{}' - Imagen: '{}' ({})".format(self.get_msgtype(), referencia, d['name'], response.text))
+                    continue
 
             d['new_url'] = '{}{}'.format(self.driver.apiBgImageNewUrl, d['name'])
 
@@ -83,9 +85,16 @@ class AzImageBackgroundUpload(UploadSync, ABC):
         new_urls = []
 
         for data in response_data:
-            new_urls.append(data['new_url'])
+            if 'new_url' in data:
+                new_urls.append(data['new_url'])
 
-        qsatype.FLSqlQuery().execSql("UPDATE eg_urlsimagenesarticulosmgt SET urls_sinfondo = '{}' WHERE referencia = '{}'".format(','.join(new_urls), referencia))
+        new_urls = ','.join(new_urls)
+
+        if new_urls == '':
+            qsatype.FLSqlQuery().execSql("UPDATE az_articulosamazon SET errorsincro = true, descerror = 'No se pudo limpiar ninguna imagen para el artículo' WHERE referencia = '{}'".format(referencia))
+            raise NameError("Esquema: '{}' - Referencia: '{}' (No se pudo limpiar ninguna imagen para el artículo)".format(self.get_msgtype(), referencia))
+
+        qsatype.FLSqlQuery().execSql("UPDATE eg_urlsimagenesarticulosmgt SET urls_sinfondo = '{}' WHERE referencia = '{}'".format(new_urls, referencia))
 
         self.log("Éxito", "Esquema '{}' sincronizado correctamente (referencias: {})".format(self.get_msgtype(), referencia))
 

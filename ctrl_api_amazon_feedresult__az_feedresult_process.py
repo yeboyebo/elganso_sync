@@ -128,8 +128,6 @@ class AzFeedResultProcess(DownloadSync, ABC):
 
             if nextbool_field:
                 qsatype.FLSqlQuery().execSql("UPDATE az_articulosamazon SET articulocreado = true, {} = true, {} = false, id_error = NULL, errorsincro = false, descerror = NULL WHERE {} = {} AND referencia NOT IN ('{}')".format(bool_field, nextbool_field, idlog_field, idlog, "','".join(referencias)))
-            else:
-                qsatype.FLSqlQuery().execSql("UPDATE az_articulosamazon SET articulocreado = true, {} = true, id_error = NULL, errorsincro = false, descerror = NULL WHERE {} = {} AND referencia NOT IN ('{}')".format(bool_field, idlog_field, idlog, "','".join(referencias)))
 
         self.log("Éxito", "Resultados procesados correctamente (ids_amazon: {})".format([str(self.procesamientos[idlog]['idamazon']) for idlog in self.procesamientos]))
 
