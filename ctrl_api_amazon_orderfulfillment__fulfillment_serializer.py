@@ -25,4 +25,4 @@ class FulfillmentSerializer(DefaultSerializer):
         return ['USPS', 'UPS', 'FedEx', 'DHL', 'Fastway', 'GLS', 'Go!', 'Hermes Logistik Gruppe', 'Royal Mail', 'Parcelforce', 'City Link', 'TNT', 'Target', 'SagawaExpress', 'NipponExpress', 'YamatoTransport']
 
     def get_fulfillment_date(self):
-        return '{}T{}'.format(self.init_data['p.fechapreparacion'], self.init_data['p.horapreparacion'])
+        return '{}T00:00:00.000Z'.format(self.init_data['p.fechapreparacion'])
