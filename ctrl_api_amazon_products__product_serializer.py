@@ -24,7 +24,7 @@ class ProductSerializer(DefaultSerializer):
         if self.init_data['f.codfamiliaaz'] == 'Shoes':
             self.set_string_value("Product//ProductData//Shoes//ClothingType", "Shoes")
             self.set_string_value("Product//ProductData//Shoes//VariationData//Parentage", "child")
-            # self.set_string_relation("Product//ProductData//Shoes//VariationData//Color", "a.egcolor")
+            self.set_string_relation("Product//ProductData//Shoes//VariationData//Color", "a.egcolor")
             self.set_string_value("Product//ProductData//Shoes//VariationData//VariationTheme", "Size")
             self.set_string_relation("Product//ProductData//Shoes//ClassificationData//SizeMap", "aa.talla")
             self.set_string_value("Product//ProductData//Shoes//ClassificationData//TargetGender", self.get_target(self.init_data["a.codgrupomoda"]))
@@ -33,7 +33,7 @@ class ProductSerializer(DefaultSerializer):
             self.set_string_value("Product//ProductData//Shoes//ShoeSizeComplianceData//FootwearSizeSystem", "eu_footwear_size_system")
             self.set_string_value("Product//ProductData//Shoes//ShoeSizeComplianceData//ShoeSizeAgeGroup", "adult")
             self.set_string_value("Product//ProductData//Shoes//ShoeSizeComplianceData//ShoeSizeClass", "numeric")
-            self.set_string_value("Product//ProductData//Shoes//ShoeSizeComplianceData//ShoeSizeWidth", "narrow")
+            self.set_string_value("Product//ProductData//Shoes//ShoeSizeComplianceData//ShoeSizeWidth", "medium")
             self.set_string_value("Product//ProductData//Shoes//ShoeSizeComplianceData//ShoeSize", "numeric_" + self.init_data['aa.talla'])
         else:
             self.set_string_value("Product//ProductData//Clothing//VariationData//Parentage", "child")
