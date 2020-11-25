@@ -17,7 +17,7 @@ class FulfillmentSerializer(DefaultSerializer):
             self.set_string_value("OrderFulfillment//FulfillmentData//CarrierName", transportista)
 
         self.set_string_relation("OrderFulfillment//FulfillmentData//ShippingMethod", "e.metodoenvioidl")
-        self.set_string_relation("OrderFulfillment//FulfillmentData//ShipperTrackingNumber", "e.numseguimiento")
+        self.set_string_relation("OrderFulfillment//FulfillmentData//ShipperTrackingNumber", "s.numalbaranmrw")
 
         return True
 

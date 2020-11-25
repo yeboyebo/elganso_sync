@@ -14,9 +14,9 @@ class AzOrderFulfillmentUpload(AzFeedsUpload, ABC):
 
     def get_query(self):
         q = qsatype.FLSqlQuery()
-        q.setSelect("azv.idamazon, s.coddocumento, e.numseguimiento, e.transportista, e.metodoenvioidl, p.fechapreparacion, p.horapreparacion")
+        q.setSelect("azv.idamazon, s.coddocumento, s.numalbaranmrw, e.transportista, e.metodoenvioidl, p.fechapreparacion, p.horapreparacion")
         q.setFrom("az_ventasamazon azv INNER JOIN idl_ecommerce e ON azv.idtpv_comanda = e.idtpv_comanda INNER JOIN eg_seguimientoenvios s ON e.codcomanda = s.coddocumento INNER JOIN idl_preparaciones p on p.idpreparacion = e.idpreparacion")
-        q.setWhere("NOT azv.envioinformado AND s.numseguimiento IS NOT NULL AND s.numseguimiento <> '' LIMIT 1")
+        q.setWhere("NOT azv.envioinformado AND s.numalbaranmrw IS NOT NULL AND s.numalbaranmrw <> '' LIMIT 1")
 
         return q
 
