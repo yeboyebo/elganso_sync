@@ -10,6 +10,10 @@ class AzStocksUpload(AzFeedsUpload, ABC):
     def __init__(self, params=None):
         super().__init__("azstocksupload", params)
 
+        self.small_sleep = 300
+        self.large_sleep = 300
+        self.no_sync_sleep = 300
+
     def get_query(self):
         q = qsatype.FLSqlQuery()
         q.setSelect("az.referencia, aa.barcode, s.disponible, p.valor")
