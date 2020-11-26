@@ -23,6 +23,10 @@ class AzFeedsUpload(UploadSync, ABC):
     def __init__(self, process_name, params=None):
         super().__init__(process_name, AmazonDriver(), params)
 
+        self.small_sleep = 1200
+        self.large_sleep = 1200
+        self.no_sync_sleep = 1200
+
         self.referencias = []
         self.id_field = 'az.referencia'
 

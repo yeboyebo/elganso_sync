@@ -12,6 +12,10 @@ class AzFeedResultGet(AzFeedsUpload, ABC):
     def __init__(self, params=None):
         super().__init__("azfeedresultget", params)
 
+        self.small_sleep = 10
+        self.large_sleep = 180
+        self.no_sync_sleep = 300
+
     def get_data(self):
         body = []
 

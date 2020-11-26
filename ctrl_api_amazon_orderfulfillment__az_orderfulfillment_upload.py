@@ -12,6 +12,10 @@ class AzOrderFulfillmentUpload(AzFeedsUpload, ABC):
 
         self.id_field = 'azv.idamazon'
 
+        self.small_sleep = 10
+        self.large_sleep = 180
+        self.no_sync_sleep = 300
+
     def get_query(self):
         q = qsatype.FLSqlQuery()
         q.setSelect("azv.idamazon, s.coddocumento, s.numalbaranmrw, e.transportista, e.metodoenvioidl, p.fechapreparacion, p.horapreparacion")
