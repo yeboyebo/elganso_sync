@@ -18,14 +18,20 @@ from models.flsyncppal import flsyncppal_def as syncppal
 
 class elganso_sync(interna):
 
-    params = syncppal.iface.get_param_sincro('apipass')
+    # Cambio pruebas Xavi 1
+    # params = syncppal.iface.get_param_sincro('apipass')
+    params = {}
 
     def elganso_sync_tienebonoregistro(self, params):
         try:
-            bdparams = self.params
-            if "auth" not in bdparams:
-                bdparams = syncppal.iface.get_param_sincro('apipass')
-            if "passwd" in params and params['passwd'] == bdparams['auth']:
+            # Cambio pruebas Xavi 2
+            # bdparams = self.params
+            # if "auth" not in bdparams:
+            #     bdparams = syncppal.iface.get_param_sincro('apipass')
+            # if "passwd" in params and params['passwd'] == bdparams['auth']:
+            if "auth" not in self.params:
+                self.params = syncppal.iface.get_param_sincro('apipass')
+            if "passwd" in params and params['passwd'] == self.params['auth']:
                 if "email" not in params:
                     return {"Error": "Formato Incorrecto", "status": 0}
                 q = qsatype.FLSqlQuery()
@@ -49,10 +55,14 @@ class elganso_sync(interna):
 
     def elganso_sync_consultabonoventa(self, params):
         try:
-            bdparams = self.params
-            if "auth" not in bdparams:
-                bdparams = syncppal.iface.get_param_sincro('apipass')
-            if "passwd" in params and params['passwd'] == bdparams['auth']:
+            # Cambio pruebas Xavi 2
+            # bdparams = self.params
+            # if "auth" not in bdparams:
+            #     bdparams = syncppal.iface.get_param_sincro('apipass')
+            # if "passwd" in params and params['passwd'] == bdparams['auth']:
+            if "auth" not in self.params:
+                self.params = syncppal.iface.get_param_sincro('apipass')
+            if "passwd" in params and params['passwd'] == self.params['auth']:
                 if "codigoVenta" not in params:
                     return {"Error": "Formato Incorrecto", "status": 0}
                 q = qsatype.FLSqlQuery()
@@ -82,10 +92,14 @@ class elganso_sync(interna):
 
     def elganso_sync_consultabono(self, params):
         try:
-            bdparams = self.params
-            if "auth" not in bdparams:
-                bdparams = syncppal.iface.get_param_sincro('apipass')
-            if "passwd" in params and params['passwd'] == bdparams['auth']:
+            # Cambio pruebas Xavi 2
+            # bdparams = self.params
+            # if "auth" not in bdparams:
+            #     bdparams = syncppal.iface.get_param_sincro('apipass')
+            # if "passwd" in params and params['passwd'] == bdparams['auth']:
+            if "auth" not in self.params:
+                self.params = syncppal.iface.get_param_sincro('apipass')
+            if "passwd" in params and params['passwd'] == self.params['auth']:
                 if "codigoBono" not in params:
                     return {"Error": "Formato Incorrecto", "status": 0}
                 codbono = params['codigoBono']
@@ -130,10 +144,14 @@ class elganso_sync(interna):
 
     def elganso_sync_creabono(self, params):
         try:
-            bdparams = self.params
-            if "auth" not in bdparams:
-                bdparams = syncppal.iface.get_param_sincro('apipass')
-            if "passwd" in params and params['passwd'] == bdparams['auth']:
+            # Cambio pruebas Xavi 2
+            # bdparams = self.params
+            # if "auth" not in bdparams:
+            #     bdparams = syncppal.iface.get_param_sincro('apipass')
+            # if "passwd" in params and params['passwd'] == bdparams['auth']:
+            if "auth" not in self.params:
+                self.params = syncppal.iface.get_param_sincro('apipass')
+            if "passwd" in params and params['passwd'] == self.params['auth']:
                 if "importeVenta" not in params or "codigoVenta" not in params or "divisa" not in params or "email" not in params:
                     return {"Error": "Formato Incorrecto", "status": -1}
 
@@ -179,10 +197,14 @@ class elganso_sync(interna):
 
     def elganso_sync_actualizabono(self, params):
         try:
-            bdparams = self.params
-            if "auth" not in bdparams:
-                bdparams = syncppal.iface.get_param_sincro('apipass')
-            if "passwd" in params and params['passwd'] == bdparams['auth']:
+            # Cambio pruebas Xavi 2
+            # bdparams = self.params
+            # if "auth" not in bdparams:
+            #     bdparams = syncppal.iface.get_param_sincro('apipass')
+            # if "passwd" in params and params['passwd'] == bdparams['auth']:
+            if "auth" not in self.params:
+                self.params = syncppal.iface.get_param_sincro('apipass')
+            if "passwd" in params and params['passwd'] == self.params['auth']:
                 if "importeVenta" not in params or "codigoBono" not in params or "codigoVenta" not in params or "divisa" not in params:
                     return {"Error": "Formato Incorrecto", "status": -1}
                 codbono = params['codigoBono']
