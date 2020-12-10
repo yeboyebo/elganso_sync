@@ -67,7 +67,7 @@ class elganso_sync(interna):
                     return {"Error": "Formato Incorrecto", "status": 0}
                 q = qsatype.FLSqlQuery()
                 q.setTablesList(u"eg_bonos")
-                q.setSelect(u"codbono, saldoinicial, saldopendiente, coddivisa, venta")
+                q.setSelect(u"codbono, saldoinicial, saldopendiente, coddivisa, venta, activo")
                 q.setFrom(u"eg_bonos")
                 q.setWhere(ustr(u"venta = '", params['codigoVenta'], u"'"))
                 if not q.exec_():
@@ -76,12 +76,15 @@ class elganso_sync(interna):
                     return {"Error": "Bono asociado a mas de una venta", "status": -2}
                 if not q.next():
                     return {"Error": "Bono incorrecto", "status": -3}
+                activo = q.value("activo")
+                if q.value("activo") is False:
+                    return {"Error": "El bono no esta activo", "status": 1}
                 codbono = q.value("codbono")
                 saldopendiente = q.value("saldopendiente")
                 saldoinicial = q.value("saldoinicial")
                 coddivisa = q.value("coddivisa")
                 venta = q.value("venta")
-                return {"saldoBono": saldoinicial, "saldoPendiente": saldopendiente, "codigoBono": codbono, "divisa": coddivisa, "venta": venta}
+                return {"saldoBono": saldoinicial, "saldoPendiente": saldopendiente, "codigoBono": codbono, "divisa": coddivisa, "venta": venta, "activo": activo}
             else:
                 return {"Error": "Petición Incorrecta", "status": 0}
         except Exception as e:
@@ -106,7 +109,7 @@ class elganso_sync(interna):
                 # saldopendiente = qsatype.FLUtil.sqlSelect(u"eg_bonos", u"saldopendiente", ustr(u"codbono = '", codbono, u"'"))
                 q = qsatype.FLSqlQuery()
                 q.setTablesList(u"eg_bonos")
-                q.setSelect(u"codbono, saldoinicial, saldopendiente, coddivisa, venta, email, fechaexpiracion, importeminimo")
+                q.setSelect(u"codbono, saldoinicial, saldopendiente, coddivisa, venta, email, fechaexpiracion, importeminimo, activo")
                 q.setFrom(u"eg_bonos")
                 q.setWhere(ustr(u"codbono = '", codbono, u"'"))
                 if not q.exec_():
@@ -115,6 +118,9 @@ class elganso_sync(interna):
                     return {"Error": "Bono asociado a mas de una venta", "status": -2}
                 if not q.next():
                     return {"Error": "Bono incorrecto", "status": -3}
+                activo = q.value("activo")
+                if q.value("activo") is False:
+                    return {"Error": "El bono no esta activo", "status": 1}
                 saldopendiente = q.value("saldopendiente")
                 saldoinicial = q.value("saldoinicial")
                 coddivisa = q.value("coddivisa")
@@ -123,10 +129,10 @@ class elganso_sync(interna):
                 fechaexpiracion = q.value("fechaexpiracion") or ""
                 importeminimo = q.value("importeminimo") or 0
                 if saldopendiente == 0:
-                    return {"saldoBono": saldoinicial, "saldoPendiente": saldopendiente, "divisa": coddivisa, "venta": venta, "email": email, "fechaexpiracion": fechaexpiracion, "importeminimo": importeminimo}
+                    return {"saldoBono": saldoinicial, "saldoPendiente": saldopendiente, "divisa": coddivisa, "venta": venta, "email": email, "fechaexpiracion": fechaexpiracion, "importeminimo": importeminimo, "activo": activo}
                 if not saldopendiente:
                     return {"Error": "Bono incorrecto", "status": 1}
-                return {"saldoBono": saldoinicial, "saldoPendiente": saldopendiente, "divisa": coddivisa, "venta": venta, "email": email, "fechaexpiracion": fechaexpiracion, "importeminimo": importeminimo}
+                return {"saldoBono": saldoinicial, "saldoPendiente": saldopendiente, "divisa": coddivisa, "venta": venta, "email": email, "fechaexpiracion": fechaexpiracion, "importeminimo": importeminimo, "activo": activo}
             else:
                 return {"Error": "Petición Incorrecta", "status": -1}
         except Exception as e:
@@ -173,6 +179,14 @@ class elganso_sync(interna):
                 if "importeMinimo" in params:
                     importeminimo = params["importeMinimo"]
 
+                activo = True
+                if "activo" in params:
+                    activo = params["activo"]
+
+                correoenviado = True
+                if "correoEnviado" in params:
+                    correoenviado = params["correoEnviado"]
+
                 # tarjeta = qsatype.FLUtil.sqlSelect(u"tpv_tarjetaspuntos", u"codtarjetapuntos", ustr(u"email = '", params['email'], u"'"))
                 deempleado = qsatype.FLUtil.sqlSelect(u"tpv_tarjetaspuntos", u"deempleado", ustr(u"email = '", params['email'].lower(), u"'"))
                 dtoespecial = qsatype.FLUtil.sqlSelect(u"tpv_tarjetaspuntos", u"dtoespecial", ustr(u"email = '", params['email'].lower(), u"'"))
@@ -185,7 +199,7 @@ class elganso_sync(interna):
                 horaalta = str(qsatype.Date())[-8:]
                 while codbono == qsatype.FLUtil.sqlSelect(u"eg_bonos", u"codbono", ustr(u"codbono = '", codbono, u"'")):
                     codbono = self.generaCodBono()
-                if not qsatype.FLUtil.sqlInsert(u"eg_bonos", [u"codbono", u"fecha", u"fechaalta", u"horaalta", u"venta", u"saldoinicial", u"saldoconsumido", u"saldopendiente", u"activo", u"fechaexpiracion", u"coddivisa", u"email", u"observaciones", u"importeminimo", u"correoenviado"], [codbono, str(qsatype.Date())[:10], str(qsatype.Date())[:10], horaalta, params['codigoVenta'], importe, 0, importe, True, fechaexpiracion, params['divisa'], params['email'].lower(), observaciones, importeminimo, True]):
+                if not qsatype.FLUtil.sqlInsert(u"eg_bonos", [u"codbono", u"fecha", u"fechaalta", u"horaalta", u"venta", u"saldoinicial", u"saldoconsumido", u"saldopendiente", u"activo", u"fechaexpiracion", u"coddivisa", u"email", u"observaciones", u"importeminimo", u"correoenviado", u"activo"], [codbono, str(qsatype.Date())[:10], str(qsatype.Date())[:10], horaalta, params['codigoVenta'], importe, 0, importe, True, fechaexpiracion, params['divisa'], params['email'].lower(), observaciones, importeminimo, correoenviado, activo]):
                     return {"Error": "Error en insercion de bono", "status": -2}
                 return {"codigoBono": codbono, "importeBono": importe, "status": 1}
             else:
