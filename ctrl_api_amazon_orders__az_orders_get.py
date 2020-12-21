@@ -58,7 +58,7 @@ class AzOrdersResultGet(DownloadSync, ABC):
         if fecha and fecha != "None" and fecha != "":
             self.fecha_sincro = fecha
         else:
-            self.fecha_sincro = "2020-11-03T00:00:01Z"
+            self.fecha_sincro = "2020-12-21T00:00:01Z"
 
         return self.fecha_sincro
 
@@ -69,6 +69,9 @@ class AzOrdersResultGet(DownloadSync, ABC):
         response = xml2dict(bytes(all_data, 'utf-8'))
         if not hasattr(response.ListOrdersResult.Orders, 'Order'):
             self.log("Éxito", "No hay datos que sincronizar")
+            if not self.guarda_fechasincrotienda(self.esquema, self.codtienda):
+                self.log("Error", "Falló al guardar fecha última sincro")
+                return self.small_sleep
             return False
 
         for order in response.ListOrdersResult.Orders.Order:
@@ -118,12 +121,10 @@ class AzOrdersResultGet(DownloadSync, ABC):
         return self.large_sleep
 
     def guarda_fechasincrotienda(self, esquema, codtienda):
-        fecha = str(self.fecha_sincro)[:10]
-
-        fechaSeg = datetime.strptime(self.fecha_sincro, '%Y-%m-%dT%H:%M:%SZ')
-        fecha1Seg = fechaSeg + timedelta(seconds=1)
-        hora = str(fecha1Seg)[11:19]
-
+        ahora = datetime.utcnow()
+        hace_dos_hora = ahora - timedelta(hours=2)
+        fecha = str(ahora)[:10]
+        hora = str(hace_dos_hora)[11:19]
         idsincro = qsatype.FLUtil.sqlSelect("tpv_fechasincrotienda", "id", "esquema = '{}' AND codtienda = '{}'".format(esquema, codtienda))
 
         if idsincro:

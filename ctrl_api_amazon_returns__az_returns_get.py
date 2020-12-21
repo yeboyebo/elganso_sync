@@ -148,12 +148,18 @@ class AzReturnsResultGet(DownloadSync, ABC):
 
         if all_data == []:
             self.log("Éxito", "No hay datos que sincronizar")
+            if not self.guarda_fechasincrotienda(self.esquema, self.codtienda):
+                self.log("Error", "Falló al guardar fecha última sincro")
+                return self.small_sleep
             return False
 
         response = xml2dict(bytes(all_data, 'utf-8'))
 
         if not hasattr(response.Message.return_details, 'amazon_rma_id'):
             self.log("Éxito", "No hay datos que sincronizar")
+            if not self.guarda_fechasincrotienda(self.esquema, self.codtienda):
+                self.log("Error", "Falló al guardar fecha última sincro")
+                return self.small_sleep
             return False
 
         for devolucion in response.Message.return_details:
@@ -239,11 +245,10 @@ class AzReturnsResultGet(DownloadSync, ABC):
         return self.large_sleep
 
     def guarda_fechasincrotienda(self, esquema, codtienda):
-        fecha = str(self.fecha_sincro)[:10]
-
-        fechaSeg = datetime.strptime(self.fecha_sincro, '%Y-%m-%dT%H:%M:%SZ')
-        fecha1Seg = fechaSeg + timedelta(seconds=1)
-        hora = str(fecha1Seg)[11:19]
+        ahora = datetime.utcnow()
+        hace_dos_hora = ahora - timedelta(hours=2)
+        fecha = str(ahora)[:10]
+        hora = str(hace_dos_hora)[11:19]
 
         idsincro = qsatype.FLUtil.sqlSelect("tpv_fechasincrotienda", "id", "esquema = '{}' AND codtienda = '{}'".format(esquema, codtienda))
 
