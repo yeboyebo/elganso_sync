@@ -48,7 +48,7 @@ class EgOrderSerializer(DefaultSerializer):
                 raise NameError("Error al eliminar el pedido de reserva de stock.")
                 return False
             return False
-        elif str(self.init_data["status"]) == "complete" or str(self.init_data["status"]) == "processing":
+        elif str(self.init_data["status"]) == "complete" or str(self.init_data["status"]) == "processing" or str(self.init_data["status"]) == "en_camino":
             if qsatype.FLUtil.sqlSelect("tpv_comandas", "idtpv_comanda", "codigo = '{}'".format(codigo)):
                 return False
 
