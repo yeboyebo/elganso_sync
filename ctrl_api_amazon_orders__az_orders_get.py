@@ -123,7 +123,7 @@ class AzOrdersResultGet(DownloadSync, ABC):
     def guarda_fechasincrotienda(self, esquema, codtienda):
         ahora = datetime.utcnow()
         hace_dos_hora = ahora - timedelta(hours=2)
-        fecha = str(ahora)[:10]
+        fecha = str(hace_dos_hora)[:10]
         hora = str(hace_dos_hora)[11:19]
         idsincro = qsatype.FLUtil.sqlSelect("tpv_fechasincrotienda", "id", "esquema = '{}' AND codtienda = '{}'".format(esquema, codtienda))
 
