@@ -348,8 +348,20 @@ class EgOrderSerializer(DefaultSerializer):
             if not curPedido.commitBuffer():
                 return False
         else:
+
+            valorFiltro = ""
+            valorUsarPreOrder = qsatype.FLUtil.quickSqlSelect("param_parametros", "valor", "nombre = 'USAR_ART_PREORDER'")
+
+            if valorUsarPreOrder and valorUsarPreOrder == "true":
+                artPreOrder = qsatype.FLUtil.quickSqlSelect("param_parametros", "valor", "nombre = 'ART_PREORDER'")
+                if artPreOrder and artPreOrder != "":
+                    valorFiltro = " AND a.referencia NOT IN (" + artPreOrder + ")"
+
             for linea in self.init_data["items"]:
-                id_stock = qsatype.FLUtil.quickSqlSelect("stocks", "idstock", "codalmacen = 'AWEB' AND barcode = '{}'".format(self.get_barcode(linea["sku"])))
+                if valorFiltro == "":
+                    id_stock = qsatype.FLUtil.quickSqlSelect("stocks", "idstock", "codalmacen = 'AWEB' AND barcode = '{}'".format(self.get_barcode(linea["sku"])))
+                else:
+                    id_stock = qsatype.FLUtil.quickSqlSelect("stocks", "idstock", "codalmacen = 'AWEB' AND barcode = '{}' {}".format(self.get_barcode(linea["sku"], valorFiltro)))
                 if id_stock:
                     existe_sincroweb = qsatype.FLUtil.quickSqlSelect("eg_sincrostockweb", "idstock", "idstock = '{}'".format(id_stock))
                     if existe_sincroweb:
