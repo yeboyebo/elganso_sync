@@ -352,7 +352,7 @@ class EgOrderSerializer(DefaultSerializer):
             valorFiltro = ""
             valorUsarPreOrder = qsatype.FLUtil.quickSqlSelect("param_parametros", "valor", "nombre = 'USAR_ART_PREORDER'")
 
-            if valorUsarPreOrder and valorUsarPreOrder == "true":
+            if valorUsarPreOrder and valorUsarPreOrder == "True":
                 artPreOrder = qsatype.FLUtil.quickSqlSelect("param_parametros", "valor", "nombre = 'ART_PREORDER'")
                 if artPreOrder and artPreOrder != "":
                     valorFiltro = " AND a.referencia NOT IN (" + artPreOrder + ")"
