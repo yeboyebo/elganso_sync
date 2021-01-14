@@ -246,9 +246,9 @@ class AzReturnsResultGet(DownloadSync, ABC):
 
     def guarda_fechasincrotienda(self, esquema, codtienda):
         ahora = datetime.utcnow()
-        hace_dos_hora = ahora - timedelta(hours=2)
-        fecha = str(hace_dos_hora)[:10]
-        hora = str(hace_dos_hora)[11:19]
+        hace_un_dia = ahora - timedelta(days=1)
+        fecha = str(hace_un_dia)[:10]
+        hora = str(hace_un_dia)[11:19]
 
         idsincro = qsatype.FLUtil.sqlSelect("tpv_fechasincrotienda", "id", "esquema = '{}' AND codtienda = '{}'".format(esquema, codtienda))
 
