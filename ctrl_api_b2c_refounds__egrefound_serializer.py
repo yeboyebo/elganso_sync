@@ -129,7 +129,8 @@ class EgRefoundsSerializer(DefaultSerializer):
         codDivisa = str(self.init_data["currency"])
 
         totalIva = parseFloat(self.init_data["tax_refunded"])
-        totalVenta = parseFloat(self.init_data["subtotal_refunded"]) - parseFloat(self.init_data["discount_refunded"]) - parseFloat(self.init_data["vale_total"]) + parseFloat(self.init_data["shipping_price"])
+        # totalVenta = parseFloat(self.init_data["subtotal_refunded"]) - parseFloat(self.init_data["discount_refunded"]) - parseFloat(self.init_data["vale_total"]) + parseFloat(self.init_data["shipping_price"])
+        totalVenta = parseFloat(self.init_data["total_refunded"])
         totalNeto = totalVenta - totalIva
 
         if "items_requested" in self.init_data:
