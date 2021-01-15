@@ -66,7 +66,8 @@ class EgOrderSerializer(DefaultSerializer):
                 return False
 
             self.set_string_value("codigo", codigo, max_characters=15)
-            self.set_string_relation("fecha", "created_at", max_characters=10)
+            self.set_string_value("fecha", now[:10])
+            #self.set_string_relation("fecha", "created_at", max_characters=10)
 
             iva = 0
             ivaLinea = 0
