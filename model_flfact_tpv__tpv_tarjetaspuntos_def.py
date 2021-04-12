@@ -99,6 +99,123 @@ class elganso_sync(interna):
             return {"Error": "Petición Incorrecta", "status": 0}
         return False
 
+    def elganso_sync_unificartarjetas(self, params):
+        try:
+            bdparams = self.params
+            if "auth" not in bdparams:
+                bdparams = syncppal.iface.get_param_sincro('apipass')
+            if "passwd" in params and params['passwd'] == bdparams['auth']:
+                if "emailOrigen" not in params:
+                    return {"Error": "Formato Incorrecto", "status": -1}
+                if "emailDestino" not in params:
+                    return {"Error": "Formato Incorrecto", "status": -1}
+
+                saldoPuntosOrigen = qsatype.FLUtil.sqlSelect("tpv_tarjetaspuntos", "saldopuntos", "email = '" + str(params['emailOrigen']) + "'")
+
+                if not self.quitarPuntosTarjetaOrigen(params):
+                    return False
+
+                if not self.acumularPuntosTarjetaDestino(params, saldoPuntosOrigen):
+                    return False
+
+                if not qsatype.FLUtil.execSql(ustr(u"UPDATE tpv_tarjetaspuntos SET saldopuntos = CASE WHEN (SELECT SUM(canpuntos) FROM tpv_movpuntos WHERE codtarjetapuntos = tpv_tarjetaspuntos.codtarjetapuntos) IS NULL THEN 0 ELSE (SELECT SUM(canpuntos) FROM tpv_movpuntos WHERE codtarjetapuntos = tpv_tarjetaspuntos.codtarjetapuntos) END WHERE email = '", str(params['emailOrigen']), "'")):
+                    return False
+
+                if not qsatype.FLUtil.execSql(ustr(u"UPDATE tpv_tarjetaspuntos SET saldopuntos = CASE WHEN (SELECT SUM(canpuntos) FROM tpv_movpuntos WHERE codtarjetapuntos = tpv_tarjetaspuntos.codtarjetapuntos) IS NULL THEN 0 ELSE (SELECT SUM(canpuntos) FROM tpv_movpuntos WHERE codtarjetapuntos = tpv_tarjetaspuntos.codtarjetapuntos) END WHERE email = '", str(params['emailDestino']), "'")):
+                    return False
+
+                return True
+        except Exception as e:
+            qsatype.debug(ustr(u"Error inesperado unificartarjetas: ", e))
+            return {"Error": "Petición Incorrecta", "status": 0}
+
+        return True
+
+    def elganso_sync_quitarPuntosTarjetaOrigen(self, params):
+        curTpvTarjetas = qsatype.FLSqlCursor("tpv_tarjetaspuntos")
+        q = qsatype.FLSqlQuery()
+        q.setSelect("codtarjetapuntos, saldopuntos")
+        q.setFrom("tpv_tarjetaspuntos")
+        q.setWhere("email = '" + str(params['emailOrigen']) + "'")
+
+        if not q.exec_():
+            return False
+
+        while q.next():
+
+            curTpvTarjetas.select("codtarjetapuntos = '" + q.value("codtarjetapuntos") + "'")
+            if not curTpvTarjetas.first():
+                return False
+
+            curTpvTarjetas.setModeAccess(curTpvTarjetas.Edit)
+            curTpvTarjetas.refreshBuffer()
+            saldoPuntos = float(q.value("saldopuntos")) * (-1)
+
+            curMP = qsatype.FLSqlCursor("tpv_movpuntos")
+            curMP.setModeAccess(curMP.Insert)
+            curMP.refreshBuffer()
+            curMP.setValueBuffer("codtarjetapuntos", str(q.value("codtarjetapuntos")))
+            curMP.setValueBuffer("fecha", str(qsatype.Date())[:10])
+            curMP.setValueBuffer("fechamod", str(qsatype.Date())[:10])
+            curMP.setValueBuffer("horamod", str(qsatype.Date())[-(8):])
+            curMP.setValueBuffer("canpuntos", saldoPuntos)
+            curMP.setValueBuffer("operacion", "UNIFICACION PUNTOS " + str(params['emailDestino']))
+            curMP.setValueBuffer("sincronizado", False)
+            curMP.setValueBuffer("codtienda", "AWEB")
+
+            if not qsatype.FactoriaModulos.get('flfact_tpv').iface.controlIdSincroMovPuntos(curMP):
+                return False
+
+            if not curMP.commitBuffer():
+                return False
+
+            if not curTpvTarjetas.commitBuffer():
+                return False
+
+        return True
+
+    def elganso_sync_acumularPuntosTarjetaDestino(self, params, saldoPuntosOrigen):
+        curTpvTarjetas = qsatype.FLSqlCursor("tpv_tarjetaspuntos")
+        q = qsatype.FLSqlQuery()
+        q.setSelect("codtarjetapuntos, saldopuntos")
+        q.setFrom("tpv_tarjetaspuntos")
+        q.setWhere("email = '" + str(params['emailDestino']) + "'")
+
+        if not q.exec_():
+            return False
+
+        while q.next():
+
+            curTpvTarjetas.select("codtarjetapuntos = '" + q.value("codtarjetapuntos") + "'")
+            if not curTpvTarjetas.first():
+                return False
+
+            curTpvTarjetas.setModeAccess(curTpvTarjetas.Edit)
+            curTpvTarjetas.refreshBuffer()
+
+            curMP = qsatype.FLSqlCursor("tpv_movpuntos")
+            curMP.setModeAccess(curMP.Insert)
+            curMP.refreshBuffer()
+            curMP.setValueBuffer("codtarjetapuntos", str(q.value("codtarjetapuntos")))
+            curMP.setValueBuffer("fecha", str(qsatype.Date())[:10])
+            curMP.setValueBuffer("fechamod", str(qsatype.Date())[:10])
+            curMP.setValueBuffer("horamod", str(qsatype.Date())[-(8):])
+            curMP.setValueBuffer("canpuntos", saldoPuntosOrigen)
+            curMP.setValueBuffer("operacion", "UNIFICACION PUNTOS " + str(params['emailOrigen']))
+            curMP.setValueBuffer("sincronizado", False)
+            curMP.setValueBuffer("codtienda", "AWEB")
+
+            if not qsatype.FactoriaModulos.get('flfact_tpv').iface.controlIdSincroMovPuntos(curMP):
+                return False
+
+            if not curMP.commitBuffer():
+                return False
+
+            if not curTpvTarjetas.commitBuffer():
+                return False
+
+        return True
+
     def __init__(self, context=None):
         super().__init__(context)
 
@@ -110,6 +227,15 @@ class elganso_sync(interna):
 
     def suscribesm(self, params):
         return self.ctx.elganso_sync_suscribesm(params)
+
+    def unificartarjetas(self, params):
+        return self.ctx.elganso_sync_unificartarjetas(params)
+
+    def quitarPuntosTarjetaOrigen(self, params):
+        return self.ctx.elganso_sync_quitarPuntosTarjetaOrigen(params)
+
+    def acumularPuntosTarjetaDestino(self, params, saldoPuntosOrigen):
+        return self.ctx.elganso_sync_acumularPuntosTarjetaDestino(params, saldoPuntosOrigen)
 
 
 # @class_declaration head #

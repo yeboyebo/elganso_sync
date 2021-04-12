@@ -19,6 +19,7 @@ class EgOrderSerializer(DefaultSerializer):
 
     def get_data(self):
         increment = str(self.init_data["increment_id"])
+        print("increment: ", increment)
         codigo = "WEB{}".format(qsatype.FactoriaModulos.get("flfactppal").iface.cerosIzquierda(increment, 9))
 
         now = str(qsatype.Date())
@@ -251,50 +252,48 @@ class EgOrderSerializer(DefaultSerializer):
 
     def crear_pedido_reserva_stock(self, codigo):
 
-        now = str(qsatype.Date())
-        self.start_date = now[:10]
-        self.start_time = now[-(8):]
-
-        curPedido = qsatype.FLSqlCursor("pedidoscli")
-        curPedido.setModeAccess(curPedido.Insert)
-        curPedido.refreshBuffer()
-        curPedido.setValueBuffer("observaciones", codigo)
-        curPedido.setValueBuffer("codejercicio",self.get_codejercicio())
-        curPedido.setValueBuffer("codserie", "MK")
-        curPedido.setValueBuffer("codalmacen", "AWEB")
-       
-        numero = qsatype.FactoriaModulos.get("flfacturac").iface.siguienteNumero("MK", self.get_codejercicio(), "npedidocli");
-        curPedido.setValueBuffer("numero", numero)
-        codpedido = qsatype.FactoriaModulos.get("flfacturac").iface.pub_construirCodigo("MK", self.get_codejercicio(),numero)
-        curPedido.setValueBuffer("codigo", codpedido)
-        curPedido.setValueBuffer("totaleuros", 0)
-        curPedido.setValueBuffer("direccion", "-")
-        curPedido.setValueBuffer("codpago", "CONT")
-        curPedido.setValueBuffer("tasaconv", 1)
-        curPedido.setValueBuffer("total", 0)
-        curPedido.setValueBuffer("irpf", 0)
-        curPedido.setValueBuffer("servido", "No")
-        curPedido.setValueBuffer("editable", True)
-        curPedido.setValueBuffer("cifnif", "-")
-        curPedido.setValueBuffer("recfinanciero", 0)
-        curPedido.setValueBuffer("fecha", now)
-        curPedido.setValueBuffer("neto", 0)
-        curPedido.setValueBuffer("totalirpf", 0)
-        curPedido.setValueBuffer("totaliva", 0)
-        curPedido.setValueBuffer("fechasalida", now)
-        curPedido.setValueBuffer("egenviado", False)
-        curPedido.setValueBuffer("coddivisa", "EUR")
-
-        if not curPedido.commitBuffer():
-            raise NameError("Error al guardar la cabecera del pedido.")
-            return False
-
-        if not curPedido.valueBuffer("idpedido") or str(curPedido.valueBuffer("idpedido")) == "None":
-            return False
-
-        cont = 0
         for linea in self.init_data["items"]:
-            cont = cont + 1
+            now = str(qsatype.Date())
+            self.start_date = now[:10]
+            self.start_time = now[-(8):]
+            curPedido = qsatype.FLSqlCursor("pedidoscli")
+            curPedido.setModeAccess(curPedido.Insert)
+            curPedido.refreshBuffer()
+            curPedido.setValueBuffer("observaciones", codigo)
+            curPedido.setValueBuffer("codejercicio",self.get_codejercicio())
+            curPedido.setValueBuffer("codserie", "SW")
+            curPedido.setValueBuffer("codalmacen", linea["almacen"])
+           
+            numero = qsatype.FactoriaModulos.get("flfacturac").iface.siguienteNumero("SW", self.get_codejercicio(), "npedidocli");
+            curPedido.setValueBuffer("numero", numero)
+            codpedido = qsatype.FactoriaModulos.get("flfacturac").iface.pub_construirCodigo("SW", self.get_codejercicio(),numero)
+            curPedido.setValueBuffer("codigo", codpedido)
+            curPedido.setValueBuffer("totaleuros", 0)
+            curPedido.setValueBuffer("direccion", "-")
+            curPedido.setValueBuffer("codpago", "CONT")
+            curPedido.setValueBuffer("tasaconv", 1)
+            curPedido.setValueBuffer("total", 0)
+            curPedido.setValueBuffer("irpf", 0)
+            curPedido.setValueBuffer("servido", "No")
+            curPedido.setValueBuffer("editable", True)
+            curPedido.setValueBuffer("cifnif", "-")
+            curPedido.setValueBuffer("recfinanciero", 0)
+            curPedido.setValueBuffer("fecha", now)
+            curPedido.setValueBuffer("neto", 0)
+            curPedido.setValueBuffer("totalirpf", 0)
+            curPedido.setValueBuffer("totaliva", 0)
+            curPedido.setValueBuffer("fechasalida", now)
+            curPedido.setValueBuffer("egenviado", False)
+            curPedido.setValueBuffer("coddivisa", "EUR")
+
+            if not curPedido.commitBuffer():
+                raise NameError("Error al guardar la cabecera del pedido.")
+                return False
+
+            if not curPedido.valueBuffer("idpedido") or str(curPedido.valueBuffer("idpedido")) == "None":
+                return False
+
+            cont = 1
             if not self.crear_linea_pedido_reserva_stock(cont, linea, curPedido.valueBuffer("idpedido")):
                 raise NameError("Error al crear la línea del pedido de reserva de stock.")
                 return False
@@ -335,7 +334,7 @@ class EgOrderSerializer(DefaultSerializer):
     def eliminar_pedido_reserva_stock(self, codigo):
         curPedido = qsatype.FLSqlCursor("pedidoscli")
         curPedido.select("observaciones = '" + str(codigo) + "'")
-        if curPedido.first():
+        while curPedido.next():
             curLineaPedido = qsatype.FLSqlCursor("lineaspedidoscli")
             curLineaPedido.select("idpedido = " + str(curPedido.valueBuffer("idpedido")))
             while curLineaPedido.next():

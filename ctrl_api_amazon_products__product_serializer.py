@@ -46,6 +46,8 @@ class ProductSerializer(DefaultSerializer):
             self.set_string_value("Product//ProductData//Clothing//ClassificationData//OuterMaterial", "material")
             self.set_string_relation("Product//ProductData//Clothing//ClassificationData//SizeMap", "aa.talla")
             self.set_string_value("Product//ProductData//Clothing//ClassificationData//TargetGender", self.get_target(self.init_data["a.codgrupomoda"]))
+            self.set_string_value("Product//ProductData//Clothing//AgeRangeDescription", "adult")
+            self.set_string_value("Product//ProductData//Clothing//ApparelSizeClass", self.get_apparel_size_class(self.init_data["ta.codgrupotalla"]))
 
         return True
 
@@ -56,3 +58,11 @@ class ProductSerializer(DefaultSerializer):
             return "female"
         else:
             return "unisex"
+
+    def get_apparel_size_class(self, data):
+        if data == "NUM":
+            return "numeric"
+        elif data == "ALF":
+            return "alpha"
+        else:
+            return "age"

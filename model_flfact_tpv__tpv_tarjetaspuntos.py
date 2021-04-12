@@ -28,6 +28,10 @@ class elganso_sync_tpv_tarjetaspuntos(interna_tpv_tarjetaspuntos, helpers.MixinC
     def suscribesm(params):
         return form.iface.suscribesm(params)
 
+    @helpers.decoradores.csr()
+    def unificartarjetas(params):
+        return form.iface.unificartarjetas(params)
+
 
 # @class_declaration tpv_tarjetaspuntos #
 class tpv_tarjetaspuntos(elganso_sync_tpv_tarjetaspuntos, helpers.MixinConAcciones):

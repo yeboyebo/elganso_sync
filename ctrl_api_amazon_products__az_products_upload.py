@@ -25,8 +25,8 @@ class AzProductsUpload(AzFeedsUpload, ABC):
 
     def get_query(self):
         q = qsatype.FLSqlQuery()
-        q.setSelect("lsc.id, lsc.idsincro, lsc.idobjeto, lsc.descripcion, az.referencia, aa.barcode, aa.talla, a.egcolor, a.mgdescripcion, a.mgdescripcioncorta, a.codgrupomoda, f.codfamiliaaz")
-        q.setFrom("lineassincro_catalogo lsc INNER JOIN az_articulosamazon az ON lsc.idobjeto = az.referencia INNER JOIN articulos a ON lsc.idobjeto = a.referencia INNER JOIN atributosarticulos aa ON a.referencia = aa.referencia INNER JOIN familias f ON a.codfamilia = f.codfamilia")
+        q.setSelect("lsc.id, lsc.idsincro, lsc.idobjeto, lsc.descripcion, az.referencia, aa.barcode, aa.talla, a.egcolor, a.mgdescripcion, a.mgdescripcioncorta, a.codgrupomoda, f.codfamiliaaz, ta.codgrupotalla")
+        q.setFrom("lineassincro_catalogo lsc INNER JOIN az_articulosamazon az ON lsc.idobjeto = az.referencia INNER JOIN articulos a ON lsc.idobjeto = a.referencia INNER JOIN atributosarticulos aa ON a.referencia = aa.referencia INNER JOIN familias f ON a.codfamilia = f.codfamilia INNER JOIN tallas ta ON aa.talla = ta.codtalla")
         q.setWhere("lsc.id IN (SELECT id FROM lineassincro_catalogo WHERE tiposincro = 'Enviar productos' AND NOT sincronizado AND website = 'AMAZON' LIMIT {})".format(self.driver.azQueryLimit))
 
         return q

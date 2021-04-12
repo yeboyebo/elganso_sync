@@ -5,7 +5,6 @@ from controllers.api.b2c.orders.serializers.egorder_serializer import EgOrderSer
 
 from models.flfact_tpv.objects.egorder_raw import EgOrder
 
-
 class EgOrdersDownload(DownloadSync):
 
     def __init__(self, driver, params=None):
