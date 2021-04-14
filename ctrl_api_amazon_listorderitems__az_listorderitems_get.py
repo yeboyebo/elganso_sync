@@ -55,12 +55,12 @@ class AzListOrderItemsResultGet(DownloadSync, ABC):
 
     def process_all_data(self, all_data):
         if all_data == []:
-            self.log("Éxito", "No hay datos que sincronizar")
+            self.log("Exito", "No hay datos que sincronizar")
             return False
 
         response = xml2dict(bytes(all_data, 'utf-8'))
         if not hasattr(response.ListOrderItemsResult, 'AmazonOrderId'):
-            self.log("Éxito", "No hay datos que sincronizar")
+            self.log("Exito", "No hay datos que sincronizar")
             return False
 
         idAmazon = response.ListOrderItemsResult.AmazonOrderId
@@ -94,9 +94,9 @@ class AzListOrderItemsResultGet(DownloadSync, ABC):
 
     def after_sync(self):
         if self.idamazon:
-            self.log("Éxito", "Las siguientes pedidos se han sincronizado correctamente: {}".format(self.idamazon))
+            self.log("Exito", "Las siguientes pedidos se han sincronizado correctamente: {}".format(self.idamazon))
             return self.small_sleep
         else:
-            self.log("Éxito", "No hay datos que sincronizar")
+            self.log("Exito", "No hay datos que sincronizar")
 
         return self.large_sleep

@@ -77,7 +77,7 @@ class EgStockUpload(UploadSync):
         if response_data and "request_id" in response_data:
             qsatype.FLSqlQuery().execSql("UPDATE eg_sincrostockweb SET sincronizado = true WHERE idssw IN ({})".format(self._ssw))
             qsatype.FLSqlQuery().execSql("UPDATE tpv_fechasincrotienda SET fechasincro = '{}', horasincro = '{}' WHERE codtienda = 'AWEB' AND esquema = 'STOCK_WEB'".format(self.start_date, self.start_time))
-            self.log("Éxito", "Stock sincronizado correctamente (id: {})".format(response_data["request_id"]))
+            self.log("Exito", "Stock sincronizado correctamente (id: {})".format(response_data["request_id"]))
         else:
             raise NameError("No se recibió una respuesta correcta del servidor")
 

@@ -66,7 +66,7 @@ class AzReturnsResultGet(DownloadSync, ABC):
     def procesar_peticion_request_report(self, request_report):
         response = xml2dict(bytes(request_report, 'utf-8'))
         if not hasattr(response.RequestReportResult.ReportRequestInfo, 'ReportRequestId'):
-            self.log("Éxito", "No hay datos que sincronizar")
+            self.log("Exito", "No hay datos que sincronizar")
             return False
         return str(response.RequestReportResult.ReportRequestInfo.ReportRequestId)
 
@@ -147,7 +147,7 @@ class AzReturnsResultGet(DownloadSync, ABC):
     def process_all_data(self, all_data):
 
         if all_data == []:
-            self.log("Éxito", "No hay datos que sincronizar")
+            self.log("Exito", "No hay datos que sincronizar")
             if not self.guarda_fechasincrotienda(self.esquema, self.codtienda):
                 self.log("Error", "Falló al guardar fecha última sincro")
                 return self.small_sleep
@@ -156,7 +156,7 @@ class AzReturnsResultGet(DownloadSync, ABC):
         response = xml2dict(bytes(all_data, 'utf-8'))
 
         if not hasattr(response.Message.return_details, 'amazon_rma_id'):
-            self.log("Éxito", "No hay datos que sincronizar")
+            self.log("Exito", "No hay datos que sincronizar")
             if not self.guarda_fechasincrotienda(self.esquema, self.codtienda):
                 self.log("Error", "Falló al guardar fecha última sincro")
                 return self.small_sleep
@@ -238,9 +238,9 @@ class AzReturnsResultGet(DownloadSync, ABC):
             return self.small_sleep
 
         if self.idamazon:
-            self.log("Éxito", "Las siguientes devoluciones se han sincronizado correctamente: {}".format(self.idamazon))
+            self.log("Exito", "Las siguientes devoluciones se han sincronizado correctamente: {}".format(self.idamazon))
         else:
-            self.log("Éxito", "No hay datos que sincronizar")
+            self.log("Exito", "No hay datos que sincronizar")
 
         return self.large_sleep
 

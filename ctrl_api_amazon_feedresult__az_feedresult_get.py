@@ -71,7 +71,7 @@ class AzFeedResultGet(AzFeedsUpload, ABC):
         if response.Message[0].ProcessingReport.StatusCode == 'Complete':
             qsatype.FLSqlQuery().execSql("UPDATE az_logamazon SET procesadoaz = true, respuesta = '{}' WHERE idamazon = '{}'".format(response_data, self.idamazon))
 
-            self.log("Éxito", "Esquema '{}' sincronizado correctamente (idamazon: {})".format(self.get_msgtype(), self.idamazon))
+            self.log("Exito", "Esquema '{}' sincronizado correctamente (idamazon: {})".format(self.get_msgtype(), self.idamazon))
             return self.small_sleep
         else:
             self.log("Error", "Esquema '{}' no se ha podido sincronizar correctamente o no se ha procesado todavía (idamazon: {})".format(self.get_msgtype(), self.idamazon))

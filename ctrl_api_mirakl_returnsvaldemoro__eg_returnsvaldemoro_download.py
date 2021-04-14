@@ -63,7 +63,7 @@ class EgMiraklReturnsValdemoroDownload(ReturnsValdemoroDownload, ABC):
 
     def process_all_data(self, all_data):
         if all_data["messages"] == []:
-            self.log("Éxito", "No hay datos que sincronizar")
+            self.log("Exito", "No hay datos que sincronizar")
             return False
 
         processData = False
@@ -107,7 +107,7 @@ class EgMiraklReturnsValdemoroDownload(ReturnsValdemoroDownload, ABC):
             return self.small_sleep
 
         if processData == False:
-            self.log("Éxito", "No hay datos que sincronizar")
+            self.log("Exito", "No hay datos que sincronizar")
             return False
 
         return True

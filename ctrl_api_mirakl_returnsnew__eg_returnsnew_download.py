@@ -43,7 +43,7 @@ class EgMiraklReturnsNewDownload(ReturnsDownload):
 
     def process_all_data(self, all_data):
         if "messages" not in all_data:
-            self.log("Éxito", "No hay datos que sincronizar")
+            self.log("Exito", "No hay datos que sincronizar")
             return False
 
         processData = False
@@ -80,7 +80,7 @@ class EgMiraklReturnsNewDownload(ReturnsDownload):
             return self.small_sleep
 
         if processData == False:
-            self.log("Éxito", "No hay datos que sincronizar")
+            self.log("Exito", "No hay datos que sincronizar")
             return False
 
         return True
@@ -165,7 +165,7 @@ class EgMiraklReturnsNewDownload(ReturnsDownload):
             return self.small_sleep
 
         if self.success_data:
-            self.log("Éxito", "Las siguientes devoluciones se han sincronizado correctamente: {}".format([order["order_id"] for order in self.success_data]))
+            self.log("Exito", "Las siguientes devoluciones se han sincronizado correctamente: {}".format([order["order_id"] for order in self.success_data]))
 
         return self.large_sleep
 

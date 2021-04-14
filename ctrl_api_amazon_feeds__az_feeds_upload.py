@@ -105,7 +105,7 @@ class AzFeedsUpload(UploadSync, ABC):
 
             qsatype.FLSqlQuery().execSql("INSERT INTO az_logamazon (idamazon, tipo, fecha, hora, procesadoaq, procesadoaz, peticion) VALUES ('{}', '{}', '{}', '{}', false, false, '{}')".format(amazon_id, self.get_msgtype(), str(datetime.now())[:10], str(datetime.now())[11:19], self.request_data))
 
-            self.log("Éxito", "Esquema '{}' sincronizado correctamente (referencias: {})".format(self.get_msgtype(), self.referencias))
+            self.log("Exito", "Esquema '{}' sincronizado correctamente (referencias: {})".format(self.get_msgtype(), self.referencias))
 
             return amazon_id
         else:

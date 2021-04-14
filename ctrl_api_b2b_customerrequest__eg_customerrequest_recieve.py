@@ -83,7 +83,7 @@ class EgB2bCustomerrequestRecieve(RecieveSync):
                     "status": 500
                 }
 
-        return {"data": {"log": "Sincronizado con éxito"},
+        return {"data": {"log": "Sincronizado con Exito"},
                 "status": 200
                 }
 

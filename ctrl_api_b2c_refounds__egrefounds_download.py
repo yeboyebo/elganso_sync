@@ -47,7 +47,7 @@ class EgRefoundsDownload(DownloadSync):
                 after_sync_error_records.append(refound["refound_id"])
 
         if success_records:
-            self.log("Éxito", "Las siguientes devoluciones se han sincronizado correctamente: {}".format(success_records))
+            self.log("Exito", "Las siguientes devoluciones se han sincronizado correctamente: {}".format(success_records))
 
         if error_records:
             self.log("Error", "Las siguientes devoluciones no se han sincronizado correctamente: {}".format(error_records))

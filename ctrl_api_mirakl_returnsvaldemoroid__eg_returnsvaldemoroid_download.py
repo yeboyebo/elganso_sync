@@ -19,7 +19,7 @@ class EgMiraklReturnsValdemoroIdDownload(ReturnsValdemoroDownload, ABC):
 
     def process_all_data(self, all_data):
         if all_data["messages"] == []:
-            self.log("Éxito", "No hay datos que sincronizar")
+            self.log("Exito", "No hay datos que sincronizar")
             return False
 
         processData = False
@@ -48,7 +48,7 @@ class EgMiraklReturnsValdemoroIdDownload(ReturnsValdemoroDownload, ABC):
                 self.sync_error(data, e)
 
         if not processData:
-            self.log("Éxito", "No hay datos que sincronizar")
+            self.log("Exito", "No hay datos que sincronizar")
             return False
 
         return True
@@ -65,6 +65,6 @@ class EgMiraklReturnsValdemoroIdDownload(ReturnsValdemoroDownload, ABC):
 
     def after_sync(self):
         if self.success_data:
-            self.log("Éxito", "Las siguientes devoluciones se han sincronizado correctamente: {}".format([order["order_id"] for order in self.success_data]))
+            self.log("Exito", "Las siguientes devoluciones se han sincronizado correctamente: {}".format([order["order_id"] for order in self.success_data]))
 
         return self.large_sleep

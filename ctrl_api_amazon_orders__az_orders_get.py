@@ -68,7 +68,7 @@ class AzOrdersResultGet(DownloadSync, ABC):
     def process_all_data(self, all_data):
         response = xml2dict(bytes(all_data, 'utf-8'))
         if not hasattr(response.ListOrdersResult.Orders, 'Order'):
-            self.log("Éxito", "No hay datos que sincronizar")
+            self.log("Exito", "No hay datos que sincronizar")
             if not self.guarda_fechasincrotienda(self.esquema, self.codtienda):
                 self.log("Error", "Falló al guardar fecha última sincro")
                 return self.small_sleep
@@ -114,9 +114,9 @@ class AzOrdersResultGet(DownloadSync, ABC):
             return self.small_sleep
 
         if self.idamazon:
-            self.log("Éxito", "Las siguientes pedidos se han sincronizado correctamente: {}".format(self.idamazon))
+            self.log("Exito", "Las siguientes pedidos se han sincronizado correctamente: {}".format(self.idamazon))
         else:
-            self.log("Éxito", "No hay datos que sincronizar")
+            self.log("Exito", "No hay datos que sincronizar")
 
         return self.large_sleep
 

@@ -74,9 +74,9 @@ class elganso_sync(interna):
 
         self.iface.actualizarEsquemaSincroObjeto(codTienda)
         if numVentas > 0:
-            syncppal.iface.log("Éxito. " + str(numVentas) + " ventas sincronizadas con éxito para la tienda " + codTienda.upper(), proceso)
+            syncppal.iface.log("Exito. " + str(numVentas) + " ventas sincronizadas con Exito para la tienda " + codTienda.upper(), proceso)
         else:
-            syncppal.iface.log("Éxito. No hay ventas que sincronizar para la tienda " + codTienda.upper(), proceso)
+            syncppal.iface.log("Exito. No hay ventas que sincronizar para la tienda " + codTienda.upper(), proceso)
             self.iface.cierraConexion(cx)
             return cdLarge
 

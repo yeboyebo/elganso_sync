@@ -51,7 +51,7 @@ class EgMovistockUpload(UploadSync):
 
         qsatype.FLSqlQuery().execSql("UPDATE tpv_fechasincrotienda SET fechasincro = '{}', horasincro = '{}' WHERE codtienda = 'AWEB' AND esquema = 'MOVISTOCK_WEB'".format(self.start_date, self.start_time))
 
-        self.log("Éxito", "Movistocks sincronizados correctamente ({})".format(self._smsw))
+        self.log("Exito", "Movistocks sincronizados correctamente ({})".format(self._smsw))
         
         return self.small_sleep
 

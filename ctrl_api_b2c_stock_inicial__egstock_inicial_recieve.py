@@ -34,7 +34,7 @@ class EgStockInicialRecieve(RecieveSync):
         else:
             raise NameError("No se han pasado referencias por parámetro.")
 
-        self.log("Éxito", "Stocks marcados correctamente")
+        self.log("Exito", "Stocks marcados correctamente")
         return {
             "data": {"log": self.logs},
             "status": 200

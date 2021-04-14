@@ -47,7 +47,7 @@ class EgCustomersDownload(DownloadSync):
 
         if success_records:
             success_records = ", ".join(success_records)
-            self.log("Éxito", "Los siguientes clientes se han sincronizado correctamente: [{}]".format(success_records))
+            self.log("Exito", "Los siguientes clientes se han sincronizado correctamente: [{}]".format(success_records))
 
         if error_records:
             error_records = ", ".join(error_records)

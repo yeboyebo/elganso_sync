@@ -28,7 +28,7 @@ class elganso_sync(interna):
     @periodic_task(run_every=crontab(minute='13', hour='10'))
     def elganso_sync_diagsincroventasobjeto():
         proceso = "diagsincroventasobjeto"
-        syncppal.iface.log("Éxito. Proceso parado temporalmente", proceso)
+        syncppal.iface.log("Exito. Proceso parado temporalmente", proceso)
         return True;
         try:
             whereFijo = "sincroactiva AND servidor IS NOT NULL"
@@ -116,7 +116,7 @@ class elganso_sync(interna):
                     syncppal.iface.log("Error. " + codTienda + ": Num Pagos Central: " +str(pagosC) + " Tienda: " + str(pagosT), proceso)
 
             if not hayError:
-                syncppal.iface.log("Éxito. Están todas las ventas sincroizadas correctamente", proceso)
+                syncppal.iface.log("Exito. Están todas las ventas sincroizadas correctamente", proceso)
 
         except Exception as e:
             syncppal.iface.log("Error. Ocurrió un error durante el proceso de diagnóstico de sincro de ventas objeto", proceso)
@@ -144,7 +144,7 @@ class elganso_sync(interna):
                 if rows[0]["errores"] > 0:
                     syncppal.iface.log("Error. Hay registros en idl_erroneos", proceso)
                 else:
-                    syncppal.iface.log("Éxito. Envíos a idl correctos", proceso)
+                    syncppal.iface.log("Exito. Envíos a idl correctos", proceso)
 
         except Exception as e:
             syncppal.iface.log("Error. Ocurrió un error durante el proceso de diagnóstico de idl erroneos", proceso)
@@ -182,7 +182,7 @@ class elganso_sync(interna):
                     hayError = True
 
             if not hayError:
-                syncppal.iface.log("Éxito. No hay ventas en tiendas ficticias", proceso)
+                syncppal.iface.log("Exito. No hay ventas en tiendas ficticias", proceso)
 
         except Exception as e:
             syncppal.iface.log("Error. Ocurrió un error durante el proceso de diagnóstico de ventas en tiendas ficticias", proceso)
@@ -215,7 +215,7 @@ class elganso_sync(interna):
 
                 syncppal.iface.log("Error. Hay ventas sin líneas: " + codigos, proceso)
             else:
-                syncppal.iface.log("Éxito. No hay ventas sin líneas", proceso)
+                syncppal.iface.log("Exito. No hay ventas sin líneas", proceso)
 
         except Exception as e:
             syncppal.iface.log("Error. Ocurrió un error durante el proceso de diagnóstico de ventas sin líneas", proceso)
@@ -248,7 +248,7 @@ class elganso_sync(interna):
 
                 syncppal.iface.log("Error. Hay ventas sin pagos: " + codigos, proceso)
             else:
-                syncppal.iface.log("Éxito. No hay ventas sin pagos", proceso)
+                syncppal.iface.log("Exito. No hay ventas sin pagos", proceso)
 
         except Exception as e:
             syncppal.iface.log("Error. Ocurrió un error durante el proceso de diagnóstico de ventas sin pagos", proceso)
@@ -281,7 +281,7 @@ class elganso_sync(interna):
 
                 syncppal.iface.log("Error. Hay direct orders sin enviar a idl: " + codigos, proceso)
             else:
-                syncppal.iface.log("Éxito. No hay direct orders sin enviar a idl", proceso)
+                syncppal.iface.log("Exito. No hay direct orders sin enviar a idl", proceso)
 
         except Exception as e:
             print(e)
@@ -322,9 +322,9 @@ class elganso_sync(interna):
                     if p["facturas"] > 0:     
                         syncppal.iface.log("Error. Hay " + str(p["facturas"]) + " facturas ECI sin enviar a EDICOM", proceso)
                     else:
-                        syncppal.iface.log("Éxito. No hay facturas ECI sin enviar a EDICOM", proceso)
+                        syncppal.iface.log("Exito. No hay facturas ECI sin enviar a EDICOM", proceso)
             else:
-                syncppal.iface.log("Éxito. No hay facturas ECI sin enviar a EDICOM", proceso)
+                syncppal.iface.log("Exito. No hay facturas ECI sin enviar a EDICOM", proceso)
 
         except Exception as e:
             syncppal.iface.log("Error. Ocurrió un error durante el proceso de diagnóstico de facturación ECI", proceso)
@@ -356,7 +356,7 @@ class elganso_sync(interna):
                 if rows[0]["arqueos"] > 0:
                     syncppal.iface.log("Error. Hay arqueos sin sincronizar", proceso)
                 else:
-                    syncppal.iface.log("Éxito. Arqueos sincronizados correctamente", proceso)
+                    syncppal.iface.log("Exito. Arqueos sincronizados correctamente", proceso)
 
         except Exception as e:
             syncppal.iface.log("Error. Ocurrió un error durante el proceso de diagnóstico sincronización de arqueos", proceso)
@@ -388,7 +388,7 @@ class elganso_sync(interna):
                 if rows[0]["ventas"] <= 0:
                     syncppal.iface.log("Error. No se han sincronizado las ventas ECI", proceso)
                 else:
-                    syncppal.iface.log("Éxito. Ventas ECI sincronizadas correctamente", proceso)
+                    syncppal.iface.log("Exito. Ventas ECI sincronizadas correctamente", proceso)
 
         except Exception as e:
             syncppal.iface.log("Error. Ocurrió un error durante el proceso de diagnóstico sincronización de ventas ECI", proceso)
@@ -443,7 +443,7 @@ class elganso_sync(interna):
                     hayError = True
 
             if not hayError:
-                syncppal.iface.log("Éxito. Ventas facturadas correctamente", proceso)
+                syncppal.iface.log("Exito. Ventas facturadas correctamente", proceso)
 
         except Exception as e:
             syncppal.iface.log("Error. Ocurrió un error durante el proceso de diagnóstico de ventas sin facturar", proceso)
@@ -475,7 +475,7 @@ class elganso_sync(interna):
                 if rows[0]["sii"] <= 0:
                     syncppal.iface.log("Error. No se ha generado la presentación al SII", proceso)
                 else:
-                    syncppal.iface.log("Éxito. Generación del SII correcta", proceso)
+                    syncppal.iface.log("Exito. Generación del SII correcta", proceso)
 
         except Exception as e:
             syncppal.iface.log("Error. Ocurrió un error durante el proceso de diagnóstico de la generación del SII", proceso)
@@ -537,7 +537,7 @@ class elganso_sync(interna):
                     hayError = True
 
             if not hayError:  
-                syncppal.iface.log("Éxito. Registros en ficheros procesados correctos", proceso)
+                syncppal.iface.log("Exito. Registros en ficheros procesados correctos", proceso)
 
         except Exception as e:
             syncppal.iface.log("Error. Ocurrió un error durante el proceso de diagnóstico de ficheros procesados", proceso)
@@ -579,7 +579,7 @@ class elganso_sync(interna):
                     hayError = True
 
             if not hayError:
-                syncppal.iface.log("Éxito. Movimientos de viajes corectos", proceso)
+                syncppal.iface.log("Exito. Movimientos de viajes corectos", proceso)
 
         except Exception as e:
             syncppal.iface.log("Error. Ocurrió un error durante el proceso de diagnóstico de movimientos de viajes", proceso)
@@ -610,7 +610,7 @@ class elganso_sync(interna):
                 if rows[0]["pedidos"] > 0:
                     syncppal.iface.log("Error. Hay pedidos de cliente servidos y editables", proceso)
                 else:
-                    syncppal.iface.log("Éxito. Pedidos de cliente servidos correctos", proceso)
+                    syncppal.iface.log("Exito. Pedidos de cliente servidos correctos", proceso)
 
         except Exception as e:
             syncppal.iface.log("Error. Ocurrió un error durante el proceso de diagnóstico de pedidos de cliente servidos", proceso)
@@ -643,7 +643,7 @@ class elganso_sync(interna):
                     hayError = True
 
             if not hayError:
-                syncppal.iface.log("Éxito. Artículos enviados a IDL Correctamente", proceso)
+                syncppal.iface.log("Exito. Artículos enviados a IDL Correctamente", proceso)
 
         except Exception as e:
             syncppal.iface.log("Error. Ocurrió un error durante el proceso de diagnóstico de articulos IDL", proceso)
@@ -676,7 +676,7 @@ class elganso_sync(interna):
                     hayError = True
 
             if not hayError:
-                syncppal.iface.log("Éxito. Clientes enviados a IDL Correctamente", proceso)
+                syncppal.iface.log("Exito. Clientes enviados a IDL Correctamente", proceso)
 
         except Exception as e:
             syncppal.iface.log("Error. Ocurrió un error durante el proceso de diagnóstico de clientes IDL", proceso)
@@ -709,7 +709,7 @@ class elganso_sync(interna):
                     hayError = True
 
             if not hayError:
-                syncppal.iface.log("Éxito. Proveedores enviados a IDL Correctamente", proceso)
+                syncppal.iface.log("Exito. Proveedores enviados a IDL Correctamente", proceso)
 
         except Exception as e:
             syncppal.iface.log("Error. Ocurrió un error durante el proceso de diagnóstico de proveedores IDL", proceso)
@@ -742,7 +742,7 @@ class elganso_sync(interna):
                     hayError = True
 
             if not hayError:
-                syncppal.iface.log("Éxito. Pedidos de cliente enviados a IDL Correctamente", proceso)
+                syncppal.iface.log("Exito. Pedidos de cliente enviados a IDL Correctamente", proceso)
 
         except Exception as e:
             syncppal.iface.log("Error. Ocurrió un error durante el proceso de diagnóstico de pedidos de cliente IDL", proceso)
@@ -775,7 +775,7 @@ class elganso_sync(interna):
                     hayError = True
 
             if not hayError:
-                syncppal.iface.log("Éxito. Pedidos Cross Docking enviados a IDL Correctamente", proceso)
+                syncppal.iface.log("Exito. Pedidos Cross Docking enviados a IDL Correctamente", proceso)
 
         except Exception as e:
             syncppal.iface.log("Error. Ocurrió un error durante el proceso de diagnóstico de pedidos cross docking IDL", proceso)
@@ -808,7 +808,7 @@ class elganso_sync(interna):
                     hayError = True
 
             if not hayError:
-                syncppal.iface.log("Éxito. Pedidos de proveedor enviados a IDL Correctamente", proceso)
+                syncppal.iface.log("Exito. Pedidos de proveedor enviados a IDL Correctamente", proceso)
 
         except Exception as e:
             syncppal.iface.log("Error. Ocurrió un error durante el proceso de diagnóstico de pedidos de proveedor IDL", proceso)
@@ -842,7 +842,7 @@ class elganso_sync(interna):
                     hayError = True
 
             if not hayError:
-                syncppal.iface.log("Éxito. Viajes origen enviados a IDL Correctamente", proceso)
+                syncppal.iface.log("Exito. Viajes origen enviados a IDL Correctamente", proceso)
 
         except Exception as e:
             syncppal.iface.log("Error. Ocurrió un error durante el proceso de diagnóstico de viajes origen IDL", proceso)
@@ -875,7 +875,7 @@ class elganso_sync(interna):
                     hayError = True
 
             if not hayError:
-                syncppal.iface.log("Éxito. Viajes destino enviados a IDL Correctamente", proceso)
+                syncppal.iface.log("Exito. Viajes destino enviados a IDL Correctamente", proceso)
 
         except Exception as e:
             syncppal.iface.log("Error. Ocurrió un error durante el proceso de diagnóstico de viajes destino IDL", proceso)
@@ -908,7 +908,7 @@ class elganso_sync(interna):
     #                 hayError = True
 
     #         if not hayError:
-    #             syncppal.iface.log("Éxito. Viajes transferencia enviados a IDL Correctamente", proceso)
+    #             syncppal.iface.log("Exito. Viajes transferencia enviados a IDL Correctamente", proceso)
 
     #     except Exception as e:
     #         syncppal.iface.log("Error. Ocurrió un error durante el proceso de diagnóstico de viajes transferencia IDL", proceso)
@@ -941,7 +941,7 @@ class elganso_sync(interna):
                     hayError = True
 
             if not hayError:
-                syncppal.iface.log("Éxito. Viajes Cross Docking enviados a IDL Correctamente", proceso)
+                syncppal.iface.log("Exito. Viajes Cross Docking enviados a IDL Correctamente", proceso)
 
         except Exception as e:
             syncppal.iface.log("Error. Ocurrió un error durante el proceso de diagnóstico de viajes Cross Docking IDL", proceso)
@@ -974,7 +974,7 @@ class elganso_sync(interna):
                     hayError = True
 
             if not hayError:
-                syncppal.iface.log("Éxito. Pedidos ecommerce IDL Correctamente", proceso)
+                syncppal.iface.log("Exito. Pedidos ecommerce IDL Correctamente", proceso)
 
         except Exception as e:
             syncppal.iface.log("Error. Ocurrió un error durante el proceso de diagnóstico de pedidos ecommerce IDL", proceso)
@@ -1007,7 +1007,7 @@ class elganso_sync(interna):
                     hayError = True
 
             if not hayError:
-                syncppal.iface.log("Éxito. Devoluciones ecommerce recibidas correctamente", proceso)
+                syncppal.iface.log("Exito. Devoluciones ecommerce recibidas correctamente", proceso)
 
         except Exception as e:
             syncppal.iface.log("Error. Ocurrió un error durante el proceso de diagnóstico de devolucionse ecommerce recibidas", proceso)
@@ -1040,7 +1040,7 @@ class elganso_sync(interna):
                     hayError = True
 
             if not hayError:
-                syncppal.iface.log("Éxito. Devoluciones ecommerce informadas a magento Correctamente", proceso)
+                syncppal.iface.log("Exito. Devoluciones ecommerce informadas a magento Correctamente", proceso)
 
         except Exception as e:
             syncppal.iface.log("Error. Ocurrió un error durante el proceso de diagnóstico de devolucionse ecommerce informadas a magento", proceso)
@@ -1093,7 +1093,7 @@ class elganso_sync(interna):
                     syncppal.iface.log("Error. El número de artícuos en mirakl es mayor que el de abanq", proceso)
                     hayError = True
             if not hayError:
-                syncppal.iface.log("Éxito. No hay registros en ew_jsonarticulosactivos", proceso)
+                syncppal.iface.log("Exito. No hay registros en ew_jsonarticulosactivos", proceso)
         except Exception as e:
             syncppal.iface.log("Error. Ocurrió un error durante el proceso de diagnóstico de articulos eciweb en abanq", proceso)
             return False
@@ -1121,7 +1121,7 @@ class elganso_sync(interna):
                     syncppal.iface.log("Error. Hay registros en eg_jsonurlsimagenesarticulos", proceso)
                     hayError = True
             if not hayError:
-                syncppal.iface.log("Éxito. No hay registros en eg_jsonurlsimagenesarticulos", proceso)
+                syncppal.iface.log("Exito. No hay registros en eg_jsonurlsimagenesarticulos", proceso)
         except Exception as e:
             syncppal.iface.log("Error. Ocurrió un error durante el proceso de diagnóstico de sincro de urls imagenes", proceso)
             return False
@@ -1157,7 +1157,7 @@ class elganso_sync(interna):
                     hayError = True
 
             if not hayError:
-                syncppal.iface.log("Éxito. Pedidos magento procesados correctamente", proceso)
+                syncppal.iface.log("Exito. Pedidos magento procesados correctamente", proceso)
         except Exception as e:
             syncppal.iface.log("Error. Ocurrió un error durante el proceso de diagnóstico de sincro de pedidos magento", proceso)
             return False

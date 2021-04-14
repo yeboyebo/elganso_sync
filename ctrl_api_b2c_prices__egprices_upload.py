@@ -28,7 +28,7 @@ class EgPricesUpload(UploadSync):
         data = self.get_data()
 
         if data == []:
-            self.log("Éxito", "No hay datos que sincronizar")
+            self.log("Exito", "No hay datos que sincronizar")
             return self.large_sleep
 
         new_data = []
@@ -40,7 +40,7 @@ class EgPricesUpload(UploadSync):
                 response_data = self.send_request("post", data=json.dumps(new_data))
 
                 if response_data and "request_id" in response_data:
-                    self.log("Éxito", "Precios sincronizados correctamente (id: {})".format(response_data["request_id"]))
+                    self.log("Exito", "Precios sincronizados correctamente (id: {})".format(response_data["request_id"]))
                     new_data = []
                 else:
                     raise NameError("No se recibió una respuesta correcta del servidor")

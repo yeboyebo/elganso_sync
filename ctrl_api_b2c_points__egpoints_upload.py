@@ -114,6 +114,6 @@ class EgPointsUpload(UploadSync):
                 qsatype.FLSqlQuery().execSql("UPDATE tpv_movpuntos SET sincronizado = true WHERE NOT sincronizado AND idmovpuntos IN ({})".format(",".join(self._movements)))
             if len(self._cards):
                 qsatype.FLSqlQuery().execSql("UPDATE tpv_tarjetaspuntos SET sincronizada = true WHERE NOT sincronizada AND codtarjetapuntos IN ('{}')".format("','".join(self._cards)))
-            self.log("Éxito", "Puntos sincronizados correctamente (id: {})".format(response_data["request_id"]))
+            self.log("Exito", "Puntos sincronizados correctamente (id: {})".format(response_data["request_id"]))
 
         return self.small_sleep

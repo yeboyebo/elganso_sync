@@ -96,7 +96,7 @@ class AzImageBackgroundUpload(UploadSync, ABC):
 
         qsatype.FLSqlQuery().execSql("UPDATE eg_urlsimagenesarticulosmgt SET urls_sinfondo = '{}' WHERE referencia = '{}'".format(new_urls, referencia))
 
-        self.log("Éxito", "Esquema '{}' sincronizado correctamente (referencias: {})".format(self.get_msgtype(), referencia))
+        self.log("Exito", "Esquema '{}' sincronizado correctamente (referencias: {})".format(self.get_msgtype(), referencia))
 
         return self.small_sleep
 

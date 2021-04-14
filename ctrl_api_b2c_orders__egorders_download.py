@@ -46,7 +46,7 @@ class EgOrdersDownload(DownloadSync):
                 after_sync_error_records.append(order["increment_id"])
 
         if success_records:
-            self.log("Éxito", "Los siguientes pedidos se han sincronizado correctamente: {}".format(success_records))
+            self.log("Exito", "Los siguientes pedidos se han sincronizado correctamente: {}".format(success_records))
 
         if error_records:
             self.log("Error", "Los siguientes pedidos no se han sincronizado correctamente: {}".format(error_records))
