@@ -260,13 +260,13 @@ class EgOrderSerializer(DefaultSerializer):
             curPedido.setModeAccess(curPedido.Insert)
             curPedido.refreshBuffer()
             curPedido.setValueBuffer("observaciones", codigo)
-            curPedido.setValueBuffer("codejercicio",self.get_codejercicio())
+            curPedido.setValueBuffer("codejercicio", self.get_codejercicio())
             curPedido.setValueBuffer("codserie", "SW")
             curPedido.setValueBuffer("codalmacen", linea["almacen"])
-           
-            numero = qsatype.FactoriaModulos.get("flfacturac").iface.siguienteNumero("SW", self.get_codejercicio(), "npedidocli");
+
+            numero = qsatype.FactoriaModulos.get("flfacturac").iface.siguienteNumero("SW", self.get_codejercicio(), "npedidocli")
             curPedido.setValueBuffer("numero", numero)
-            codpedido = qsatype.FactoriaModulos.get("flfacturac").iface.pub_construirCodigo("SW", self.get_codejercicio(),numero)
+            codpedido = qsatype.FactoriaModulos.get("flfacturac").iface.pub_construirCodigo("SW", self.get_codejercicio(), numero)
             curPedido.setValueBuffer("codigo", codpedido)
             curPedido.setValueBuffer("totaleuros", 0)
             curPedido.setValueBuffer("direccion", "-")
@@ -347,27 +347,26 @@ class EgOrderSerializer(DefaultSerializer):
             curPedido.refreshBuffer()
             if not curPedido.commitBuffer():
                 return False
-        else:
 
-            valorFiltro = ""
-            valorUsarPreOrder = qsatype.FLUtil.quickSqlSelect("param_parametros", "valor", "nombre = 'USAR_ART_PREORDER'")
+        valorFiltro = ""
+        valorUsarPreOrder = qsatype.FLUtil.quickSqlSelect("param_parametros", "valor", "nombre = 'USAR_ART_PREORDER'")
 
-            if valorUsarPreOrder and valorUsarPreOrder == "True":
-                artPreOrder = qsatype.FLUtil.quickSqlSelect("param_parametros", "valor", "nombre = 'ART_PREORDER'")
-                if artPreOrder and artPreOrder != "":
-                    valorFiltro = " AND referencia NOT IN (" + artPreOrder + ")"
+        if valorUsarPreOrder and valorUsarPreOrder == "True":
+            artPreOrder = qsatype.FLUtil.quickSqlSelect("param_parametros", "valor", "nombre = 'ART_PREORDER'")
+            if artPreOrder and artPreOrder != "":
+                valorFiltro = " AND referencia NOT IN (" + artPreOrder + ")"
 
-            for linea in self.init_data["items"]:
-                if valorFiltro == "":
-                    id_stock = qsatype.FLUtil.quickSqlSelect("stocks", "idstock", "codalmacen = 'AWEB' AND barcode = '{}'".format(self.get_barcode(linea["sku"])))
+        for linea in self.init_data["items"]:
+            if valorFiltro == "":
+                id_stock = qsatype.FLUtil.quickSqlSelect("stocks", "idstock", "codalmacen = 'AWEB' AND barcode = '{}'".format(self.get_barcode(linea["sku"])))
+            else:
+                id_stock = qsatype.FLUtil.quickSqlSelect("stocks", "idstock", "codalmacen = 'AWEB' AND barcode = '{}' {}".format(self.get_barcode(linea["sku"], valorFiltro)))
+            if id_stock:
+                existe_sincroweb = qsatype.FLUtil.quickSqlSelect("eg_sincrostockweb", "idstock", "idstock = '{}'".format(id_stock))
+                if existe_sincroweb:
+                    qsatype.FLSqlQuery().execSql("UPDATE eg_sincrostockweb SET sincronizado = FALSE, fecha = CURRENT_DATE, hora = CURRENT_TIME WHERE idstock = {}".format(id_stock))
                 else:
-                    id_stock = qsatype.FLUtil.quickSqlSelect("stocks", "idstock", "codalmacen = 'AWEB' AND barcode = '{}' {}".format(self.get_barcode(linea["sku"], valorFiltro)))
-                if id_stock:
-                    existe_sincroweb = qsatype.FLUtil.quickSqlSelect("eg_sincrostockweb", "idstock", "idstock = '{}'".format(id_stock))
-                    if existe_sincroweb:
-                        qsatype.FLSqlQuery().execSql("UPDATE eg_sincrostockweb SET sincronizado = FALSE, fecha = CURRENT_DATE, hora = CURRENT_TIME WHERE idstock = {}".format(id_stock))
-                    else:
-                        qsatype.FLSqlQuery().execSql("INSERT INTO eg_sincrostockweb (fecha,hora,sincronizado,idstock,sincronizadoeci) VALUES (CURRENT_DATE,CURRENT_TIME,false,{},true)".format(id_stock))
+                    qsatype.FLSqlQuery().execSql("INSERT INTO eg_sincrostockweb (fecha,hora,sincronizado,idstock,sincronizadoeci) VALUES (CURRENT_DATE,CURRENT_TIME,false,{},true)".format(id_stock))
         return True
 
     def get_splitted_sku(self, refArticulo):
