@@ -24,7 +24,6 @@ class EgOrdersDownload(DownloadSync):
         order.save()
 
     def after_sync(self):
-        return True
         self.set_sync_params(self.get_param_sincro('b2cOrdersDownloadSync'))
 
         success_records = []
