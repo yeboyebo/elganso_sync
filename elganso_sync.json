@@ -855,6 +855,22 @@
             {
                 "path": "controllers/api/amazon/returns/",
                 "name": "ctrl_api_amazon_returns__get.py"
+            },
+            {
+                "name": "ctrl_api_b2c_orders__egshippinglabel_serializer.py",
+                "path": "controllers/api/b2c/orders/serializers/"
+            },
+            {
+                "name": "model_flfact_tpv__eg_shippinglabel.py",
+                "path": "models/flfact_tpv/"
+            },
+            {
+                "name": "model_flfact_tpv__eg_shippinglabel_def.py",
+                "path": "models/flfact_tpv/"
+            },
+            {
+                "name": "model_flfact_tpv__egshippinglabel_raw.py",
+                "path": "models/flfact_tpv/objects/"
             }
         ],
         "deleteFile": [],

@@ -13,6 +13,7 @@ from controllers.api.b2c.orders.serializers.egcashcount_serializer import EgCash
 from controllers.api.b2c.orders.serializers.egidlecommerce_serializer import EgIdlEcommerce
 from controllers.api.b2c.orders.serializers.egidlecommercedevoluciones_serializer import EgIdlEcommerceDevoluciones
 from controllers.api.b2c.orders.serializers.egorder_soles4soul_serializer import EgOrderSoles4soulLineSerializer
+from controllers.api.b2c.orders.serializers.egshippinglabel_serializer import EgShippingLabel
 
 
 class EgOrderSerializer(DefaultSerializer):
@@ -185,6 +186,11 @@ class EgOrderSerializer(DefaultSerializer):
                 arqueo_web = False
             self.data["children"]["cashcount"] = arqueo_web
             self.data["children"]["idl_ecommerce"] = idl_ecommerce
+
+            if "shipping_label" in self.init_data:
+                if str(self.init_data["shipping_label"]) != "None" and self.init_data["shipping_label"] != None and self.init_data["shipping_label"] != False:
+                    self.data["children"]["shipping_label"] = EgShippingLabel().serialize(new_init_data)
+
         else:
             raise NameError("Estado no controlado del pedido. Mirar registro de log en BBDD")
             return False

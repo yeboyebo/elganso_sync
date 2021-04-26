@@ -107,6 +107,13 @@
         },
         {
             "type": "insertAfterNode",
+            "path": "/models/flfact_tpv/eg_lineasecommerceexcluidas",
+            "value": {
+                "eg_shippinglabel": null
+            }
+        },
+        {
+            "type": "insertAfterNode",
             "path": "/models/flfactalma/lineasregstocks",
             "value": {
                 "movistock": null
