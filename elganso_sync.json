@@ -871,6 +871,22 @@
             {
                 "name": "model_flfact_tpv__egshippinglabel_raw.py",
                 "path": "models/flfact_tpv/objects/"
+            },
+            {
+                "name": "ctrl_api_magento2_products__upload.py",
+                "path": "controllers/api/magento2/products/"
+            },
+            {
+                "name": "ctrl_api_magento2_products__mg2_products_upload.py",
+                "path": "controllers/api/magento2/products/controllers/"
+            },
+            {
+                "name": "ctrl_api_magento2_products__configurable_product_serializer.py",
+                "path": "controllers/api/magento2/products/serializers/"
+            },
+            {
+                "name": "ctrl_api_magento2_products__simple_product_serializer.py",
+                "path": "controllers/api/magento2/products/serializers/"
             }
         ],
         "deleteFile": [],

@@ -56,6 +56,9 @@ from controllers.api.amazon.listorderitems.controllers.az_listorderitems_get imp
 from controllers.api.amazon.imagebackground.controllers.az_imagebackground_upload import AzImageBackgroundUpload
 from controllers.api.amazon.returns.controllers.az_returns_get import AzReturnsResultGet
 
+# MG2
+from controllers.api.magento2.products.controllers.mg2_products_upload import Mg2ProductsUpload
+
 
 sync_object_dict = {
     "stock_upload": {
@@ -176,6 +179,9 @@ sync_object_dict = {
     },
     "amazon_returns_get": {
         "sync_object": AzReturnsResultGet
+    },
+    "mg2_products_upload": {
+        "sync_object": Mg2ProductsUpload
     }
 }
 
