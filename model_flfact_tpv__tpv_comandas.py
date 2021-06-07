@@ -13,3 +13,7 @@ class elganso_sync_tpv_comandas(flfact_tpv_tpv_comandas, helpers.MixinConAccione
     def diagnosis(params):
         return diagnosis.iface.diagnosis(params)
 
+    @helpers.decoradores.csr()
+    def eglogpedidosweb(params):
+        return form.iface.eglogpedidosweb(params)
+

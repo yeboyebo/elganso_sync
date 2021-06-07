@@ -58,6 +58,7 @@ from controllers.api.amazon.returns.controllers.az_returns_get import AzReturnsR
 
 # MG2
 from controllers.api.magento2.products.controllers.mg2_products_upload import Mg2ProductsUpload
+from controllers.api.magento2.orders.controllers.mg2_orders_process import Mg2OrdersProcess
 
 
 sync_object_dict = {
@@ -182,6 +183,10 @@ sync_object_dict = {
     },
     "mg2_products_upload": {
         "sync_object": Mg2ProductsUpload
+    },
+    "mg2_orders_process": {
+        "sync_object": Mg2OrdersProcess,
+        "driver": MagentoDriver
     }
 }
 

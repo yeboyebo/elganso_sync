@@ -887,6 +887,82 @@
             {
                 "name": "ctrl_api_magento2_products__simple_product_serializer.py",
                 "path": "controllers/api/magento2/products/serializers/"
+            },
+            {
+                "path": "controllers/api/magento2/orders/",
+                "name": "ctrl_api_magento2_orders__process.py"
+            },
+            {
+                "path": "controllers/api/magento2/orders/controllers/",
+                "name": "ctrl_api_magento2_orders__mg2_orders_process.py"
+            },
+            {
+                "path": "controllers/api/magento2/orders/serializers/",
+                "name": "ctrl_api_magento2_orders__mg2_cashcount_serializer.py"
+            },
+            {
+                "path": "controllers/api/magento2/orders/serializers/",
+                "name": "ctrl_api_magento2_orders__mg2_orders_serializer.py"
+            },
+            {
+                "path": "controllers/api/magento2/orders/serializers/",
+                "name": "ctrl_api_magento2_orders__mg2_orderline_serializer.py"
+            },
+            {
+                "path": "controllers/api/magento2/orders/serializers/",
+                "name": "ctrl_api_magento2_orders__mg2_shippingline_serializer.py"
+            },
+            {
+                "path": "controllers/api/magento2/orders/serializers/",
+                "name": "ctrl_api_magento2_orders__mg2_expensesline_serializer.py"
+            },
+            {
+                "path": "controllers/api/magento2/orders/serializers/",
+                "name": "ctrl_api_magento2_orders__mg2_discountline_serializer.py"
+            },
+            {
+                "path": "controllers/api/magento2/orders/serializers/",
+                "name": "ctrl_api_magento2_orders__mg2_lineaecommerceexcluida_serializer.py"
+            },
+            {
+                "path": "controllers/api/magento2/orders/serializers/",
+                "name": "ctrl_api_magento2_orders__mg2_voucherline_serializer.py"
+            },
+            {
+                "path": "controllers/api/magento2/orders/serializers/",
+                "name": "ctrl_api_magento2_orders__mg2_idlecommerce_serializer.py"
+            },
+            {
+                "path": "controllers/api/magento2/orders/serializers/",
+                "name": "ctrl_api_magento2_orders__mg2_payment_serializer.py"
+            },
+            {
+                "path": "models/flfact_tpv/",
+                "name": "model_flfact_tpv__eg_logpedidosweb.py"
+            },
+            {
+                "path": "models/flfact_tpv/",
+                "name": "model_flfact_tpv__eg_logpedidosweb_def.py"
+            },
+            {
+                "path": "models/flfact_tpv/objects/",
+                "name": "model_flfact_tpv__mg2_payment_raw.py"
+            },
+            {
+                "path": "models/flfact_tpv/objects/",
+                "name": "model_flfact_tpv__mg2_shippingline_raw.py"
+            },
+            {
+                "path": "models/flfact_tpv/objects/",
+                "name": "model_flfact_tpv__mg2_order_raw.py"
+            },
+            {
+                "path": "models/flfact_tpv/objects/",
+                "name": "model_flfact_tpv__mg2_cashcount_raw.py"
+            },
+            {
+                "path": "models/flfact_tpv/objects/",
+                "name": "model_flfact_tpv__mg2_orderline_raw.py"
             }
         ],
         "deleteFile": [],
