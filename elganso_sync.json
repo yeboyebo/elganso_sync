@@ -983,6 +983,18 @@
             {
                 "name": "model_flfact_tpv__eg_cupones_def.py",
                 "path": "models/flfact_tpv/"
+            },
+            {
+                "name": "ctrl_api_magento2_inventory__mg2_inventory_upload.py",
+                "path": "controllers/api/magento2/inventory/controllers/"
+            },
+            {
+                "name": "ctrl_api_magento2_inventory__inventory_serializer.py",
+                "path": "controllers/api/magento2/inventory/serializers/"
+            },
+            {
+                "name": "ctrl_api_magento2_inventory__upload.py",
+                "path": "controllers/api/magento2/inventory/"
             }
         ],
         "deleteFile": [],
