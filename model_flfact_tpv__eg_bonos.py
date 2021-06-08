@@ -43,6 +43,9 @@ class elganso_sync_eg_bonos(interna_eg_bonos, helpers.MixinConAcciones):
     def generaCodBono():
         return form.iface.generaCodBono()
 
+    @helpers.decoradores.csr()
+    def generarcuponespromocion(params):
+        return form.iface.generarcuponespromocion(params)
 
 # @class_declaration eg_bonos #
 class eg_bonos(elganso_sync_eg_bonos, helpers.MixinConAcciones):

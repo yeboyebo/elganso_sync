@@ -975,6 +975,14 @@
             {
                 "name": "ctrl_api_magento2_price__price_serializer.py",
                 "path": "controllers/api/magento2/price/serializers/"
+            },
+            {
+                "name": "model_flfact_tpv__eg_cupones.py",
+                "path": "models/flfact_tpv/"
+            },
+            {
+                "name": "model_flfact_tpv__eg_cupones_def.py",
+                "path": "models/flfact_tpv/"
             }
         ],
         "deleteFile": [],

@@ -261,6 +261,59 @@ class elganso_sync(interna):
             return {"Error": "Petición Incorrecta", "status": 0}
         return False
 
+
+    def elganso_sync_generaCodCupon(self):
+        longitud = 6
+        valores = "0123456789abcdefghijklmnopqrstuwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        codbono = ""
+        codbono = codbono.join([choice(valores) for i in range(longitud)])
+        codbono = "KN" + codbono
+        return codbono
+
+    def elganso_sync_generarcuponespromocion(self, params):
+        try:
+            # Cambio pruebas Xavi 2
+            # bdparams = self.params
+            # if "auth" not in bdparams:
+            #     bdparams = syncppal.iface.get_param_sincro('apipass')
+            # if "passwd" in params and params['passwd'] == bdparams['auth']:
+            if "auth" not in self.params:
+                self.params = syncppal.iface.get_param_sincro('apipass')
+            if "passwd" in params and params['passwd'] == self.params['auth']:
+                if "descuento" not in params or "email" not in params:
+                    return {"Error": "Formato Incorrecto", "status": -1}
+
+                cxParamsCupon["cur"].execute("SELECT valor FROM param_parametros WHERE NOMBRE = 'CUPONES'")
+                row = cxParamsCupon["cur"].fetchall()
+                valor = row[0]["valor"]
+                datosParamsCupon = json.loads(valor)
+
+                activo = datosParamsCupon["activo"]
+                dtoPor = datosParamsCupon["dtopor"]
+                artregalo = datosParamsCupon["artregalo"]
+
+                codCupon = self.generaCodCupon()
+                horaalta = str(qsatype.Date())[-8:]
+
+                while codCupon == qsatype.FLUtil.sqlSelect(u"eg_cupones", u"codcupon", ustr(u"codcupon = '", codbono, u"'")):
+                    codCupon = self.generaCodCupon()
+
+                esDescuento = False
+
+                if str(params['descuento']) == "True":
+                    esDescuento = True
+
+
+                if not qsatype.FLUtil.sqlInsert(u"eg_cupones", [u"codcupon", u"fecha", u"fechaalta", u"horaalta", u"activo", u"email", u"observaciones", u"correoenviado", u"activo"], [codbono, str(qsatype.Date())[:10], str(qsatype.Date())[:10], horaalta, params['codigoVenta'], importe, 0, importe, True, fechaexpiracion, params['divisa'], params['email'].lower(), observaciones, importeminimo, correoenviado, activo]):
+                    return {"Error": "Error al guardar el cupón", "status": -2}
+                return {"cupon": codCupon, "status": 1}
+            else:
+                return {"Error": "Petición Incorrecta", "status": 0}
+        except Exception as e:
+            qsatype.debug(ustr(u"Error inesperado generacion de bono: ", e))
+            return {"Error": "Petición Incorrecta", "status": 0}
+        return False
+
     def elganso_sync_getDesc(self):
         return "codbono"
 
@@ -287,6 +340,12 @@ class elganso_sync(interna):
 
     def getDesc(self):
         return self.ctx.elganso_sync_getDesc()
+
+    def generaCodCupon(self):
+        return self.ctx.elganso_sync_generaCodCupon()
+
+    def generarcuponespromocion(self, params):
+        return self.ctx.elganso_sync_generarcuponespromocion(params)
 
 
 # @class_declaration head #
