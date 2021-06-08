@@ -32,6 +32,10 @@ class elganso_sync_tpv_tarjetaspuntos(interna_tpv_tarjetaspuntos, helpers.MixinC
     def unificartarjetas(params):
         return form.iface.unificartarjetas(params)
 
+    @helpers.decoradores.csr()
+    def generarmovimentopuntosoperacionesmagento(params):
+        return form.iface.generarmovimentopuntosoperacionesmagento(params)
+
 
 # @class_declaration tpv_tarjetaspuntos #
 class tpv_tarjetaspuntos(elganso_sync_tpv_tarjetaspuntos, helpers.MixinConAcciones):
