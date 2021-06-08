@@ -963,6 +963,18 @@
             {
                 "path": "models/flfact_tpv/objects/",
                 "name": "model_flfact_tpv__mg2_orderline_raw.py"
+            },
+            {
+                "name": "ctrl_api_magento2_price__upload.py",
+                "path": "controllers/api/magento2/price/"
+            },
+            {
+                "name": "ctrl_api_magento2_price__mg2_price_upload.py",
+                "path": "controllers/api/magento2/price/controllers/"
+            },
+            {
+                "name": "ctrl_api_magento2_price__price_serializer.py",
+                "path": "controllers/api/magento2/price/serializers/"
             }
         ],
         "deleteFile": [],
