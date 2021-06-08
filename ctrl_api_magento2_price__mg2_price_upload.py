@@ -64,9 +64,9 @@ class Mg2PriceUpload(PriceUpload):
         self.idobjeto = idobjeto
 
         q = qsatype.FLSqlQuery()
-        q.setSelect("at.referencia || '-' || at.talla, ap.pvp, p.desde || ' ' || p.horadesde, p.hasta || ' ' || p.horahasta")
+        q.setSelect("at.referencia, at.talla, ap.pvp, p.desde || ' ' || p.horadesde, p.hasta || ' ' || p.horahasta")
         q.setFrom("eg_planprecios p INNER JOIN eg_articulosplan ap ON p.codplan = ap.codplan INNER JOIN atributosarticulos at ON ap.referencia = at.referencia")
-        q.setWhere("p.codplan = '{}' GROUP BY at.referencia || '-' || at.talla, ap.pvp, p.desde || ' ' || p.horadesde, p.hasta || ' ' || p.horahasta".format(self.idobjeto))
+        q.setWhere("p.codplan = '{}' GROUP BY at.referencia, at.talla, ap.pvp, p.desde || ' ' || p.horadesde, p.hasta || ' ' || p.horahasta".format(self.idobjeto))
 
         q.exec_()
 
