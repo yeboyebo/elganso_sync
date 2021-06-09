@@ -995,6 +995,30 @@
             {
                 "name": "ctrl_api_magento2_inventory__upload.py",
                 "path": "controllers/api/magento2/inventory/"
+            },
+            {
+                "name": "ctrl_api_magento2_points__process.py",
+                "path": "controllers/api/magento2/points/"
+            },
+            {
+                "name": "ctrl_api_magento2_points__mg2_points_process.py",
+                "path": "controllers/api/magento2/points/controllers/"
+            },
+            {
+                "name": "ctrl_api_magento2_points__mg2_points_serializer.py",
+                "path": "controllers/api/magento2/points/serializers/"
+            },
+            {
+                "name": "model_flfact_tpv__eg_logtarjetasweb.py",
+                "path": "models/flfact_tpv/"
+            },
+            {
+                "name": "model_flfact_tpv__eg_logtarjetasweb_def.py",
+                "path": "models/flfact_tpv/"
+            },
+            {
+                "name": "model_flfact_tpv__mg2_points_raw.py",
+                "path": "models/flfact_tpv/objects/"
             }
         ],
         "deleteFile": [],

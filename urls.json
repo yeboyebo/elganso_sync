@@ -128,6 +128,13 @@
         },
         {
             "type": "insertAfterNode",
+            "path": "/models/flfact_tpv/eg_cupones",
+            "value": {
+                "eg_logtarjetasweb": null
+            }
+        },
+        {
+            "type": "insertAfterNode",
             "path": "/models/flfactalma/lineasregstocks",
             "value": {
                 "movistock": null

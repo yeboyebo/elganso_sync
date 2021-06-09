@@ -135,6 +135,13 @@
         },
         {
             "type": "insertAfterNode",
+            "path": "/flfact_tpv/eg_cupones",
+            "value": {
+                "eg_logtarjetasweb": null
+            }
+        },
+        {
+            "type": "insertAfterNode",
             "path": "/flfactalma/articulos",
             "value": {
                 "atributosarticulos": null

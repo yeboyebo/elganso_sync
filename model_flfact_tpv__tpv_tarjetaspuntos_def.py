@@ -286,6 +286,38 @@ class elganso_sync(interna):
 
         return True
 
+    def elganso_sync_eglogtarjetasweb(self, params):
+        try:
+            if "auth" not in self.params:
+                self.params = syncppal.iface.get_param_sincro('apipass')
+            if "passwd" in params and params['passwd'] == self.params['auth']:
+
+                if "customer" not in params:
+                    return {"Error": "Formato Incorrecto. No viene informado el parametro customer", "status": 0}
+
+                if "email" not in params["customer"]:
+                    return {"Error": "Formato Incorrecto. No viene informado el parametro email", "status": 0}
+
+                curLogTarjetasWeb = qsatype.FLSqlCursor("eg_logtarjetasweb")
+                curLogTarjetasWeb.setModeAccess(curLogTarjetasWeb.Insert)
+                curLogTarjetasWeb.refreshBuffer()
+                curLogTarjetasWeb.setValueBuffer("procesado", False)
+                curLogTarjetasWeb.setValueBuffer("fechaalta", str(qsatype.Date())[:10])
+                curLogTarjetasWeb.setValueBuffer("horaalta", str(qsatype.Date())[-8:])
+                curLogTarjetasWeb.setValueBuffer("email", str(params["customer"]["email"]))
+                curLogTarjetasWeb.setValueBuffer("website", "magento2")
+                curLogTarjetasWeb.setValueBuffer("cuerpolog", str(params["customer"]))
+                if not curLogTarjetasWeb.commitBuffer():
+                    return False
+                return True
+            else:
+                return {"Error": "Petición Incorrecta", "status": 10}
+        except Exception as e:
+            print(e)
+            qsatype.debug(ustr(u"Error inesperado", e))
+            return {"Error": "Petición Incorrecta", "status": 0}
+        return False
+
     def __init__(self, context=None):
         super().__init__(context)
 
@@ -312,6 +344,9 @@ class elganso_sync(interna):
 
     def acumularPuntosOperacionesMagento(self, params):
         return self.ctx.elganso_sync_acumularPuntosOperacionesMagento(params)
+
+    def eglogtarjetasweb(self, params):
+        return self.ctx.elganso_sync_eglogtarjetasweb(params)
 
 
 # @class_declaration head #

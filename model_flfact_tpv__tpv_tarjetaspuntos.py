@@ -36,6 +36,10 @@ class elganso_sync_tpv_tarjetaspuntos(interna_tpv_tarjetaspuntos, helpers.MixinC
     def generarmovimentopuntosoperacionesmagento(params):
         return form.iface.generarmovimentopuntosoperacionesmagento(params)
 
+    @helpers.decoradores.csr()
+    def eglogtarjetasweb(params):
+        return form.iface.eglogtarjetasweb(params)
+
 
 # @class_declaration tpv_tarjetaspuntos #
 class tpv_tarjetaspuntos(elganso_sync_tpv_tarjetaspuntos, helpers.MixinConAcciones):
