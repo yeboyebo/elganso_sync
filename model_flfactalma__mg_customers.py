@@ -20,6 +20,10 @@ class elganso_sync_mg_customers(interna_mg_customers, helpers.MixinConAcciones):
     class Meta:
         proxy = True
 
+    @helpers.decoradores.csr()
+    def mg2customer(params):
+        return form.iface.mg2customer(params)
+
 
 # @class_declaration mg_customers #
 class mg_customers(elganso_sync_mg_customers, helpers.MixinConAcciones):
