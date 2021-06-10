@@ -62,7 +62,7 @@ from controllers.api.magento2.orders.controllers.mg2_orders_process import Mg2Or
 from controllers.api.magento2.price.controllers.mg2_price_upload import Mg2PriceUpload
 from controllers.api.magento2.inventory.controllers.mg2_inventory_upload import Mg2InventoryUpload
 from controllers.api.magento2.points.controllers.mg2_points_process import Mg2PointsProcess
-
+from controllers.api.magento2.tierprice.controllers.mg2_tierprice_upload import Mg2TierpriceUpload
 
 sync_object_dict = {
     "stock_upload": {
@@ -200,6 +200,9 @@ sync_object_dict = {
     "mg2_points_process": {
         "sync_object": Mg2PointsProcess,
         "driver": MagentoDriver
+    },
+    "mg2_tierprice_upload": {
+        "sync_object": Mg2TierpriceUpload
     }
 }
 

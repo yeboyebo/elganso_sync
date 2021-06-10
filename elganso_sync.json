@@ -1019,6 +1019,18 @@
             {
                 "name": "model_flfact_tpv__mg2_points_raw.py",
                 "path": "models/flfact_tpv/objects/"
+            },
+            {
+                "name": "ctrl_api_magento2_tierprice__upload.py",
+                "path": "controllers/api/magento2/tierprice/"
+            },
+            {
+                "name": "ctrl_api_magento2_tierprice__mg2_tierprice_upload.py",
+                "path": "controllers/api/magento2/tierprice/controllers/"
+            },
+            {
+                "name": "ctrl_api_magento2_tierprice__tierprice_serializer.py",
+                "path": "controllers/api/magento2/tierprice/serializers/"
             }
         ],
         "deleteFile": [],

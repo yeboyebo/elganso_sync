@@ -80,7 +80,7 @@ class Mg2PointsProcess(DownloadSync):
                 after_sync_error_records.append(tarjeta["email"])
 
         if success_records:
-            self.log("Éxito", "Las siguientes tarjetas se han sincronizado correctamente: {}".format(success_records))
+            self.log("Exito", "Las siguientes tarjetas se han sincronizado correctamente: {}".format(success_records))
 
         if error_records:
             self.log("Error", "Las siguientes tarjetas no se han sincronizado correctamente: {}".format(error_records))
