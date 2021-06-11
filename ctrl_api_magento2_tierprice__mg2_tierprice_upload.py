@@ -43,7 +43,6 @@ class Mg2TierpriceUpload(TierpriceUpload):
 
         if data:
             try:
-                print("DATA: ", json.dumps(data))
                 self.send_request("post", url=tierprice_url, data=json.dumps(data))
             except Exception as e:
                 print("exception")
@@ -84,9 +83,6 @@ class Mg2TierpriceUpload(TierpriceUpload):
             return body
 
         body = self.fetch_query(q)
-        # self.idsincro = body[0]["lsc.idsincro"]
-        # self.id = body[0]["lsc.idobjeto"]
-        # self.referencia = body[0]["a.codtarifa"] + " - " + body[0]["lsc.descripcion"]
 
         return body
 
@@ -94,7 +90,6 @@ class Mg2TierpriceUpload(TierpriceUpload):
         return TierpriceSerializer()
 
     def after_sync(self, response_data=None):
-        print("AFTER SYNC")
         if self.error:
             self.log("Error", "No se pudo sincronizar la tarifa")
             return self.small_sleep
