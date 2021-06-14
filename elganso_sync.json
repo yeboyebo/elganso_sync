@@ -1136,6 +1136,14 @@
             {
                 "name": "ctrl_base_default_controllers__connect_sync.py",
                 "path": "controllers/base/default/controllers/"
+            },
+            {
+                "name": "model_flfactalma__almacenes.py",
+                "path": "models/flfactalma/"
+            },
+            {
+                "name": "model_flfactalma__almacenes_def.py",
+                "path": "models/flfactalma/"
             }
         ]
     }
