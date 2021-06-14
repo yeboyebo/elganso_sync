@@ -10,3 +10,7 @@ class elganso_sync_almacenes(interna_almacenes, helpers.MixinConAcciones):
     def damelistaalmacenessincro(params):
         return form.iface.damelistaalmacenessincro(params)
 
+    @helpers.decoradores.csr()
+    def damealmacenesconstock(params):
+        return form.iface.damealmacenesconstock(params)
+
