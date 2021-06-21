@@ -157,10 +157,16 @@ class elganso_sync(interna):
                     email = q.value("email") or ""
                     fechaexpiracion = q.value("fechaexpiracion") or ""
                     dtoPor = q.value("dtopor") or ""
-                    artRegalo = q.value("artregalo") or ""
+                    artRegalo = str(q.value("artregalo")) or ""
                     esDescuento = q.value("esdescuento") or False
-                   
-                    return {"artregalo": artRegalo, "email": email, "fechaexpiracion": fechaexpiracion, "dtopor": dtoPor, "activo": activo, "esdescuento": esDescuento, "escupon": True}
+                    
+                    if esDescuento == False:
+                        disponible = qsatype.FLUtil.sqlSelect(u"stocks", u"disponible", ustr(u"codalmacen = 'AWEB' AND referencia = '", artRegalo, u"'"))
+                    
+                        if int(disponible) <= 0:
+                            artRegalo = "4070ATEMP210001"
+                    
+                    return {"artregalo": str(artRegalo) + "FI", "email": email, "fechaexpiracion": fechaexpiracion, "dtopor": dtoPor, "activo": activo, "esdescuento": esDescuento, "escupon": True}
             else:
                 return {"Error": "Petición Incorrecta", "status": -1}
         except Exception as e:
@@ -339,7 +345,7 @@ class elganso_sync(interna):
                     if esDescuento:
                         return {"cupon": codCupon, "status": 1, "tipo": "DESCUENTO", "descuento": dtoPor}
 
-                    return {"cupon": codCupon, "status": 1, "tipo": "ARTICULO_REGALO", "articulo": artRegalo}
+                    return {"cupon": codCupon, "status": 1, "tipo": "ARTICULO_REGALO", "articulo": artRegalo + "FI"}
 
                 valor = qsatype.FLUtil.sqlSelect(u"param_parametros", u"valor", ustr(u"nombre = 'CUPONES'"))
 
@@ -372,44 +378,55 @@ class elganso_sync(interna):
                 if str(params['descuento']) == "True":
                     esDescuento = True
                 else:
-                    aArtregalo = aArtregalo.split(";")
-                    i = 0
-                    cantTotalRegalos = 0
-                    while i < len(aArtregalo):
-                        aAR = aArtregalo[i].split(",")
-                        cantTotalRegalos += int(aAR[1])
-                        i += 1
+                    print("hola")
+                    ratioDescuentoRegalo = float(qsatype.FLUtil.sqlSelect(u"param_parametros", u"valor", ustr(u"nombre = 'ratioDescuentoRegalo'")))
+                    cantRegalos = int(qsatype.FLUtil.sqlSelect(u"eg_cupones", u"count(*)", ustr(u"esdescuento = FALSE")))*ratioDescuentoRegalo
+                    cantDto = int(qsatype.FLUtil.sqlSelect(u"eg_cupones", u"count(*)", ustr(u"esdescuento = TRUE")))
 
-                    estoyBuscando = True
-                    hayRegalos = False
-                    iRandom = randrange(0, len(aArtregalo))
-                    while estoyBuscando:
-                        aAR = aArtregalo[iRandom].split(",")
-                        valorCont = int(qsatype.FLUtil.sqlSelect(u"secuencias", u"valor", ustr(u"nombre = '", aAR[0], u"'")))
-                        cantTotalRegalos = cantTotalRegalos - valorCont
-                        if(valorCont < int(aAR[1])):
-                            estoyBuscando = False
-                            hayRegalos = True
-                            qsatype.FLUtil.sqlUpdate(u"secuencias", u"valor", valorCont + 1, ustr(u"nombre = '", aAR[0], u"'"))
-                            artRegalo = str(aAR[0])
-                        else:
-                            if iRandom < len(aArtregalo) - 1:
-                                iRandom += 1
+                    if cantRegalos > cantDto:
+                        esDescuento = True
+                    else:
+                        aArtregalo = aArtregalo.split(";")
+                        i = 0
+                        cantTotalRegalos = 0
+                        while i < len(aArtregalo):
+                            aAR = aArtregalo[i].split(",")
+                            cantTotalRegalos += int(aAR[1])
+                            i += 1
+
+                        estoyBuscando = True
+                        hayRegalos = False
+                        iRandom = randrange(0, len(aArtregalo))
+                        while estoyBuscando:
+                            aAR = aArtregalo[iRandom].split(",")
+                            if str(aAR[0]) != "dto":
+                                valorCont = int(qsatype.FLUtil.sqlSelect(u"secuencias", u"valor", ustr(u"nombre = '", aAR[0], u"'")))
+                                cantTotalRegalos = cantTotalRegalos - valorCont
+                                if(valorCont < int(aAR[1])):
+                                    estoyBuscando = False
+                                    hayRegalos = True
+                                    qsatype.FLUtil.sqlUpdate(u"secuencias", u"valor", valorCont + 1, ustr(u"nombre = '", aAR[0], u"'"))
+                                    artRegalo = str(aAR[0])
+                                else:
+                                    if iRandom < len(aArtregalo) - 1:
+                                        iRandom += 1
+                                    else:
+                                        iRandom = 0
+                                if cantTotalRegalos <= 0:
+                                    estoyBuscando = False
                             else:
-                                iRandom = 0
-                        if cantTotalRegalos <= 0:
-                            estoyBuscando = False                           
-                                                
-                    if not hayRegalos:
-                        esDescuento = True                        
+                                estoyBuscando = False
+
+                        if not hayRegalos:
+                            esDescuento = True
 
                 if not qsatype.FLUtil.sqlInsert(u"eg_cupones", [u"codcupon", u"fecha", u"fechaalta", u"fechaexpiracion", u"horaalta", u"activo", u"email", u"observaciones", u"correoenviado", u"esdescuento", u"dtopor", u"articulosdto", u"artregalo"], [codCupon, fecha, fecha, fechaexpiracion, horaalta, True, params['email'].lower(), "", False, esDescuento, dtoPor, articulosDto, artRegalo]):
                     return {"Error": "Error al guardar el cupón", "status": -2}
-                
+
                 if esDescuento:
                     return {"cupon": codCupon, "status": 1, "tipo": "DESCUENTO", "descuento": dtoPor}
-                return {"cupon": codCupon, "status": 1, "tipo": "ARTICULO_REGALO", "articulo": artRegalo}
-                
+                return {"cupon": codCupon, "status": 1, "tipo": "ARTICULO_REGALO", "articulo": str(artRegalo) + "FI"}
+
             else:
                 return {"Error": "Contraseña incorrecta", "status": 0}
         except Exception as e:
