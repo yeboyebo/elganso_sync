@@ -1039,6 +1039,62 @@
             {
                 "path": "models/flfact_tpv/",
                 "name": "model_flfact_tpv__eg_logdevolucionesweb_def.py"
+            },
+            {
+                "path": "controllers/api/magento2/refounds/controllers/",
+                "name": "ctrl_api_magento2_refounds__mg2_refounds_process.py"
+            },
+            {
+                "path": "controllers/api/magento2/refounds/serializers/",
+                "name": "ctrl_api_magento2_refounds__mg2_refound_voucherline_serializer.py"
+            },
+            {
+                "path": "controllers/api/magento2/refounds/serializers/",
+                "name": "ctrl_api_magento2_refounds__mg2_refound_serializer.py"
+            },
+            {
+                "path": "controllers/api/magento2/refounds/serializers/",
+                "name": "ctrl_api_magento2_refounds__mg2_idlecommercedevoluciones_serializer.py"
+            },
+            {
+                "path": "controllers/api/magento2/refounds/serializers/",
+                "name": "ctrl_api_magento2_refounds__mg2_refound_line_serializer.py"
+            },
+            {
+                "path": "controllers/api/magento2/refounds/serializers/",
+                "name": "ctrl_api_magento2_refounds__mg2_refound_payment_serializer.py"
+            },
+            {
+                "path": "controllers/api/magento2/refounds/serializers/",
+                "name": "ctrl_api_magento2_refounds__mg2_refound_expensesline_serializer.py"
+            },
+            {
+                "path": "controllers/api/magento2/refounds/serializers/",
+                "name": "ctrl_api_magento2_refounds__mg2_refound_discountline_serializer.py"
+            },
+            {
+                "path": "controllers/api/magento2/refounds/serializers/",
+                "name": "ctrl_api_magento2_refounds__mg2_refound_pointline_serializer.py"
+            },
+            {
+                "path": "controllers/api/magento2/refounds/serializers/",
+                "name": "ctrl_api_magento2_refounds__mg2_idlecommerce_serializer.py"
+            },
+            {
+                "path": "models/flfact_tpv/objects/",
+                "name": "model_flfact_tpv__mg2_refound_raw.py"
+            },
+            {
+                "path": "models/flfact_tpv/objects/",
+                "name": "model_flfact_tpv__mg2_refound_line_raw.py"
+            },
+            {
+                "path": "models/flfact_tpv/objects/",
+                "name": "model_flfact_tpv__mg2_refound_payment_raw.py"
+            },
+            {
+                "path": "controllers/api/magento2/refounds/",
+                "name": "ctrl_api_magento2_refounds__process.py"
             }
         ],
         "deleteFile": [],
