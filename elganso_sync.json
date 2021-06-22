@@ -1031,6 +1031,14 @@
             {
                 "name": "ctrl_api_magento2_tierprice__tierprice_serializer.py",
                 "path": "controllers/api/magento2/tierprice/serializers/"
+            },
+            {
+                "path": "models/flfact_tpv/",
+                "name": "model_flfact_tpv__eg_logdevolucionesweb.py"
+            },
+            {
+                "path": "models/flfact_tpv/",
+                "name": "model_flfact_tpv__eg_logdevolucionesweb_def.py"
             }
         ],
         "deleteFile": [],

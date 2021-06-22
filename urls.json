@@ -135,6 +135,13 @@
         },
         {
             "type": "insertAfterNode",
+            "path": "/models/flfact_tpv/eg_logtarjetasweb",
+            "value": {
+                "eg_logdevolucionesweb": null
+            }
+        },
+        {
+            "type": "insertAfterNode",
             "path": "/models/flfactalma/lineasregstocks",
             "value": {
                 "movistock": null
