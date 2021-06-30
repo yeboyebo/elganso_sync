@@ -37,7 +37,7 @@ class elganso_sync(flfactalma):
 
                 where_talla = ""
                 if str(params["talla"]) != "None":
-                    where_talla = " AND talla = '" + str(params["talla"]) + "'"
+                    where_talla = " AND s.talla = '" + str(params["talla"]) + "'"
 
                 lista_almacenes = qsatype.FLUtil.sqlSelect("param_parametros", "valor", "nombre = 'ALMACENES_SINCRO'").split(',')
 
@@ -50,21 +50,19 @@ class elganso_sync(flfactalma):
 
                 q = qsatype.FLSqlQuery()
                 q.setTablesList("stocks")
-                q.setSelect("codalmacen")
-                q.setFrom("stocks")
-                q.setWhere("codalmacen IN (" + where_almacenes + ") AND disponible >= 2 AND referencia = '" + str(params["sku"]) + "'" + where_talla)
+                q.setSelect("s.codalmacen,a.nombre,a.direccion,a.provincia,a.codpostal,a.codpais,a.telefono")
+                q.setFrom("stocks s INNER JOIN almacenes a ON s.codalmacen = a.codalmacen")
+                q.setWhere("s.codalmacen IN (" + where_almacenes + ") AND s.disponible >= 2 AND s.referencia = '" + str(params["sku"]) + "'" + where_talla)
+
                 if not q.exec_():
                     return {"Error": "No hay stock en ningún almacen", "status": -1}
 
                 if not q.size():
                     return {"Error": "No hay stock en ningún almacen", "status": -1}
 
-                lista_almacenes = ""
+                lista_almacenes = []
                 while(q.next()):
-                    if lista_almacenes == "":
-                        lista_almacenes = q.value("codalmacen")
-                    else:
-                        lista_almacenes += "," + q.value("codalmacen")
+                    lista_almacenes.append({"codAlmacen": q.value("s.codalmacen"), "nombre": q.value("a.nombre"), "direccion": q.value("a.direccion"), "provincia": q.value("a.provincia"), "codpostal": q.value("a.codpostal"), "codpais": q.value("a.codpais"), "telefono": q.value("a.telefono")})
 
                 return {"almacenes": lista_almacenes}
             else:
