@@ -100,10 +100,6 @@ class elganso_sync(interna):
             # if "auth" not in bdparams:
             #     bdparams = syncppal.iface.get_param_sincro('apipass')
             # if "passwd" in params and params['passwd'] == bdparams['auth']:
-            for prop in params:
-                print(prop)
-                print(params[prop])
-                print("-----------------")
             if "auth" not in self.params:
                 self.params = syncppal.iface.get_param_sincro('apipass')
             if "passwd" in params and params['passwd'] == self.params['auth']:
@@ -144,7 +140,7 @@ class elganso_sync(interna):
                 if str(codbono)[:2]=="KN":
                     q = qsatype.FLSqlQuery()
                     q.setTablesList(u"eg_cupones")
-                    q.setSelect(u"codcupon, esdescuento, artregalo, dtopor, email, fechaexpiracion, activo")
+                    q.setSelect(u"codcupon, esdescuento, artregalo, dtopor, email, fechaexpiracion, activo, cuponmagento")
                     q.setFrom(u"eg_cupones")
                     q.setWhere(ustr(u"codcupon = '", codbono, u"'"))
                     if not q.exec_():
@@ -159,6 +155,7 @@ class elganso_sync(interna):
                     dtoPor = q.value("dtopor") or ""
                     artRegalo = str(q.value("artregalo")) or ""
                     esDescuento = q.value("esdescuento") or False
+                    cuponMagento = q.value("cuponmagento") or ""
                     
                     if esDescuento == False:
                         disponible = qsatype.FLUtil.sqlSelect(u"stocks", u"disponible", ustr(u"codalmacen = 'AWEB' AND referencia = '", artRegalo, u"'"))
@@ -166,7 +163,7 @@ class elganso_sync(interna):
                         if int(disponible) <= 0:
                             artRegalo = "4070ATEMP210001"
                     
-                    return {"artregalo": str(artRegalo) + "FI", "email": email, "fechaexpiracion": fechaexpiracion, "dtopor": dtoPor, "activo": activo, "esdescuento": esDescuento, "escupon": True}
+                    return {"artregalo": str(artRegalo) + "FI", "email": email, "fechaexpiracion": fechaexpiracion, "dtopor": dtoPor, "activo": activo, "esdescuento": esDescuento, "escupon": True, "cuponmagento": cuponMagento}
             else:
                 return {"Error": "Petición Incorrecta", "status": -1}
         except Exception as e:
@@ -328,7 +325,7 @@ class elganso_sync(interna):
 
                 q = qsatype.FLSqlQuery()
                 q.setTablesList(u"eg_cupones")
-                q.setSelect(u"codcupon, esdescuento, artregalo, dtopor, email, fechaexpiracion, activo")
+                q.setSelect(u"codcupon, esdescuento, artregalo, dtopor, email, fechaexpiracion, activo, cuponmagento")
                 q.setFrom(u"eg_cupones")
                 q.setWhere(ustr(u"email = '", params['email'].lower(), u"'"))
                 if not q.exec_():
@@ -341,6 +338,7 @@ class elganso_sync(interna):
                     dtoPor = q.value("dtopor")
                     artRegalo = q.value("artregalo")
                     esDescuento = q.value("esdescuento") or False
+                    cuponMagento = q.value("cuponmagento") or ""
 
                     if esDescuento:
                         return {"cupon": codCupon, "status": 1, "tipo": "DESCUENTO", "descuento": dtoPor}
@@ -374,11 +372,11 @@ class elganso_sync(interna):
 
                 esDescuento = False
                 artRegalo = ""
+                cuponMagento = str("CUPONES_GANSO")
 
                 if str(params['descuento']) == "True":
                     esDescuento = True
                 else:
-                    print("hola")
                     ratioDescuentoRegalo = float(qsatype.FLUtil.sqlSelect(u"param_parametros", u"valor", ustr(u"nombre = 'ratioDescuentoRegalo'")))
                     cantRegalos = int(qsatype.FLUtil.sqlSelect(u"eg_cupones", u"count(*)", ustr(u"esdescuento = FALSE")))*ratioDescuentoRegalo
                     cantDto = int(qsatype.FLUtil.sqlSelect(u"eg_cupones", u"count(*)", ustr(u"esdescuento = TRUE")))
@@ -420,7 +418,7 @@ class elganso_sync(interna):
                         if not hayRegalos:
                             esDescuento = True
 
-                if not qsatype.FLUtil.sqlInsert(u"eg_cupones", [u"codcupon", u"fecha", u"fechaalta", u"fechaexpiracion", u"horaalta", u"activo", u"email", u"observaciones", u"correoenviado", u"esdescuento", u"dtopor", u"articulosdto", u"artregalo"], [codCupon, fecha, fecha, fechaexpiracion, horaalta, True, params['email'].lower(), "", False, esDescuento, dtoPor, articulosDto, artRegalo]):
+                if not qsatype.FLUtil.sqlInsert(u"eg_cupones", [u"codcupon", u"fecha", u"fechaalta", u"fechaexpiracion", u"horaalta", u"activo", u"email", u"observaciones", u"correoenviado", u"esdescuento", u"dtopor", u"articulosdto", u"artregalo", u"cuponmagento"], [codCupon, fecha, fecha, fechaexpiracion, horaalta, True, params['email'].lower(), "", False, esDescuento, dtoPor, articulosDto, artRegalo, cuponMagento]):
                     return {"Error": "Error al guardar el cupón", "status": -2}
 
                 if esDescuento:
