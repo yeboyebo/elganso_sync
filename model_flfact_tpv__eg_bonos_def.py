@@ -162,8 +162,9 @@ class elganso_sync(interna):
                     
                         if int(disponible) <= 0:
                             artRegalo = "4070ATEMP210001"
-                    
-                    return {"artregalo": str(artRegalo) + "FI", "email": email, "fechaexpiracion": fechaexpiracion, "dtopor": dtoPor, "activo": activo, "esdescuento": esDescuento, "escupon": True, "cuponmagento": cuponMagento}
+                        return {"artregalo": str(artRegalo) + "FI", "email": email, "fechaexpiracion": fechaexpiracion, "dtopor": dtoPor, "activo": activo, "esdescuento": esDescuento, "escupon": True, "cuponmagento": cuponMagento} 
+
+                    return {"artregalo": u"null", "email": email, "fechaexpiracion": fechaexpiracion, "dtopor": dtoPor, "activo": activo, "esdescuento": esDescuento, "escupon": True, "cuponmagento": cuponMagento}
             else:
                 return {"Error": "Petición Incorrecta", "status": -1}
         except Exception as e:
