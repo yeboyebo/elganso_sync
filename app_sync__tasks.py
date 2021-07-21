@@ -64,6 +64,7 @@ from controllers.api.magento2.inventory.controllers.mg2_inventory_upload import 
 from controllers.api.magento2.points.controllers.mg2_points_process import Mg2PointsProcess
 from controllers.api.magento2.tierprice.controllers.mg2_tierprice_upload import Mg2TierpriceUpload
 from controllers.api.magento2.refounds.controllers.mg2_refounds_process import Mg2RefoundsProcess
+from controllers.api.magento2.special_price.controllers.mg2_special_price_upload import Mg2SpecialPriceUpload
 
 sync_object_dict = {
     "stock_upload": {
@@ -208,6 +209,9 @@ sync_object_dict = {
     "mg2_refounds_process": {
         "sync_object": Mg2RefoundsProcess,
         "driver": MagentoDriver
+    },
+    "mg2_special_price_upload": {
+        "sync_object": Mg2SpecialPriceUpload
     }
 }
 

@@ -1095,6 +1095,18 @@
             {
                 "path": "controllers/api/magento2/refounds/",
                 "name": "ctrl_api_magento2_refounds__process.py"
+            },
+            {
+                "name": "ctrl_api_magento2_special_price__mg2_special_price_upload.py",
+                "path": "controllers/api/magento2/special_price/controllers/"
+            },
+            {
+                "name": "ctrl_api_magento2_special_price__special_price_serializer.py",
+                "path": "controllers/api/magento2/special_price/serializers/"
+            },
+            {
+                "name": "ctrl_api_magento2_special_price__upload.py",
+                "path": "controllers/api/magento2/special_price/"
             }
         ],
         "deleteFile": [],

@@ -10,7 +10,7 @@ class InventorySerializer(DefaultSerializer):
             referencia = str(self.init_data["aa.referencia"])
 
         self.set_string_value("sku", referencia)
-        self.set_string_value("source_code", "default")
+        self.set_string_value("source_code", str(self.init_data["s.codalmacen"]))
         status = 0
         disponible = self.init_data["s.disponible"]
         if self.init_data["s.disponible"] > 0:

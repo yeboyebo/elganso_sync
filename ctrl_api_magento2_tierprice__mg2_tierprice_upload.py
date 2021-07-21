@@ -43,6 +43,8 @@ class Mg2TierpriceUpload(TierpriceUpload):
 
         if data:
             try:
+                print("DATA: ", json.dumps(data))
+                print("URL: ", tierprice_url)
                 self.send_request("post", url=tierprice_url, data=json.dumps(data))
             except Exception as e:
                 print("exception")
@@ -54,36 +56,25 @@ class Mg2TierpriceUpload(TierpriceUpload):
     def get_db_data(self):
         body = []
 
-        self._fechasincro = qsatype.FLUtil.sqlSelect("tpv_fechasincrotienda", "fechasincro", "codtienda = 'AWEB' AND esquema = 'PRICES_WEB'")
-        horasincro = qsatype.FLUtil.sqlSelect("tpv_fechasincrotienda", "horasincro", "codtienda = 'AWEB' AND esquema = 'PRICES_WEB'")
+        idobjeto = qsatype.FLUtil.sqlSelect("lineassincro_catalogo", "idobjeto", "tiposincro = 'Planificador Precios' AND NOT sincronizado AND website = 'magento2' ORDER BY id LIMIT 1")
 
-        if not self._fechasincro or self._fechasincro is None:
-            self._fechasincro = "2021-06-01"
-        else:
-            self._fechasincro = str(self._fechasincro)[:10]
+        if not idobjeto:
+            return body
 
-        if not horasincro or horasincro is None:
-            horasincro = "00:00:00"
-        else:
-            horasincro = str(horasincro)[-(8):]
-
-        filtro_fechas_alta = "(a.fechaalta > '{}' OR (a.fechaalta = '{}' AND a.horaalta >= '{}'))".format(self._fechasincro, self._fechasincro, horasincro)
-        filtro_fechas_mod = "(a.fechamod > '{}' OR (a.fechamod = '{}' AND a.horamod >= '{}'))".format(self._fechasincro, self._fechasincro, horasincro)
-        where = "{} OR {} ORDER BY a.referencia".format(filtro_fechas_alta, filtro_fechas_mod)
+        self.idobjeto = idobjeto
 
         q = qsatype.FLSqlQuery()
-        q.setSelect("at.referencia, at.talla, a.pvp, a.codtarifa, st.codwebsite, st.codstoreview")
-        q.setFrom("mg_websites w inner join mg_storeviews st on w.codwebsite = st.codwebsite inner join articulostarifas a on a.codtarifa = st.codtarifa inner join atributosarticulos at ON a.referencia = at.referencia")
-        q.setWhere(where)
+        q.setSelect("at.referencia, at.talla, ap.pvp, p.desde || ' ' || p.horadesde, p.hasta || ' ' || p.horahasta")
+        q.setFrom("eg_planprecios p INNER JOIN eg_articulosplan ap ON p.codplan = ap.codplan INNER JOIN atributosarticulos at ON ap.referencia = at.referencia")
+        q.setWhere("p.codplan = '{}' AND p.elgansociety = TRUE GROUP BY at.referencia, at.talla, ap.pvp, p.desde || ' ' || p.horadesde, p.hasta || ' ' || p.horahasta".format(self.idobjeto))
 
         q.exec_()
 
-        body = []
         if not q.size():
             return body
 
         body = self.fetch_query(q)
-
+        self.error = False
         return body
 
     def get_tierprice_serializer(self):
