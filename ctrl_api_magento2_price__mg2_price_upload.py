@@ -8,6 +8,7 @@ class Mg2PriceUpload(PriceUpload):
 
     codwebsite = None
     referencia = None
+    idArticulo = None
     fechasincro = None
     start_date = None
     start_time = None
@@ -29,8 +30,16 @@ class Mg2PriceUpload(PriceUpload):
             return data
 
         referencia = ""
+        refConsulta = ""
+        tarifaConsulta = ""
         for idx in range(len(data)):
+            print("IDX: ", idx)
+            if idx == 1:
+                refConsulta = str(data[idx]["at.referencia"])
+                tarifaConsulta = str(data[idx]["a.codtarifa"])
+
             self.codwebsite = data[idx]["st.codstoreview"]
+            self.idArticulo = data[idx]["a.id"]
             referencia = str(data[idx]["at.referencia"]) + "-" + str(data[idx]["at.talla"])
             if str(data[idx]["at.talla"]) == "TU":
                 referencia = str(data[idx]["at.referencia"])
@@ -42,10 +51,14 @@ class Mg2PriceUpload(PriceUpload):
             }
             del cuerpoPrice["product"]["children"]
             try:
-                print(json.dumps(cuerpoPrice))
-                print("URL_: ", price_url.format(self.codwebsite, self.referencia))
                 result = self.send_request("put", url=price_url.format(self.codwebsite, self.referencia), data=json.dumps(cuerpoPrice))
-                print("RESULT: ", result)
+                if "id" in result:
+                    if (refConsulta != str(data[idx]["at.referencia"])) or (tarifaConsulta != str(data[idx]["a.codtarifa"])) or idx == len(data):
+                        if refConsulta != str(data[idx]["at.referencia"]):
+                            refConsulta = str(data[idx]["at.referencia"])
+                        if tarifaConsulta != str(data[idx]["a.codtarifa"]):
+                            tarifaConsulta = str(data[idx]["a.codtarifa"])
+                        qsatype.FLSqlQuery().execSql("UPDATE articulostarifas SET sincronizado = TRUE WHERE id = {}".format(self.idArticulo))
             except Exception as e:
                 print("exception")
                 self.error = True
@@ -88,10 +101,12 @@ class Mg2PriceUpload(PriceUpload):
 
         filtro_fechas_alta = "(a.fechaalta > '{}' OR (a.fechaalta = '{}' AND a.horaalta >= '{}'))".format(self._fechasincro, self._fechasincro, horasincro)
         filtro_fechas_mod = "(a.fechamod > '{}' OR (a.fechamod = '{}' AND a.horamod >= '{}'))".format(self._fechasincro, self._fechasincro, horasincro)
-        where = "{} OR {} ORDER BY a.referencia".format(filtro_fechas_alta, filtro_fechas_mod)
+        filtro_fechas_limite = "(fechaalta > '{}' OR (fechaalta = '{}' AND horaalta >= '{}'))".format(self._fechasincro, self._fechasincro, horasincro)
+        filtro_fechas_limite_mod = "(fechamod > '{}' OR (fechamod = '{}' AND horamod >= '{}'))".format(self._fechasincro, self._fechasincro, horasincro)
+        where = "a.sincronizado = FALSE AND ({} OR {}) AND a.referencia IN (SELECT referencia FROM articulostarifas WHERE sincronizado = FALSE AND ({} OR {}) GROUP BY referencia LIMIT 25) ORDER BY a.referencia".format(filtro_fechas_alta, filtro_fechas_mod,  filtro_fechas_limite, filtro_fechas_limite_mod)
 
         q = qsatype.FLSqlQuery()
-        q.setSelect("at.referencia, at.talla, a.pvp, st.codstoreview")
+        q.setSelect("a.id,at.referencia, at.talla, a.pvp, st.codstoreview, a.codtarifa")
         q.setFrom("mg_websites w inner join mg_storeviews st on w.codwebsite = st.codwebsite inner join articulostarifas a on a.codtarifa = st.codtarifa inner join atributosarticulos at ON a.referencia = at.referencia")
         q.setWhere(where)
 
@@ -111,7 +126,7 @@ class Mg2PriceUpload(PriceUpload):
             self.log("Error", "No se pudo sincronizar la tarifa")
             return self.small_sleep
 
-        qsatype.FLSqlQuery().execSql("INSERT INTO tpv_fechasincrotienda (codtienda, esquema, fechasincro, horasincro) VALUES ('AWEB', 'PRICES_WEB', '{}', '{}')".format(self.start_date, self.start_time))
+        qsatype.FLSqlQuery().execSql("UPDATE tpv_fechasincrotienda SET fechasincro = '{}', horasincro = '{}' WHERE codtienda = 'AWEB' AND esquema = 'PRICES_WEB'".format(self.start_date, self.start_time))
 
         self.log("Exito", "Tarifa de precio sincronizada correctamente.")
         return self.small_sleep

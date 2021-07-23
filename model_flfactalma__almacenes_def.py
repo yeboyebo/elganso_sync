@@ -50,7 +50,7 @@ class elganso_sync(flfactalma):
 
                 q = qsatype.FLSqlQuery()
                 q.setTablesList("stocks")
-                q.setSelect("s.codalmacen,a.nombre,a.direccion,a.provincia,a.codpostal,a.codpais,a.telefono")
+                q.setSelect("s.codalmacen,a.nombre,a.direccion,a.poblacion,a.provincia,a.codpostal,a.codpais,a.telefono")
                 q.setFrom("stocks s INNER JOIN almacenes a ON s.codalmacen = a.codalmacen")
                 q.setWhere("s.codalmacen IN (" + where_almacenes + ") AND s.disponible >= 2 AND s.referencia = '" + str(params["sku"]) + "'" + where_talla)
 
@@ -62,7 +62,7 @@ class elganso_sync(flfactalma):
 
                 lista_almacenes = []
                 while(q.next()):
-                    lista_almacenes.append({"codAlmacen": q.value("s.codalmacen"), "nombre": q.value("a.nombre"), "direccion": q.value("a.direccion"), "provincia": q.value("a.provincia"), "codpostal": q.value("a.codpostal"), "codpais": q.value("a.codpais"), "telefono": q.value("a.telefono")})
+                    lista_almacenes.append({"codAlmacen": q.value("s.codalmacen"), "nombre": q.value("a.nombre"), "direccion": q.value("a.direccion"), "ciudad": q.value("a.poblacion"), "provincia": q.value("a.provincia"), "codpostal": q.value("a.codpostal"), "codpais": q.value("a.codpais"), "telefono": q.value("a.telefono")})
 
                 return {"almacenes": lista_almacenes}
             else:
