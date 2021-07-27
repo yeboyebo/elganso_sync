@@ -12,6 +12,8 @@ class Mg2PriceUpload(PriceUpload):
     fechasincro = None
     start_date = None
     start_time = None
+    error = False
+    refSincros = None
 
     def __init__(self, params=None):
         super().__init__("mg2price", params)
@@ -22,21 +24,29 @@ class Mg2PriceUpload(PriceUpload):
 
         self.set_sync_params(self.get_param_sincro('mg2'))
 
+        self.small_sleep = 10
+        self.large_sleep = 180
+        self.no_sync_sleep = 300
+
+
     def get_data(self):
+
         data = self.get_db_data()
         price_url = self.price_url if self.driver.in_production else self.price_test_url
         if data == []:
-            self.log("Exito", "No hay datos que sincronizar")
+            qsatype.FLSqlQuery().execSql("UPDATE tpv_fechasincrotienda SET fechasincro = '{}', horasincro = '{}' WHERE codtienda = 'AWEB' AND esquema = 'PRICES_WEB'".format(self.start_date, self.start_time))
+            self.log("Éxito", "No hay datos que sincronizar")
             return data
 
         referencia = ""
         refConsulta = ""
         tarifaConsulta = ""
+        self.refSincros = ""
         for idx in range(len(data)):
-            print("IDX: ", idx)
-            if idx == 1:
+            if idx == 0:
                 refConsulta = str(data[idx]["at.referencia"])
                 tarifaConsulta = str(data[idx]["a.codtarifa"])
+                self.refSincros = refConsulta
 
             self.codwebsite = data[idx]["st.codstoreview"]
             self.idArticulo = data[idx]["a.id"]
@@ -56,14 +66,20 @@ class Mg2PriceUpload(PriceUpload):
                     if (refConsulta != str(data[idx]["at.referencia"])) or (tarifaConsulta != str(data[idx]["a.codtarifa"])) or idx == len(data):
                         if refConsulta != str(data[idx]["at.referencia"]):
                             refConsulta = str(data[idx]["at.referencia"])
+                            if self.refSincros == "":
+                                self.refSincros = str(data[idx]["at.referencia"])
+                            else:
+                                self.refSincros += "," + str(data[idx]["at.referencia"])
+
                         if tarifaConsulta != str(data[idx]["a.codtarifa"]):
                             tarifaConsulta = str(data[idx]["a.codtarifa"])
                         qsatype.FLSqlQuery().execSql("UPDATE articulostarifas SET sincronizado = TRUE WHERE id = {}".format(self.idArticulo))
             except Exception as e:
                 print("exception")
                 self.error = True
+                self.log("Error", "Referencia no procesada: {})".format(self.referencia))
 
-        return []
+        return data
 
     def get_price_serializer(self):
         return PriceSerializer()
@@ -103,7 +119,7 @@ class Mg2PriceUpload(PriceUpload):
         filtro_fechas_mod = "(a.fechamod > '{}' OR (a.fechamod = '{}' AND a.horamod >= '{}'))".format(self._fechasincro, self._fechasincro, horasincro)
         filtro_fechas_limite = "(fechaalta > '{}' OR (fechaalta = '{}' AND horaalta >= '{}'))".format(self._fechasincro, self._fechasincro, horasincro)
         filtro_fechas_limite_mod = "(fechamod > '{}' OR (fechamod = '{}' AND horamod >= '{}'))".format(self._fechasincro, self._fechasincro, horasincro)
-        where = "a.sincronizado = FALSE AND ({} OR {}) AND a.referencia IN (SELECT referencia FROM articulostarifas WHERE sincronizado = FALSE AND ({} OR {}) GROUP BY referencia LIMIT 25) ORDER BY a.referencia".format(filtro_fechas_alta, filtro_fechas_mod,  filtro_fechas_limite, filtro_fechas_limite_mod)
+        where = "a.sincronizado = FALSE AND ({} OR {}) AND a.referencia IN (SELECT referencia FROM articulostarifas WHERE sincronizado = FALSE AND ({} OR {}) GROUP BY referencia LIMIT 25) ORDER BY a.referencia,a.codtarifa".format(filtro_fechas_alta, filtro_fechas_mod,  filtro_fechas_limite, filtro_fechas_limite_mod)
 
         q = qsatype.FLSqlQuery()
         q.setSelect("a.id,at.referencia, at.talla, a.pvp, st.codstoreview, a.codtarifa")
@@ -117,16 +133,15 @@ class Mg2PriceUpload(PriceUpload):
             return body
 
         body = self.fetch_query(q)
+        self.error = False
 
         return body
 
     def after_sync(self, response_data=None):
-        print("ENTRA")
         if self.error:
             self.log("Error", "No se pudo sincronizar la tarifa")
             return self.small_sleep
 
-        qsatype.FLSqlQuery().execSql("UPDATE tpv_fechasincrotienda SET fechasincro = '{}', horasincro = '{}' WHERE codtienda = 'AWEB' AND esquema = 'PRICES_WEB'".format(self.start_date, self.start_time))
+        self.log("Éxito", "Tarifas de precio sincronizadas correctamente (Referencias: {})".format(self.refSincros))
 
-        self.log("Exito", "Tarifa de precio sincronizada correctamente.")
         return self.small_sleep
