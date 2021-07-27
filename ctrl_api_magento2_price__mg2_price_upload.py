@@ -35,7 +35,7 @@ class Mg2PriceUpload(PriceUpload):
         price_url = self.price_url if self.driver.in_production else self.price_test_url
         if data == []:
             qsatype.FLSqlQuery().execSql("UPDATE tpv_fechasincrotienda SET fechasincro = '{}', horasincro = '{}' WHERE codtienda = 'AWEB' AND esquema = 'PRICES_WEB'".format(self.start_date, self.start_time))
-            self.log("Éxito", "No hay datos que sincronizar")
+            self.log("Exito", "No hay datos que sincronizar")
             return data
 
         referencia = ""
@@ -62,6 +62,7 @@ class Mg2PriceUpload(PriceUpload):
             del cuerpoPrice["product"]["children"]
             try:
                 result = self.send_request("put", url=price_url.format(self.codwebsite, self.referencia), data=json.dumps(cuerpoPrice))
+                qsatype.FLSqlQuery().execSql("UPDATE articulostarifas SET sincronizado = TRUE WHERE referencia = '{}' AND codtarifa = '{}'".format(str(data[idx]["at.referencia"]), str(data[idx]["a.codtarifa"])))
                 if "id" in result:
                     if (refConsulta != str(data[idx]["at.referencia"])) or (tarifaConsulta != str(data[idx]["a.codtarifa"])) or idx == len(data):
                         if refConsulta != str(data[idx]["at.referencia"]):
@@ -142,6 +143,6 @@ class Mg2PriceUpload(PriceUpload):
             self.log("Error", "No se pudo sincronizar la tarifa")
             return self.small_sleep
 
-        self.log("Éxito", "Tarifas de precio sincronizadas correctamente (Referencias: {})".format(self.refSincros))
+        self.log("Exito", "Tarifas de precio sincronizadas correctamente (Referencias: {})".format(self.refSincros))
 
         return self.small_sleep
