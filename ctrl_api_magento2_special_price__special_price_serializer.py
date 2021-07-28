@@ -11,7 +11,7 @@ class SpecialPriceSerializer(DefaultSerializer):
 
         self.set_string_value("sku", referencia)
         self.set_string_relation("price", "ap.pvp")
-        self.set_string_value("store_id", "0")
+        self.set_string_relation("store_id", "mg.idmagento")
         self.set_string_relation("price_from", "p.desde || ' ' || p.horadesde")
         self.set_string_relation("price_to", "p.hasta || ' ' || p.horahasta")
 
