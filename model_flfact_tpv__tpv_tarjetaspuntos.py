@@ -40,6 +40,10 @@ class elganso_sync_tpv_tarjetaspuntos(interna_tpv_tarjetaspuntos, helpers.MixinC
     def eglogtarjetasweb(params):
         return form.iface.eglogtarjetasweb(params)
 
+    @helpers.decoradores.csr()
+    def consultapuntos(params):
+        return form.iface.consultapuntos(params)
+
 
 # @class_declaration tpv_tarjetaspuntos #
 class tpv_tarjetaspuntos(elganso_sync_tpv_tarjetaspuntos, helpers.MixinConAcciones):

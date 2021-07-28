@@ -318,6 +318,28 @@ class elganso_sync(interna):
             return {"Error": "Petición Incorrecta", "status": 0}
         return False
 
+    def elganso_sync_consultapuntos(self, params):
+        try:
+            if "passwd" in params and params["passwd"] == self.params['auth']:
+
+                if "email" not in params:
+                    return {"Error": "Formato Incorrecto", "status": 0}
+                email = params['email']
+
+                existe_tarjeta = qsatype.FLUtil.sqlSelect(u"tpv_tarjetaspuntos", u"codtarjetapuntos", ustr(u"email = '", email, u"'"))
+
+                if not existe_tarjeta:
+                    return {"Error": "No se ha encontrado la tarjeta.", "status": 1}
+
+                saldopuntos = qsatype.FLUtil.sqlSelect(u"tpv_tarjetaspuntos", u"saldopuntos", ustr(u"email = '", email, u"'"))
+                return {"saldoPuntos": saldopuntos, "email": email, "codtarjetapuntos": existe_tarjeta}
+            else:
+                return {"Error": "Petición Incorrecta", "status": -1}
+        except Exception as e:
+            qsatype.debug(ustr(u"Error inesperado consulta de puntos: ", e))
+            return {"Error": params, "status": -2}
+        return False
+
     def __init__(self, context=None):
         super().__init__(context)
 
@@ -347,6 +369,9 @@ class elganso_sync(interna):
 
     def eglogtarjetasweb(self, params):
         return self.ctx.elganso_sync_eglogtarjetasweb(params)
+
+    def consultapuntos(self, params):
+        return self.ctx.elganso_sync_consultapuntos(params)
 
 
 # @class_declaration head #
