@@ -139,9 +139,6 @@ class Mg2PriceUpload(PriceUpload):
         return body
 
     def after_sync(self, response_data=None):
-        if self.error:
-            self.log("Error", "No se pudo sincronizar la tarifa")
-            return self.small_sleep
 
         self.log("Exito", "Tarifas de precio sincronizadas correctamente (Referencias: {})".format(self.refSincros))
 

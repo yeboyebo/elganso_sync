@@ -5,8 +5,8 @@ from controllers.api.magento2.tierprice.serializers.tierprice_serializer import 
 
 class Mg2TierpriceUpload(TierpriceUpload):
 
-    _fechasincro = None
     error = False
+    _ssw = None
 
     def __init__(self, params=None):
         super().__init__("mg2tierprice", params)
@@ -24,9 +24,17 @@ class Mg2TierpriceUpload(TierpriceUpload):
             return data
 
         new_tierprice = []
+        idObjeto = None
         for idx in range(len(data)):
             price = self.get_tierprice_serializer().serialize(data[idx])
             new_tierprice.append(price)
+            if not idObjeto:
+                idObjeto = str(data[idx]["ls.id"])
+                self._ssw = str(data[idx]["ls.id"])
+
+            if str(data[idx]["ls.id"]) != idObjeto:
+                idObjeto = str(data[idx]["ls.id"])
+                self._ssw += "," + str(data[idx]["ls.id"])
 
         if not new_tierprice:
             return False
@@ -56,17 +64,10 @@ class Mg2TierpriceUpload(TierpriceUpload):
     def get_db_data(self):
         body = []
 
-        idobjeto = qsatype.FLUtil.sqlSelect("lineassincro_catalogo", "idobjeto", "tiposincro = 'Planificador Precios' AND NOT sincronizado AND website = 'magento2' ORDER BY id LIMIT 1")
-
-        if not idobjeto:
-            return body
-
-        self.idobjeto = idobjeto
-
         q = qsatype.FLSqlQuery()
-        q.setSelect("at.referencia, at.talla, ap.pvp, p.desde || ' ' || p.horadesde, p.hasta || ' ' || p.horahasta")
-        q.setFrom("eg_planprecios p INNER JOIN eg_articulosplan ap ON p.codplan = ap.codplan INNER JOIN atributosarticulos at ON ap.referencia = at.referencia")
-        q.setWhere("p.codplan = '{}' AND p.elgansociety = TRUE GROUP BY at.referencia, at.talla, ap.pvp, p.desde || ' ' || p.horadesde, p.hasta || ' ' || p.horahasta".format(self.idobjeto))
+        q.setSelect("ls.id, at.referencia, at.talla, ap.pvp, mg.idmagento")
+        q.setFrom("eg_planprecios p INNER JOIN eg_articulosplan ap ON p.codplan = ap.codplan INNER JOIN atributosarticulos at ON ap.referencia = at.referencia INNER JOIN eg_tiendasplanprecios tp ON p.codplan = tp.codplan INNER JOIN mg_storeviews mg ON tp.codtienda = mg.egcodtiendarebajas INNER JOIN lineassincro_catalogo ls ON (p.codplan = ls.idobjeto AND at.referencia = ls.descripcion)")
+        q.setWhere("p.elgansociety = TRUE AND ls.id IN (SELECT id FROM lineassincro_catalogo WHERE sincronizado = FALSE AND tiposincro = 'Planificador Precios' LIMIT 25) GROUP BY ls.id, at.referencia, at.talla, ap.pvp, mg.idmagento ORDER BY ls.id")
 
         q.exec_()
 
@@ -81,14 +82,13 @@ class Mg2TierpriceUpload(TierpriceUpload):
         return TierpriceSerializer()
 
     def after_sync(self, response_data=None):
+        print("SSW: ", self._ssw)
         if self.error:
-            self.log("Error", "No se pudo sincronizar la tarifa")
+            self.log("Error", "No se pudo sincronizar las líneas de planificador: {})".format(self._ssw))
             return self.small_sleep
 
-        if self._fechasincro != "2014-08-01":
-            qsatype.FLSqlQuery().execSql("UPDATE tpv_fechasincrotienda SET fechasincro = '{}', horasincro = '{}' WHERE codtienda = 'AWEB' AND esquema = 'PRICES_WEB'".format(self.start_date, self.start_time))
-        else:
-            qsatype.FLSqlQuery().execSql("INSERT INTO tpv_fechasincrotienda (codtienda, esquema, fechasincro, horasincro) VALUES ('AWEB', 'PRICES_WEB', '{}', '{}')".format(self.start_date, self.start_time))
+        qsatype.FLSqlQuery().execSql("UPDATE lineassincro_catalogo SET sincronizado = TRUE WHERE id IN ({})".format(self._ssw))
 
-        self.log("Exito", "Tarifa de precio sincronizada correctamente.")
+        self.log("Exito", "Lineas de planificador sincronizadas correctamente {}".format(self._ssw))
+
         return self.small_sleep

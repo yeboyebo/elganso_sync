@@ -9,9 +9,9 @@ class TierpriceSerializer(DefaultSerializer):
             referencia = str(self.init_data["at.referencia"])
 
         self.set_string_value("sku", referencia)
-        self.set_data_relation("price", "a.pvp")
-        self.set_data_relation("website_id", "st.idmagento")
-        self.set_string_value("customer_group", "Wholesale")
+        self.set_data_relation("price", "ap.pvp")
+        self.set_data_relation("website_id", "mg.idmagento")
+        self.set_string_value("customer_group", "General")
         self.set_string_value("price_type", "fixed")
         self.set_data_value("quantity", 1)
 
