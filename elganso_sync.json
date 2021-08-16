@@ -1107,6 +1107,14 @@
             {
                 "name": "ctrl_api_magento2_special_price__upload.py",
                 "path": "controllers/api/magento2/special_price/"
+            },
+            {
+                "path": "controllers/api/magento2/orders/serializers/",
+                "name": "ctrl_api_magento2_orders__mg2_discountunknownline_serializer.py"
+            },
+            {
+                "path": "controllers/api/magento2/orders/serializers/",
+                "name": "ctrl_api_magento2_orders__mg2_pointsline_serializer.py"
             }
         ],
         "deleteFile": [],

@@ -47,6 +47,7 @@ class Mg2OrdersProcess(DownloadSync):
 
     def process_data(self, data):
         order_data = Mg2OrdersSerializer().serialize(data)
+
         if not order_data:
             return
 

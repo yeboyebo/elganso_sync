@@ -2,7 +2,7 @@ from YBLEGACY import qsatype
 from YBLEGACY.constantes import *
 
 from controllers.base.default.serializers.default_serializer import DefaultSerializer
-
+from controllers.api.magento2.orders.serializers.mg2_lineaecommerceexcluida_serializer import Mg2LineaEcommerceExcluidaSerializer
 
 class Mg2OrderLineSerializer(DefaultSerializer):
 
@@ -41,6 +41,11 @@ class Mg2OrderLineSerializer(DefaultSerializer):
         self.set_data_relation("pvpunitarioiva", "pvpunitarioiva")
         self.set_data_relation("pvpsindtoiva", "pvpsindtoiva")
         self.set_data_relation("pvptotaliva", "pvptotaliva")
+        
+        if "almacen" in self.init_data:
+            if str(self.init_data["almacen"]) != "AWEB":
+                linea_ecommerce_excluida = Mg2LineaEcommerceExcluidaSerializer().serialize(self.init_data)
+                self.data["children"]["lineaecommerceexcluida"] = linea_ecommerce_excluida
 
         return True
 

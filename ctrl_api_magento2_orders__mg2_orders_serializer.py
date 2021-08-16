@@ -11,6 +11,8 @@ from controllers.api.magento2.orders.serializers.mg2_voucherline_serializer impo
 from controllers.api.magento2.orders.serializers.mg2_payment_serializer import Mg2PaymentSerializer
 from controllers.api.magento2.orders.serializers.mg2_cashcount_serializer import Mg2CashCountSerializer
 from controllers.api.magento2.orders.serializers.mg2_idlecommerce_serializer import Mg2IdlEcommerce
+from controllers.api.magento2.orders.serializers.mg2_pointsline_serializer import Mg2PointsLineSerializer
+from controllers.api.magento2.orders.serializers.mg2_discountunknownline_serializer import Mg2DiscountUnknownLineSerializer
 
 
 class Mg2OrdersSerializer(DefaultSerializer):
@@ -20,32 +22,41 @@ class Mg2OrdersSerializer(DefaultSerializer):
 
         codigo = "WEB{}".format(qsatype.FactoriaModulos.get("flfactppal").iface.cerosIzquierda(increment, 9))
 
-        if qsatype.FLUtil.sqlSelect("tpv_comandas", "idtpv_comanda", "codigo = '{}'".format(codigo)):
+        if qsatype.FLUtil.sqlSelect("tpv_comandas", "idtpv_comanda", "codigo = '{}'".format(codigo)):  
+            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 0")
             return False
 
         if str(self.init_data["status"]) == "holded" or str(self.init_data["status"]) == "closed":
+            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 1")
             return False
         elif str(self.init_data["status"]) == "seurpro_pending_cashondelivery" or str(self.init_data["status"]) == "fraud" or str(self.init_data["status"]) == "payment_review" or str(self.init_data["status"]) == "redsyspro_pending" or str(self.init_data["status"]) == "pending":
             if qsatype.FLUtil.sqlSelect("pedidoscli", "idpedido", "observaciones = '{}'".format(codigo)):
+                qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 2")
                 raise NameError("Pedido ya creado.")
                 return False
 
             if not self.crear_pedido_reserva_stock(codigo):
+                qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 3")
                 raise NameError("Error al crear el pedido de reserva de stock.")
                 return False
 
+            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 4")
             return False
         elif str(self.init_data["status"]) == "canceled" or str(self.init_data["status"]) == "paypal_reversed" or str(self.init_data["status"]) == "paypal_canceled_reversal":
             if not self.eliminar_pedido_reserva_stock(codigo):
+                qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 5")
                 raise NameError("Error al eliminar el pedido de reserva de stock.")
                 return False
+            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 6")
             return False
-        elif str(self.init_data["status"]) == "complete" or str(self.init_data["status"]) == "processing" or str(self.init_data["status"]) == "en_camino":
+        elif str(self.init_data["status"]) == "complete" or str(self.init_data["status"]) == "processing":
             if qsatype.FLUtil.sqlSelect("tpv_comandas", "idtpv_comanda", "codigo = '{}'".format(codigo)):
+                qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 7")
                 return False
 
             if qsatype.FLUtil.sqlSelect("pedidoscli", "idpedido", "observaciones = '{}'".format(codigo)):
                 if not self.eliminar_pedido_reserva_stock(codigo):
+                    qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 8")
                     raise NameError("Error al eliminar el pedido de reserva de stock.")
                     return False
 
@@ -54,6 +65,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
                 num_lineas = num_lineas + float(item["cantidad"])
 
             if float(num_lineas) != float(self.init_data["units"]):
+                qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 9")
                 raise NameError("El número de unidades indicadas y la cantidad de líneas no coincide.")
                 return False
 
@@ -70,7 +82,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
                 self.data["children"]["payments"] = []
 
             ivaInformado = False
-            for item in self.init_data["items"]:
+            for item in self.init_data["items"]:    
                 item.update({
                     "codcomanda": self.data["codigo"]
                 })
@@ -114,7 +126,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
             self.set_data_value("neto", neto)
 
             self.set_string_relation("email", "email", max_characters=100)
-            self.set_string_relation("codtarjetapuntos", "card_points", max_characters=15)
+            self.set_string_value("codtarjetapuntos", self.get_codtarjetapuntos(), max_characters=15)
             self.set_string_relation("cifnif", "cif", max_characters=20, default="-")
 
             self.set_string_relation("codpostal", "billing_address//postcode", max_characters=10)
@@ -122,10 +134,14 @@ class Mg2OrdersSerializer(DefaultSerializer):
             self.set_string_relation("provincia", "billing_address//region", max_characters=100)
             self.set_string_relation("codpais", "billing_address//country_id", max_characters=20)
             self.set_string_relation("telefono1", "billing_address//telephone", max_characters=30)
+            
+            recogidatienda = self.get_recogidatienda()
 
-            if self.init_data["shipping_method"].startswith("pl_store_pickup"):
+            if recogidatienda:
                 self.set_data_value("recogidatienda", True)
                 self.set_string_relation("codtiendarecogida", "shipping_address//lastname", max_characters=10)
+            else:
+                self.set_data_value("recogidatienda", False)
 
             nombrecliente = "{} {}".format(self.init_data["billing_address"]["firstname"], self.init_data["billing_address"]["lastname"])
             self.set_string_value("nombrecliente", nombrecliente, max_characters=100)
@@ -150,7 +166,9 @@ class Mg2OrdersSerializer(DefaultSerializer):
             linea_envio = Mg2ShippingLineSerializer().serialize(new_init_data)
             linea_gastos = Mg2ExpensesLineSerializer().serialize(new_init_data)
             linea_descuento = Mg2DiscountLineSerializer().serialize(new_init_data)
+            linea_puntos = Mg2PointsLineSerializer().serialize(new_init_data)
             linea_vale = Mg2VoucherLineSerializer().serialize(new_init_data)
+            linea_dtodesconocido=Mg2DiscountUnknownLineSerializer().serialize(new_init_data)
             arqueo_web = Mg2CashCountSerializer().serialize(self.data)
             new_data = self.data.copy()
             new_data.update({"idarqueo": arqueo_web["idtpv_arqueo"]})
@@ -160,6 +178,8 @@ class Mg2OrdersSerializer(DefaultSerializer):
             self.data["children"]["lines"].append(linea_gastos)
             self.data["children"]["lines"].append(linea_descuento)
             self.data["children"]["lines"].append(linea_vale)
+            self.data["children"]["lines"].append(linea_puntos)
+            self.data["children"]["lines"].append(linea_dtodesconocido)
             self.data["children"]["payments"].append(pago_web)
             self.data["children"]["shippingline"] = linea_envio
 
@@ -168,6 +188,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
             self.data["children"]["cashcount"] = arqueo_web
             self.data["children"]["idl_ecommerce"] = idl_ecommerce
         else:
+            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 10")
             raise NameError("Estado no controlado del pedido. Mirar registro de log en BBDD")
             return False
         return True
@@ -216,6 +237,21 @@ class Mg2OrdersSerializer(DefaultSerializer):
             codpago = qsatype.FactoriaModulos.get('flfactppal').iface.pub_valorDefectoEmpresa("codpago")
 
         return codpago
+
+    def get_codtarjetapuntos(self):
+        email = self.init_data["email"]
+        codtarjetapuntos = qsatype.FLUtil.quickSqlSelect("tpv_tarjetaspuntos", "codtarjetapuntos", "email = '{}'".format(email).lower())
+
+        if not codtarjetapuntos:
+            codtarjetapuntos = ""
+
+        return codtarjetapuntos
+
+    def get_recogidatienda(self):
+        metodoEnvio = str(self.init_data["shipping_method"])
+
+        recogidatienda = qsatype.FLUtil.sqlSelect("metodosenvio_transportista", "recogidaentienda", "LOWER(metodoenviomg) = '" + metodoEnvio + "' OR UPPER(metodoenviomg) = '" + metodoEnvio + "' OR metodoenviomg = '" + metodoEnvio + "'")
+        return recogidatienda
 
     def get_codfactura(self):
         prefix = "AWEBX"
@@ -269,16 +305,19 @@ class Mg2OrdersSerializer(DefaultSerializer):
         curPedido.setValueBuffer("coddivisa", "EUR")
 
         if not curPedido.commitBuffer():
+            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 11")
             raise NameError("Error al guardar la cabecera del pedido.")
             return False
 
         if not curPedido.valueBuffer("idpedido") or str(curPedido.valueBuffer("idpedido")) == "None":
+            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 12")
             return False
 
         cont = 0
         for linea in self.init_data["items"]:
             cont = cont + 1
             if not self.crear_linea_pedido_reserva_stock(cont, linea, curPedido.valueBuffer("idpedido")):
+                qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 13")
                 raise NameError("Error al crear la línea del pedido de reserva de stock.")
                 return False
 
@@ -325,11 +364,13 @@ class Mg2OrdersSerializer(DefaultSerializer):
                 curLineaPedido.setModeAccess(curLineaPedido.Del)
                 curLineaPedido.refreshBuffer()
                 if not curLineaPedido.commitBuffer():
+                    qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 14")
                     return False
 
             curPedido.setModeAccess(curPedido.Del)
             curPedido.refreshBuffer()
             if not curPedido.commitBuffer():
+                qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 15")
                 return False
         else:
             for linea in self.init_data["items"]:
@@ -340,6 +381,8 @@ class Mg2OrdersSerializer(DefaultSerializer):
                         qsatype.FLSqlQuery().execSql("UPDATE eg_sincrostockweb SET sincronizado = FALSE, fecha = CURRENT_DATE, hora = CURRENT_TIME WHERE idstock = {}".format(id_stock))
                     else:
                         qsatype.FLSqlQuery().execSql("INSERT INTO eg_sincrostockweb (fecha,hora,sincronizado,idstock,sincronizadoeci) VALUES (CURRENT_DATE,CURRENT_TIME,false,{},true)".format(id_stock))
+                        
+        qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ OK")
         return True
 
     def get_splitted_sku(self, refArticulo):

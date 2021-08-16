@@ -5,7 +5,7 @@ from YBLEGACY.constantes import *
 
 from controllers.api.magento2.orders.serializers.mg2_orderline_serializer import Mg2OrderLineSerializer
 
-class Mg2DiscountLineSerializer(Mg2OrderLineSerializer):
+class Mg2DiscountUnknownLineSerializer(Mg2OrderLineSerializer):
     bono = None
 
     def get_data(self):
@@ -28,6 +28,13 @@ class Mg2DiscountLineSerializer(Mg2OrderLineSerializer):
         if self.bono:
             if "discount" in self.bono:
                 dto = self.bono["discount"]
+
+        dif=(self.init_data["discount_amount"])-(dto-importe_puntos)
+        
+        if abs(dif) > 0.01:
+            dto=dif
+        else:
+            return False
 
         iva = self.init_data["iva"]
         if not iva or iva == "":
@@ -82,45 +89,25 @@ class Mg2DiscountLineSerializer(Mg2OrderLineSerializer):
 
         if descripcion_bono:
             coddescuento=str(self.init_data["discount_description"])
-
-            if str(coddescuento)[:2]=="KN":
-                self.bono = {
-                    "descripcion": "CUPON {}".format(coddescuento)
-                }
             if str(coddescuento)[:2]=="BX":
                 dto = qsatype.FLUtil.sqlSelect("eg_movibono", "importe", "codbono = '{}' AND venta = '{}'".format(coddescuento, self.init_data["codcomanda"]))
-                qsatype.debug(ustr(u"---------------------------------------------- dto 1: ", str(dto)))
+                qsatype.debug(ustr(u"---------------------------------------------- dto 2: ", str(dto)))
                 if dto:
                     if float(dto) != 0:
                         if self.init_data["codcomanda"][:4] == "WEC7":
                             dto = dto / 0.8
 
                         self.bono = {
-                            "referencia": json_bono["referenciabono"],
-                            "barcode": json_bono["barcodebono"],
-                            "descripcion": "BONO {}".format(coddescuento),
                             "discount": dto
                         }
 
     def get_referencia(self):
-        if self.bono:
-            if "referencia" in self.bono:
-                return self.bono["referencia"]
-
         return "0000ATEMP00001"
 
     def get_descripcion(self):
-        if self.bono:
-            if "descripcion" in self.bono:
-                return self.bono["descripcion"]
-
         return "DESCUENTO"
 
     def get_barcode(self):
-        if self.bono:
-            if "barcode" in self.bono:
-                return self.bono["barcode"]
-
         return "8433613403654"
 
     def get_talla(self):
@@ -131,3 +118,4 @@ class Mg2DiscountLineSerializer(Mg2OrderLineSerializer):
 
     def get_cantidad(self):
         return 1
+
