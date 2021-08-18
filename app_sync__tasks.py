@@ -65,6 +65,7 @@ from controllers.api.magento2.points.controllers.mg2_points_process import Mg2Po
 from controllers.api.magento2.tierprice.controllers.mg2_tierprice_upload import Mg2TierpriceUpload
 from controllers.api.magento2.refounds.controllers.mg2_refounds_process import Mg2RefoundsProcess
 from controllers.api.magento2.special_price.controllers.mg2_special_price_upload import Mg2SpecialPriceUpload
+from controllers.api.magento2.stock_incremental.controllers.mg2_stock_incremental_upload import Mg2StockIncrementalUpload
 
 sync_object_dict = {
     "stock_upload": {
@@ -212,6 +213,9 @@ sync_object_dict = {
     },
     "mg2_special_price_upload": {
         "sync_object": Mg2SpecialPriceUpload
+    },
+    "mg2_stock_incremental_upload": {
+        "sync_object": Mg2StockIncrementalUpload
     }
 }
 

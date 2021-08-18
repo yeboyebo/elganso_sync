@@ -1115,6 +1115,18 @@
             {
                 "path": "controllers/api/magento2/orders/serializers/",
                 "name": "ctrl_api_magento2_orders__mg2_pointsline_serializer.py"
+            },
+            {
+                "path": "controllers/api/magento2/stock_incremental/",
+                "name": "ctrl_api_magento2_stock_incremental__upload.py"
+            },
+            {
+                "path": "controllers/api/magento2/stock_incremental/controllers/",
+                "name": "ctrl_api_magento2_stock_incremental__mg2_stock_incremental_upload.py"
+            },
+            {
+                "path": "controllers/api/magento2/stock_incremental/serializers/",
+                "name": "ctrl_api_magento2_stock_incremental__stock_incremental_serializer.py"
             }
         ],
         "deleteFile": [],
