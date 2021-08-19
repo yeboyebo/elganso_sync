@@ -16,6 +16,9 @@ class Mg2StockIncrementalUpload(InventoryUpload):
         self.stock_incremental_test_url = stock_incremental_params['test_url']
 
         self.set_sync_params(self.get_param_sincro('mg2'))
+        self.small_sleep = 10
+        self.large_sleep = 30
+        self.no_sync_sleep = 60
 
     def get_data(self):
         data = self.get_db_data()

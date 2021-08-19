@@ -81,10 +81,10 @@ class Mg2OrdersSerializer(DefaultSerializer):
             if "payments" not in self.data["children"]:
                 self.data["children"]["payments"] = []
 
-            # if not self.distribucion_almacenes():
-                # qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ error distribucion_almacenes")
-                # raise NameError("El número de unidades indicadas y la cantidad de líneas no coincide.")
-                # return False
+            if not self.distribucion_almacenes():
+                qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ error distribucion_almacenes")
+                raise NameError("El número de unidades indicadas y la cantidad de líneas no coincide.")
+                return False
 
             ivaInformado = False
 
@@ -448,6 +448,10 @@ class Mg2OrdersSerializer(DefaultSerializer):
             return "TU"
 
     def distribucion_almacenes(self):
+        codpago = self.get_codpago()
+        if str(codpago) == "CREE":
+            return True
+
         body = []
 
         q = qsatype.FLSqlQuery()
@@ -463,7 +467,63 @@ class Mg2OrdersSerializer(DefaultSerializer):
         margen_almacenes = {}
 
         while q.next():
-            margen_almacenes[str(row['nombre'])] = str(row['valor'])
+            margen_almacenes[str(q.value(u"nombre"))] = int(q.value(u"valor"))
+
+        lineas_data = self.init_data["items"]
+        total_lineas = len(lineas_data)
+        almacenes = []
+
+        for almacen in self.init_data["almacenes"]:
+            almacenes.append({ "cod_almacen": almacen["source_code"], "emailtienda": almacen["email"], "total": 0, "lineas": {} })
+
+        barcodes = []
+        lineas = {}
+        for linea_data in lineas_data:
+            barcode = self.get_barcode(linea_data["sku"])
+            barcodes.append(barcode)
+            lineas[barcode] = linea_data["cantidad"]
+
+        for almacen in almacenes:
+            cod_almacen = almacen["cod_almacen"]
+
+            q = qsatype.FLSqlQuery()
+            q.setSelect(u"barcode, disponible")
+            q.setFrom(u"stocks")
+            q.setWhere(u"codalmacen = '" + cod_almacen + "' AND barcode IN ('" + "', '".join(barcodes) + "')")
+
+            qsatype.debug(q.sql())
+            q.exec_()
+
+            if not q.size():
+                return True
+
+            while q.next():
+                barcode = q.value("barcode")
+                margen = margen_almacenes.get("RSTOCK_" + cod_almacen, 0)
+                if (q.value("disponible") - margen) >= lineas[barcode]:
+                    almacen["total"] = almacen["total"] + 1
+                    almacen["lineas"][barcode] = True
+
+        qsatype.debug(u"========================================= almacenes: ")
+        qsatype.debug(almacenes)
+
+        def dame_orden(almacen):
+            orden = almacen["total"]
+            if almacen["cod_almacen"] == "AWEB":
+                orden = orden + 0.5
+
+            return orden
+
+        almacenes_ordenados = sorted(almacenes, key=dame_orden, reverse=True)
+
+        qsatype.debug(u"========================================= almacenes_ordenados: ")
+        qsatype.debug(almacenes_ordenados)
+        for linea_data in lineas_data:
+            barcode = self.get_barcode(linea_data["sku"])
+            for almacen in almacenes_ordenados:
+                if almacen["lineas"].get(barcode, False):
+                    linea_data["almacen"] = almacen["cod_almacen"]
+                    linea_data["emailtienda"] = almacen["emailtienda"]
+                    break
 
         return True
-

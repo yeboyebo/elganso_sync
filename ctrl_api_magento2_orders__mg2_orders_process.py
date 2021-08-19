@@ -13,8 +13,8 @@ class Mg2OrdersProcess(DownloadSync):
         self.origin_field = "increment_id"
         self.idlogs = ""
         self.small_sleep = 10
-        self.large_sleep = 60
-        self.no_sync_sleep = 180
+        self.large_sleep = 30
+        self.no_sync_sleep = 60
 
     def get_data(self):
         self.small_sleep = 10
