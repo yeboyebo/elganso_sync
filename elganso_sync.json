@@ -1135,6 +1135,14 @@
             {
                 "name": "model_flfactalma__eg_sincrostockwebinmediato_def.py",
                 "path": "models/flfactalma/"
+            },
+            {
+                "name": "model_flfactalma__eg_sincromovistockweb.py",
+                "path": "models/flfactalma/"
+            },
+            {
+                "name": "model_flfactalma__eg_sincromovistockweb_def.py",
+                "path": "models/flfactalma/"
             }
         ],
         "deleteFile": [],

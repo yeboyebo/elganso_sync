@@ -219,6 +219,13 @@
         },
         {
             "type": "insertAfterNode",
+            "path": "/models/flfactalma/eg_sincrostockwebinmediato",
+            "value": {
+                "eg_sincromovistockweb": null
+            }
+        },
+        {
+            "type": "insertAfterNode",
             "path": "/models/flfactppal/zonasgeo",
             "value": {
                 "idl_recepciones": null
