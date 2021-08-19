@@ -72,7 +72,7 @@ class Mg2InventoryUpload(InventoryUpload):
         return body
 
     def after_sync(self, response_data=None):
-        qsatype.FLSqlQuery().execSql("UPDATE eg_sincrostockweb SET sincronizado = true WHERE idssw IN ({})".format(self._ssw))
+        qsatype.FLSqlQuery().execSql("UPDATE eg_sincrostockwebinmediato SET sincronizado = true WHERE idssw IN ({})".format(self._ssw))
 
         self.log("Exito", "Stock sincronizado correctamente")
 

@@ -15,11 +15,10 @@ class InventorySerializer(DefaultSerializer):
         disponible = self.init_data["s.disponible"]
         if self.init_data["s.disponible"] > 0:
             status = 1
-        else:
-            status = 0
-            disponible = 0
+        # else:
+            # status = 0
+            # disponible = 0
 
         self.set_string_value("quantity", disponible)
         self.set_string_value("status", status)
-
         return True

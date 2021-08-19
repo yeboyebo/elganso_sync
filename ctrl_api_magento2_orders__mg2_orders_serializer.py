@@ -81,7 +81,14 @@ class Mg2OrdersSerializer(DefaultSerializer):
             if "payments" not in self.data["children"]:
                 self.data["children"]["payments"] = []
 
+            # if not self.distribucion_almacenes():
+                # qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ error distribucion_almacenes")
+                # raise NameError("El número de unidades indicadas y la cantidad de líneas no coincide.")
+                # return False
+
             ivaInformado = False
+
+            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ llego 0")
             for item in self.init_data["items"]:    
                 item.update({
                     "codcomanda": self.data["codigo"]
@@ -94,9 +101,11 @@ class Mg2OrdersSerializer(DefaultSerializer):
                 if not ivaInformado and item["pvpunitarioiva"] != 0:
                     iva = ivaLinea
                     ivaInformado = True
+            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ llego 1")
 
             if not ivaInformado:
                 iva = ivaLinea
+            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ llego 2")
 
             new_init_data = self.init_data.copy()
             new_init_data.update({
@@ -104,6 +113,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
                 "codcomanda": self.data["codigo"],
                 "fecha": self.data["fecha"]
             })
+            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ llego 3")
 
             self.set_string_value("codtpv_puntoventa", "AWEB")
             self.set_string_value("codtpv_agente", "0350")
@@ -134,8 +144,10 @@ class Mg2OrdersSerializer(DefaultSerializer):
             self.set_string_relation("provincia", "billing_address//region", max_characters=100)
             self.set_string_relation("codpais", "billing_address//country_id", max_characters=20)
             self.set_string_relation("telefono1", "billing_address//telephone", max_characters=30)
-            
+
             recogidatienda = self.get_recogidatienda()
+
+            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ llego 4")
 
             if recogidatienda:
                 self.set_data_value("recogidatienda", True)
@@ -145,6 +157,8 @@ class Mg2OrdersSerializer(DefaultSerializer):
 
             nombrecliente = "{} {}".format(self.init_data["billing_address"]["firstname"], self.init_data["billing_address"]["lastname"])
             self.set_string_value("nombrecliente", nombrecliente, max_characters=100)
+
+            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ llego 5")
 
             street = self.init_data["billing_address"]["street"].split("\n")
             dirtipovia = street[0] if len(street) >= 1 else ""
@@ -162,19 +176,31 @@ class Mg2OrdersSerializer(DefaultSerializer):
             self.set_string_value("hora", self.get_hora())
             self.set_string_value("codpago", self.get_codpago(), max_characters=10)
             self.set_string_value("egcodfactura", self.get_codfactura(), max_characters=12)
+            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ llego 6")
 
             linea_envio = Mg2ShippingLineSerializer().serialize(new_init_data)
+            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ llego 7")
             linea_gastos = Mg2ExpensesLineSerializer().serialize(new_init_data)
+            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ llego 8")
             linea_descuento = Mg2DiscountLineSerializer().serialize(new_init_data)
+            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ llego 9")
             linea_puntos = Mg2PointsLineSerializer().serialize(new_init_data)
+            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ llego 10")
             linea_vale = Mg2VoucherLineSerializer().serialize(new_init_data)
+            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ llego 11")
             linea_dtodesconocido=Mg2DiscountUnknownLineSerializer().serialize(new_init_data)
+            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ llego 12")
             arqueo_web = Mg2CashCountSerializer().serialize(self.data)
+            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ llego 13")
             new_data = self.data.copy()
+            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ llego 14")
             new_data.update({"idarqueo": arqueo_web["idtpv_arqueo"]})
+            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ llego 15")
             pago_web = Mg2PaymentSerializer().serialize(new_data)
+            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ llego 16")
             idl_ecommerce = Mg2IdlEcommerce().serialize(new_init_data)
 
+            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ llego 17")
             self.data["children"]["lines"].append(linea_gastos)
             self.data["children"]["lines"].append(linea_descuento)
             self.data["children"]["lines"].append(linea_vale)
@@ -182,15 +208,18 @@ class Mg2OrdersSerializer(DefaultSerializer):
             self.data["children"]["lines"].append(linea_dtodesconocido)
             self.data["children"]["payments"].append(pago_web)
             self.data["children"]["shippingline"] = linea_envio
+            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ llego 18")
 
             if "skip" in arqueo_web and arqueo_web["skip"]:
                 arqueo_web = False
             self.data["children"]["cashcount"] = arqueo_web
             self.data["children"]["idl_ecommerce"] = idl_ecommerce
+            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ llego 19")
         else:
             qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 10")
             raise NameError("Estado no controlado del pedido. Mirar registro de log en BBDD")
             return False
+        qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ llego OK")
         return True
 
     def get_codserie(self):
@@ -381,7 +410,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
                         qsatype.FLSqlQuery().execSql("UPDATE eg_sincrostockweb SET sincronizado = FALSE, fecha = CURRENT_DATE, hora = CURRENT_TIME WHERE idstock = {}".format(id_stock))
                     else:
                         qsatype.FLSqlQuery().execSql("INSERT INTO eg_sincrostockweb (fecha,hora,sincronizado,idstock,sincronizadoeci) VALUES (CURRENT_DATE,CURRENT_TIME,false,{},true)".format(id_stock))
-                        
+
         qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ OK")
         return True
 
@@ -417,3 +446,24 @@ class Mg2OrdersSerializer(DefaultSerializer):
             return splitted_sku[1]
         else:
             return "TU"
+
+    def distribucion_almacenes(self):
+        body = []
+
+        q = qsatype.FLSqlQuery()
+        q.setSelect(u"nombre, valor")
+        q.setFrom(u"param_parametros")
+        q.setWhere(u"nombre like 'RSTOCK_%'")
+
+        q.exec_()
+
+        if not q.size():
+            return True
+
+        margen_almacenes = {}
+
+        while q.next():
+            margen_almacenes[str(row['nombre'])] = str(row['valor'])
+
+        return True
+

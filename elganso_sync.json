@@ -1127,6 +1127,14 @@
             {
                 "path": "controllers/api/magento2/stock_incremental/serializers/",
                 "name": "ctrl_api_magento2_stock_incremental__stock_incremental_serializer.py"
+            },
+            {
+                "name": "model_flfactalma__eg_sincrostockwebinmediato.py",
+                "path": "models/flfactalma/"
+            },
+            {
+                "name": "model_flfactalma__eg_sincrostockwebinmediato_def.py",
+                "path": "models/flfactalma/"
             }
         ],
         "deleteFile": [],
