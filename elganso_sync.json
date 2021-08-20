@@ -1143,6 +1143,18 @@
             {
                 "name": "model_flfactalma__eg_sincromovistockweb_def.py",
                 "path": "models/flfactalma/"
+            },
+            {
+                "path": "controllers/api/magento2/inventory_old/",
+                "name": "ctrl_api_magento2_inventory_old__upload.py"
+            },
+            {
+                "path": "controllers/api/magento2/inventory_old/controllers/",
+                "name": "ctrl_api_magento2_inventory_old__mg2_inventory_old_upload.py"
+            },
+            {
+                "path": "controllers/api/magento2/inventory_old/serializers/",
+                "name": "ctrl_api_magento2_inventory_old__inventory_old_serializer.py"
             }
         ],
         "deleteFile": [],

@@ -121,7 +121,6 @@ class Mg2RefoundsSerializer(DefaultSerializer):
         telefonofac = self.init_data["phone"]
         codpago = self.get_codpago(str(self.init_data["payment_method"]))
         email = self.init_data["email"]
-        codtarjetapuntos = self.init_data["card_points"]
         region = self.init_data["pickup_address"]["region"]
         codDivisa = str(self.init_data["currency"])
 
@@ -161,7 +160,7 @@ class Mg2RefoundsSerializer(DefaultSerializer):
         self.set_string_value("neto", totalNeto * (-1))
         self.set_string_value("totaliva", totalIva * (-1))
         self.set_string_value("total", totalVenta * (-1))
-        self.set_string_value("codtarjetapuntos", codtarjetapuntos[:15] if codtarjetapuntos else codtarjetapuntos)
+        self.set_string_value("codtarjetapuntos", self.get_codtarjetapuntos(), max_characters=15)
         self.set_string_value("ptesincrofactura", False)
         self.set_string_value("egcodfactura", "")
         total = totalVenta * (-1)
@@ -600,4 +599,10 @@ class Mg2RefoundsSerializer(DefaultSerializer):
             linea_gastosenvio = Mg2RefoundExpensesLineSerializer().serialize(new_init_data)
             self.data["children"]["lines"].append(linea_gastosenvio)
 
-    
+    def get_codtarjetapuntos(self):
+        codtarjetapuntos = qsatype.FLUtil.quickSqlSelect("tpv_comandas", "codtarjetapuntos", "codigo = '{}'".format("WEB" + str(self.init_data["increment_id"])))
+
+        if not codtarjetapuntos:
+            codtarjetapuntos = ""
+
+        return codtarjetapuntos
