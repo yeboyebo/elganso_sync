@@ -16,7 +16,7 @@ class Mg2InventoryUpload(InventoryUpload):
         self.inventory_test_url = inventory_params['test_url']
 
         self.set_sync_params(self.get_param_sincro('mg2'))
-        
+
         self.small_sleep = 10
         self.large_sleep = 30
         self.no_sync_sleep = 60
@@ -55,7 +55,7 @@ class Mg2InventoryUpload(InventoryUpload):
         body = []
 
         q = qsatype.FLSqlQuery()
-        q.setSelect("ssw.idssw, aa.referencia, aa.talla, s.disponible, s.codalmacen")
+        q.setSelect("ssw.idssw, aa.referencia, aa.talla, s.disponible, s.codalmacen, s.idstock")
         q.setFrom("articulos a INNER JOIN atributosarticulos aa ON a.referencia = aa.referencia INNER JOIN stocks s ON aa.barcode = s.barcode LEFT OUTER JOIN eg_sincrostockwebinmediato ssw ON s.idstock = ssw.idstock")
         q.setWhere("NOT ssw.sincronizado OR ssw.sincronizado = false ORDER BY aa.referencia LIMIT 25")
 
