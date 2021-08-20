@@ -26,6 +26,7 @@ class Mg2PointsSerializer(DefaultSerializer):
         self.set_string_value("provincia", str(self.init_data["provincia"]))
         self.set_string_value("ciudad", str(self.init_data["ciudad"]))
         self.set_string_value("codpais", str(self.init_data["codpais"]))
+        self.set_string_value("codpostal", str(self.init_data["codpostal"]))
         if str(self.init_data["genero"]) == "1":
             self.set_string_value("sexo", "Masculino")
         elif str(self.init_data["genero"]) == "1":
