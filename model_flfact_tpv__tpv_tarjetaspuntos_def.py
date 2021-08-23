@@ -231,10 +231,14 @@ class elganso_sync(interna):
                 if "canpuntos" not in params:
                     return {"Error": "Formato Incorrecto. Falta la cantidad de puntos en los parametros", "status": -1}
 
+                params['saldo'] = 0
                 if not self.acumularPuntosOperacionesMagento(params):
                     return False
 
-                if not qsatype.FLSqlQuery().execSql("UPDATE tpv_tarjetaspuntos SET saldopuntos = CASE WHEN (SELECT SUM(canpuntos) FROM tpv_movpuntos WHERE codtarjetapuntos = tpv_tarjetaspuntos.codtarjetapuntos) IS NULL THEN 0 ELSE (SELECT SUM(canpuntos) FROM tpv_movpuntos WHERE codtarjetapuntos = tpv_tarjetaspuntos.codtarjetapuntos) END WHERE email = '{}'".format(str(params['email']))):
+                saldo = parseFloat(params['saldo'])
+                email = str(params['email'])
+
+                if not qsatype.FLSqlQuery().execSql(ustr(u"UPDATE tpv_tarjetaspuntos SET saldopuntos = " , saldo , " WHERE email = '" , email , "'")):
                     return False
 
                 return True
@@ -283,6 +287,8 @@ class elganso_sync(interna):
 
             if not curTpvTarjetas.commitBuffer():
                 return False
+
+            params["saldo"] = qsatype.FactoriaModulos.get("formRecordtpv_tarjetaspuntos").iface.pub_commonCalculateField("saldopuntos", curTpvTarjetas)
 
         return True
 

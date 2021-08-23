@@ -32,37 +32,39 @@ class elganso_sync(flfactalma):
             if "passwd" in params and params['passwd'] == self.params['auth']:
                 if "sku" not in params:
                     return {"Error": "Formato Incorrecto. Falta el parámetro sku", "status": 10}
-                if "talla" not in params:
-                    return {"Error": "Formato Incorrecto. Falta el parámetro talla", "status": 10}
 
                 where_talla = ""
-                if str(params["talla"]) != "None":
-                    where_talla = " AND s.talla = '" + str(params["talla"]) + "'"
+                if "talla" in params:
+                    if str(params["talla"]) != "None":
+                        where_talla = " AND s.talla = '" + str(params["talla"]) + "'"
 
-                lista_almacenes = qsatype.FLUtil.sqlSelect("param_parametros", "valor", "nombre = 'ALMACENES_SINCRO'").split(',')
-
-                where_almacenes = ""
-                for idx in range(len(lista_almacenes)):
-                    if where_almacenes == "":
-                        where_almacenes = "'" + str(lista_almacenes[idx]) + "'"
-                    else:
-                        where_almacenes += ",'" + str(lista_almacenes[idx]) + "'"
+                empresasCorner = qsatype.FactoriaModulos.get('flfactppal').iface.listaEmpresaCorner()
 
                 q = qsatype.FLSqlQuery()
-                q.setTablesList("stocks")
-                q.setSelect("s.codalmacen,a.nombre,a.direccion,a.poblacion,a.provincia,a.codpostal,a.codpais,a.telefono")
-                q.setFrom("stocks s INNER JOIN almacenes a ON s.codalmacen = a.codalmacen")
-                q.setWhere("s.codalmacen IN (" + where_almacenes + ") AND s.disponible >= 2 AND s.referencia = '" + str(params["sku"]) + "'" + where_talla)
+                q.setTablesList("stocks,tiendas,param_parametros")
+                q.setSelect("s.codalmacen,t.descripcion,t.direccion,t.ciudad,t.provincia,t.codpostal,t.codpais,t.telefono, s.talla")
+                q.setFrom("tpv_tiendas t inner join stocks s on t.codalmacen = s.codalmacen left outer join param_parametros p on 'RSTOCK_' || t.codalmacen = p.nombre")
+                q.setWhere("t.sincroactiva and (p.nombre like 'RSTOCK_%' or p.nombre is null) AND s.disponible > 1 AND s.referencia = '" + str(params["sku"]) + "' AND t.idempresa not in (" + str(empresasCorner) + ")" + where_talla + " GROUP BY s.codalmacen,t.descripcion,t.direccion,t.ciudad,t.provincia,t.codpostal,t.codpais,t.telefono, s.talla ORDER BY s.codalmacen, s.talla")
 
                 if not q.exec_():
                     return {"Error": "No hay stock en ningún almacen", "status": -1}
 
                 if not q.size():
-                    return {"Error": "No hay stock en ningún almacen", "status": -1}
+                    return {"Error": "No hay stock en ningún almacen", "status": -2}
 
                 lista_almacenes = []
+                cod_almacen_ant = ""
+
                 while(q.next()):
-                    lista_almacenes.append({"codAlmacen": q.value("s.codalmacen"), "nombre": q.value("a.nombre"), "direccion": q.value("a.direccion"), "ciudad": q.value("a.poblacion"), "provincia": q.value("a.provincia"), "codpostal": q.value("a.codpostal"), "codpais": q.value("a.codpais"), "telefono": q.value("a.telefono")})
+                    if cod_almacen_ant != q.value("s.codalmacen"):
+                        tallas = []
+                        tallas.append(q.value("s.talla"))
+                        lista_almacenes.append({"codAlmacen": q.value("s.codalmacen"), "nombre": q.value("t.descripcion"), "direccion": q.value("t.direccion"), "ciudad": q.value("t.ciudad"), "provincia": q.value("t.provincia"), "codpostal": q.value("t.codpostal"), "codpais": q.value("t.codpais"), "telefono": q.value("t.telefono"), "tallas": tallas})
+                    else:
+                        tallas = lista_almacenes[len(lista_almacenes) - 1]["tallas"]
+                        tallas.append(q.value("s.talla"))
+
+                    cod_almacen_ant = q.value("s.codalmacen")
 
                 return {"almacenes": lista_almacenes}
             else:

@@ -89,7 +89,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
             ivaInformado = False
 
             qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ llego 0")
-            for item in self.init_data["items"]:    
+            for item in self.init_data["items"]:
                 item.update({
                     "codcomanda": self.data["codigo"]
                 })
@@ -188,7 +188,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
             qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ llego 10")
             linea_vale = Mg2VoucherLineSerializer().serialize(new_init_data)
             qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ llego 11")
-            linea_dtodesconocido=Mg2DiscountUnknownLineSerializer().serialize(new_init_data)
+            linea_dtodesconocido = Mg2DiscountUnknownLineSerializer().serialize(new_init_data)
             qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ llego 12")
             arqueo_web = Mg2CashCountSerializer().serialize(self.data)
             qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ llego 13")
@@ -298,7 +298,9 @@ class Mg2OrdersSerializer(DefaultSerializer):
         return "{}{}".format(prefix, qsatype.FactoriaModulos.get("flfactppal").iface.cerosIzquierda(str(ultima_factura), 12 - len(prefix)))
 
     def crear_pedido_reserva_stock(self, codigo):
-
+        qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ crear_pedido_reserva_stock 0")
+        qsatype.FactoriaModulos.get('flfactalma').iface.movimientoStockWeb_ = True
+        qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ crear_pedido_reserva_stock 1")
         now = str(qsatype.Date())
         self.start_date = now[:10]
         self.start_time = now[-(8):]
@@ -350,6 +352,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
                 raise NameError("Error al crear la línea del pedido de reserva de stock.")
                 return False
 
+        qsatype.FactoriaModulos.get('flfactalma').iface.movimientoStockWeb_ = False
         return True
 
     def crear_linea_pedido_reserva_stock(self, cont, linea, idpedido):
@@ -384,6 +387,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
         return True
 
     def eliminar_pedido_reserva_stock(self, codigo):
+        qsatype.FactoriaModulos.get('flfactalma').iface.movimientoStockWeb_ = True
         curPedido = qsatype.FLSqlCursor("pedidoscli")
         curPedido.select("observaciones = '" + str(codigo) + "'")
         if curPedido.first():
@@ -411,6 +415,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
                     else:
                         qsatype.FLSqlQuery().execSql("INSERT INTO eg_sincrostockweb (fecha,hora,sincronizado,idstock,sincronizadoeci) VALUES (CURRENT_DATE,CURRENT_TIME,false,{},true)".format(id_stock))
 
+        qsatype.FactoriaModulos.get('flfactalma').iface.movimientoStockWeb_ = False
         qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ OK")
         return True
 
@@ -448,11 +453,12 @@ class Mg2OrdersSerializer(DefaultSerializer):
             return "TU"
 
     def distribucion_almacenes(self):
+        qsatype.debug(u"========================================= distribucion_almacenes: 0")
         codpago = self.get_codpago()
         if str(codpago) == "CREE":
             return True
 
-        body = []
+        qsatype.debug(u"========================================= distribucion_almacenes: 1")
 
         q = qsatype.FLSqlQuery()
         q.setSelect(u"nombre, valor")
@@ -463,6 +469,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
 
         if not q.size():
             return True
+        qsatype.debug(u"========================================= distribucion_almacenes: 2")
 
         margen_almacenes = {}
 
@@ -470,11 +477,18 @@ class Mg2OrdersSerializer(DefaultSerializer):
             margen_almacenes[str(q.value(u"nombre"))] = int(q.value(u"valor"))
 
         lineas_data = self.init_data["items"]
-        total_lineas = len(lineas_data)
         almacenes = []
 
-        for almacen in self.init_data["almacenes"]:
-            almacenes.append({ "cod_almacen": almacen["source_code"], "emailtienda": almacen["email"], "total": 0, "lineas": {} })
+        # for almacen in self.init_data["almacenes"]:
+            # almacenes.append({ "cod_almacen": almacen["source_code"], "emailtienda": almacen["email"], "total": 0, "lineas": {} })
+        for indice, almacen in enumerate(self.init_data["almacenes"]):
+            almacenes.append({
+                "cod_almacen": almacen["source_code"],
+                "emailtienda": almacen["email"],
+                "total": 0,
+                "lineas": {},
+                "prioridad": 0.99 - indice * 0.01
+            })
 
         barcodes = []
         lineas = {}
@@ -495,7 +509,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
             q.exec_()
 
             if not q.size():
-                return True
+                continue
 
             while q.next():
                 barcode = q.value("barcode")
@@ -508,10 +522,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
         qsatype.debug(almacenes)
 
         def dame_orden(almacen):
-            orden = almacen["total"]
-            if almacen["cod_almacen"] == "AWEB":
-                orden = orden + 0.5
-
+            orden = almacen["total"] + almacen["prioridad"]
             return orden
 
         almacenes_ordenados = sorted(almacenes, key=dame_orden, reverse=True)

@@ -30,6 +30,10 @@ class Mg2OrderLine(AQModel):
         if "lineaecommerceexcluida" in self.data["children"]:
             if self.data["children"]["lineaecommerceexcluida"]:
                 self.children.append(EgOrderLineaEcommerceExcluida(self.data["children"]["lineaecommerceexcluida"]))
+                cantidad = parseFloat(self.data["cantidad"])
+                barcode = str(self.data["barcode"])
+                cod_almacen = str(self.data["children"]["lineaecommerceexcluida"]["codalmacen"])
+                qsatype.FLSqlQuery().execSql(ustr(u"UPDATE stocks SET disponible = disponible - ", cantidad , " WHERE codalmacen = '", cod_almacen , "' AND barcode = '", barcode , "'"))
 
     def get_numlinea(self):
         numlinea = parseInt(qsatype.FLUtil.quickSqlSelect("tpv_comandas", "count(*)", "idtpv_comanda = {}".format(self.data["idtpv_comanda"])))

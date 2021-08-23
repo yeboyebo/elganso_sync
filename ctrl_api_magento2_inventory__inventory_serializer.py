@@ -14,7 +14,6 @@ class InventorySerializer(DefaultSerializer):
         self.set_string_value("sku", referencia)
         self.set_string_value("source_code", str(self.init_data["s.codalmacen"]))
         status = 0
-        disponible = self.init_data["s.disponible"]
         if self.init_data["s.disponible"] > 0:
             status = 1
 
@@ -37,15 +36,13 @@ class InventorySerializer(DefaultSerializer):
         if str(str(self.init_data["s.codalmacen"])) != "AWEB":
             cant_reservada = self.get_cantreservada(str(self.init_data["s.codalmacen"]))
             cant_disponible = parseFloat(qty) - parseFloat(cant_reservada)
-            if cant_disponible < 0:
-                cant_disponible = 0
 
         self.set_string_value("quantity", cant_disponible)
         self.set_string_value("status", status)
         return True
 
     def dame_stock(self, disponible):
-        if not disponible or isNaN(disponible) or disponible < 0:
+        if not disponible or isNaN(disponible):
             return 0
 
         return disponible
