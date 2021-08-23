@@ -56,7 +56,7 @@ class EgOrderLineaEcommerceExcluida(AQModel):
             raise NameError("Error al crear las líneas del viaje.")
             return False
 
-        if not qsatype.FLUtil.execSql("INSERT INTO eg_viajeswebtiendaptes (idviajemultitrans) VALUES ('{}')".format(id_viaje)):
+        if not qsatype.FLUtil.execSql("INSERT INTO eg_viajestiendawebptes (idviajemultitrans) VALUES ('{}')".format(id_viaje)):
             raise NameError("Error al insertar el registro en eg_viajeswebtiendaptes.")
             return False
 

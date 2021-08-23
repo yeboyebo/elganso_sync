@@ -234,7 +234,7 @@ class elganso_sync(interna):
                 params['saldo'] = 0
                 if not self.acumularPuntosOperacionesMagento(params):
                     return False
-
+                    
                 saldo = parseFloat(params['saldo'])
                 email = str(params['email'])
 
@@ -348,6 +348,43 @@ class elganso_sync(interna):
             return {"Error": params, "status": -2}
         return False
 
+    def elganso_sync_consultamovimientospuntos(self, params):
+        try:
+            if "passwd" in params and params["passwd"] == self.params['auth']:
+
+                if "email" not in params:
+                    return {"Error": "Formato Incorrecto", "status": 0}
+                email = params['email']
+
+                existe_tarjeta = qsatype.FLUtil.sqlSelect(u"tpv_tarjetaspuntos", u"codtarjetapuntos", ustr(u"email = '", email, u"'"))
+
+                if not existe_tarjeta:
+                    return {"Error": "No se ha encontrado la tarjeta.", "status": 1}
+
+                q = qsatype.FLSqlQuery()
+                q.setSelect("m.idmovpuntos, m.operacion, m.fecha, m.canpuntos")
+                q.setFrom("tpv_tarjetaspuntos t inner join tpv_movpuntos m on t.codtarjetapuntos = m.codtarjetapuntos")
+                q.setWhere("t.email = '" + email + "' order by fecha,idmovpuntos")
+
+                if not q.exec_():
+                    return False
+
+                movi_puntos = []
+                while q.next():
+                    movi_puntos.append({
+                        "idmovpuntos": q.value("m.idmovpuntos"),
+                        "operacion": q.value("m.operacion"),
+                        "fecha": q.value("m.fecha"),
+                        "importe": q.value("m.canpuntos")
+                    })
+                return {"movpuntos": movi_puntos}
+            else:
+                return {"Error": "Petición Incorrecta", "status": -1}
+        except Exception as e:
+            qsatype.debug(ustr(u"Error inesperado consulta de puntos: ", e))
+            return {"Error": params, "status": -2}
+        return False
+
     def __init__(self, context=None):
         super().__init__(context)
 
@@ -380,6 +417,9 @@ class elganso_sync(interna):
 
     def consultapuntos(self, params):
         return self.ctx.elganso_sync_consultapuntos(params)
+
+    def consultamovimientospuntos(self, params):
+        return self.ctx.elganso_sync_consultamovimientospuntos(params)
 
 
 # @class_declaration head #
