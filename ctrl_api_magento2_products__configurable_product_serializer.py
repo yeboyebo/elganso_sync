@@ -42,7 +42,7 @@ class ConfigurableProductSerializer(DefaultSerializer):
         size_values = [{"value_index": size} for size in self.get_init_value("indice_tallas")]
         extension_attributes = {
             "configurable_product_options": [{
-                "attribute_id": 141,
+                "attribute_id": 118,
                 "label": "Size",
                 "values": size_values
             }],

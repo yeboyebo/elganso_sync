@@ -53,6 +53,58 @@ class Mg2ProductsUpload(ProductsUpload):
 
         return body
 
+    def get_data(self):
+        data = self.get_db_data()
+
+        if data == []:
+            return data
+
+        data[0]["indice_tallas"] = self.indice_tallas
+        data[0]["stock_disponible"] = self.stock_disponible
+        data[0]["store_id"] = "all"
+
+        configurable_product_default = self.get_configurable_product_serializer().serialize(data[0])
+        data[0]["store_id"] = "ES"
+        configurable_product_es = self.get_configurable_product_serializer().serialize(data[0])
+        data[0]["store_id"] = "EN"
+        configurable_product_en = self.get_configurable_product_serializer().serialize(data[0])
+        data[0]["store_id"] = "FR"
+        configurable_product_fr = self.get_configurable_product_serializer().serialize(data[0])
+        simple_products_default = []
+        simple_products_es = []
+        simple_products_en = []
+        simple_products_fr = []
+        product_links = []
+
+        for row in data:
+            row["store_id"] = "all"
+            simple_products_default.append(self.get_simple_product_serializer().serialize(row))
+            row["store_id"] = "ES"
+            simple_products_es.append(self.get_simple_product_serializer().serialize(row))
+            row["store_id"] = "EN"
+            simple_products_en.append(self.get_simple_product_serializer().serialize(row))
+            row["store_id"] = "FR"
+            simple_products_fr.append(self.get_simple_product_serializer().serialize(row))
+            product_links.append(self.get_product_link_serializer().serialize(row))
+
+        if not configurable_product_default and not simple_products_default and not product_links:
+            return False
+
+        if product_links[0] == False:
+            product_links = False
+
+        return {
+            "configurable_product_default": configurable_product_default,
+            "configurable_product_es": configurable_product_es,
+            "configurable_product_en": configurable_product_en,
+            "configurable_product_fr": configurable_product_fr,
+            "simple_products_default": simple_products_default,
+            "simple_products_es": simple_products_es,
+            "simple_products_en": simple_products_en,
+            "simple_products_fr": simple_products_fr,
+            "product_links": product_links,
+        }
+
     def get_configurable_product_serializer(self):
         return ConfigurableProductSerializer()
 
@@ -64,12 +116,15 @@ class Mg2ProductsUpload(ProductsUpload):
         link_url = self.link_url if self.driver.in_production else self.link_test_url
         if data["configurable_product_default"]:
             self.send_request("post", url=product_url.format("all"), data=json.dumps(data["configurable_product_default"]))
-        
+
         if data["configurable_product_es"]:
             self.send_request("post", url=product_url.format("es"), data=json.dumps(data["configurable_product_es"]))
 
         if data["configurable_product_en"]:
             self.send_request("post", url=product_url.format("en"), data=json.dumps(data["configurable_product_en"]))
+
+        if data["configurable_product_fr"]:
+            self.send_request("post", url=product_url.format("fr"), data=json.dumps(data["configurable_product_fr"]))
 
         if data["simple_products_default"]:
             for simple_product in data["simple_products_default"]:
@@ -82,6 +137,10 @@ class Mg2ProductsUpload(ProductsUpload):
         if data["simple_products_en"]:
             for simple_product in data["simple_products_en"]:
                 self.send_request("post", url=product_url.format("en"), data=json.dumps(simple_product))
+
+        if data["simple_products_fr"]:
+            for simple_product in data["simple_products_fr"]:
+                self.send_request("post", url=product_url.format("fr"), data=json.dumps(simple_product))
 
         if data["product_links"]:
             for product_link in data["product_links"]:
