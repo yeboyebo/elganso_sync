@@ -11,14 +11,14 @@ class Mg2RefoundPointLineSerializer(Mg2RefoundLineSerializer):
         if not self.init_data["points_used"] or str(self.init_data["points_used"]) == "None":
             return False
 
-        iva = self.init_data["iva"]
+        iva = parseFloat(self.init_data["iva"])
         if not iva or iva == "":
             iva = 0
 
         self.set_string_value("codtienda", "AWEB")
 
         self.set_string_value("referencia", self.get_referencia(), max_characters=18)
-        self.set_string_value("descripcion", "DESCUENTO PAGO PUNTOS " + str(self.init_data["card_points"]), max_characters=100)
+        self.set_string_value("descripcion", "DESCUENTO PAGO PUNTOS " + str(self.get_codtarjetapuntos()), max_characters=100)
         self.set_string_value("barcode", self.get_barcode(), max_characters=20)
         self.set_string_value("talla", self.get_talla(), max_characters=50)
         self.set_string_value("color", self.get_color(), max_characters=50)
@@ -33,7 +33,6 @@ class Mg2RefoundPointLineSerializer(Mg2RefoundLineSerializer):
         self.set_data_relation("iva", "iva")
 
         discount_refunded = round(parseFloat(self.init_data["discount_refunded"]) * (-1), 2)
-        dto_sin_iva = discount_refunded
 
         pvpUnitario = (parseFloat(self.init_data["discount_refunded"])) / ((100 + iva) / 100)
         pvpSinDto = pvpUnitario
@@ -49,7 +48,6 @@ class Mg2RefoundPointLineSerializer(Mg2RefoundLineSerializer):
             pvpTotalIva = pvpUnitarioIva * (-1)
             pvpUnitario = pvpUnitario * (-1)
             pvpUnitarioIva = pvpUnitarioIva * (-1)
-
 
         self.set_data_value("pvpunitario", pvpUnitario)
         self.set_data_value("pvpsindto", pvpSinDto)
@@ -85,7 +83,7 @@ class Mg2RefoundPointLineSerializer(Mg2RefoundLineSerializer):
         curMP.setModeAccess(curMP.Insert)
         curMP.setActivatedCommitActions(False)
         curMP.refreshBuffer()
-        curMP.setValueBuffer("codtarjetapuntos", str(self.init_data["card_points"]))
+        curMP.setValueBuffer("codtarjetapuntos", str(self.get_codtarjetapuntos()))
         curMP.setValueBuffer("fecha", str(qsatype.Date())[:10])
         curMP.setValueBuffer("fechamod", str(qsatype.Date())[:10])
         curMP.setValueBuffer("horamod", self.get_hora(str(qsatype.Date())))
@@ -100,7 +98,7 @@ class Mg2RefoundPointLineSerializer(Mg2RefoundLineSerializer):
         if not curMP.commitBuffer():
             return False
 
-        if not qsatype.FLUtil.execSql(ustr(u"UPDATE tpv_tarjetaspuntos SET saldopuntos = CASE WHEN (SELECT SUM(canpuntos) FROM tpv_movpuntos WHERE codtarjetapuntos = tpv_tarjetaspuntos.codtarjetapuntos) IS NULL THEN 0 ELSE (SELECT SUM(canpuntos) FROM tpv_movpuntos WHERE codtarjetapuntos = tpv_tarjetaspuntos.codtarjetapuntos) END WHERE codtarjetapuntos = '", str(self.init_data["card_points"]), "'")):
+        if not qsatype.FLUtil.execSql(ustr(u"UPDATE tpv_tarjetaspuntos SET saldopuntos = CASE WHEN (SELECT SUM(canpuntos) FROM tpv_movpuntos WHERE codtarjetapuntos = tpv_tarjetaspuntos.codtarjetapuntos) IS NULL THEN 0 ELSE (SELECT SUM(canpuntos) FROM tpv_movpuntos WHERE codtarjetapuntos = tpv_tarjetaspuntos.codtarjetapuntos) END WHERE codtarjetapuntos = '{}'".format(str(self.get_codtarjetapuntos())))):
             return False
 
         return True
@@ -109,3 +107,11 @@ class Mg2RefoundPointLineSerializer(Mg2RefoundLineSerializer):
         h = fecha[-(8):]
         h = "23:59:59" if h == "00:00:00" else h
         return h
+
+    def get_codtarjetapuntos(self):
+        codtarjetapuntos = qsatype.FLUtil.quickSqlSelect("tpv_comandas", "codtarjetapuntos", "codigo = '{}'".format("WEB" + str(self.init_data["increment_id"])))
+
+        if not codtarjetapuntos:
+            codtarjetapuntos = ""
+
+        return codtarjetapuntos
