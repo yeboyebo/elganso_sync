@@ -54,8 +54,8 @@ class Mg2InventoryNightUpload(InventoryUpload):
 
     def get_db_data(self):
 
-        hora1 = datetime.strptime("12:00:00", "%X").time()
-        hora2 = datetime.strptime("13:00:00", "%X").time()
+        hora1 = datetime.strptime("00:00:00", "%X").time()
+        hora2 = datetime.strptime("06:00:00", "%X").time()
         hora_act = datetime.now().time()
 
         if hora_act > hora1 and hora_act < hora2:
