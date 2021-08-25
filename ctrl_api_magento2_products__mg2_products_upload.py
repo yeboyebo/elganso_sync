@@ -20,6 +20,10 @@ class Mg2ProductsUpload(ProductsUpload):
         self.link_url = link_params['url']
         self.link_test_url = link_params['test_url']
 
+        get_params = self.get_param_sincro('mg2ProductsGet')
+        self.get_url = get_params['url']
+        self.get_test_url = get_params['test_url']
+
         self.set_sync_params(self.get_param_sincro('mg2'))
 
     def get_db_data(self):
@@ -114,6 +118,8 @@ class Mg2ProductsUpload(ProductsUpload):
     def send_data(self, data):
         product_url = self.product_url if self.driver.in_production else self.product_test_url
         link_url = self.link_url if self.driver.in_production else self.link_test_url
+        get_url = self.get_url if self.driver.in_production else self.get_test_url
+
         if data["configurable_product_default"]:
             self.send_request("post", url=product_url.format("all"), data=json.dumps(data["configurable_product_default"]))
 
@@ -141,10 +147,15 @@ class Mg2ProductsUpload(ProductsUpload):
         if data["simple_products_fr"]:
             for simple_product in data["simple_products_fr"]:
                 self.send_request("post", url=product_url.format("fr"), data=json.dumps(simple_product))
+        try:
+            self.send_request("get", url=get_url.format(self.referencia))
+        except Exception as e:
+            if data["product_links"]:
+                for product_link in data["product_links"]:
+                    print(json.dumps(product_link))
+                    self.send_request("post", url=link_url.format(data["configurable_product_default"]["product"]["sku"]), data=json.dumps(product_link))
+            return data
 
-        if data["product_links"]:
-            for product_link in data["product_links"]:
-                self.send_request("post", url=link_url.format(data["configurable_product_default"]["product"]["sku"]), data=json.dumps(product_link))
         return data
 
     def after_sync(self, response_data=None):

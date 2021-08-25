@@ -1155,6 +1155,18 @@
             {
                 "path": "controllers/api/magento2/inventory_old/serializers/",
                 "name": "ctrl_api_magento2_inventory_old__inventory_old_serializer.py"
+            },
+            {
+                "name": "ctrl_api_magento2_inventory_night__upload.py",
+                "path": "controllers/api/magento2/inventory_night/"
+            },
+            {
+                "name": "ctrl_api_magento2_inventory_night__mg2_inventory_night_upload.py",
+                "path": "controllers/api/magento2/inventory_night/controllers/"
+            },
+            {
+                "name": "ctrl_api_magento2_inventory_night__inventory_night_serializer.py",
+                "path": "controllers/api/magento2/inventory_night/serializers/"
             }
         ],
         "deleteFile": [],
