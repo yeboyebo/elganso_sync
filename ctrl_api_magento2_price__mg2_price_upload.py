@@ -107,7 +107,7 @@ class Mg2PriceUpload(PriceUpload):
         horasincro = qsatype.FLUtil.sqlSelect("tpv_fechasincrotienda", "horasincro", "codtienda = 'AWEB' AND esquema = 'PRICES_WEB'")
 
         if not self._fechasincro or self._fechasincro is None:
-            self._fechasincro = "2021-06-01"
+            self._fechasincro = "2021-08-01"
         else:
             self._fechasincro = str(self._fechasincro)[:10]
 
@@ -120,7 +120,7 @@ class Mg2PriceUpload(PriceUpload):
         filtro_fechas_mod = "(a.fechamod > '{}' OR (a.fechamod = '{}' AND a.horamod >= '{}'))".format(self._fechasincro, self._fechasincro, horasincro)
         filtro_fechas_limite = "(fechaalta > '{}' OR (fechaalta = '{}' AND horaalta >= '{}'))".format(self._fechasincro, self._fechasincro, horasincro)
         filtro_fechas_limite_mod = "(fechamod > '{}' OR (fechamod = '{}' AND horamod >= '{}'))".format(self._fechasincro, self._fechasincro, horasincro)
-        where = "a.sincronizado = FALSE AND ({} OR {}) AND a.referencia IN (SELECT referencia FROM articulostarifas WHERE sincronizado = FALSE AND ({} OR {}) GROUP BY referencia LIMIT 25) ORDER BY a.referencia,a.codtarifa".format(filtro_fechas_alta, filtro_fechas_mod,  filtro_fechas_limite, filtro_fechas_limite_mod)
+        where = "a.sincronizado = FALSE AND ({} OR {}) AND a.referencia IN (SELECT referencia FROM articulostarifas WHERE sincronizado = FALSE AND ({} OR {}) GROUP BY referencia LIMIT 25) GROUP BY a.id,at.referencia, at.talla, a.pvp, st.codstoreview, a.codtarifa ORDER BY a.referencia,a.codtarifa".format(filtro_fechas_alta, filtro_fechas_mod,  filtro_fechas_limite, filtro_fechas_limite_mod)
 
         q = qsatype.FLSqlQuery()
         q.setSelect("a.id,at.referencia, at.talla, a.pvp, st.codstoreview, a.codtarifa")
