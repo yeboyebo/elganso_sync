@@ -48,10 +48,12 @@ class SimpleProductSerializer(DefaultSerializer):
         custom_attributes = [
             {"attribute_code": "description", "value": large_description},
             {"attribute_code": "short_description", "value": short_description},
-            {"attribute_code": "tax_class_id", "value": "2"},
+            {"attribute_code": "tax_class_id", "value": "5"},
             {"attribute_code": "barcode", "value": self.get_init_value("aa.barcode")},
             {"attribute_code": "seller_id", "value": self.get_init_value("av.idvendedormagento")},
-            {"attribute_code": "size", "value": self.get_init_value("t.indicecommunity")}
+            {"attribute_code": "size", "value": self.get_init_value("t.indicecommunity")},
+            {"attribute_code": "composicion_textil", "value": self.get_init_value("a.egcomposicion")},
+            {"attribute_code": "lavado", "value": self.get_init_value("a.egsignoslavado")}
         ]
 
         self.set_data_value("product//custom_attributes", custom_attributes)
@@ -81,6 +83,8 @@ class SimpleProductSerializer(DefaultSerializer):
         desc_store = qsatype.FLUtil.sqlSelect("traducciones", "traduccion", "campo = 'descripcion' AND codidioma = '" + self.get_init_value("store_id") + "' AND idcampo = '{}'".format(self.get_init_value("lsc.idobjeto")))
 
         large_description_store = qsatype.FLUtil.sqlSelect("traducciones", "traduccion", "campo = 'mgdescripcion' AND codidioma = '" + self.get_init_value("store_id") + "' AND idcampo = '{}'".format(self.get_init_value("lsc.idobjeto")))
+        composicion_textil = qsatype.FLUtil.sqlSelect("traducciones", "traduccion", "campo = 'egcomposicion' AND codidioma = '" + self.get_init_value("store_id") + "' AND idcampo = '{}'".format(self.get_init_value("lsc.idobjeto")))
+        lavado = qsatype.FLUtil.sqlSelect("traducciones", "traduccion", "campo = 'egsignoslavado' AND codidioma = '" + self.get_init_value("store_id") + "' AND idcampo = '{}'".format(self.get_init_value("lsc.idobjeto")))
 
         if not desc_store or desc_store == "" or str(desc_store) == "None" or desc_store is None:
             desc_store = self.get_init_value("a.mgdescripcioncorta")
@@ -96,7 +100,9 @@ class SimpleProductSerializer(DefaultSerializer):
 
         custom_attributes = [
             {"attribute_code": "description", "value": large_description_store},
-            {"attribute_code": "short_description", "value": desc_store}
+            {"attribute_code": "short_description", "value": desc_store},
+            {"attribute_code": "composicion_textil", "value": composicion_textil},
+            {"attribute_code": "lavado", "value": lavado}
         ]
 
         self.set_data_value("product//custom_attributes", custom_attributes)
@@ -118,7 +124,9 @@ class SimpleProductSerializer(DefaultSerializer):
 
         custom_attributes = [
             {"attribute_code": "description", "value": large_description_store},
-            {"attribute_code": "short_description", "value": desc_store}
+            {"attribute_code": "short_description", "value": desc_store},
+            {"attribute_code": "composicion_textil", "value": self.get_init_value("a.egcomposicion")},
+            {"attribute_code": "lavado", "value": self.get_init_value("a.egsignoslavado")}
         ]
 
         self.set_data_value("product//custom_attributes", custom_attributes)

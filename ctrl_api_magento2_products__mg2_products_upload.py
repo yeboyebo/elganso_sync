@@ -5,6 +5,7 @@ from YBLEGACY import qsatype
 from controllers.base.magento2.products.controllers.products_upload import ProductsUpload
 from controllers.api.magento2.products.serializers.configurable_product_serializer import ConfigurableProductSerializer
 from controllers.api.magento2.products.serializers.simple_product_serializer import SimpleProductSerializer
+from controllers.base.magento2.products.serializers.product_link_serializer import ProductLinkSerializer
 
 
 class Mg2ProductsUpload(ProductsUpload):
@@ -26,20 +27,34 @@ class Mg2ProductsUpload(ProductsUpload):
 
         self.set_sync_params(self.get_param_sincro('mg2'))
 
+        self.small_sleep = 5
+        self.large_sleep = 60
+        self.no_sync_sleep = 120
+
+    def dame_almacenessincroweb(self):
+
+        listaAlmacenes = qsatype.FLUtil.sqlSelect("param_parametros", "valor", "nombre = 'ALMACENES_SINCRO'")
+        if not listaAlmacenes or listaAlmacenes == "" or str(listaAlmacenes) == "None" or listaAlmacenes == None:
+            return "AWEB"
+
+        return listaAlmacenes
+
     def get_db_data(self):
         body = []
 
-        idlinea = qsatype.FLUtil.sqlSelect("lineassincro_catalogo", "id", "tiposincro = 'Enviar productos' AND NOT sincronizado AND website = 'MG2' ORDER BY id LIMIT 1")
+        idlinea = qsatype.FLUtil.sqlSelect("lineassincro_catalogo", "id", "tiposincro = 'Enviar productos' AND NOT sincronizado AND website = 'MG2' ORDER BY id LIMIT 100")
 
         if not idlinea:
             return body
 
         self.idlinea = idlinea
 
+        aListaAlmacenes = self.dame_almacenessincroweb().split(",")
+
         q = qsatype.FLSqlQuery()
-        q.setSelect("lsc.id, lsc.idsincro, lsc.idobjeto, lsc.descripcion, a.pvp, a.peso, aa.barcode, aa.talla, s.disponible, t.indicecommunity, a.mgdescripcion, a.mgdescripcioncorta")
-        q.setFrom("lineassincro_catalogo lsc INNER JOIN articulos a ON lsc.idobjeto = a.referencia INNER JOIN atributosarticulos aa ON a.referencia = aa.referencia LEFT JOIN stocks s ON aa.barcode = s.barcode INNER JOIN indicessincrocatalogo t ON aa.talla = t.valor")
-        q.setWhere("lsc.id = {} GROUP BY lsc.id, lsc.idsincro, lsc.idobjeto, lsc.descripcion, a.pvp, a.peso, aa.barcode, aa.talla, s.disponible, t.indicecommunity, a.mgdescripcion, a.mgdescripcioncorta".format(self.idlinea))
+        q.setSelect("lsc.id, lsc.idsincro, lsc.idobjeto, lsc.descripcion, a.pvp, a.peso, aa.barcode, aa.talla, t.indicecommunity, a.mgdescripcion, a.mgdescripcioncorta, a.egcomposicion, a.egsignoslavado")
+        q.setFrom("lineassincro_catalogo lsc INNER JOIN articulos a ON lsc.idobjeto = a.referencia INNER JOIN atributosarticulos aa ON a.referencia = aa.referencia INNER JOIN indicessincrocatalogo t ON aa.talla = t.valor")
+        q.setWhere("lsc.id = {} GROUP BY lsc.id, lsc.idsincro, lsc.idobjeto, lsc.descripcion, a.pvp, a.peso, aa.barcode, aa.talla, t.indicecommunity, a.mgdescripcion, a.mgdescripcioncorta, a.egcomposicion, a.egsignoslavado ORDER BY lsc.id, lsc.idobjeto, aa.barcode".format(self.idlinea))
 
         q.exec_()
 
@@ -51,7 +66,9 @@ class Mg2ProductsUpload(ProductsUpload):
         self.referencia = body[0]["lsc.idobjeto"]
 
         for row in body:
-            if str(row["s.disponible"]) != "None" and float(row["s.disponible"]) > 0:
+            disponible = qsatype.FLUtil.sqlSelect("stocks", "sum(disponible)", "barcode = '" + row["aa.barcode"] + "' AND disponible > 0 AND codalmacen IN ('" + "', '".join(aListaAlmacenes) + "')")
+
+            if disponible and float(disponible) > 0:
                 self.stock_disponible = True
             self.indice_tallas.append(row["t.indicecommunity"])
 
@@ -115,6 +132,9 @@ class Mg2ProductsUpload(ProductsUpload):
     def get_simple_product_serializer(self):
         return SimpleProductSerializer()
 
+    def get_product_link_serializer(self):
+        return ProductLinkSerializer()
+
     def send_data(self, data):
         product_url = self.product_url if self.driver.in_production else self.product_test_url
         link_url = self.link_url if self.driver.in_production else self.link_test_url
@@ -147,13 +167,15 @@ class Mg2ProductsUpload(ProductsUpload):
         if data["simple_products_fr"]:
             for simple_product in data["simple_products_fr"]:
                 self.send_request("post", url=product_url.format("fr"), data=json.dumps(simple_product))
+
+        if data["product_links"]:
+            for product_link in data["product_links"]:
+                print(str(json.dumps(product_link)))
+                self.send_request("post", url=link_url.format(data["configurable_product_default"]["product"]["sku"]), data=json.dumps(product_link))
+
         try:
             self.send_request("get", url=get_url.format(self.referencia))
         except Exception as e:
-            if data["product_links"]:
-                for product_link in data["product_links"]:
-                    print(json.dumps(product_link))
-                    self.send_request("post", url=link_url.format(data["configurable_product_default"]["product"]["sku"]), data=json.dumps(product_link))
             return data
 
         return data
