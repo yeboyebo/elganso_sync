@@ -21,6 +21,7 @@ class EgOrderLineaEcommerceExcluida(AQModel):
             raise NameError("Error al crear el viaje de recogida en tienda.")
 
     def crear_viaje_lineasecommerce(self, codcomanda):
+        return True
         qsatype.FactoriaModulos.get('flfactalma').iface.movimientoStockWeb_ = True
 
         id_viaje = qsatype.FactoriaModulos.get("formRecordtpv_comandas").iface.obtenerIdViaje()
@@ -61,6 +62,9 @@ class EgOrderLineaEcommerceExcluida(AQModel):
             return False
 
         qsatype.FactoriaModulos.get('flfactalma').iface.movimientoStockWeb_ = False
+
+        self.set_data_value("viajecreado", True)
+        self.set_string_value("idviajemultitrans", id_viaje)
 
         return True
 
