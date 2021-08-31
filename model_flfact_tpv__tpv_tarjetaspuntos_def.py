@@ -375,9 +375,9 @@ class elganso_sync(interna):
                         "idmovpuntos": q.value("m.idmovpuntos"),
                         "operacion": q.value("m.operacion"),
                         "fecha": q.value("m.fecha"),
-                        "importe": q.value("m.canpuntos")
+                        "importe": round(float(q.value("m.canpuntos")), 2)
                     })
-                return {"movpuntos": movi_puntos}
+                return movi_puntos
             else:
                 return {"Error": "Petición Incorrecta", "status": -1}
         except Exception as e:

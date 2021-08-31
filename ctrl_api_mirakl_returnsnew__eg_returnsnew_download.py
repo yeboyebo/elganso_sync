@@ -37,7 +37,7 @@ class EgMiraklReturnsNewDownload(ReturnsDownload):
 
 
         # Tmp. Para pruebas. Quitar en producción
-        #self.fecha_sincro = "2000-01-01T00:00:01Z"
+        # self.fecha_sincro = "2021-08-30T00:00:01Z"
         result = self.send_request("get", url=returns_url.format(self.fecha_sincro))
         return result
 

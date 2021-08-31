@@ -106,7 +106,7 @@ class Mg2PriceUpload(PriceUpload):
         body = []
 
         self._fechasincro = qsatype.FLUtil.sqlSelect("tpv_fechasincrotienda", "fechasincro", "codtienda = 'AWEB' AND esquema = 'PRICES_WEB'")
-        horasincro = qsatype.FLUtil.sqlSelect("tpv_fechasincrotienda", "horasincro", "codtienda = 'AWEB' AND esquema = 'PRICES_WEB'")
+        horasincro = qsatype.FLUtil.sqlSelect("tpv_fechasincrotienda", "LEFT(CAST(horasincro AS TEXT), 8)", "codtienda = 'AWEB' AND esquema = 'PRICES_WEB'")
 
         if not self._fechasincro or self._fechasincro is None:
             self._fechasincro = "2021-08-01"
@@ -117,6 +117,7 @@ class Mg2PriceUpload(PriceUpload):
             horasincro = "00:00:00"
         else:
             horasincro = str(horasincro)[-(8):]
+            print(horasincro)
 
         filtro_fechas_alta = "(a.fechaalta > '{}' OR (a.fechaalta = '{}' AND a.horaalta >= '{}'))".format(self._fechasincro, self._fechasincro, horasincro)
         filtro_fechas_mod = "(a.fechamod > '{}' OR (a.fechamod = '{}' AND a.horamod >= '{}'))".format(self._fechasincro, self._fechasincro, horasincro)
