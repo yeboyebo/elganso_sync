@@ -12,16 +12,37 @@ class elganso_sync(flfactalma):
             if "auth" not in self.params:
                 self.params = syncppal.iface.get_param_sincro('apipass')
             if "passwd" in params and params['passwd'] == self.params['auth']:
-                lista_almacenes = qsatype.FLUtil.sqlSelect("param_parametros", "valor", "nombre = 'ALMACENES_SINCRO'")
+
+                lista_almacenes = qsatype.FLUtil.sqlSelect("param_parametros", "valor", "nombre = 'ALMACENES_SINCRO'").replace(",", "','")
+                print(lista_almacenes)
                 if not lista_almacenes:
                     return {"Error": "Petición Incorrecta. No se ha encontrado la lista de almacenes", "status": 10}
-                else:
-                    return {"almacenes": lista_almacenes}
+
+                empresasCorner = qsatype.FactoriaModulos.get('flfactppal').iface.listaEmpresaCorner()
+
+                q = qsatype.FLSqlQuery()
+                q.setTablesList("tiendas,provincias")
+                q.setSelect("t.codtienda,t.latitud,t.longitud,t.descripcion,t.direccion,t.ciudad,p.mg_idprovincia,t.provincia,t.codpostal,t.codpais,t.telefono")
+                q.setFrom("tpv_tiendas t INNER JOIN provincias p ON t.idprovincia = p.idprovincia")
+                q.setWhere("t.sincroactiva GROUP BY t.codtienda,t.latitud,t.longitud,t.descripcion,t.direccion,t.ciudad,t.provincia,p.mg_idprovincia,t.codpostal,t.codpais,t.telefono ORDER BY t.codtienda".format(empresasCorner))
+                print(q.sql())
+                if not q.exec_():
+                    return {"Error": "Falló la consulta", "status": -1}
+
+                if not q.size():
+                    return {"Error": "No hay almacenes activas", "status": -2}
+
+                lista_almacenes = []
+
+                while(q.next()):
+                        lista_almacenes.append({"id": q.value("t.codtienda"), "lat": q.value("t.latitud"), "lng": q.value("t.longitud"), "descripcion": q.value("t.descripcion"), "direccion": q.value("t.direccion"), "provincia": q.value("t.provincia"), "idprovincia": q.value("p.mg_idprovincia"), "telefono": q.value("t.telefono"), "codpostal": q.value("t.codpostal"), "ciudad": q.value("t.ciudad"), "codpais": q.value("t.codpais")})
+
+                return lista_almacenes
             else:
                 return {"Error": "Petición Incorrecta", "status": 10}
         except Exception as e:
             print(e)
-            qsatype.debug(ustr(u"Error inesperado consulta de bono: ", e))
+            qsatype.debug(ustr(u"Error inesperado consulta de lista de almacenes activos: ", e))
             return {"Error": "Petición Incorrecta", "status": 0}
         return False
 
