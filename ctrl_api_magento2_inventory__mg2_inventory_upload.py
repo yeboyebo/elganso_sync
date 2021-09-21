@@ -57,7 +57,7 @@ class Mg2InventoryUpload(InventoryUpload):
         q = qsatype.FLSqlQuery()
         q.setSelect("ssw.idssw, aa.referencia, aa.talla, s.disponible, s.codalmacen, s.idstock")
         q.setFrom("articulos a INNER JOIN atributosarticulos aa ON a.referencia = aa.referencia INNER JOIN stocks s ON aa.barcode = s.barcode LEFT OUTER JOIN eg_sincrostockwebinmediato ssw ON s.idstock = ssw.idstock")
-        q.setWhere("NOT ssw.sincronizado OR ssw.sincronizado = false ORDER BY aa.referencia, aa.talla, ssw.idssw LIMIT 2000")
+        q.setWhere("NOT ssw.sincronizado OR ssw.sincronizado = false ORDER BY aa.referencia, aa.talla, ssw.idssw LIMIT 20")
 
         q.exec_()
 
