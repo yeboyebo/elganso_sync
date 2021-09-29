@@ -38,7 +38,10 @@ class ConfigurableProductSerializer(DefaultSerializer):
             {"attribute_code": "seller_id", "value": self.get_init_value("av.idvendedormagento")},
             {"attribute_code": "tax_class_id", "value": "5"},
             {"attribute_code": "composicion_textil", "value": self.get_init_value("a.egcomposicion")},
-            {"attribute_code": "lavado", "value": self.get_init_value("a.egsignoslavado")}
+            {"attribute_code": "lavado", "value": self.get_init_value("a.egsignoslavado")},
+            {"attribute_code": "sexo", "value": self.get_init_value("gm.descripcion")},
+            {"attribute_code": "gruporemarketing", "value": self.get_init_value("tp.gruporemarketing")},
+            {"attribute_code": "color", "value": self.get_init_value("ic.indicecommunity")}
         ]
 
         size_values = [{"value_index": size} for size in self.get_init_value("indice_tallas")]

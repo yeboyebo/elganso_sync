@@ -53,7 +53,10 @@ class SimpleProductSerializer(DefaultSerializer):
             {"attribute_code": "seller_id", "value": self.get_init_value("av.idvendedormagento")},
             {"attribute_code": "size", "value": self.get_init_value("t.indicecommunity")},
             {"attribute_code": "composicion_textil", "value": self.get_init_value("a.egcomposicion")},
-            {"attribute_code": "lavado", "value": self.get_init_value("a.egsignoslavado")}
+            {"attribute_code": "lavado", "value": self.get_init_value("a.egsignoslavado")},
+            {"attribute_code": "sexo", "value": self.get_init_value("gm.descripcion")},
+            {"attribute_code": "gruporemarketing", "value": self.get_init_value("tp.gruporemarketing")},
+            {"attribute_code": "color", "value": self.get_init_value("ic.indicecommunity")}
         ]
 
         self.set_data_value("product//custom_attributes", custom_attributes)
