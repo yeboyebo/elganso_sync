@@ -41,7 +41,8 @@ class ConfigurableProductSerializer(DefaultSerializer):
             {"attribute_code": "lavado", "value": self.get_init_value("a.egsignoslavado")},
             {"attribute_code": "sexo", "value": self.get_init_value("gm.descripcion")},
             {"attribute_code": "gruporemarketing", "value": self.get_init_value("tp.gruporemarketing")},
-            {"attribute_code": "color", "value": self.get_init_value("ic.indicecommunity")}
+            {"attribute_code": "color", "value": self.get_init_value("ic.indicecommunity")},
+            {"attribute_code": "season", "value": self.get_dametemporada()}
         ]
 
         size_values = [{"value_index": size} for size in self.get_init_value("indice_tallas")]
@@ -83,7 +84,8 @@ class ConfigurableProductSerializer(DefaultSerializer):
             {"attribute_code": "description", "value": large_description_store},
             {"attribute_code": "short_description", "value": desc_store},
             {"attribute_code": "composicion_textil", "value": composicion_textil},
-            {"attribute_code": "lavado", "value": lavado}
+            {"attribute_code": "lavado", "value": lavado},
+            {"attribute_code": "season", "value": self.get_dametemporada()}
         ]
 
         self.set_data_value("product//custom_attributes", custom_attributes)
@@ -106,9 +108,30 @@ class ConfigurableProductSerializer(DefaultSerializer):
             {"attribute_code": "description", "value": large_description_store},
             {"attribute_code": "short_description", "value": desc_store},
             {"attribute_code": "composicion_textil", "value": self.get_init_value("a.egcomposicion")},
-            {"attribute_code": "lavado", "value": self.get_init_value("a.egsignoslavado")}
+            {"attribute_code": "lavado", "value": self.get_init_value("a.egsignoslavado")},
+            {"attribute_code": "season", "value": self.get_dametemporada()}
         ]
 
         self.set_data_value("product//custom_attributes", custom_attributes)
 
         return True
+
+    def get_dametemporada(self):
+        temporada = self.get_init_value("a.codtemporada")
+        if not temporada or temporada == "":
+            temporada = ""
+
+        if temporada == "ATEM":
+            return qsatype.FLUtil.sqlSelect("indicessincrocatalogo", "indicecommunity", "tipo = 'temporadas' AND valor = 'atemporal'")
+        if temporada == "W":
+            temporada = "OI"
+        else:
+            temporada = "PV"
+
+        anno = str(self.get_init_value("a.anno"))
+        if anno and anno != "":
+            if len(anno) == 2:
+                anno = "20" + anno
+
+        temporada_anno = anno + "-" + temporada
+        return qsatype.FLUtil.sqlSelect("indicessincrocatalogo", "indicecommunity", "tipo = 'temporadas' AND valor = '{}'".format(temporada_anno))
