@@ -24,7 +24,6 @@ class Mg2PriceUpload(PriceUpload):
 
         self.set_sync_params(self.get_param_sincro('mg2'))
 
-
     def get_data(self):
 
         data = self.get_db_data()
@@ -119,7 +118,7 @@ class Mg2PriceUpload(PriceUpload):
         filtro_fechas_mod = "(a.fechamod > '{}' OR (a.fechamod = '{}' AND a.horamod >= '{}'))".format(self._fechasincro, self._fechasincro, horasincro)
         filtro_fechas_limite = "(fechaalta > '{}' OR (fechaalta = '{}' AND horaalta >= '{}'))".format(self._fechasincro, self._fechasincro, horasincro)
         filtro_fechas_limite_mod = "(fechamod > '{}' OR (fechamod = '{}' AND horamod >= '{}'))".format(self._fechasincro, self._fechasincro, horasincro)
-        where = "a.sincronizado = FALSE AND ({} OR {}) AND a.referencia IN (SELECT a.referencia FROM articulostarifas a INNER JOIN mg_storeviews st on a.codtarifa = st.codtarifa INNER JOIN mg_websites w ON st.codwebsite = w.codwebsite WHERE a.sincronizado = FALSE AND ({} OR {}) GROUP BY referencia LIMIT 25) GROUP BY a.id,at.referencia, at.talla, a.pvp, st.codstoreview, a.codtarifa ORDER BY a.referencia,a.codtarifa".format(filtro_fechas_alta, filtro_fechas_mod,  filtro_fechas_limite, filtro_fechas_limite_mod)
+        where = "a.sincronizado = FALSE AND ({} OR {}) AND a.referencia IN (SELECT a.referencia FROM articulostarifas a INNER JOIN mg_storeviews st on a.codtarifa = st.codtarifa INNER JOIN mg_websites w ON st.codwebsite = w.codwebsite WHERE a.pvp > 0 AND a.sincronizado = FALSE AND ({} OR {}) GROUP BY referencia LIMIT 25) GROUP BY a.id,at.referencia, at.talla, a.pvp, st.codstoreview, a.codtarifa ORDER BY a.referencia,a.codtarifa".format(filtro_fechas_alta, filtro_fechas_mod,  filtro_fechas_limite, filtro_fechas_limite_mod)
 
         q = qsatype.FLSqlQuery()
         q.setSelect("a.id,at.referencia, at.talla, a.pvp, st.codstoreview, a.codtarifa")
