@@ -16,6 +16,7 @@ class ConfigurableProductSerializer(DefaultSerializer):
 
         self.set_string_relation("product//name", "lsc.descripcion")
         self.set_string_relation("product//weight", "a.peso")
+        self.set_string_relation("product//price", "a.pvp")
         self.set_string_relation("product//sku", "lsc.idobjeto")
 
         self.set_string_value("product//attribute_set_id", "4")
@@ -79,6 +80,7 @@ class ConfigurableProductSerializer(DefaultSerializer):
         self.set_string_relation("product//sku", "lsc.idobjeto")
         self.set_string_value("product//type_id", "configurable")
         self.set_string_value("product//name", desc_store)
+        self.set_string_relation("product//price", "a.pvp")
 
         custom_attributes = [
             {"attribute_code": "description", "value": large_description_store},
@@ -103,6 +105,7 @@ class ConfigurableProductSerializer(DefaultSerializer):
 
         self.set_string_relation("product//sku", "lsc.idobjeto")
         self.set_string_value("product//name", desc_store)
+        self.set_string_relation("product//price", "a.pvp")
 
         custom_attributes = [
             {"attribute_code": "description", "value": large_description_store},
@@ -121,7 +124,7 @@ class ConfigurableProductSerializer(DefaultSerializer):
         if not temporada or temporada == "":
             temporada = ""
 
-        if temporada == "ATEM":
+        if temporada == "ATEMP":
             return qsatype.FLUtil.sqlSelect("indicessincrocatalogo", "indicecommunity", "tipo = 'temporadas' AND valor = 'atemporal'")
         if temporada == "W":
             temporada = "OI"

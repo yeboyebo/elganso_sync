@@ -144,7 +144,7 @@ class SimpleProductSerializer(DefaultSerializer):
         if not temporada or temporada == "":
             temporada = ""
 
-        if temporada == "ATEM":
+        if temporada == "ATEMP":
             return qsatype.FLUtil.sqlSelect("indicessincrocatalogo", "indicecommunity", "tipo = 'temporadas' AND valor = 'atemporal'")
         if temporada == "W":
             temporada = "OI"

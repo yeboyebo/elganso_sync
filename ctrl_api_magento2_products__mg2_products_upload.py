@@ -27,9 +27,9 @@ class Mg2ProductsUpload(ProductsUpload):
 
         self.set_sync_params(self.get_param_sincro('mg2'))
 
-        self.small_sleep = 5
-        self.large_sleep = 60
-        self.no_sync_sleep = 120
+        self.small_sleep = 1
+        self.large_sleep = 30
+        self.no_sync_sleep = 60
 
     def dame_almacenessincroweb(self):
 
@@ -198,6 +198,7 @@ class Mg2ProductsUpload(ProductsUpload):
 
     def after_sync(self, response_data=None):
         qsatype.FLSqlQuery().execSql("UPDATE lineassincro_catalogo SET sincronizado = TRUE WHERE id = {}".format(self.idlinea))
+        qsatype.FLSqlQuery().execSql("UPDATE articulostarifas SET fechamod = CURRENT_DATE, sincronizado = FALSE WHERE codtarifa in (select t.codtarifa from mg_websites w inner join mg_storeviews st on w.codwebsite = st.codwebsite inner join tarifas t on t.codtarifa = st.codtarifa group by t.codtarifa) AND referencia = '{}'".format(self.referencia))
         lineas_no_sincro = qsatype.FLUtil.sqlSelect("lineassincro_catalogo", "id", "idsincro = '{}' AND NOT sincronizado LIMIT 1".format(self.idsincro))
 
         if not lineas_no_sincro:
