@@ -27,10 +27,6 @@ class Mg2ProductsUpload(ProductsUpload):
 
         self.set_sync_params(self.get_param_sincro('mg2'))
 
-        self.small_sleep = 1
-        self.large_sleep = 30
-        self.no_sync_sleep = 60
-
     def dame_almacenessincroweb(self):
 
         listaAlmacenes = qsatype.FLUtil.sqlSelect("param_parametros", "valor", "nombre = 'ALMACENES_SINCRO'")

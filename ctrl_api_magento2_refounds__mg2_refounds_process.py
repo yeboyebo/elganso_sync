@@ -11,9 +11,6 @@ class Mg2RefoundsProcess(DownloadSync):
         super().__init__("mg2refoundsprocess", driver, params)
         self.origin_field = "rma_id"
         self.idlogs = ""
-        self.small_sleep = 10
-        self.large_sleep = 60
-        self.no_sync_sleep = 180
 
     def get_data(self):
         self.small_sleep = 10

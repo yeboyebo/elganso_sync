@@ -20,10 +20,6 @@ class Mg2SpecialPriceUpload(TierpriceUpload):
 
         self.set_sync_params(self.get_param_sincro('mg2'))
 
-        self.small_sleep = 1
-        self.large_sleep = 30
-        self.no_sync_sleep = 60
-
     def get_data(self):
         data = self.get_db_data()
 

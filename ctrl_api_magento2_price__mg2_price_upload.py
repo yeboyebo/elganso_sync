@@ -24,10 +24,6 @@ class Mg2PriceUpload(PriceUpload):
 
         self.set_sync_params(self.get_param_sincro('mg2'))
 
-        self.small_sleep = 10
-        self.large_sleep = 180
-        self.no_sync_sleep = 300
-
 
     def get_data(self):
 
