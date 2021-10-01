@@ -29,7 +29,7 @@ class Mg2PriceUpload(PriceUpload):
         data = self.get_db_data()
         price_url = self.price_url if self.driver.in_production else self.price_test_url
         if data == []:
-            # qsatype.FLSqlQuery().execSql("UPDATE tpv_fechasincrotienda SET fechasincro = '{}', horasincro = '{}' WHERE codtienda = 'AWEB' AND esquema = 'PRICES_WEB'".format(self.start_date, self.start_time))
+            qsatype.FLSqlQuery().execSql("UPDATE tpv_fechasincrotienda SET fechasincro = '{}', horasincro = '{}' WHERE codtienda = 'AWEB' AND esquema = 'PRICES_WEB'".format(self.start_date, self.start_time))
             self.log("Exito", "No hay datos que sincronizar")
             return data
 
@@ -118,11 +118,11 @@ class Mg2PriceUpload(PriceUpload):
         filtro_fechas_mod = "(a.fechamod > '{}' OR (a.fechamod = '{}' AND a.horamod >= '{}'))".format(self._fechasincro, self._fechasincro, horasincro)
         filtro_fechas_limite = "(fechaalta > '{}' OR (fechaalta = '{}' AND horaalta >= '{}'))".format(self._fechasincro, self._fechasincro, horasincro)
         filtro_fechas_limite_mod = "(fechamod > '{}' OR (fechamod = '{}' AND horamod >= '{}'))".format(self._fechasincro, self._fechasincro, horasincro)
-        where = "a.sincronizado = FALSE AND ({} OR {}) AND a.referencia IN (SELECT a.referencia FROM articulostarifas a INNER JOIN mg_storeviews st on a.codtarifa = st.codtarifa INNER JOIN mg_websites w ON st.codwebsite = w.codwebsite WHERE a.pvp > 0 AND a.sincronizado = FALSE AND ({} OR {}) GROUP BY referencia LIMIT 25) GROUP BY a.id,at.referencia, at.talla, a.pvp, st.codstoreview, a.codtarifa ORDER BY a.referencia,a.codtarifa".format(filtro_fechas_alta, filtro_fechas_mod,  filtro_fechas_limite, filtro_fechas_limite_mod)
+        where = "a.pvp > 0  and l.tiposincro = 'Enviar productos' and l.website = 'MG2' AND a.sincronizado = FALSE AND ({} OR {}) AND a.referencia IN (SELECT a.referencia FROM articulostarifas a INNER JOIN mg_storeviews st on a.codtarifa = st.codtarifa INNER JOIN mg_websites w ON st.codwebsite = w.codwebsite inner join lineassincro_catalogo l on a.referencia = l.idobjeto WHERE a.pvp > 0 AND a.sincronizado = FALSE AND ({} OR {}) GROUP BY referencia LIMIT 25) GROUP BY a.id,at.referencia, at.talla, a.pvp, st.codstoreview, a.codtarifa ORDER BY a.referencia,a.codtarifa".format(filtro_fechas_alta, filtro_fechas_mod,  filtro_fechas_limite, filtro_fechas_limite_mod)
 
         q = qsatype.FLSqlQuery()
         q.setSelect("a.id,at.referencia, at.talla, a.pvp, st.codstoreview, a.codtarifa")
-        q.setFrom("mg_websites w inner join mg_storeviews st on w.codwebsite = st.codwebsite inner join articulostarifas a on a.codtarifa = st.codtarifa inner join atributosarticulos at ON a.referencia = at.referencia")
+        q.setFrom("mg_websites w inner join mg_storeviews st on w.codwebsite = st.codwebsite inner join articulostarifas a on a.codtarifa = st.codtarifa inner join atributosarticulos at ON a.referencia = at.referencia inner join lineassincro_catalogo l on a.referencia = l.idobjeto")
         q.setWhere(where)
 
         q.exec_()
