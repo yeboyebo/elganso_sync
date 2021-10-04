@@ -22,41 +22,32 @@ class Mg2OrdersSerializer(DefaultSerializer):
 
         codigo = "WEB{}".format(qsatype.FactoriaModulos.get("flfactppal").iface.cerosIzquierda(increment, 9))
 
-        if qsatype.FLUtil.sqlSelect("tpv_comandas", "idtpv_comanda", "codigo = '{}'".format(codigo)):  
-            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 0")
+        if qsatype.FLUtil.sqlSelect("tpv_comandas", "idtpv_comanda", "codigo = '{}'".format(codigo)):
             return False
 
         if str(self.init_data["status"]) == "holded" or str(self.init_data["status"]) == "closed":
-            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 1")
             return False
         elif str(self.init_data["status"]) == "seurpro_pending_cashondelivery" or str(self.init_data["status"]) == "fraud" or str(self.init_data["status"]) == "payment_review" or str(self.init_data["status"]) == "redsyspro_pending" or str(self.init_data["status"]) == "pending":
             if qsatype.FLUtil.sqlSelect("pedidoscli", "idpedido", "observaciones = '{}'".format(codigo)):
-                qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 2")
                 raise NameError("Pedido ya creado.")
                 return False
 
             if not self.crear_pedido_reserva_stock(codigo):
-                qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 3")
                 raise NameError("Error al crear el pedido de reserva de stock.")
                 return False
 
-            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 4")
             return False
         elif str(self.init_data["status"]) == "canceled" or str(self.init_data["status"]) == "paypal_reversed" or str(self.init_data["status"]) == "paypal_canceled_reversal":
             if not self.eliminar_pedido_reserva_stock(codigo):
-                qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 5")
                 raise NameError("Error al eliminar el pedido de reserva de stock.")
                 return False
-            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 6")
             return False
         elif str(self.init_data["status"]) == "complete" or str(self.init_data["status"]) == "processing":
             if qsatype.FLUtil.sqlSelect("tpv_comandas", "idtpv_comanda", "codigo = '{}'".format(codigo)):
-                qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 7")
                 return False
 
             if qsatype.FLUtil.sqlSelect("pedidoscli", "idpedido", "observaciones = '{}'".format(codigo)):
                 if not self.eliminar_pedido_reserva_stock(codigo):
-                    qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 8")
                     raise NameError("Error al eliminar el pedido de reserva de stock.")
                     return False
 
@@ -65,7 +56,6 @@ class Mg2OrdersSerializer(DefaultSerializer):
                 num_lineas = num_lineas + float(item["cantidad"])
 
             if float(num_lineas) != float(self.init_data["units"]):
-                qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 9")
                 raise NameError("El número de unidades indicadas y la cantidad de líneas no coincide.")
                 return False
 
@@ -82,13 +72,11 @@ class Mg2OrdersSerializer(DefaultSerializer):
                 self.data["children"]["payments"] = []
 
             if not self.distribucion_almacenes():
-                qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ error distribucion_almacenes")
                 raise NameError("El número de unidades indicadas y la cantidad de líneas no coincide.")
                 return False
 
             ivaInformado = False
 
-            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ llego 0")
             for item in self.init_data["items"]:
                 item.update({
                     "codcomanda": self.data["codigo"]
@@ -101,11 +89,9 @@ class Mg2OrdersSerializer(DefaultSerializer):
                 if not ivaInformado and item["pvpunitarioiva"] != 0:
                     iva = ivaLinea
                     ivaInformado = True
-            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ llego 1")
 
             if not ivaInformado:
                 iva = ivaLinea
-            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ llego 2")
 
             new_init_data = self.init_data.copy()
             new_init_data.update({
@@ -113,7 +99,6 @@ class Mg2OrdersSerializer(DefaultSerializer):
                 "codcomanda": self.data["codigo"],
                 "fecha": self.data["fecha"]
             })
-            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ llego 3")
 
             self.set_string_value("codtpv_puntoventa", "AWEB")
             self.set_string_value("codtpv_agente", "0350")
@@ -147,8 +132,6 @@ class Mg2OrdersSerializer(DefaultSerializer):
 
             recogidatienda = self.get_recogidatienda()
 
-            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ llego 4")
-
             if recogidatienda:
                 self.set_data_value("recogidatienda", True)
                 self.set_string_relation("codtiendarecogida", "shipping_address//lastname", max_characters=10)
@@ -157,8 +140,6 @@ class Mg2OrdersSerializer(DefaultSerializer):
 
             nombrecliente = "{} {}".format(self.init_data["billing_address"]["firstname"], self.init_data["billing_address"]["lastname"])
             self.set_string_value("nombrecliente", nombrecliente, max_characters=100)
-
-            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ llego 5")
 
             street = self.init_data["billing_address"]["street"].split("\n")
             dirtipovia = street[0] if len(street) >= 1 else ""
@@ -176,31 +157,19 @@ class Mg2OrdersSerializer(DefaultSerializer):
             self.set_string_value("hora", self.get_hora())
             self.set_string_value("codpago", self.get_codpago(), max_characters=10)
             self.set_string_value("egcodfactura", self.get_codfactura(), max_characters=12)
-            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ llego 6")
 
             linea_envio = Mg2ShippingLineSerializer().serialize(new_init_data)
-            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ llego 7")
             linea_gastos = Mg2ExpensesLineSerializer().serialize(new_init_data)
-            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ llego 8")
             linea_descuento = Mg2DiscountLineSerializer().serialize(new_init_data)
-            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ llego 9")
             linea_puntos = Mg2PointsLineSerializer().serialize(new_init_data)
-            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ llego 10")
             linea_vale = Mg2VoucherLineSerializer().serialize(new_init_data)
-            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ llego 11")
             linea_dtodesconocido = Mg2DiscountUnknownLineSerializer().serialize(new_init_data)
-            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ llego 12")
             arqueo_web = Mg2CashCountSerializer().serialize(self.data)
-            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ llego 13")
             new_data = self.data.copy()
-            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ llego 14")
             new_data.update({"idarqueo": arqueo_web["idtpv_arqueo"]})
-            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ llego 15")
             pago_web = Mg2PaymentSerializer().serialize(new_data)
-            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ llego 16")
             idl_ecommerce = Mg2IdlEcommerce().serialize(new_init_data)
 
-            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ llego 17")
             self.data["children"]["lines"].append(linea_gastos)
             self.data["children"]["lines"].append(linea_descuento)
             self.data["children"]["lines"].append(linea_vale)
@@ -208,18 +177,14 @@ class Mg2OrdersSerializer(DefaultSerializer):
             self.data["children"]["lines"].append(linea_dtodesconocido)
             self.data["children"]["payments"].append(pago_web)
             self.data["children"]["shippingline"] = linea_envio
-            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ llego 18")
 
             if "skip" in arqueo_web and arqueo_web["skip"]:
                 arqueo_web = False
             self.data["children"]["cashcount"] = arqueo_web
             self.data["children"]["idl_ecommerce"] = idl_ecommerce
-            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ llego 19")
         else:
-            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 10")
             raise NameError("Estado no controlado del pedido. Mirar registro de log en BBDD")
             return False
-        qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ llego OK")
         return True
 
     def get_codserie(self):
@@ -298,9 +263,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
         return "{}{}".format(prefix, qsatype.FactoriaModulos.get("flfactppal").iface.cerosIzquierda(str(ultima_factura), 12 - len(prefix)))
 
     def crear_pedido_reserva_stock(self, codigo):
-        qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ crear_pedido_reserva_stock 0")
         qsatype.FactoriaModulos.get('flfactalma').iface.movimientoStockWeb_ = True
-        qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ crear_pedido_reserva_stock 1")
         now = str(qsatype.Date())
         self.start_date = now[:10]
         self.start_time = now[-(8):]
@@ -310,12 +273,12 @@ class Mg2OrdersSerializer(DefaultSerializer):
         curPedido.refreshBuffer()
         curPedido.setValueBuffer("observaciones", codigo)
         curPedido.setValueBuffer("codejercicio", self.get_codejercicio())
-        curPedido.setValueBuffer("codserie", "MK")
+        curPedido.setValueBuffer("codserie", "SW")
         curPedido.setValueBuffer("codalmacen", "AWEB")
 
-        numero = qsatype.FactoriaModulos.get("flfacturac").iface.siguienteNumero("MK", self.get_codejercicio(), "npedidocli")
+        numero = qsatype.FactoriaModulos.get("flfacturac").iface.siguienteNumero("SW", self.get_codejercicio(), "npedidocli")
         curPedido.setValueBuffer("numero", numero)
-        codpedido = qsatype.FactoriaModulos.get("flfacturac").iface.pub_construirCodigo("MK", self.get_codejercicio(), numero)
+        codpedido = qsatype.FactoriaModulos.get("flfacturac").iface.pub_construirCodigo("SW", self.get_codejercicio(), numero)
         curPedido.setValueBuffer("codigo", codpedido)
         curPedido.setValueBuffer("totaleuros", 0)
         curPedido.setValueBuffer("direccion", "-")
@@ -336,19 +299,16 @@ class Mg2OrdersSerializer(DefaultSerializer):
         curPedido.setValueBuffer("coddivisa", "EUR")
 
         if not curPedido.commitBuffer():
-            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 11")
             raise NameError("Error al guardar la cabecera del pedido.")
             return False
 
         if not curPedido.valueBuffer("idpedido") or str(curPedido.valueBuffer("idpedido")) == "None":
-            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 12")
             return False
 
         cont = 0
         for linea in self.init_data["items"]:
             cont = cont + 1
             if not self.crear_linea_pedido_reserva_stock(cont, linea, curPedido.valueBuffer("idpedido")):
-                qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 13")
                 raise NameError("Error al crear la línea del pedido de reserva de stock.")
                 return False
 
@@ -397,13 +357,11 @@ class Mg2OrdersSerializer(DefaultSerializer):
                 curLineaPedido.setModeAccess(curLineaPedido.Del)
                 curLineaPedido.refreshBuffer()
                 if not curLineaPedido.commitBuffer():
-                    qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 14")
                     return False
 
             curPedido.setModeAccess(curPedido.Del)
             curPedido.refreshBuffer()
             if not curPedido.commitBuffer():
-                qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 15")
                 return False
         else:
             for linea in self.init_data["items"]:
@@ -416,7 +374,6 @@ class Mg2OrdersSerializer(DefaultSerializer):
                         qsatype.FLSqlQuery().execSql("INSERT INTO eg_sincrostockweb (fecha,hora,sincronizado,idstock,sincronizadoeci) VALUES (CURRENT_DATE,CURRENT_TIME,false,{},true)".format(id_stock))
 
         qsatype.FactoriaModulos.get('flfactalma').iface.movimientoStockWeb_ = False
-        qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ OK")
         return True
 
     def get_splitted_sku(self, refArticulo):
@@ -453,12 +410,9 @@ class Mg2OrdersSerializer(DefaultSerializer):
             return "TU"
 
     def distribucion_almacenes(self):
-        qsatype.debug(u"========================================= distribucion_almacenes: 0")
         codpago = self.get_codpago()
         if str(codpago) == "CREE":
             return True
-
-        qsatype.debug(u"========================================= distribucion_almacenes: 1")
 
         q = qsatype.FLSqlQuery()
         q.setSelect(u"nombre, valor")
@@ -469,7 +423,6 @@ class Mg2OrdersSerializer(DefaultSerializer):
 
         if not q.size():
             return True
-        qsatype.debug(u"========================================= distribucion_almacenes: 2")
 
         margen_almacenes = {}
 
@@ -505,7 +458,6 @@ class Mg2OrdersSerializer(DefaultSerializer):
             q.setFrom(u"stocks")
             q.setWhere(u"codalmacen = '" + cod_almacen + "' AND barcode IN ('" + "', '".join(barcodes) + "')")
 
-            qsatype.debug(q.sql())
             q.exec_()
 
             if not q.size():
@@ -518,17 +470,12 @@ class Mg2OrdersSerializer(DefaultSerializer):
                     almacen["total"] = almacen["total"] + 1
                     almacen["lineas"][barcode] = True
 
-        qsatype.debug(u"========================================= almacenes: ")
-        qsatype.debug(almacenes)
-
         def dame_orden(almacen):
             orden = almacen["total"] + almacen["prioridad"]
             return orden
 
         almacenes_ordenados = sorted(almacenes, key=dame_orden, reverse=True)
 
-        qsatype.debug(u"========================================= almacenes_ordenados: ")
-        qsatype.debug(almacenes_ordenados)
         for linea_data in lineas_data:
             barcode = self.get_barcode(linea_data["sku"])
             for almacen in almacenes_ordenados:
