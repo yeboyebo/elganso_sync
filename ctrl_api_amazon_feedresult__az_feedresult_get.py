@@ -74,5 +74,5 @@ class AzFeedResultGet(AzFeedsUpload, ABC):
             self.log("Exito", "Esquema '{}' sincronizado correctamente (idamazon: {})".format(self.get_msgtype(), self.idamazon))
             return self.small_sleep
         else:
-            self.log("Error", "Esquema '{}' no se ha podido sincronizar correctamente o no se ha procesado todavía (idamazon: {})".format(self.get_msgtype(), self.idamazon))
+            self.log("Error", "El esquema no se ha podido sincronizar correctamente o no se ha procesado todavía (idamazon: {})".format(self.idamazon))
             return self.large_sleep
