@@ -12,11 +12,11 @@ class Mg2RefoundExpensesLineSerializer(Mg2RefoundLineSerializer):
         if not self.init_data["shipping_price"]:
             return False
 
-        shipping_price = self.init_data["shipping_price"]
+        shipping_price = parseFloat(self.init_data["shipping_price"])
         if not shipping_price or shipping_price == 0 or shipping_price == "0.0000" or shipping_price == "0.00":
             return False
 
-        iva = self.init_data["iva"]
+        iva = parseFloat(self.init_data["iva"])
         if not iva or iva == "":
             iva = 0
 

@@ -14,12 +14,12 @@ class Mg2RefoundDiscountLineSerializer(Mg2RefoundLineSerializer):
         if str(self.init_data["cupon_bono"]) == "None":
             return False
 
-        dto = self.init_data["discount_refunded"]
+        dto = parseFloat(self.init_data["discount_refunded"])
         if not dto or dto == 0 or dto == "0.0000" or dto == "0.00":
             return False
 
         self.get_bono_data()
-        iva = self.init_data["iva"]
+        iva = parseFloat(self.init_data["iva"])
         if not iva or iva == "":
             iva = 0
 

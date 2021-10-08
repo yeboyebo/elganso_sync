@@ -11,7 +11,7 @@ class Mg2RefoundVoucherLineSerializer(Mg2RefoundLineSerializer):
         if str(self.init_data["vale_description"]) == "None" or str(self.init_data["vale_total"]) == "None":
             return False
 
-        iva = self.init_data["tax_refunded"]
+        iva = parseFloat(self.init_data["tax_refunded"])
         if not iva or iva == "":
             iva = 0
 
