@@ -16,33 +16,43 @@ from controllers.api.magento2.refounds.serializers.mg2_refound_expensesline_seri
 class Mg2RefoundsSerializer(DefaultSerializer):
 
     def get_data(self):
+        qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 1")
         if not self.control_tallas_devolucion():
             return False
+        qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 2")
 
-        codigo = "WDV" + qsatype.FactoriaModulos.get("flfactppal").iface.cerosIzquierda(str(self.init_data["rma_id"]), 9)
+        codigo = "WDV2" + qsatype.FactoriaModulos.get("flfactppal").iface.cerosIzquierda(str(self.init_data["rma_id"]), 8)
+        qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 3")
 
         now = str(qsatype.Date())
         self.start_date = now[:10]
         self.start_time = now[-(8):]
 
         if self.init_data["status"] != "Complete" or "items_requested" in self.init_data:
+            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 1")
 
             idComanda = qsatype.FLUtil.sqlSelect("tpv_comandas", "idtpv_comanda", "codigo = '" + str(codigo) + "'")
             if idComanda:
                 return False
+            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 5")
 
             self.crear_cabecera_comanda_devolucionweb(codigo)
+            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 6")
 
             if "lines" not in self.data["children"]:
                 self.data["children"]["lines"] = []
+            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 7")
 
             if "payments" not in self.data["children"]:
                 self.data["children"]["payments"] = []
+            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 8")
 
             if "items_refunded" not in self.init_data:
                 raise NameError("Error. No viene el nodo items_refunded en el JSON")
+            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 9")
 
             iva = 0
+            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 10")
 
             for line in self.init_data["items_refunded"]:
                 line.update({
@@ -54,6 +64,7 @@ class Mg2RefoundsSerializer(DefaultSerializer):
                 self.data["children"]["lines"].append(line_data)
                 iva = line["tax_percent"]
 
+            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 11")
             if "items_requested" in self.init_data:
                 for linea in self.init_data["items_requested"]:
                     linea.update({
@@ -62,13 +73,19 @@ class Mg2RefoundsSerializer(DefaultSerializer):
                     })
                     line_data = Mg2RefoundLineSerializer().serialize(linea)
                     self.data["children"]["lines"].append(line_data)
+            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 12")
 
             self.crear_registros_descuentos(iva)
+            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 13")
             self.crear_registros_puntos(iva)
+            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 14")
             self.crear_registros_vales(iva)
+            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 15")
             self.crear_registros_gastosenvio(iva)
+            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 16")
 
             self.data["children"]["cashcount"] = False
+            qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 17")
         else:
 
             if "lines" not in self.data["children"]:
@@ -93,6 +110,7 @@ class Mg2RefoundsSerializer(DefaultSerializer):
                     return False
                 if not self.crear_registros_ecommerce():
                     return False
+        qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ OK")
 
         return True
 

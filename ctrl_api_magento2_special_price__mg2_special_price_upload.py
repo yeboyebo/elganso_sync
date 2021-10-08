@@ -20,6 +20,7 @@ class Mg2SpecialPriceUpload(TierpriceUpload):
 
         self.set_sync_params(self.get_param_sincro('mg2'))
 
+
     def get_data(self):
         data = self.get_db_data()
 

@@ -77,6 +77,6 @@ class Mg2StockIncrementalUpload(InventoryUpload):
     def after_sync(self, response_data=None):
         qsatype.FLSqlQuery().execSql("UPDATE eg_sincromovistockweb SET sincronizado = true WHERE id IN ({})".format(self._ssw))
 
-        self.log("Exito", "Stock Incremental sincronizado correctamente")
+        self.log("Exito", "Stock Incremental sincronizado correctamente. Id: {}".format(self._ssw))
 
         return self.small_sleep

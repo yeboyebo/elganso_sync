@@ -1,19 +1,12 @@
 from YBLEGACY import qsatype
-import requests
 import json
 from controllers.base.magento2.price.controllers.price_upload import PriceUpload
 from controllers.api.magento2.price.serializers.price_serializer import PriceSerializer
 
 class Mg2PriceUpload(PriceUpload):
 
-    codwebsite = None
-    referencia = None
-    idArticulo = None
-    fechasincro = None
-    start_date = None
-    start_time = None
     error = False
-    refSincros = None
+    _idls = None
 
     def __init__(self, params=None):
         super().__init__("mg2price", params)
@@ -24,106 +17,82 @@ class Mg2PriceUpload(PriceUpload):
 
         self.set_sync_params(self.get_param_sincro('mg2'))
 
-    def get_data(self):
+        self.small_sleep = 1
 
+    def get_data(self):
+        datos = self.insert_datos_sincro()
         data = self.get_db_data()
-        price_url = self.price_url if self.driver.in_production else self.price_test_url
+
         if data == []:
-            qsatype.FLSqlQuery().execSql("UPDATE tpv_fechasincrotienda SET fechasincro = '{}', horasincro = '{}' WHERE codtienda = 'AWEB' AND esquema = 'PRICES_WEB'".format(self.start_date, self.start_time))
-            self.log("Exito", "No hay datos que sincronizar")
             return data
 
-        referencia = ""
-        refConsulta = ""
-        tarifaConsulta = ""
-        self.refSincros = ""
+        new_price = []
+        idObjeto = None
         for idx in range(len(data)):
-            if idx == 0:
-                refConsulta = str(data[idx]["at.referencia"])
-                tarifaConsulta = str(data[idx]["a.codtarifa"])
-                self.refSincros = refConsulta
-
-            self.codwebsite = data[idx]["st.codstoreview"]
-            self.idArticulo = data[idx]["a.id"]
-            referencia = str(data[idx]["at.referencia"]) + "-" + str(data[idx]["at.talla"])
-            if str(data[idx]["at.talla"]) == "TU":
-                referencia = str(data[idx]["at.referencia"])
-            self.referencia = referencia
-
             price = self.get_price_serializer().serialize(data[idx])
-            cuerpoPrice = {
-                "product": price
-            }
-            del cuerpoPrice["product"]["children"]
-            try:
-                print("/////URL: ", price_url.format(self.codwebsite, self.referencia))
-                print("/////DATA: ", json.dumps(cuerpoPrice))
-                result = self.send_request("put", url=price_url.format(self.codwebsite, self.referencia), data=json.dumps(cuerpoPrice))
-                qsatype.FLSqlQuery().execSql("UPDATE articulostarifas SET sincronizado = TRUE WHERE referencia = '{}' AND codtarifa = '{}'".format(str(data[idx]["at.referencia"]), str(data[idx]["a.codtarifa"])))
-                if "id" in result:
-                    if (refConsulta != str(data[idx]["at.referencia"])) or (tarifaConsulta != str(data[idx]["a.codtarifa"])) or idx == len(data):
-                        if refConsulta != str(data[idx]["at.referencia"]):
-                            refConsulta = str(data[idx]["at.referencia"])
-                            if self.refSincros == "":
-                                self.refSincros = str(data[idx]["at.referencia"])
-                            else:
-                                self.refSincros += "," + str(data[idx]["at.referencia"])
+            new_price.append(price)
+            if not idObjeto:
+                idObjeto = str(data[idx]["ls.id"])
+                self._idls = str(data[idx]["ls.id"])
 
-                        if tarifaConsulta != str(data[idx]["a.codtarifa"]):
-                            tarifaConsulta = str(data[idx]["a.codtarifa"])
-                        qsatype.FLSqlQuery().execSql("UPDATE articulostarifas SET sincronizado = TRUE WHERE id = {}".format(self.idArticulo))
-            except Exception as e:
-                print("exception")
-                self.error = True
-                self.log("Error", "Referencia no procesada: {})".format(self.referencia))
+            if str(data[idx]["ls.id"]) != idObjeto:
+                idObjeto = str(data[idx]["ls.id"])
+                self._idls += "," + str(data[idx]["ls.id"])
 
-        return data
+        if not new_price:
+            return False
 
-    def get_price_serializer(self):
-        return PriceSerializer()
+        return {
+            "prices": new_price
+        }
 
     def send_data(self, data):
-        """del data["product"]["children"]
+        price_url = self.price_url if self.driver.in_production else self.price_test_url
+
+        for idx in range(len(data["prices"])):
+            del data["prices"][idx]["children"]
+
         if data:
-            result = True
             try:
-                print("URL ", price_url.format(self.codwebsite, self.referencia))
                 print("DATA: ", json.dumps(data))
-                result = self.send_request("put", url=price_url.format(self.codwebsite, self.referencia), data=json.dumps(data))
+                print("URL: ", price_url)
+                self.send_request("post", url=price_url, data=json.dumps(data))
             except Exception as e:
                 print("exception")
                 # print(json.dumps(e))
-                self.error = True"""
+                self.error = True
 
         return data
 
-    def get_db_data(self):
-        body = []
+    def insert_datos_sincro(self):
 
-        self._fechasincro = qsatype.FLUtil.sqlSelect("tpv_fechasincrotienda", "fechasincro", "codtienda = 'AWEB' AND esquema = 'PRICES_WEB'")
+        fechasincro = qsatype.FLUtil.sqlSelect("tpv_fechasincrotienda", "fechasincro", "codtienda = 'AWEB' AND esquema = 'PRICES_WEB'")
         horasincro = qsatype.FLUtil.sqlSelect("tpv_fechasincrotienda", "LEFT(CAST(horasincro AS TEXT), 8)", "codtienda = 'AWEB' AND esquema = 'PRICES_WEB'")
 
-        if not self._fechasincro or self._fechasincro is None:
-            self._fechasincro = "2021-08-01"
+        if not fechasincro or fechasincro is None:
+            fechasincro = "2021-10-01"
         else:
-            self._fechasincro = str(self._fechasincro)[:10]
+            fechasincro = str(fechasincro)[:10]
 
         if not horasincro or horasincro is None:
             horasincro = "00:00:00"
         else:
             horasincro = str(horasincro)[-(8):]
-            print(horasincro)
 
-        filtro_fechas_alta = "(a.fechaalta > '{}' OR (a.fechaalta = '{}' AND a.horaalta >= '{}'))".format(self._fechasincro, self._fechasincro, horasincro)
-        filtro_fechas_mod = "(a.fechamod > '{}' OR (a.fechamod = '{}' AND a.horamod >= '{}'))".format(self._fechasincro, self._fechasincro, horasincro)
-        filtro_fechas_limite = "(fechaalta > '{}' OR (fechaalta = '{}' AND horaalta >= '{}'))".format(self._fechasincro, self._fechasincro, horasincro)
-        filtro_fechas_limite_mod = "(fechamod > '{}' OR (fechamod = '{}' AND horamod >= '{}'))".format(self._fechasincro, self._fechasincro, horasincro)
-        where = "a.pvp > 0  and l.tiposincro = 'Enviar productos' and l.website = 'MG2' AND a.sincronizado = FALSE AND ({} OR {}) AND a.referencia IN (SELECT a.referencia FROM articulostarifas a INNER JOIN mg_storeviews st on a.codtarifa = st.codtarifa INNER JOIN mg_websites w ON st.codwebsite = w.codwebsite inner join lineassincro_catalogo l on a.referencia = l.idobjeto WHERE a.pvp > 0 AND a.sincronizado = FALSE AND ({} OR {}) GROUP BY referencia LIMIT 25) GROUP BY a.id,at.referencia, at.talla, a.pvp, st.codstoreview, a.codtarifa ORDER BY a.referencia,a.codtarifa".format(filtro_fechas_alta, filtro_fechas_mod,  filtro_fechas_limite, filtro_fechas_limite_mod)
+        filtro_fechas_alta = "(a.fechaalta > '{}' OR (a.fechaalta = '{}' AND a.horaalta >= '{}'))".format(fechasincro, fechasincro, horasincro)
+        filtro_fechas_mod = "(a.fechamod > '{}' OR (a.fechamod = '{}' AND a.horamod >= '{}'))".format(fechasincro, fechasincro, horasincro)
+
+        qsatype.FLSqlQuery().execSql("INSERT INTO lineassincro_catalogo (idobjeto, descripcion, tiposincro, website, sincronizado)(select at.referencia || '-' || at.talla || '-' || a.pvp || '-' || st.idmagento, 'sincro tarifa ' || at.referencia || '-' || at.talla || '-' || a.pvp || '-' || st.idmagento, 'sincrotarifas', 'MG2', false from articulostarifas a inner join mg_storeviews st on a.codtarifa = st.codtarifa inner join atributosarticulos at ON a.referencia = at.referencia inner join lineassincro_catalogo l on a.referencia = l.idobjeto WHERE a.pvp > 0 and l.tiposincro = 'Enviar productos' and l.website = 'MG2' AND a.sincronizado = FALSE AND l.sincronizado = TRUE AND ({} OR {}) GROUP BY at.referencia, at.talla, a.pvp, st.idmagento ORDER BY at.referencia, st.idmagento, at.talla)".format(filtro_fechas_alta, filtro_fechas_mod));
+
+        return True
+
+    def get_db_data(self):
+        body = []
 
         q = qsatype.FLSqlQuery()
-        q.setSelect("a.id,at.referencia, at.talla, a.pvp, st.codstoreview, a.codtarifa")
-        q.setFrom("mg_websites w inner join mg_storeviews st on w.codwebsite = st.codwebsite inner join articulostarifas a on a.codtarifa = st.codtarifa inner join atributosarticulos at ON a.referencia = at.referencia inner join lineassincro_catalogo l on a.referencia = l.idobjeto")
-        q.setWhere(where)
+        q.setSelect("ls.id, ls.idobjeto")
+        q.setFrom("lineassincro_catalogo ls")
+        q.setWhere("ls.website = 'MG2' and ls.tiposincro = 'sincrotarifas' and ls.sincronizado = false ORDER BY ls.id LIMIT 20")
 
         q.exec_()
 
@@ -136,8 +105,19 @@ class Mg2PriceUpload(PriceUpload):
 
         return body
 
-    def after_sync(self, response_data=None):
+    def get_price_serializer(self):
+        return PriceSerializer()
 
-        self.log("Exito", "Tarifas de precio sincronizadas correctamente (Referencias: {})".format(self.refSincros))
+    def after_sync(self, response_data=None):
+        print("SSW: ", self._idls)
+        if self.error:
+            self.log("Error", "No se pudo sincronizar las tarifas de articulos: {})".format(self._idls))
+            return self.small_sleep
+
+        qsatype.FLSqlQuery().execSql("UPDATE articulostarifas SET sincronizado = TRUE WHERE sincronizado = FALSE AND ((fechamod < '{}' OR (fechamod = '{}' AND horamod <= '{}')) OR (fechaalta < '{}' OR (fechaalta = '{}' AND horaalta <= '{}')))".format(self.start_date, self.start_date, self.start_time, self.start_date, self.start_date, self.start_time))
+        qsatype.FLSqlQuery().execSql("UPDATE tpv_fechasincrotienda SET fechasincro = '{}', horasincro = '{}' WHERE codtienda = 'AWEB' AND esquema = 'PRICES_WEB'".format(self.start_date, self.start_time))
+        qsatype.FLSqlQuery().execSql("UPDATE lineassincro_catalogo SET sincronizado = TRUE WHERE id IN ({})".format(self._idls))
+
+        self.log("Exito", "Tarifas de precio sincronizadas correctamente {}".format(self._idls))
 
         return self.small_sleep

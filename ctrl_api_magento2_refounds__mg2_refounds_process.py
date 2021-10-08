@@ -35,7 +35,16 @@ class Mg2RefoundsProcess(DownloadSync):
 
             cuerpolog = row['cuerpolog']
             cuerpolog = cuerpolog.replace("None", "\"None\"")
-            cuerpolog = cuerpolog.replace("'", "\"")
+            cuerpolog = cuerpolog.replace("{'", "{\"")
+            cuerpolog = cuerpolog.replace("'}", "\"}")
+            cuerpolog = cuerpolog.replace("':", "\":")
+            cuerpolog = cuerpolog.replace(": '", ": \"")
+            cuerpolog = cuerpolog.replace(", '", ", \"")
+            cuerpolog = cuerpolog.replace("',", "\",")
+            cuerpolog = cuerpolog.replace("['", "[\"")
+            cuerpolog = cuerpolog.replace("']", "\"]")
+            cuerpolog = cuerpolog.replace("'", ",")
+            
             datajson = json.loads(str(cuerpolog))
             aData.append(datajson)
 

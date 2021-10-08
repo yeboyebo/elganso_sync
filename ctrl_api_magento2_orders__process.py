@@ -10,7 +10,7 @@ class interna_process():
     pass
 
 
-# @class_declaration community_sync_process #
+# @class_declaration elganso_sync_process #
 from models.flsyncppal import flsyncppal_def as syncppal
 
 

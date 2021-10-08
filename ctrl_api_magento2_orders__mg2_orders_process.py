@@ -20,8 +20,8 @@ class Mg2OrdersProcess(DownloadSync):
         self.small_sleep = 10
         q = qsatype.FLSqlQuery()
         q.setSelect("idlog, cuerpolog")
-        q.setFrom("eg_logpedidosweb")
-        q.setWhere("website = 'magento2' AND not procesado AND (estadoprocesado IS NULL OR estadoprocesado = '') AND increment_id IS NOT NULL ORDER BY fechaalta, horaalta LIMIT 10")
+        q.setFrom("eg_logpedidosweb left outer join tpv_comandas on eg_logpedidosweb.codcomanda = tpv_comandas.codigo")
+        q.setWhere("website = 'magento2' AND not procesado AND (estadoprocesado IS NULL OR estadoprocesado = '') AND increment_id IS NOT NULL AND codigo IS NULL ORDER BY fechaalta, horaalta LIMIT 10")
 
         q.exec_()
 
@@ -39,7 +39,16 @@ class Mg2OrdersProcess(DownloadSync):
 
             cuerpolog = row['cuerpolog']
             cuerpolog = cuerpolog.replace("None", "\"None\"")
-            cuerpolog = cuerpolog.replace("'", "\"")
+            cuerpolog = cuerpolog.replace("{'", "{\"")
+            cuerpolog = cuerpolog.replace("'}", "\"}")
+            cuerpolog = cuerpolog.replace("':", "\":")
+            cuerpolog = cuerpolog.replace(": '", ": \"")
+            cuerpolog = cuerpolog.replace(", '", ", \"")
+            cuerpolog = cuerpolog.replace("',", "\",")
+            cuerpolog = cuerpolog.replace("['", "[\"")
+            cuerpolog = cuerpolog.replace("']", "\"]")
+            cuerpolog = cuerpolog.replace("'", ",")
+            
             datajson = json.loads(str(cuerpolog))
             aData.append(datajson)
 
