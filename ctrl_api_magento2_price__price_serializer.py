@@ -9,7 +9,7 @@ class PriceSerializer(DefaultSerializer):
         talla = str(idobjeto[1])
         precio = str(idobjeto[2])
         idstore = str(idobjeto[3])
-
+        
         if talla != "TU":
             referencia = referencia + "-" + talla
 

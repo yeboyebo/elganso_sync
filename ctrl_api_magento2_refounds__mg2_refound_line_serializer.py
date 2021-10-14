@@ -8,7 +8,7 @@ class Mg2RefoundLineSerializer(DefaultSerializer):
 
     def get_data(self):
 
-        iva = parseFloat(self.init_data["tax_percent"])
+        iva = self.init_data["tax_percent"]
         if not iva or iva == "":
             iva = 0
 

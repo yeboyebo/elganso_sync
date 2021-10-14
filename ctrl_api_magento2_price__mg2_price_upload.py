@@ -16,7 +16,7 @@ class Mg2PriceUpload(PriceUpload):
         self.price_test_url = price_params['test_url']
 
         self.set_sync_params(self.get_param_sincro('mg2'))
-
+        
         self.small_sleep = 1
 
     def get_data(self):
@@ -81,19 +81,19 @@ class Mg2PriceUpload(PriceUpload):
 
         filtro_fechas_alta = "(a.fechaalta > '{}' OR (a.fechaalta = '{}' AND a.horaalta >= '{}'))".format(fechasincro, fechasincro, horasincro)
         filtro_fechas_mod = "(a.fechamod > '{}' OR (a.fechamod = '{}' AND a.horamod >= '{}'))".format(fechasincro, fechasincro, horasincro)
-
+        
         qsatype.FLSqlQuery().execSql("INSERT INTO lineassincro_catalogo (idobjeto, descripcion, tiposincro, website, sincronizado)(select at.referencia || '-' || at.talla || '-' || a.pvp || '-' || st.idmagento, 'sincro tarifa ' || at.referencia || '-' || at.talla || '-' || a.pvp || '-' || st.idmagento, 'sincrotarifas', 'MG2', false from articulostarifas a inner join mg_storeviews st on a.codtarifa = st.codtarifa inner join atributosarticulos at ON a.referencia = at.referencia inner join lineassincro_catalogo l on a.referencia = l.idobjeto WHERE a.pvp > 0 and l.tiposincro = 'Enviar productos' and l.website = 'MG2' AND a.sincronizado = FALSE AND l.sincronizado = TRUE AND ({} OR {}) GROUP BY at.referencia, at.talla, a.pvp, st.idmagento ORDER BY at.referencia, st.idmagento, at.talla)".format(filtro_fechas_alta, filtro_fechas_mod));
-
+         
         return True
 
     def get_db_data(self):
         body = []
-
+        
         q = qsatype.FLSqlQuery()
         q.setSelect("ls.id, ls.idobjeto")
         q.setFrom("lineassincro_catalogo ls")
         q.setWhere("ls.website = 'MG2' and ls.tiposincro = 'sincrotarifas' and ls.sincronizado = false ORDER BY ls.id LIMIT 20")
-
+        
         q.exec_()
 
         body = []
