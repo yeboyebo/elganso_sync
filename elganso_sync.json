@@ -1167,6 +1167,10 @@
             {
                 "name": "ctrl_api_magento2_inventory_night__inventory_night_serializer.py",
                 "path": "controllers/api/magento2/inventory_night/serializers/"
+            },
+            {
+                "name": "model_flfact_tpv__jsonPedido.csv",
+                "path": "models/flfact_tpv/"
             }
         ],
         "deleteFile": [],

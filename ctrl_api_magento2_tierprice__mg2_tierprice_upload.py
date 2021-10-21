@@ -1,5 +1,7 @@
 from YBLEGACY import qsatype
+import requests
 import json
+
 from controllers.base.magento2.tierprice.controllers.tierprice_upload import TierpriceUpload
 from controllers.api.magento2.tierprice.serializers.tierprice_serializer import TierpriceSerializer
 
@@ -16,6 +18,7 @@ class Mg2TierpriceUpload(TierpriceUpload):
         self.tierprice_test_url = tierprice_params['test_url']
 
         self.set_sync_params(self.get_param_sincro('mg2'))
+        self.small_sleep = 1
 
     def get_data(self):
         data = self.get_db_data()
@@ -48,14 +51,17 @@ class Mg2TierpriceUpload(TierpriceUpload):
 
         for idx in range(len(data["prices"])):
             del data["prices"][idx]["children"]
-
         if data:
+            result = True
             try:
-                print("DATA: ", json.dumps(data))
-                print("URL: ", tierprice_url)
-                self.send_request("post", url=tierprice_url, data=json.dumps(data))
+                #print("DATA: ", json.dumps(data))
+                #print("URL: ", tierprice_url)
+                self.send_request("post", url=tierprice_url.format("es"), data=json.dumps(data))
+                self.send_request("post", url=tierprice_url.format("fr"), data=json.dumps(data))
+                self.send_request("post", url=tierprice_url.format("en"), data=json.dumps(data))
             except Exception as e:
-                print("exception")
+                #print(str(e))
+                #print("exception")
                 # print(json.dumps(e))
                 self.error = True
 
@@ -63,11 +69,11 @@ class Mg2TierpriceUpload(TierpriceUpload):
 
     def get_db_data(self):
         body = []
-
         q = qsatype.FLSqlQuery()
-        q.setSelect("ls.id, at.referencia, at.talla, ap.pvp, mg.idmagento")
-        q.setFrom("eg_planprecios p INNER JOIN eg_articulosplan ap ON p.codplan = ap.codplan INNER JOIN atributosarticulos at ON ap.referencia = at.referencia INNER JOIN eg_tiendasplanprecios tp ON p.codplan = tp.codplan INNER JOIN mg_storeviews mg ON tp.codtienda = mg.egcodtiendarebajas INNER JOIN lineassincro_catalogo ls ON (p.codplan = ls.idobjeto AND at.referencia = ls.descripcion)")
-        q.setWhere("p.elgansociety = TRUE AND ls.id IN (SELECT id FROM lineassincro_catalogo WHERE sincronizado = FALSE AND tiposincro = 'Planificador Precios' LIMIT 25) GROUP BY ls.id, at.referencia, at.talla, ap.pvp, mg.idmagento ORDER BY ls.id")
+        # q.setSelect("ls.id, at.referencia, at.talla, ap.pvp, p.desde || ' ' || p.horadesde, p.hasta || ' ' || p.horahasta, mg.idmagento")
+        q.setSelect("ls.id, at.referencia, at.talla, ap.pvp, p.desde || ' ' || p.horadesde, ap.activo, p.hasta || ' ' || p.horahasta, mg.idwebsite, mg.codstoreview")
+        q.setFrom("eg_planprecios p INNER JOIN eg_articulosplan ap ON p.codplan = ap.codplan INNER JOIN atributosarticulos at ON ap.referencia = at.referencia INNER JOIN eg_tiendasplanprecios tp ON p.codplan = tp.codplan INNER JOIN mg_storeviews mg ON tp.codtienda = mg.egcodtiendarebajas INNER JOIN lineassincro_catalogo ls ON (p.codplan = ls.idobjeto AND at.referencia || '-' || at.talla || '-' || mg.idmagento = ls.descripcion)")
+        q.setWhere("p.elgansociety = TRUE AND ls.id IN (SELECT id FROM lineassincro_catalogo WHERE sincronizado = FALSE AND tiposincro = 'Planificador Precios' ORDER BY id LIMIT 20) GROUP BY ls.id,at.referencia, at.talla, ap.pvp, p.desde || ' ' || p.horadesde, p.hasta || ' ' || p.horahasta, mg.idwebsite, ap.activo, mg.codstoreview ORDER BY ls.id")
 
         q.exec_()
 

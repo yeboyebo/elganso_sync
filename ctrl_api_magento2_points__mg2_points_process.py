@@ -18,8 +18,8 @@ class Mg2PointsProcess(DownloadSync):
     def get_data(self):
         q = qsatype.FLSqlQuery()
         q.setSelect("idlog,cuerpolog")
-        q.setFrom("eg_logtarjetasweb")
-        q.setWhere("website = 'magento2' AND not procesado AND (estadoprocesado IS NULL OR estadoprocesado = '') ORDER BY fechaalta, horaalta LIMIT 1")
+        q.setFrom("eg_logtarjetasweb left outer join tpv_tarjetaspuntos on eg_logtarjetasweb.email = tpv_tarjetaspuntos.email")
+        q.setWhere("eg_logtarjetasweb.website = 'magento2' AND not eg_logtarjetasweb.procesado AND (eg_logtarjetasweb.estadoprocesado IS NULL OR eg_logtarjetasweb.estadoprocesado = '') and tpv_tarjetaspuntos.codtarjetapuntos is null ORDER BY eg_logtarjetasweb.fechaalta, eg_logtarjetasweb.horaalta LIMIT 1")
 
         q.exec_()
 
@@ -38,11 +38,22 @@ class Mg2PointsProcess(DownloadSync):
                 self.idlogs += "," + str(row['idlog'])
 
             cuerpolog = row['cuerpolog']
+            # print(str(cuerpolog))
             cuerpolog = cuerpolog.replace("None", "\"None\"")
-            cuerpolog = cuerpolog.replace("'", "\"")
+            cuerpolog = cuerpolog.replace("{'", "{\"")
+            cuerpolog = cuerpolog.replace("'}", "\"}")
+            cuerpolog = cuerpolog.replace("':", "\":")
+            cuerpolog = cuerpolog.replace(": '", ": \"")
+            cuerpolog = cuerpolog.replace(", '", ", \"")
+            cuerpolog = cuerpolog.replace("',", "\",")
+            cuerpolog = cuerpolog.replace("['", "[\"")
+            cuerpolog = cuerpolog.replace("']", "\"]")
+            cuerpolog = cuerpolog.replace("'", ",")
             cuerpolog = cuerpolog.replace("False", "\"False\"")
             cuerpolog = cuerpolog.replace("True", "\"True\"")
             datajson = json.loads(str(cuerpolog))
+            
+            # print(str(cuerpolog))
 
             aData.append(datajson)
 
