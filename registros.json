@@ -195,7 +195,9 @@
             "type": "insertAfterNode",
             "path": "/flfactalma/movistock",
             "value": {
-                "eg_anulacionstockreservado": null
+                "eg_anulacionstockreservado": {
+                    "form": "eg_masteranulacionstockreservado"
+                }
             }
         },
         {
