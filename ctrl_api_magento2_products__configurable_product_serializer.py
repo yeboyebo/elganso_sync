@@ -20,7 +20,7 @@ class ConfigurableProductSerializer(DefaultSerializer):
         self.set_string_relation("product//sku", "lsc.idobjeto")
 
         self.set_string_value("product//attribute_set_id", "4")
-        #self.set_string_value("product//status", "1")
+        # self.set_string_value("product//status", "1")
         self.set_string_value("product//visibility", "4")
         self.set_string_value("product//type_id", "configurable")
 

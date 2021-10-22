@@ -64,7 +64,7 @@ class Mg2IdlEcommerce(DefaultSerializer):
                 #self.set_string_value("urlimagen", str(self.init_data["imagen_recoger"]))
         else:
             self.set_string_value("tipo", 'VENTA')
-            
+
         self.set_string_value("transportista", str(transIDL))
         self.set_string_value("metodoenvioidl", str(metodoIDL))
         self.set_data_value("imprimiralbaran", impAlbaran)

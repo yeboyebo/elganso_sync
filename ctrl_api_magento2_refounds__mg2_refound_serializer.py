@@ -381,7 +381,6 @@ class Mg2RefoundsSerializer(DefaultSerializer):
 
         return True
 
-
     def crear_pagos_devolucionweb(self, arqueo_web, codigo):
         new_init_data = self.init_data.copy()
         new_init_data.update(

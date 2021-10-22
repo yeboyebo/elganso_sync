@@ -6,7 +6,7 @@ from controllers.base.default.serializers.default_serializer import DefaultSeria
 class Mg2IdlEcommerce(DefaultSerializer):
 
     def get_data(self):
-        #metodoEnvio = str(self.init_data["carrier"])
+        # metodoEnvio = str(self.init_data["carrier"])
         metodoEnvio = "i4seur_31_2"
 
         transIDL = qsatype.FLUtil.sqlSelect("metodosenvio_transportista", "transportista", "LOWER(metodoenviomg) = '" + metodoEnvio + "' OR UPPER(metodoenviomg) = '" + metodoEnvio + "' OR metodoenviomg = '" + metodoEnvio + "'")

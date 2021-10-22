@@ -5,23 +5,24 @@ from YBLEGACY.constantes import *
 
 from controllers.api.magento2.orders.serializers.mg2_orderline_serializer import Mg2OrderLineSerializer
 
+
 class Mg2DiscountUnknownLineSerializer(Mg2OrderLineSerializer):
     bono = None
 
     def get_data(self):
-        dto=0
+        dto = 0
         if "discount_amount" in self.init_data:
             dto = self.init_data["discount_amount"]
-            
+
         if not dto or dto == 0 or dto == "0.0000" or dto == "0.00":
             return False
-            
-        importe_puntos=0
+
+        importe_puntos = 0
         if "puntos_gastados" in self.init_data:
             importe_puntos = float(self.init_data["puntos_gastados"])
-        
+
         # importe_puntos viene en positivo
-        dto=dto+importe_puntos
+        dto = dto + importe_puntos
 
         self.get_bono_data()
 
@@ -29,10 +30,10 @@ class Mg2DiscountUnknownLineSerializer(Mg2OrderLineSerializer):
             if "discount" in self.bono:
                 dto = self.bono["discount"]
 
-        dif=(self.init_data["discount_amount"])-(dto-importe_puntos)
-        
+        dif = (self.init_data["discount_amount"]) - (dto - importe_puntos)
+
         if abs(dif) > 0.01:
-            dto=dif
+            dto = dif
         else:
             return False
 
@@ -88,8 +89,8 @@ class Mg2DiscountUnknownLineSerializer(Mg2OrderLineSerializer):
                 descripcion_bono = True
 
         if descripcion_bono:
-            coddescuento=str(self.init_data["discount_description"])
-            if str(coddescuento)[:2]=="BX":
+            coddescuento = str(self.init_data["discount_description"])
+            if str(coddescuento)[:2] == "BX":
                 dto = qsatype.FLUtil.sqlSelect("eg_movibono", "importe", "codbono = '{}' AND venta = '{}'".format(coddescuento, self.init_data["codcomanda"]))
                 qsatype.debug(ustr(u"---------------------------------------------- dto 2: ", str(dto)))
                 if dto:
@@ -118,4 +119,3 @@ class Mg2DiscountUnknownLineSerializer(Mg2OrderLineSerializer):
 
     def get_cantidad(self):
         return 1
-

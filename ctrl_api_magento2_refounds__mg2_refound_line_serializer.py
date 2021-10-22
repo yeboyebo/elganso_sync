@@ -107,6 +107,3 @@ class Mg2RefoundLineSerializer(DefaultSerializer):
 
     def get_cantidad(self):
         return self.init_data["cantidad"]
-
-
-

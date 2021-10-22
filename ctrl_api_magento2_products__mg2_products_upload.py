@@ -196,7 +196,7 @@ class Mg2ProductsUpload(ProductsUpload):
     def after_sync(self, response_data=None):
         qsatype.FLSqlQuery().execSql("UPDATE lineassincro_catalogo SET sincronizado = TRUE WHERE id = {}".format(self.idlinea))
         qsatype.FLSqlQuery().execSql("UPDATE articulostarifas SET fechamod = CURRENT_DATE, sincronizado = FALSE WHERE codtarifa in (select t.codtarifa from mg_websites w inner join mg_storeviews st on w.codwebsite = st.codwebsite inner join tarifas t on t.codtarifa = st.codtarifa group by t.codtarifa) AND referencia = '{}'".format(self.referencia))
-        
+
         lista_almacenes = qsatype.FLUtil.sqlSelect("param_parametros", "valor", "nombre = 'ALMACENES_SINCRO'").split(',')
 
         where_almacenes = ""
@@ -205,11 +205,11 @@ class Mg2ProductsUpload(ProductsUpload):
                 where_almacenes = "'" + str(lista_almacenes[idx]) + "'"
             else:
                 where_almacenes += ",'" + str(lista_almacenes[idx]) + "'"
-                    
+
         qsatype.FLSqlQuery().execSql("UPDATE eg_sincrostockwebinmediato set sincronizado = false where sincronizado = true AND idstock in (select idstock from stocks where referencia = '" + self.referencia + "' AND codalmacen IN (" + where_almacenes + "))")
-        
+
         qsatype.FLSqlQuery().execSql("INSERT into eg_sincrostockwebinmediato (fecha, hora, sincronizado, idstock) (SELECT CURRENT_DATE, CURRENT_TIME, false, s.idstock FROM stocks s left outer join eg_sincrostockwebinmediato e on s.idstock = e.idstock WHERE s.referencia = '" + self.referencia + "' AND s.codalmacen IN (" + where_almacenes + ") AND e.idssw is null)")
-        
+
         lineas_no_sincro = qsatype.FLUtil.sqlSelect("lineassincro_catalogo", "id", "idsincro = '{}' AND NOT sincronizado LIMIT 1".format(self.idsincro))
 
         if not lineas_no_sincro:

@@ -19,7 +19,7 @@ class SimpleProductSerializer(DefaultSerializer):
 
         self.set_string_value("product//sku", self.get_sku())
         self.set_string_value("product//attribute_set_id", "4")
-        #self.set_string_value("product//status", "1")
+        # self.set_string_value("product//status", "1")
 
         is_visibility = "1"
         if self.get_init_value("aa.talla") == "TU":

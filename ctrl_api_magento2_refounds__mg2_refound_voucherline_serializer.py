@@ -97,4 +97,3 @@ class Mg2RefoundVoucherLineSerializer(Mg2RefoundLineSerializer):
             return False
 
         return True
-

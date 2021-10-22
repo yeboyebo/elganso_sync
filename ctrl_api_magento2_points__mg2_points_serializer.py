@@ -56,4 +56,3 @@ class Mg2PointsSerializer(DefaultSerializer):
         ultimaTarjeta += 1
         codigo = prefijo + qsatype.FactoriaModulos.get('flfacturac').iface.pub_cerosIzquierda(ultimaTarjeta, 15 - len(prefijo))
         return codigo
-

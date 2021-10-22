@@ -72,7 +72,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
                 self.data["children"]["payments"] = []
 
             if not self.distribucion_almacenes():
-                raise NameError("El número de unidades indicadas y la cantidad de líneas no coincide.")
+                raise NameError("El numero de unidades indicadas y la cantidad de lineas no coincide.")
                 return False
 
             ivaInformado = False
@@ -309,7 +309,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
         for linea in self.init_data["items"]:
             cont = cont + 1
             if not self.crear_linea_pedido_reserva_stock(cont, linea, curPedido.valueBuffer("idpedido")):
-                raise NameError("Error al crear la línea del pedido de reserva de stock.")
+                raise NameError("Error al crear la linea del pedido de reserva de stock.")
                 return False
 
         qsatype.FactoriaModulos.get('flfactalma').iface.movimientoStockWeb_ = False
@@ -341,7 +341,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
         curLineaPedido.setValueBuffer("codimpuesto", "GEN")
         curLineaPedido.setValueBuffer("egordenlinea", "")
         if not curLineaPedido.commitBuffer():
-            raise NameError("Error al guardar la línea del pedido.")
+            raise NameError("Error al guardar la linea del pedido.")
             return False
 
         return True
@@ -415,9 +415,9 @@ class Mg2OrdersSerializer(DefaultSerializer):
             return True
 
         q = qsatype.FLSqlQuery()
-        q.setSelect(u"nombre, valor")
-        q.setFrom(u"param_parametros")
-        q.setWhere(u"nombre like 'RSTOCK_%'")
+        q.setSelect(u"p.nombre, p.valor, a.codpais")
+        q.setFrom(u"param_parametros p INNER JOIN almacenes a ON p.nombre = 'RSTOCK_' || a.codalmacen ")
+        q.setWhere(u"p.nombre like 'RSTOCK_%'")
 
         q.exec_()
 
@@ -425,15 +425,22 @@ class Mg2OrdersSerializer(DefaultSerializer):
             return True
 
         margen_almacenes = {}
+        pais_almacenes = {}
 
         while q.next():
-            margen_almacenes[str(q.value(u"nombre"))] = int(q.value(u"valor"))
+            margen_almacenes[str(q.value(u"p.nombre"))] = int(q.value(u"p.valor"))
+            pais_almacenes[str(q.value(u"p.nombre"))] = str(q.value(u"a.codpais"))
 
         lineas_data = self.init_data["items"]
         almacenes = []
 
         # for almacen in self.init_data["almacenes"]:
-            # almacenes.append({ "cod_almacen": almacen["source_code"], "emailtienda": almacen["email"], "total": 0, "lineas": {} })
+        # almacenes.append({ "cod_almacen": almacen["source_code"], "emailtienda": almacen["email"], "total": 0, "lineas": {} })
+
+        codpais = self.init_data["shipping_address"]["country_id"]
+
+        # print(str(codpais))
+
         for indice, almacen in enumerate(self.init_data["almacenes"]):
             almacenes.append({
                 "cod_almacen": almacen["source_code"],
@@ -466,8 +473,14 @@ class Mg2OrdersSerializer(DefaultSerializer):
             while q.next():
                 barcode = q.value("barcode")
                 margen = margen_almacenes.get("RSTOCK_" + cod_almacen, 0)
+                codpaisalmacen = pais_almacenes.get("RSTOCK_" + cod_almacen, 'ES')
+
+                sumalineatotal = 1
+                if(str(codpais) == str(codpaisalmacen)):
+                    sumalineatotal = 2
+
                 if (q.value("disponible") - margen) >= lineas[barcode]:
-                    almacen["total"] = almacen["total"] + 1
+                    almacen["total"] = almacen["total"] + sumalineatotal
                     almacen["lineas"][barcode] = True
 
         def dame_orden(almacen):
@@ -475,6 +488,8 @@ class Mg2OrdersSerializer(DefaultSerializer):
             return orden
 
         almacenes_ordenados = sorted(almacenes, key=dame_orden, reverse=True)
+
+        # print(str(almacenes_ordenados))
 
         for linea_data in lineas_data:
             barcode = self.get_barcode(linea_data["sku"])

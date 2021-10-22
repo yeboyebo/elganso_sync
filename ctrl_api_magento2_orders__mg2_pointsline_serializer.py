@@ -9,20 +9,20 @@ from controllers.api.magento2.orders.serializers.mg2_orderline_serializer import
 class Mg2PointsLineSerializer(Mg2OrderLineSerializer):
 
     def get_data(self):
-        descripcion=False
-        importe=0
+        descripcion = False
+        importe = 0
         if "email" in self.init_data:
-            descripcion=self.get_descripcion()
-        
+            descripcion = self.get_descripcion()
+
         if not descripcion:
             return False
-            
+
         if "puntos_gastados" in self.init_data:
             importe = self.init_data["puntos_gastados"]
             if not importe or float(importe) == 0 or importe == "0.0000" or importe == "0.00":
                 return False
 
-        importe=importe*(-1)
+        importe = importe * (-1)
         iva = self.init_data["iva"]
         if not iva or iva == "":
             iva = 0
@@ -41,7 +41,7 @@ class Mg2PointsLineSerializer(Mg2OrderLineSerializer):
         self.set_data_value("ivaincluido", True)
         self.set_data_value("cantdevuelta", 0)
         self.set_data_value("cantidad", self.get_cantidad())
-        
+
         self.set_data_value("pvpunitarioiva", importe)
         self.set_data_value("pvpsindtoiva", importe)
         self.set_data_value("pvptotaliva", importe)
@@ -62,7 +62,7 @@ class Mg2PointsLineSerializer(Mg2OrderLineSerializer):
 
     def get_codtarjetapuntos(self):
 
-        email=self.init_data["email"]
+        email = self.init_data["email"]
         codtarjetapuntos = qsatype.FLUtil.quickSqlSelect("tpv_tarjetaspuntos", "codtarjetapuntos", "email = '{}'".format(email).lower())
 
         if not codtarjetapuntos:
@@ -71,12 +71,12 @@ class Mg2PointsLineSerializer(Mg2OrderLineSerializer):
         return codtarjetapuntos
 
     def get_descripcion(self):
-        codtarjetapuntos=self.get_codtarjetapuntos()
+        codtarjetapuntos = self.get_codtarjetapuntos()
 
         if not codtarjetapuntos:
             return False
 
-        return "DESCUENTO PUNTOS {}".format(codtarjetapuntos) 
+        return "DESCUENTO PUNTOS {}".format(codtarjetapuntos)
 
     def get_barcode(self):
         return "8433613403654"
@@ -89,4 +89,3 @@ class Mg2PointsLineSerializer(Mg2OrderLineSerializer):
 
     def get_cantidad(self):
         return 1
-

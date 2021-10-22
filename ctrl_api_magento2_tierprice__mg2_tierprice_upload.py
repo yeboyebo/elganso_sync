@@ -54,14 +54,14 @@ class Mg2TierpriceUpload(TierpriceUpload):
         if data:
             result = True
             try:
-                #print("DATA: ", json.dumps(data))
-                #print("URL: ", tierprice_url)
+                # print("DATA: ", json.dumps(data))
+                # print("URL: ", tierprice_url)
                 self.send_request("post", url=tierprice_url.format("es"), data=json.dumps(data))
                 self.send_request("post", url=tierprice_url.format("fr"), data=json.dumps(data))
                 self.send_request("post", url=tierprice_url.format("en"), data=json.dumps(data))
             except Exception as e:
-                #print(str(e))
-                #print("exception")
+                # print(str(e))
+                # print("exception")
                 # print(json.dumps(e))
                 self.error = True
 
