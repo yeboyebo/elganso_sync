@@ -22,7 +22,10 @@ class Mg2PointsLineSerializer(Mg2OrderLineSerializer):
             if not importe or float(importe) == 0 or importe == "0.0000" or importe == "0.00":
                 return False
 
+        tasaconv = self.init_data["tasaconv"]
+
         importe = importe * (-1)
+        importe = round(parseFloat(importe * tasaconv), 2)
         iva = self.init_data["iva"]
         if not iva or iva == "":
             iva = 0

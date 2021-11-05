@@ -10,6 +10,8 @@ class Mg2DiscountUnknownLineSerializer(Mg2OrderLineSerializer):
     bono = None
 
     def get_data(self):
+        tasaconv = self.init_data["tasaconv"]
+
         dto = 0
         if "discount_amount" in self.init_data:
             dto = self.init_data["discount_amount"]
@@ -56,6 +58,7 @@ class Mg2DiscountUnknownLineSerializer(Mg2OrderLineSerializer):
         self.set_data_value("cantdevuelta", 0)
         self.set_data_value("cantidad", self.get_cantidad())
 
+        dto = round(parseFloat(dto * tasaconv), 2)
         self.set_data_value("pvpunitarioiva", dto)
         self.set_data_value("pvpsindtoiva", dto)
         self.set_data_value("pvptotaliva", dto)
@@ -94,13 +97,13 @@ class Mg2DiscountUnknownLineSerializer(Mg2OrderLineSerializer):
                 dto = qsatype.FLUtil.sqlSelect("eg_movibono", "importe", "codbono = '{}' AND venta = '{}'".format(coddescuento, self.init_data["codcomanda"]))
                 qsatype.debug(ustr(u"---------------------------------------------- dto 2: ", str(dto)))
                 if dto:
-                    if float(dto) != 0:
-                        if self.init_data["codcomanda"][:4] == "WEC7":
-                            dto = dto / 0.8
+                    # if float(dto) != 0:
+                        # if self.init_data["codcomanda"][:4] == "WEC7":
+                            # dto = dto / 0.8
 
-                        self.bono = {
-                            "discount": dto
-                        }
+                    self.bono = {
+                        "discount": dto
+                    }
 
     def get_referencia(self):
         return "0000ATEMP00001"

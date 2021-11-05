@@ -1,3 +1,5 @@
+from YBLEGACY.constantes import *
+
 from controllers.base.default.serializers.default_serializer import DefaultSerializer
 
 
@@ -22,7 +24,12 @@ class Mg2ShippingLineSerializer(DefaultSerializer):
         self.set_string_relation("mg_metodoenvio", "shipping_description", max_characters=500)
 
         self.set_data_relation("mg_unidadesenv", "units")
-        self.set_data_relation("mg_gastosenv", "shipping_price")
+
+        tasaconv = self.init_data["tasaconv"]
+
+        shippingprice = round(parseFloat(self.init_data["shipping_price"] * tasaconv), 2)
+        self.set_data_value("mg_gastosenv", shippingprice)
+        # self.set_data_relation("mg_gastosenv", "shipping_price")
 
         self.set_string_relation("mg_nombreenv", "shipping_address//firstname", max_characters=100)
         self.set_string_relation("mg_apellidosenv", "shipping_address//lastname", max_characters=200)

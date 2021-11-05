@@ -25,9 +25,15 @@ class Mg2OrderLineSerializer(DefaultSerializer):
 
         self.set_string_relation("codcomanda", "codcomanda", max_characters=15)
 
-        pvpunitario = parseFloat(self.init_data["pvpunitarioiva"] / ((100 + iva) / 100))
-        pvpsindto = parseFloat(self.init_data["pvpsindtoiva"] / ((100 + iva) / 100))
-        pvptotal = parseFloat(self.init_data["pvptotaliva"] / ((100 + iva) / 100))
+        tasaconv = self.init_data["tasaconv"]
+
+        pvpunitarioiva = round(parseFloat(self.init_data["pvpunitarioiva"] * tasaconv), 2)
+        pvpsindtoiva = round(parseFloat(self.init_data["pvpsindtoiva"] * tasaconv), 2)
+        pvptotaliva = round(parseFloat(self.init_data["pvptotaliva"] * tasaconv), 2)
+
+        pvpunitario = parseFloat(pvpunitarioiva / ((100 + iva) / 100))
+        pvpsindto = parseFloat(pvpsindtoiva / ((100 + iva) / 100))
+        pvptotal = parseFloat(pvptotaliva / ((100 + iva) / 100))
 
         self.set_data_value("cantdevuelta", 0)
         self.set_data_value("cantidad", self.get_cantidad())
@@ -38,9 +44,12 @@ class Mg2OrderLineSerializer(DefaultSerializer):
         self.set_data_value("pvptotal", pvptotal)
 
         self.set_data_relation("iva", "iva")
-        self.set_data_relation("pvpunitarioiva", "pvpunitarioiva")
-        self.set_data_relation("pvpsindtoiva", "pvpsindtoiva")
-        self.set_data_relation("pvptotaliva", "pvptotaliva")
+        self.set_data_value("pvpunitarioiva", pvpunitarioiva)
+        self.set_data_value("pvpsindtoiva", pvpsindtoiva)
+        self.set_data_value("pvptotaliva", pvptotaliva)
+        # self.set_data_relation("pvpunitarioiva", "pvpunitarioiva")
+        # self.set_data_relation("pvpsindtoiva", "pvpsindtoiva")
+        # self.set_data_relation("pvptotaliva", "pvptotaliva")
 
         if "almacen" in self.init_data:
             if str(self.init_data["almacen"]) != "AWEB":

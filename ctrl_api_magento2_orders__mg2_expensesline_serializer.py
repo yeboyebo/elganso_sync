@@ -9,6 +9,8 @@ class Mg2ExpensesLineSerializer(Mg2OrderLineSerializer):
         if not self.init_data["shipping_price"]:
             return False
 
+        tasaconv = self.init_data["tasaconv"]
+
         iva = self.init_data["iva"]
         if not iva or iva == "":
             iva = 0
@@ -30,11 +32,17 @@ class Mg2ExpensesLineSerializer(Mg2OrderLineSerializer):
         self.set_data_value("ivaincluido", True)
         self.set_data_relation("iva", "iva")
 
-        self.set_data_relation("pvpunitarioiva", "shipping_price")
-        self.set_data_relation("pvpsindtoiva", "shipping_price")
-        self.set_data_relation("pvptotaliva", "shipping_price")
+        shippingprice = round(parseFloat(self.init_data["shipping_price"] * tasaconv), 2)
 
-        gastos_sin_iva = self.init_data["shipping_price"]
+        # self.set_data_relation("pvpunitarioiva", "shipping_price")
+        # self.set_data_relation("pvpsindtoiva", "shipping_price")
+        # self.set_data_relation("pvptotaliva", "shipping_price")
+
+        self.set_data_value("pvpunitarioiva", shippingprice)
+        self.set_data_value("pvpsindtoiva", shippingprice)
+        self.set_data_value("pvptotaliva", shippingprice)
+
+        gastos_sin_iva = shippingprice
 
         if iva and iva != 0:
             gastos_sin_iva = gastos_sin_iva / (1 + (parseFloat(iva) / 100))

@@ -1171,6 +1171,18 @@
             {
                 "name": "model_flfact_tpv__jsonPedido.csv",
                 "path": "models/flfact_tpv/"
+            },
+            {
+                "path": "controllers/api/magento2/delete_special_price/",
+                "name": "ctrl_api_magento2_delete_special_price__upload.py"
+            },
+            {
+                "path": "controllers/api/magento2/delete_special_price/controllers/",
+                "name": "ctrl_api_magento2_delete_special_price__mg2_delete_special_price_upload.py"
+            },
+            {
+                "path": "controllers/api/magento2/delete_special_price/serializers/",
+                "name": "ctrl_api_magento2_delete_special_price__delete_special_price_serializer.py"
             }
         ],
         "deleteFile": [],

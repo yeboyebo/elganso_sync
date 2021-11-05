@@ -31,8 +31,11 @@ class Mg2VoucherLineSerializer(Mg2OrderLineSerializer):
 
         self.set_data_value("ivaincluido", True)
         self.set_data_relation("iva", "iva")
+        tasaconv = self.init_data["tasaconv"]
 
-        vale_total = round(parseFloat(self.init_data["vale_total"]) * (-1), 2)
+        vale_total = round(parseFloat(self.init_data["vale_total"] * tasaconv) * (-1), 2)
+
+        # vale_total = round(parseFloat(self.init_data["vale_total"]) * (-1), 2)
         dto_sin_iva = vale_total
 
         if iva and iva != 0:

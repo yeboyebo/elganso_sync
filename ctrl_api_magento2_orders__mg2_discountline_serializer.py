@@ -10,16 +10,19 @@ class Mg2DiscountLineSerializer(Mg2OrderLineSerializer):
     bono = None
 
     def get_data(self):
+        tasaconv = self.init_data["tasaconv"]
         dto = 0
         if "discount_amount" in self.init_data:
-            dto = self.init_data["discount_amount"]
+            ## dto = self.init_data["discount_amount"] 
+            dto = round(parseFloat(self.init_data["discount_amount"] * tasaconv), 2)
 
         if not dto or dto == 0 or dto == "0.0000" or dto == "0.00":
             return False
 
         importe_puntos = 0
         if "puntos_gastados" in self.init_data:
-            importe_puntos = float(self.init_data["puntos_gastados"])
+            ## importe_puntos = float(self.init_data["puntos_gastados"])
+            importe_puntos = round(parseFloat(self.init_data["puntos_gastados"] * tasaconv), 2)
 
         # importe_puntos viene en positivo
         dto = dto + importe_puntos
@@ -28,7 +31,8 @@ class Mg2DiscountLineSerializer(Mg2OrderLineSerializer):
 
         if self.bono:
             if "discount" in self.bono:
-                dto = self.bono["discount"]
+                ## dto = self.bono["discount"]
+                dto = round(parseFloat(self.init_data["discount"] * tasaconv), 2)
 
         iva = self.init_data["iva"]
         if not iva or iva == "":
@@ -93,8 +97,8 @@ class Mg2DiscountLineSerializer(Mg2OrderLineSerializer):
                 qsatype.debug(ustr(u"---------------------------------------------- dto 1: ", str(dto)))
                 if dto:
                     if float(dto) != 0:
-                        if self.init_data["codcomanda"][:4] == "WEC7":
-                            dto = dto / 0.8
+                        ## if self.init_data["codcomanda"][:4] == "WEC7":
+                            ## dto = dto / 0.8
 
                         self.bono = {
                             "referencia": json_bono["referenciabono"],

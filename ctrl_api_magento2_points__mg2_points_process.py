@@ -39,7 +39,6 @@ class Mg2PointsProcess(DownloadSync):
 
             cuerpolog = row['cuerpolog']
             # print(str(cuerpolog))
-            cuerpolog = cuerpolog.replace('"', "-")
             cuerpolog = cuerpolog.replace("None", "\"None\"")
             cuerpolog = cuerpolog.replace("{'", "{\"")
             cuerpolog = cuerpolog.replace("'}", "\"}")

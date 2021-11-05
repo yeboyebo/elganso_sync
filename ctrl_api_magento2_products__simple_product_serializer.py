@@ -13,16 +13,23 @@ class SimpleProductSerializer(DefaultSerializer):
         elif self.get_init_value("store_id") == "ES":
             return self.get_serializador_store_es()
 
+        talla = self.get_init_value("aa.talla")
         self.set_string_relation("product//name", "lsc.descripcion")
         self.set_string_relation("product//weight", "a.peso")
         self.set_string_relation("product//price", "a.pvp")
 
         self.set_string_value("product//sku", self.get_sku())
         self.set_string_value("product//attribute_set_id", "4")
-        # self.set_string_value("product//status", "1")
+
+        sincronizadoprevio = qsatype.FLUtil.sqlSelect("lineassincro_catalogo", "id", "idobjeto = '{}' and sincronizado and idsincro <> {} AND tiposincro = 'Enviar productos' and website = 'MG2'".format(self.get_init_value("lsc.idobjeto"),self.get_init_value("lsc.idsincro")))
+
+        if str(sincronizadoprevio) == "None":
+            self.set_string_value("product//status", "1")
+            if talla == "TU":
+                self.set_string_value("product//status", "2")
 
         is_visibility = "1"
-        if self.get_init_value("aa.talla") == "TU":
+        if talla == "TU":
             is_visibility = "4"
 
         self.set_string_value("product//visibility", is_visibility)
@@ -57,8 +64,21 @@ class SimpleProductSerializer(DefaultSerializer):
             {"attribute_code": "sexo", "value": self.get_init_value("gm.descripcion")},
             {"attribute_code": "gruporemarketing", "value": self.get_init_value("tp.gruporemarketing")},
             {"attribute_code": "color", "value": self.get_init_value("ic.indicecommunity")},
+            {"attribute_code": "product_tag", "value": "98"},
             {"attribute_code": "season", "value": self.get_dametemporada()}
         ]
+
+        talla_modelo = self.get_init_value("a.mgtallamodelo")
+        if talla_modelo is not False and talla_modelo != "" and talla_modelo is not None and str(talla_modelo) != "None":
+            custom_attributes.append({"attribute_code": "talla_modelo", "value": talla_modelo})
+
+        mas_info = self.get_init_value("a.mgmasinfo")
+        if mas_info is not False and mas_info != "" and mas_info is not None and str(mas_info) != "None":
+            custom_attributes.append({"attribute_code": "mas_info", "value": mas_info})
+
+        medidas_modelo = self.get_init_value("a.mgmedidasmodelo")
+        if medidas_modelo is not False and medidas_modelo != "" and medidas_modelo is not None and str(medidas_modelo) != "None":
+            custom_attributes.append({"attribute_code": "medidas_modelo", "value": medidas_modelo})
 
         self.set_data_value("product//custom_attributes", custom_attributes)
 
@@ -110,6 +130,18 @@ class SimpleProductSerializer(DefaultSerializer):
             {"attribute_code": "season", "value": self.get_dametemporada()}
         ]
 
+        talla_modelo = self.get_init_value("a.mgtallamodelo")
+        if talla_modelo is not False and talla_modelo != "" and talla_modelo is not None and str(talla_modelo) != "None":
+            custom_attributes.append({"attribute_code": "talla_modelo", "value": talla_modelo})
+
+        mas_info = qsatype.FLUtil.sqlSelect("traducciones", "traduccion", "campo = 'mgmasinfo' AND codidioma = '" + self.get_init_value("store_id") + "' AND idcampo = '{}'".format(self.get_init_value("lsc.idobjeto")))
+        if mas_info is not False and mas_info != "" and mas_info is not None and str(mas_info) != "None":
+            custom_attributes.append({"attribute_code": "mas_info", "value": mas_info})
+
+        medidas_modelo = qsatype.FLUtil.sqlSelect("traducciones", "traduccion", "campo = 'mgmedidasmodelo' AND codidioma = '" + self.get_init_value("store_id") + "' AND idcampo = '{}'".format(self.get_init_value("lsc.idobjeto")))
+        if medidas_modelo is not False and medidas_modelo != "" and medidas_modelo is not None and str(medidas_modelo) != "None":
+            custom_attributes.append({"attribute_code": "medidas_modelo", "value": medidas_modelo})
+
         self.set_data_value("product//custom_attributes", custom_attributes)
 
         return True
@@ -125,7 +157,7 @@ class SimpleProductSerializer(DefaultSerializer):
         if large_description_store is False or large_description_store == "" or large_description_store is None or str(large_description_store) == "None":
             large_description_store = self.get_init_value("lsc.descripcion")
 
-        self.set_string_value("product//name", desc_store)
+        # self.set_string_value("product//name", desc_store)
 
         custom_attributes = [
             {"attribute_code": "description", "value": large_description_store},
@@ -134,6 +166,18 @@ class SimpleProductSerializer(DefaultSerializer):
             {"attribute_code": "lavado", "value": self.get_init_value("a.egsignoslavado")},
             {"attribute_code": "season", "value": self.get_dametemporada()}
         ]
+
+        talla_modelo = self.get_init_value("a.mgtallamodelo")
+        if talla_modelo is not False and talla_modelo != "" and talla_modelo is not None and str(talla_modelo) != "None":
+            custom_attributes.append({"attribute_code": "talla_modelo", "value": talla_modelo})
+
+        mas_info = self.get_init_value("a.mgmasinfo")
+        if mas_info is not False and mas_info != "" and mas_info is not None and str(mas_info) != "None":
+            custom_attributes.append({"attribute_code": "mas_info", "value": mas_info})
+
+        medidas_modelo = self.get_init_value("a.mgmedidasmodelo")
+        if medidas_modelo is not False and medidas_modelo != "" and medidas_modelo is not None and str(medidas_modelo) != "None":
+            custom_attributes.append({"attribute_code": "medidas_modelo", "value": medidas_modelo})
 
         self.set_data_value("product//custom_attributes", custom_attributes)
 
@@ -145,7 +189,7 @@ class SimpleProductSerializer(DefaultSerializer):
             temporada = ""
 
         if temporada == "ATEMP":
-            return qsatype.FLUtil.sqlSelect("indicessincrocatalogo", "indicecommunity", "tipo = 'temporadas' AND valor = 'atemporal'")
+            return qsatype.FLUtil.sqlSelect("indicessincrocatalogo", "indicecommunity", "tipo = 'temporadas' AND valor = 'Atemporal'")
         if temporada == "W":
             temporada = "OI"
         else:

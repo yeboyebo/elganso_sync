@@ -62,6 +62,15 @@ class Mg2OrdersSerializer(DefaultSerializer):
             self.set_string_value("codigo", codigo, max_characters=15)
             self.set_string_relation("fecha", "created_at", max_characters=10)
 
+            tasaconv = 1
+            divisa = str(self.init_data["currency"])
+
+            if divisa:
+                if divisa != "None" and divisa != "EUR":
+                    tasaconv = qsatype.FLUtil.quickSqlSelect("divisas", "tasaconv", "coddivisa = '{}'".format(divisa))
+                    if not tasaconv:
+                        tasaconv = 1
+
             iva = 0
             ivaLinea = 0
 
@@ -79,7 +88,8 @@ class Mg2OrdersSerializer(DefaultSerializer):
 
             for item in self.init_data["items"]:
                 item.update({
-                    "codcomanda": self.data["codigo"]
+                    "codcomanda": self.data["codigo"],
+                    "tasaconv": tasaconv
                 })
 
                 line_data = Mg2OrderLineSerializer().serialize(item)
@@ -97,7 +107,8 @@ class Mg2OrdersSerializer(DefaultSerializer):
             new_init_data.update({
                 "iva": iva,
                 "codcomanda": self.data["codigo"],
-                "fecha": self.data["fecha"]
+                "fecha": self.data["fecha"],
+                "tasaconv": tasaconv
             })
 
             self.set_string_value("codtpv_puntoventa", "AWEB")
@@ -112,11 +123,15 @@ class Mg2OrdersSerializer(DefaultSerializer):
             self.set_data_value("ptesincrofactura", True)
 
             # iva = self.init_data["items"][-1]["iva"]
-            neto = round(parseFloat(self.init_data["grand_total"] / ((100 + iva) / 100)), 2)
-            total_iva = self.init_data["grand_total"] - neto
+            total = round(parseFloat(self.init_data["grand_total"] * tasaconv), 2)
+            neto = round(parseFloat(total / ((100 + iva) / 100)), 2)
+            total_iva = total - neto
 
-            self.set_data_relation("total", "grand_total")
-            self.set_data_relation("pagado", "grand_total")
+            ##self.set_data_relation("total", "grand_total")
+            ##self.set_data_relation("pagado", "grand_total")
+            
+            self.set_data_value("total", total)
+            self.set_data_value("pagado", total)
             self.set_data_value("totaliva", total_iva)
             self.set_data_value("neto", neto)
 
@@ -166,7 +181,11 @@ class Mg2OrdersSerializer(DefaultSerializer):
             linea_dtodesconocido = Mg2DiscountUnknownLineSerializer().serialize(new_init_data)
             arqueo_web = Mg2CashCountSerializer().serialize(self.data)
             new_data = self.data.copy()
-            new_data.update({"idarqueo": arqueo_web["idtpv_arqueo"]})
+            new_data.update({
+                "idarqueo": arqueo_web["idtpv_arqueo"],
+                "tasaconv": tasaconv
+            })
+            
             pago_web = Mg2PaymentSerializer().serialize(new_data)
             idl_ecommerce = Mg2IdlEcommerce().serialize(new_init_data)
 

@@ -39,7 +39,6 @@ class Mg2OrdersProcess(DownloadSync):
 
             cuerpolog = row['cuerpolog']
 
-            cuerpolog = cuerpolog.replace('"', "-")
             cuerpolog = cuerpolog.replace("None", "\"None\"")
             cuerpolog = cuerpolog.replace('"', "\'")
             cuerpolog = cuerpolog.replace("{'", "{\"")
@@ -51,8 +50,10 @@ class Mg2OrdersProcess(DownloadSync):
             cuerpolog = cuerpolog.replace("['", "[\"")
             cuerpolog = cuerpolog.replace("']", "\"]")
             cuerpolog = cuerpolog.replace("'", " ")
-            cuerpolog = cuerpolog.replace("False", "\"False\"")
-            cuerpolog = cuerpolog.replace("True", "\"True\"")
+            cuerpolog = cuerpolog.replace("\\xa0", " ")
+            # print(str(cuerpolog))
+            # cuerpolog = cuerpolog.replace("False", "\"False\"")
+            # cuerpolog = cuerpolog.replace("True", "\"True\"")
 
             datajson = json.loads(str(cuerpolog))
             aData.append(datajson)
