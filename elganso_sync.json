@@ -1183,6 +1183,38 @@
             {
                 "path": "controllers/api/magento2/delete_special_price/serializers/",
                 "name": "ctrl_api_magento2_delete_special_price__delete_special_price_serializer.py"
+            },
+            {
+                "path": "controllers/api/magento2/products_upload/controllers/",
+                "name": "ctrl_api_magento2_products_upload__mg2_products_process.py"
+            },
+            {
+                "path": "controllers/api/magento2/products_upload/serializers/",
+                "name": "ctrl_api_magento2_products_upload__mg2_products_serializer.py"
+            },
+            {
+                "path": "models/flfactppal/",
+                "name": "model_flfactppal__eg_logarticulosweb.py"
+            },
+            {
+                "path": "models/flfactppal/",
+                "name": "model_flfactppal__eg_logarticulosweb_def.py"
+            },
+            {
+                "path": "models/flfact_tpv/objects/",
+                "name": "model_flfact_tpv__mg2_products_raw.py"
+            },
+            {
+                "path": "controllers/api/magento2/products_upload/",
+                "name": "ctrl_api_magento2_products_upload__process.py"
+            },
+            {
+                "path": "models/flfactppal/",
+                "name": "model_flfactppal__secuenciasean.py"
+            },
+            {
+                "path": "models/flfactppal/",
+                "name": "model_flfactppal__secuenciasean_def.py"
             }
         ],
         "deleteFile": [],

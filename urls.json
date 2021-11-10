@@ -237,6 +237,20 @@
             "value": {
                 "solicitudescliente": null
             }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/models/flfactppal/solicitudescliente",
+            "value": {
+                "eg_logarticulosweb": null
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/models/flfactppal/eg_logarticulosweb",
+            "value": {
+                "secuenciasean": null
+            }
         }
     ]
 }

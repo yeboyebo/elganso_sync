@@ -69,6 +69,7 @@ from controllers.api.magento2.stock_incremental.controllers.mg2_stock_incrementa
 from controllers.api.magento2.inventory_old.controllers.mg2_inventory_old_upload import Mg2InventoryOldUpload
 from controllers.api.magento2.inventory_night.controllers.mg2_inventory_night_upload import Mg2InventoryNightUpload
 from controllers.api.magento2.delete_special_price.controllers.mg2_delete_special_price_upload import Mg2DeleteSpecialPriceUpload
+from controllers.api.magento2.products_upload.controllers.mg2_products_process import Mg2ProductsProcess
 
 sync_object_dict = {
     "stock_upload": {
@@ -228,6 +229,10 @@ sync_object_dict = {
     },
     "mg2_delete_special_price_upload": {
         "sync_object": Mg2DeleteSpecialPriceUpload
+    },
+    "mg2_products_process": {
+        "sync_object": Mg2ProductsProcess,
+        "driver": MagentoDriver
     }
 }
 

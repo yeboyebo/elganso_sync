@@ -96,6 +96,35 @@ class elganso_sync(flfactalma):
             return {"Error": "Petición Incorrecta", "status": 0}
         return False
 
+    def elganso_sync_eglogarticulosmagento(self, params):
+        try:
+            if "auth" not in self.params:
+                self.params = syncppal.iface.get_param_sincro('apipass')
+            if "passwd" in params and params['passwd'] == self.params['auth']:
+
+                if "product" not in params:
+                    return {"Error": "Formato Incorrecto. No viene informado el parametro product", "status": 0}
+
+                curLogPedidoWeb = qsatype.FLSqlCursor("eg_logarticulosweb")
+                curLogPedidoWeb.setModeAccess(curLogPedidoWeb.Insert)
+                curLogPedidoWeb.refreshBuffer()
+                curLogPedidoWeb.setValueBuffer("procesado", False)
+                curLogPedidoWeb.setValueBuffer("fechaalta", str(qsatype.Date())[:10])
+                curLogPedidoWeb.setValueBuffer("horaalta", str(qsatype.Date())[-8:])
+                curLogPedidoWeb.setValueBuffer("sku", str(params["product"]["sku"]))
+                curLogPedidoWeb.setValueBuffer("website", "magento2")
+                curLogPedidoWeb.setValueBuffer("cuerpolog", str(params["product"]))
+                if not curLogPedidoWeb.commitBuffer():
+                    return False
+                return True
+            else:
+                return {"Error": "Petición Incorrecta", "status": 10}
+        except Exception as e:
+            print(e)
+            qsatype.debug(ustr(u"Error inesperado", e))
+            return {"Error": "Petición Incorrecta", "status": 0}
+        return False
+
     def __init__(self, context=None):
         super().__init__(context)
 
@@ -104,4 +133,7 @@ class elganso_sync(flfactalma):
 
     def damealmacenesconstock(self, params):
         return self.ctx.elganso_sync_damealmacenesconstock(params)
+
+    def eglogarticulosmagento(self, params):
+        return self.ctx.elganso_sync_eglogarticulosmagento(params)
 

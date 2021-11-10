@@ -244,9 +244,30 @@
         },
         {
             "type": "insertAfterNode",
+            "path": "/flfactalma/eg_sincromovistockweb",
+            "value": {
+                "articulostarifas": null
+            }
+        },
+        {
+            "type": "insertAfterNode",
             "path": "/flfactppal/usuarios",
             "value": {
                 "solicitudescliente": null
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/flfactppal/solicitudescliente",
+            "value": {
+                "eg_logarticulosweb": null
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/flfactppal/eg_logarticulosweb",
+            "value": {
+                "secuenciasean": null
             }
         }
     ]
