@@ -91,7 +91,7 @@ class Mg2PriceUpload(PriceUpload):
         q = qsatype.FLSqlQuery()
         q.setSelect("ls.id, ls.idobjeto")
         q.setFrom("lineassincro_catalogo ls")
-        q.setWhere("ls.website = 'MG2' and ls.tiposincro = 'sincrotarifas' and ls.sincronizado = false ORDER BY ls.id LIMIT 20")
+        q.setWhere("ls.website = 'MG2' and ls.tiposincro = 'sincrotarifas' and ls.sincronizado = false ORDER BY ls.id LIMIT 10000")
 
         q.exec_()
 

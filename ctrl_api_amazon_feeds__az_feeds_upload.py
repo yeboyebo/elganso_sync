@@ -90,8 +90,12 @@ class AzFeedsUpload(UploadSync, ABC):
         attr = self.get_attributes(data)
         signature = self.sign_request(attr)
         url = "https://{}/?{}&Signature={}".format(self.driver.azHost, attr, signature)
+        print("URL: ", url)
+        print("DATAAA: ", data)
 
-        return self.driver.send_request("post", url=url, data=data)
+        with open("/home/jesusz/pruebaXML.xml", "w") as csvfile:
+            csvfile.write(data)
+        # return self.driver.send_request("post", url=url, data=data)
 
     def after_sync(self, response_data=None):
         print(response_data)
@@ -119,7 +123,7 @@ class AzFeedsUpload(UploadSync, ABC):
             "Action": "SubmitFeed",
             "Merchant": self.driver.azMerchant,
             "SignatureVersion": "2",
-            "Timestamp": (datetime.now() - timedelta(hours=2)).strftime('%Y-%m-%dT%H:%M:%SZ'),
+            "Timestamp": (datetime.now() - timedelta(hours=1)).strftime('%Y-%m-%dT%H:%M:%SZ'),
             "Version": "2009-01-01",
             "ContentMD5Value": self.get_hash(data),
             "SignatureMethod": "HmacSHA256",

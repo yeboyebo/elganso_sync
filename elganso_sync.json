@@ -1215,6 +1215,18 @@
             {
                 "path": "models/flfactppal/",
                 "name": "model_flfactppal__secuenciasean_def.py"
+            },
+            {
+                "name": "ctrl_api_magento2_delete_tierprice__upload.py",
+                "path": "controllers/api/magento2/delete_tierprice/"
+            },
+            {
+                "name": "ctrl_api_magento2_delete_tierprice__mg2_delete_tierprice_upload.py",
+                "path": "controllers/api/magento2/delete_tierprice/controllers/"
+            },
+            {
+                "name": "ctrl_api_magento2_delete_tierprice__delete_tierprice_serializer.py",
+                "path": "controllers/api/magento2/delete_tierprice/serializers/"
             }
         ],
         "deleteFile": [],

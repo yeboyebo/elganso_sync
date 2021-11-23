@@ -26,7 +26,7 @@ class Mg2ProductsUpload(ProductsUpload):
         self.get_test_url = get_params['test_url']
 
         self.set_sync_params(self.get_param_sincro('mg2'))
-
+        
         self.small_sleep = 2
 
     def dame_almacenessincroweb(self):
@@ -206,7 +206,7 @@ class Mg2ProductsUpload(ProductsUpload):
                 self.send_request("post", url=product_url.format("es_cn"), data=json.dumps(simple_product))
                 self.send_request("post", url=product_url.format("intl_es"), data=json.dumps(simple_product))
                 self.send_request("post", url=product_url.format("pt_es"), data=json.dumps(simple_product))
-
+                
                 print(str(product_url.format("es")))
                 print(str(product_url.format("es_cn")))
                 print(str(product_url.format("intl_es")))
@@ -232,7 +232,7 @@ class Mg2ProductsUpload(ProductsUpload):
                 self.send_request("post", url=product_url.format("fr"), data=json.dumps(simple_product))
                 self.send_request("post", url=product_url.format("intl_fr"), data=json.dumps(simple_product))
                 self.send_request("post", url=product_url.format("fr_fr"), data=json.dumps(simple_product))
-
+                
                 '''print(str(product_url.format("fr")))
                 print(str(product_url.format("intl_fr")))
                 print(str(product_url.format("fr_fr")))
@@ -242,7 +242,7 @@ class Mg2ProductsUpload(ProductsUpload):
         if data["simple_products_de"]:
             for simple_product in data["simple_products_de"]:
                 self.send_request("post", url=product_url.format("intl_de"), data=json.dumps(simple_product))
-
+                
                 '''print(str(product_url.format("intl_de")))
                 print(str(json.dumps(simple_product)))
                 print("---------------------")'''
@@ -260,7 +260,7 @@ class Mg2ProductsUpload(ProductsUpload):
 
     def after_sync(self, response_data=None):
         qsatype.FLSqlQuery().execSql("UPDATE lineassincro_catalogo SET sincronizado = TRUE WHERE id = {}".format(self.idlinea))
-        qsatype.FLSqlQuery().execSql("UPDATE articulostarifas SET fechamod = CURRENT_DATE, sincronizado = FALSE WHERE codtarifa in (select t.codtarifa from mg_websites w inner join mg_storeviews st on w.codwebsite = st.codwebsite inner join tarifas t on t.codtarifa = st.codtarifa group by t.codtarifa) AND referencia = '{}'".format(self.referencia))
+        qsatype.FLSqlQuery().execSql("UPDATE articulostarifas SET horamod = CURRENT_TIME, fechamod = CURRENT_DATE, sincronizado = FALSE WHERE codtarifa in (select t.codtarifa from mg_websites w inner join mg_storeviews st on w.codwebsite = st.codwebsite inner join tarifas t on t.codtarifa = st.codtarifa group by t.codtarifa) AND referencia = '{}'".format(self.referencia))
 
         lista_almacenes = qsatype.FLUtil.sqlSelect("param_parametros", "valor", "nombre = 'ALMACENES_SINCRO'").split(',')
 
@@ -276,7 +276,7 @@ class Mg2ProductsUpload(ProductsUpload):
         qsatype.FLSqlQuery().execSql("INSERT into eg_sincrostockwebinmediato (fecha, hora, sincronizado, idstock) (SELECT CURRENT_DATE, CURRENT_TIME, false, s.idstock FROM stocks s left outer join eg_sincrostockwebinmediato e on s.idstock = e.idstock WHERE s.referencia = '" + self.referencia + "' AND s.codalmacen IN (" + where_almacenes + ") AND e.idssw is null)")
 
         lineas_no_sincro = qsatype.FLUtil.sqlSelect("lineassincro_catalogo", "id", "idsincro = '{}' AND NOT sincronizado LIMIT 1".format(self.idsincro))
-
+        
         # Pongo sincro_catalogo a false cuando compruebe que hay stock de todas las tallas
         # if not lineas_no_sincro:
             # qsatype.FLSqlQuery().execSql("UPDATE sincro_catalogo SET ptesincro = FALSE WHERE idsincro = '{}'".format(self.idsincro))

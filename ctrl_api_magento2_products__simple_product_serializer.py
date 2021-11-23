@@ -20,9 +20,9 @@ class SimpleProductSerializer(DefaultSerializer):
 
         self.set_string_value("product//sku", self.get_sku())
         self.set_string_value("product//attribute_set_id", "4")
-
+        
         sincronizadoprevio = qsatype.FLUtil.sqlSelect("lineassincro_catalogo", "id", "idobjeto = '{}' and sincronizado and idsincro <> {} AND tiposincro = 'Enviar productos' and website = 'MG2'".format(self.get_init_value("lsc.idobjeto"),self.get_init_value("lsc.idsincro")))
-
+        
         if str(sincronizadoprevio) == "None":
             self.set_string_value("product//status", "1")
             if talla == "TU":

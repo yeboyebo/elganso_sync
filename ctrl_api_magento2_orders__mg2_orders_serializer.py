@@ -61,12 +61,12 @@ class Mg2OrdersSerializer(DefaultSerializer):
 
             self.set_string_value("codigo", codigo, max_characters=15)
             self.set_string_relation("fecha", "created_at", max_characters=10)
-
+            
             tasaconv = 1
             divisa = str(self.init_data["currency"])
-
+            
             if divisa:
-                if divisa != "None" and divisa != "EUR":
+                if divisa != "None" and divisa != "EUR":        
                     tasaconv = qsatype.FLUtil.quickSqlSelect("divisas", "tasaconv", "coddivisa = '{}'".format(divisa))
                     if not tasaconv:
                         tasaconv = 1
@@ -247,7 +247,8 @@ class Mg2OrdersSerializer(DefaultSerializer):
         codpago = qsatype.FLUtil.quickSqlSelect("mg_formaspago", "codpago", "mg_metodopago = '{}'".format(payment_method))
 
         if not codpago:
-            codpago = qsatype.FactoriaModulos.get('flfactppal').iface.pub_valorDefectoEmpresa("codpago")
+            # codpago = qsatype.FactoriaModulos.get('flfactppal').iface.pub_valorDefectoEmpresa("codpago")
+            codpago = "TARJ"
 
         return codpago
 
@@ -471,10 +472,16 @@ class Mg2OrdersSerializer(DefaultSerializer):
 
         barcodes = []
         lineas = {}
+        ref_regalo = qsatype.FLUtil.quickSqlSelect("param_parametros", "valor", "nombre = 'ART_REGALOWEB'")
         for linea_data in lineas_data:
-            barcode = self.get_barcode(linea_data["sku"])
-            barcodes.append(barcode)
-            lineas[barcode] = linea_data["cantidad"]
+            referencia = self.get_referencia(linea_data["sku"])
+            print(str(ref_regalo)[1:-1])
+            print(str(referencia))
+            if str(ref_regalo)[1:-1] != str(referencia):
+                print("ENTRO PORQUE NO ES REGALO")
+                barcode = self.get_barcode(linea_data["sku"])
+                barcodes.append(barcode)
+                lineas[barcode] = linea_data["cantidad"]
 
         for almacen in almacenes:
             cod_almacen = almacen["cod_almacen"]

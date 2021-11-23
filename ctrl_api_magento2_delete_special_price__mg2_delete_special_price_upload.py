@@ -74,10 +74,10 @@ class Mg2DeleteSpecialPriceUpload(TierpriceUpload):
     def get_db_data(self):
         body = []
 
-        q = qsatype.FLSqlQuery()       
+        q = qsatype.FLSqlQuery()        
         q.setSelect("ls.id, at.referencia, at.talla, ap.pvp, p.desde || ' ' || p.horadesde, ap.activo, p.hasta || ' ' || p.horahasta, mg.idmagento")
-        q.setFrom("eg_planprecios p INNER JOIN eg_articulosplan ap ON p.codplan = ap.codplan INNER JOIN atributosarticulos at ON ap.referencia = at.referencia INNER JOIN eg_tiendasplanprecios tp ON p.codplan = tp.codplan INNER JOIN mg_storeviews mg ON tp.codtienda = mg.egcodtiendarebajas INNER JOIN lineassincro_catalogo ls ON (p.codplan = ls.idobjeto AND at.referencia || '-' || at.talla || '-' || mg.idmagento = ls.descripcion)")
-        q.setWhere("p.elgansociety = FALSE AND ls.sincronizado = FALSE AND ls.tiposincro = 'Eliminar Planificador' AND (hasta < CURRENT_DATE OR (hasta = CURRENT_DATE AND horahasta <= CURRENT_TIME)) GROUP BY ls.id, at.referencia, at.talla, ap.pvp, p.desde || ' ' || p.horadesde, ap.activo, p.hasta || ' ' || p.horahasta, mg.idmagento ORDER BY ls.id LIMIT 20")
+        q.setFrom("eg_planprecios p INNER JOIN eg_articulosplan ap ON p.codplan = ap.codplan INNER JOIN atributosarticulos at ON ap.referencia = at.referencia INNER JOIN eg_tiendasplanprecios tp ON p.codplan = tp.codplan INNER JOIN mg_storeviews mg ON tp.codtienda = mg.egcodtiendarebajas INNER JOIN lineassincro_catalogo ls ON (p.codplan = ls.idobjeto AND at.referencia || '-' || at.talla || '-' || mg.idmagento = ls.descripcion)")        
+        q.setWhere("p.elgansociety = FALSE AND ls.sincronizado = FALSE AND ls.tiposincro = 'Eliminar Planificador' AND (p.hasta < CURRENT_DATE OR (p.hasta = CURRENT_DATE AND p.horahasta <= CURRENT_TIME)) GROUP BY ls.id, at.referencia, at.talla, ap.pvp, p.desde || ' ' || p.horadesde, ap.activo, p.hasta || ' ' || p.horahasta, mg.idmagento ORDER BY ls.id LIMIT 10000")
 
         q.exec_()
 
@@ -91,11 +91,11 @@ class Mg2DeleteSpecialPriceUpload(TierpriceUpload):
     def after_sync(self, response_data=None):
         print("SSW: ", self._ssw)
         if self.error:
-            self.log("Error", "No se pudo sincronizar las líneas de planificador: {})".format(self._ssw))
+            self.log("Error", "No se pudo eliminar las líneas de planificador: {})".format(self._ssw))
             return self.small_sleep
 
         qsatype.FLSqlQuery().execSql("UPDATE lineassincro_catalogo SET sincronizado = TRUE WHERE id IN ({})".format(self._ssw))
 
-        self.log("Exito", "Lineas de planificador sincronizadas correctamente {}".format(self._ssw))
+        self.log("Exito", "Lineas de planificador eliminadas correctamente {}".format(self._ssw))
 
         return self.small_sleep

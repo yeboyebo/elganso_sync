@@ -22,12 +22,12 @@ class ConfigurableProductSerializer(DefaultSerializer):
         self.set_string_value("product//attribute_set_id", "4")
         self.set_string_value("product//visibility", "4")
         self.set_string_value("product//type_id", "configurable")
-
+        
         sincronizadoprevio = qsatype.FLUtil.sqlSelect("lineassincro_catalogo", "id", "idobjeto = '{}' and sincronizado and idsincro <> {} AND tiposincro = 'Enviar productos' and website = 'MG2'".format(self.get_init_value("lsc.idobjeto"),self.get_init_value("lsc.idsincro")))
-
+        
         if str(sincronizadoprevio) == "None":
             self.set_string_value("product//status", "2")
-
+        
         large_description = self.get_init_value("a.mgdescripcion")
         if large_description is False or large_description == "" or large_description is None or str(large_description) == "None":
             large_description = self.get_init_value("lsc.descripcion")
@@ -62,7 +62,7 @@ class ConfigurableProductSerializer(DefaultSerializer):
         medidas_modelo = self.get_init_value("a.mgmedidasmodelo")
         if medidas_modelo is not False and medidas_modelo != "" and medidas_modelo is not None and str(medidas_modelo) != "None":
             custom_attributes.append({"attribute_code": "medidas_modelo", "value": talla_modelo})
-
+            
         size_values = [{"value_index": size} for size in self.get_init_value("indice_tallas")]
         extension_attributes = {
             "configurable_product_options": [{

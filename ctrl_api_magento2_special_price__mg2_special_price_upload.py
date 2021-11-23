@@ -59,12 +59,12 @@ class Mg2SpecialPriceUpload(TierpriceUpload):
         if data:
             result = True
             try:
-                print("DATA: ", json.dumps(data))
-                print("URL: ", special_price_url)
+                # print("DATA: ", json.dumps(data))
+                # print("URL: ", special_price_url)
                 result = self.send_request("post", url=special_price_url, data=json.dumps(data))
-                print("RESULT: ", result)
+                # print("RESULT: ", result)
             except Exception as e:
-                print("exception")
+                # print("exception")
                 # print(json.dumps(e))
                 self.error = True
 
@@ -76,7 +76,7 @@ class Mg2SpecialPriceUpload(TierpriceUpload):
         q = qsatype.FLSqlQuery()
         q.setSelect("ls.id, at.referencia, at.talla, ap.pvp, p.desde || ' ' || p.horadesde, ap.activo, p.hasta || ' ' || p.horahasta, mg.idmagento")
         q.setFrom("eg_planprecios p INNER JOIN eg_articulosplan ap ON p.codplan = ap.codplan INNER JOIN atributosarticulos at ON ap.referencia = at.referencia INNER JOIN eg_tiendasplanprecios tp ON p.codplan = tp.codplan INNER JOIN mg_storeviews mg ON tp.codtienda = mg.egcodtiendarebajas INNER JOIN lineassincro_catalogo ls ON (p.codplan = ls.idobjeto AND at.referencia || '-' || at.talla || '-' || mg.idmagento = ls.descripcion)")
-        q.setWhere("p.elgansociety = FALSE AND ls.sincronizado = FALSE AND ls.tiposincro = 'Planificador Precios' AND (desde < CURRENT_DATE OR (desde = CURRENT_DATE AND horadesde <= CURRENT_TIME)) GROUP BY ls.id, at.referencia, at.talla, ap.pvp, p.desde || ' ' || p.horadesde, ap.activo, p.hasta || ' ' || p.horahasta, mg.idmagento ORDER BY ls.id LIMIT 20")
+        q.setWhere("p.elgansociety = FALSE AND ls.sincronizado = FALSE AND ls.tiposincro = 'Planificador Precios' AND (p.desde < CURRENT_DATE OR (p.desde = CURRENT_DATE AND p.horadesde <= CURRENT_TIME)) GROUP BY ls.id, at.referencia, at.talla, ap.pvp, p.desde || ' ' || p.horadesde, ap.activo, p.hasta || ' ' || p.horahasta, mg.idmagento ORDER BY ls.id LIMIT 10000")
 
         q.exec_()
 
