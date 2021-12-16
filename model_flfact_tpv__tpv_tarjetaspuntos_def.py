@@ -338,9 +338,13 @@ class elganso_sync(interna):
                     return {"Error": "No se ha encontrado la tarjeta.", "status": 1}
 
                 es_empleado = qsatype.FLUtil.sqlSelect(u"tpv_tarjetaspuntos", u"deempleado", ustr(u"email = '", email, u"'"))
+                es_dtoespecial = qsatype.FLUtil.sqlSelect(u"tpv_tarjetaspuntos", u"dtoespecial", ustr(u"email = '", email, u"'"))
+                dtopor = ""
+                if es_dtoespecial:
+                    dtopor = qsatype.FLUtil.sqlSelect(u"tpv_tarjetaspuntos", u"dtopor", ustr(u"email = '", email, u"'"))
 
                 saldopuntos = qsatype.FLUtil.sqlSelect(u"tpv_tarjetaspuntos", u"saldopuntos", ustr(u"email = '", email, u"'"))
-                return {"saldoPuntos": saldopuntos, "email": email, "codtarjetapuntos": existe_tarjeta, "esempleado": es_empleado}
+                return {"saldoPuntos": saldopuntos, "email": email, "codtarjetapuntos": existe_tarjeta, "esempleado": es_empleado, "esdtoespecial": es_dtoespecial, "dtopor": dtopor}
             else:
                 return {"Error": "Petición Incorrecta", "status": -1}
         except Exception as e:
