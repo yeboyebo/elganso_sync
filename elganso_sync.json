@@ -1227,6 +1227,18 @@
             {
                 "name": "ctrl_api_magento2_delete_tierprice__delete_tierprice_serializer.py",
                 "path": "controllers/api/magento2/delete_tierprice/serializers/"
+            },
+            {
+                "path": "controllers/api/magento2/stock_incremental_night/",
+                "name": "ctrl_api_magento2_stock_incremental_night__upload.py"
+            },
+            {
+                "path": "controllers/api/magento2/stock_incremental_night/controllers/",
+                "name": "ctrl_api_magento2_stock_incremental_night__mg2_stock_incremental_night_upload.py"
+            },
+            {
+                "path": "controllers/api/magento2/stock_incremental_night/serializers/",
+                "name": "ctrl_api_magento2_stock_incremental_night__stock_incremental_night_serializer.py"
             }
         ],
         "deleteFile": [],

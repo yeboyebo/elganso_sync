@@ -12,10 +12,10 @@ class SpecialPriceSerializer(DefaultSerializer):
         self.set_string_value("sku", referencia)
         self.set_string_relation("price", "ap.pvp")
         self.set_string_relation("store_id", "mg.idmagento")
-        self.set_string_relation("price_from", "p.desde || ' ' || p.horadesde")
+        self.set_string_relation("price_from", "p.desde || ' 00:00:00'")
 
         if self.init_data["ap.activo"] == True:
-            self.set_string_relation("price_to", "p.hasta || ' ' || p.horahasta")
+            self.set_string_relation("price_to", "p.hasta || ' 00:00:00'")
         else:
             ayer = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')
             self.set_string_value("price_to", ayer)

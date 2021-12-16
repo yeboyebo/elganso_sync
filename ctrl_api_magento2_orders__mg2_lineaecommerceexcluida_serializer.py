@@ -10,7 +10,7 @@ class Mg2LineaEcommerceExcluidaSerializer(DefaultSerializer):
         if not self.init_data["almacen"] or str(self.init_data["almacen"]) == "" or str(self.init_data["almacen"]) == "None" or self.init_data["almacen"] == None:
             raise NameError("Error. Almacén de la línea incorrecto {}".format(str(self.init_data["almacen"])))
             return False
-            
+
         if not self.init_data["emailtienda"] or str(self.init_data["emailtienda"]) == "" or str(self.init_data["emailtienda"]) == "None" or self.init_data["emailtienda"] == None:
             raise NameError("Error. Email de la tienda incorrecto {}".format(str(self.init_data["almacen"])))
             return False

@@ -27,17 +27,18 @@ class Mg2IdlEcommerce(DefaultSerializer):
         receptor = ""
         mensajeDedicatoria = ""
 
-        if not esRecogidaTienda: 
+        if not esRecogidaTienda:
             if "gift" in self.init_data:
                 if str(self.init_data["gift"]) == "None":
                     impAlbaran = False
                 elif str(self.init_data["gift"]) != "None":
-                    if "gift_message_id" in self.init_data["gift"]:
-                        impDedicatoria = True
-                        esRegalo = True
-                        emisor = str(self.init_data["gift"]["sender"])
-                        receptor = str(self.init_data["gift"]["recipient"])
-                        mensajeDedicatoria = str(self.init_data["gift"]["message"])
+                    if "sender" in self.init_data["gift"]:
+                        if str(self.init_data["gift"]["sender"]) != "None":
+                            impDedicatoria = True
+                            esRegalo = True
+                            emisor = str(self.init_data["gift"]["sender"])
+                            receptor = str(self.init_data["gift"]["recipient"])
+                            mensajeDedicatoria = str(self.init_data["gift"]["message"])
 
         if not esRecogidaTienda:
             if "country_id" in self.init_data["shipping_address"]:
@@ -61,7 +62,7 @@ class Mg2IdlEcommerce(DefaultSerializer):
                 self.set_string_value("tipo", 'CAMBIO')
                 print("URLL: ", str(self.init_data["imagen_recoger"]))
                 self.set_data_relation("urlimagen", "imagen_recoger")
-                #self.set_string_value("urlimagen", str(self.init_data["imagen_recoger"]))
+                # self.set_string_value("urlimagen", str(self.init_data["imagen_recoger"]))
         else:
             self.set_string_value("tipo", 'VENTA')
 

@@ -79,7 +79,7 @@ class Mg2DiscountUnknownLineSerializer(Mg2OrderLineSerializer):
 
         descripcion_bono = False
         json_bono = False
-        codbono = False
+        # codbono = False
 
         try:
             strbono = qsatype.FLUtil.sqlSelect("tpv_gestionparametros", "valor", "param = 'GASTAR_BONOS'")
@@ -98,8 +98,8 @@ class Mg2DiscountUnknownLineSerializer(Mg2OrderLineSerializer):
                 qsatype.debug(ustr(u"---------------------------------------------- dto 2: ", str(dto)))
                 if dto:
                     # if float(dto) != 0:
-                        # if self.init_data["codcomanda"][:4] == "WEC7":
-                            # dto = dto / 0.8
+                    # if self.init_data["codcomanda"][:4] == "WEC7":
+                    # dto = dto / 0.8
 
                     self.bono = {
                         "discount": dto
