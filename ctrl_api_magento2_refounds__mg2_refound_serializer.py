@@ -350,7 +350,7 @@ class Mg2RefoundsSerializer(DefaultSerializer):
 
         idComandaPago = qsatype.FLUtil.sqlSelect("tpv_comandas c INNER JOIN tpv_pagoscomanda p ON c.idtpv_comanda = p.idtpv_comanda", "p.idtpv_comanda", "c.codigo = '" + str(codigo) + "'")
         if idComandaPago:
-            raise NameError("La devolución ya tiene un pago creado.")
+            raise NameError("La devolucion ya tiene un pago creado.")
             return False
 
         self.data.update({

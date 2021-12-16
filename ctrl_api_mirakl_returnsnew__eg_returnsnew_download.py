@@ -116,7 +116,7 @@ class EgMiraklReturnsNewDownload(ReturnsDownload):
 
         idComanda = self.masAccionesProcessData(eciweb_data)
         if not idComanda or idComanda == "None":
-            raise NameError("No se pudo crear la devolución")
+            raise NameError("No se pudo crear la devolucion")
 
         eciweb_data["idtpv_comanda"] = idComanda
         eciweb_data["datosdevol"] = data["body"]
@@ -146,7 +146,7 @@ class EgMiraklReturnsNewDownload(ReturnsDownload):
         qL.setWhere("idtpv_comanda = {}".format(idtpvDevol))
 
         if not qL.exec_():
-            syncppal.iface.log("Error. Falló la query al obtener los datos de devolución {}".format(idtpvDevol), "egmiraklreturns")
+            syncppal.iface.log("Error. Fallo la query al obtener los datos de devolución {}".format(idtpvDevol), "egmiraklreturns")
             return False
 
         while qL.first():

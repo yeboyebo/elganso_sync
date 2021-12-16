@@ -149,7 +149,7 @@ class AzReturnsResultGet(DownloadSync, ABC):
         if all_data == []:
             self.log("Exito", "No hay datos que sincronizar")
             if not self.guarda_fechasincrotienda(self.esquema, self.codtienda):
-                self.log("Error", "Falló al guardar fecha última sincro")
+                self.log("Error", "Fallo al guardar fecha última sincro")
                 return self.small_sleep
             return False
 
@@ -158,7 +158,7 @@ class AzReturnsResultGet(DownloadSync, ABC):
         if not hasattr(response.Message.return_details, 'amazon_rma_id'):
             self.log("Exito", "No hay datos que sincronizar")
             if not self.guarda_fechasincrotienda(self.esquema, self.codtienda):
-                self.log("Error", "Falló al guardar fecha última sincro")
+                self.log("Error", "Fallo al guardar fecha última sincro")
                 return self.small_sleep
             return False
 
@@ -234,7 +234,7 @@ class AzReturnsResultGet(DownloadSync, ABC):
 
     def after_sync(self):
         if not self.guarda_fechasincrotienda(self.esquema, self.codtienda):
-            self.log("Error", "Falló al guardar fecha última sincro")
+            self.log("Error", "Fallo al guardar fecha última sincro")
             return self.small_sleep
 
         if self.idamazon:

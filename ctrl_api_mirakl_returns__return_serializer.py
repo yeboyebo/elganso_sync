@@ -22,11 +22,11 @@ class ReturnSerializer(DefaultSerializer):
         qC.setFrom("tpv_comandas c INNER JOIN ew_ventaseciweb v on c.idtpv_comanda = v.idtpv_comanda")
         qC.setWhere("v.idweb = '{}'".format(self.init_data["idventaweb"]))
         if not qC.exec_():
-            syncppal.iface.log("Error. Falló la query al obtener los datos de la venta original para {}".format(self.init_data["idventaweb"]), "egmiraklreturns")
+            syncppal.iface.log("Error. Fallo la query al obtener los datos de la venta original para {}".format(self.init_data["idventaweb"]), "egmiraklreturns")
             return False
 
         if not qC.first():
-            syncppal.iface.log("Error. No se encontró la venta original para {}".format(self.init_data["idventaweb"]), "egmiraklreturns")
+            syncppal.iface.log("Error. No se encontro la venta original para {}".format(self.init_data["idventaweb"]), "egmiraklreturns")
             return False
 
         codigo = self.get_codigo()

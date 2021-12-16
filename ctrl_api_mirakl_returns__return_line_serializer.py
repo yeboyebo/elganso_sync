@@ -17,7 +17,7 @@ class ReturnLineSerializer(DefaultSerializer):
         # qL.setWhere("idtpv_comanda = {}".format(self.init_data["idcomandaO"]))
 
         if not qL.exec_():
-            syncppal.iface.log("Error. Falló la query al obtener los datos de las líneas de la venta original", "egmiraklreturns")
+            syncppal.iface.log("Error. Fallo la query al obtener los datos de las líneas de la venta original", "egmiraklreturns")
             return False
 
         if not qL.first():
