@@ -1352,6 +1352,10 @@
             {
                 "name": "model_flfactalma__almacenes_def.py",
                 "path": "models/flfactalma/"
+            },
+            {
+                "path": "controllers/base/default/managers/",
+                "name": "ctrl_base_default_managers__task_manager.py"
             }
         ]
     }

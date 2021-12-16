@@ -20,6 +20,6 @@ class AzMovistockSerializer(DefaultSerializer):
         idStock = str(qsatype.FLUtil.quickSqlSelect("stocks", "idstock", "barcode = '" + str(self.data["barcode"]) + "' AND codalmacen = '" + self.init_data["codalmacen"] + "'"))
 
         if not idStock or idStock == "None":
-            raise NameError("No se encontro el stock para el artículo {} en el almacén AWEB".format(str(self.data["barcode"])))
+            raise NameError("No se encontro el stock para el artículo {} en el almacen AWEB".format(str(self.data["barcode"])))
 
         return idStock

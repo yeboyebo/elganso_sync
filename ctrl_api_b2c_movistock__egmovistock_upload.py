@@ -33,7 +33,7 @@ class EgMovistockUpload(UploadSync):
             
             aListaAlmacenes = self.dame_almacenessincroweb().split(",")
             if q.value("s.codalmacen") not in aListaAlmacenes:
-                raise NameError("Error. Existe un registro cuyo almacén no está en la lista de almacenes de sincronización con Magento. " + str(q.value("ssw.idssw")))
+                raise NameError("Error. Existe un registro cuyo almacen no está en la lista de almacenes de sincronización con Magento. " + str(q.value("ssw.idssw")))
 
 
             body.append({"sku": sku, "qty": cant_disponible, "almacen": q.value("s.codalmacen")})
