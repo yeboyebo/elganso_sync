@@ -90,12 +90,8 @@ class AzFeedsUpload(UploadSync, ABC):
         attr = self.get_attributes(data)
         signature = self.sign_request(attr)
         url = "https://{}/?{}&Signature={}".format(self.driver.azHost, attr, signature)
-        print("URL: ", url)
-        print("DATAAA: ", data)
 
-        with open("/home/jesusz/pruebaXML.xml", "w") as csvfile:
-            csvfile.write(data)
-        # return self.driver.send_request("post", url=url, data=data)
+        return self.driver.send_request("post", url=url, data=data)
 
     def after_sync(self, response_data=None):
         print(response_data)
