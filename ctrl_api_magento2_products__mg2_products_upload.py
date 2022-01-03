@@ -169,7 +169,6 @@ class Mg2ProductsUpload(ProductsUpload):
             self.send_request("post", url=product_url.format("en"), data=json.dumps(data["configurable_product_en"]))
             self.send_request("post", url=product_url.format("intl_en"), data=json.dumps(data["configurable_product_en"]))
             self.send_request("post", url=product_url.format("intl_uk"), data=json.dumps(data["configurable_product_en"]))
-            self.send_request("post", url=product_url.format("pt_en"), data=json.dumps(data["configurable_product_en"]))
             '''print(str(product_url.format("en")))
             print(str(product_url.format("intl_en")))
             print(str(product_url.format("intl_uk")))
@@ -192,6 +191,10 @@ class Mg2ProductsUpload(ProductsUpload):
             '''print(str(product_url.format("intl_de")))
             print(str(json.dumps(data["configurable_product_de"])))
             print("---------------------")'''
+
+        ''' Esto hay que mirarlo para portugués
+        if data["configurable_product_pt"]:
+            self.send_request("post", url=product_url.format("pt_pt"), data=json.dumps(data["configurable_product_pt"]))'''
 
         if data["simple_products_default"]:
             for simple_product in data["simple_products_default"]:
@@ -219,7 +222,7 @@ class Mg2ProductsUpload(ProductsUpload):
                 self.send_request("post", url=product_url.format("en"), data=json.dumps(simple_product))
                 self.send_request("post", url=product_url.format("intl_en"), data=json.dumps(simple_product))
                 self.send_request("post", url=product_url.format("intl_uk"), data=json.dumps(simple_product))
-                self.send_request("post", url=product_url.format("pt_en"), data=json.dumps(simple_product))
+                # self.send_request("post", url=product_url.format("pt_en"), data=json.dumps(simple_product))
                 '''print(str(product_url.format("en")))
                 print(str(product_url.format("intl_en")))
                 print(str(product_url.format("intl_uk")))
@@ -246,6 +249,11 @@ class Mg2ProductsUpload(ProductsUpload):
                 '''print(str(product_url.format("intl_de")))
                 print(str(json.dumps(simple_product)))
                 print("---------------------")'''
+
+        ''' Esto hay que mirarlo para portugués
+        if data["simple_products_pt"]:
+            for simple_product in data["simple_products_pt"]:
+                self.send_request("post", url=product_url.format("pt_pt"), data=json.dumps(simple_product))'''
 
         if data["product_links"]:
             for product_link in data["product_links"]:
@@ -279,7 +287,7 @@ class Mg2ProductsUpload(ProductsUpload):
 
         # Pongo sincro_catalogo a false cuando compruebe que hay stock de todas las tallas
         # if not lineas_no_sincro:
-            # qsatype.FLSqlQuery().execSql("UPDATE sincro_catalogo SET ptesincro = FALSE WHERE idsincro = '{}'".format(self.idsincro))
+        # qsatype.FLSqlQuery().execSql("UPDATE sincro_catalogo SET ptesincro = FALSE WHERE idsincro = '{}'".format(self.idsincro))
 
         self.log("Exito", "Productos sincronizados correctamente (referencia: {})".format(self.referencia))
 

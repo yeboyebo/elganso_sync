@@ -31,7 +31,7 @@ class InventoryNightSerializer(DefaultSerializer):
 
         aListaAlmacenes = self.dame_almacenessincroweb().split(",")
         if str(self.init_data["s.codalmacen"]) not in aListaAlmacenes:
-            raise NameError("Error. Existe un registro cuyo almacén no está en la lista de almacenes de sincronizacion con Magento. " + str(self.init_data["ssw.idssw"]))
+            raise NameError("Error. Existe un registro cuyo almacén no está en la lista de almacenes de sincronización con Magento. " + str(self.init_data["ssw.idssw"]))
 
         cant_disponible = qty
         if str(str(self.init_data["s.codalmacen"])) != "AWEB":

@@ -48,45 +48,47 @@ class Mg2InventoryUpload(InventoryUpload):
         for idx in range(len(data["sourceItems"])):
             del data["sourceItems"][idx]["children"]
         if data:
+            print(str(json.dumps(data)))
             result = self.send_request("post", url=inventory_url, data=json.dumps(data))
+            print(str(result))
 
         return data
 
     def get_db_data(self):
-        hora1 = datetime.strptime("06:30:00", "%X").time()
-        hora2 = datetime.strptime("01:30:00", "%X").time()
-        hora_act = datetime.now().time()
+        # hora1 = datetime.strptime("06:30:00", "%X").time()
+        # hora2 = datetime.strptime("01:30:00", "%X").time()
+        # hora_act = datetime.now().time()
 
-        if hora_act > hora1 or hora_act < hora2:
-            body = []
+        # if hora_act > hora1 or hora_act < hora2:
+        body = []
 
-            q = qsatype.FLSqlQuery()
-            q.setSelect("ssw.idssw, aa.referencia, aa.talla, s.disponible, s.codalmacen, s.idstock")
-            q.setFrom("articulos a INNER JOIN atributosarticulos aa ON a.referencia = aa.referencia INNER JOIN stocks s ON aa.barcode = s.barcode LEFT OUTER JOIN eg_sincrostockwebinmediato ssw ON s.idstock = ssw.idstock")
-            q.setWhere("NOT ssw.sincronizado OR ssw.sincronizado = false ORDER BY aa.referencia, aa.talla, ssw.idssw LIMIT 1000")
+        q = qsatype.FLSqlQuery()
+        q.setSelect("ssw.idssw, s.referencia, s.talla, s.barcode, s.disponible, s.codalmacen, s.idstock")
+        q.setFrom("stocks s INNER JOIN eg_sincrostockweb ssw ON s.idstock = ssw.idstock")
+        q.setWhere("(NOT ssw.sincronizado OR ssw.sincronizado = false) ORDER BY s.referencia, s.talla, ssw.idssw LIMIT 1000")
 
-            q.exec_()
+        q.exec_()
 
-            body = []
-            if not q.size():
-                return body
+        body = []
+        if not q.size():
+            return body
 
-            body = self.fetch_query(q)
-            for row in body:
-                if self._ssw == "":
-                    self._ssw = str(row['ssw.idssw'])
-                else:
-                    self._ssw += ","
-                    self._ssw += str(row['ssw.idssw'])
-        else:
-            return []
+        body = self.fetch_query(q)
+        for row in body:
+            if self._ssw == "":
+                self._ssw = str(row['ssw.idssw'])
+            else:
+                self._ssw += ","
+                self._ssw += str(row['ssw.idssw'])
+        # else:
+            # return []
 
         return body
 
     def after_sync(self, response_data=None):
-        qsatype.FLSqlQuery().execSql("UPDATE eg_sincrostockwebinmediato SET sincronizado = true WHERE idssw IN ({})".format(self._ssw))
+        qsatype.FLSqlQuery().execSql("UPDATE eg_sincrostockweb SET sincronizado = true WHERE idssw IN ({})".format(self._ssw))
 
-        qsatype.FLSqlQuery().execSql("DELETE FROM eg_sincromovistockweb WHERE sincronizado = false AND idstock IN (SELECT idstock from eg_sincrostockwebinmediato where idssw IN ({}))".format(self._ssw))
+        '''qsatype.FLSqlQuery().execSql("DELETE FROM eg_sincromovistockweb WHERE sincronizado = false AND idstock IN (SELECT idstock from eg_sincrostockwebinmediato where idssw IN ({}))".format(self._ssw))
 
         qsatype.FLSqlQuery().execSql("INSERT INTO eg_sincromovistockweb (idstock, idmovimiento, referencia, talla, barcode, sincronizado, cantidad, fecha, hora) (SELECT m.idstock, m.idmovimiento, l.referencia, l.talla, l.barcode, false, lv.cantenviada, CURRENT_DATE, CURRENT_TIME FROM tpv_comandas c INNER JOIN tpv_lineascomanda l ON c.idtpv_comanda = l.idtpv_comanda INNER JOIN eg_lineasecommerceexcluidas e ON l.idtpv_linea = e.idtpv_linea INNER JOIN tpv_lineasmultitransstock lv ON (e.idviajemultitrans = lv.idviajemultitrans AND l.barcode = lv.barcode) INNER JOIN movistock m ON lv.idlinea = m.idlineatto INNER JOIN stocks s ON (s.idstock = m.idstock AND s.codalmacen = e.codalmacen) INNER JOIN eg_sincrostockwebinmediato i ON s.idstock = i.idstock WHERE c.fecha > CURRENT_DATE-30 AND e.pedidoanulado = false AND e.pedidoenviado = false AND e.pedidopreparado = false AND e.faltantecreada = false AND i.idssw IN ({}))".format(self._ssw))
 
@@ -94,7 +96,7 @@ class Mg2InventoryUpload(InventoryUpload):
 
         qsatype.FLSqlQuery().execSql("INSERT INTO eg_sincromovistockweb (idstock, idmovimiento, referencia, talla, barcode, sincronizado, cantidad, fecha, hora) (SELECT m.idstock, m.idmovimiento, l.referencia, l.talla, l.barcode, false, l.cantidad, CURRENT_DATE, CURRENT_TIME from pedidoscli p INNER JOIN lineaspedidoscli l on p.idpedido = l.idpedido INNER JOIN movistock m on l.idlinea = m.idlineapc INNER JOIN eg_sincrostockwebinmediato i ON m.idstock = i.idstock WHERE p.codserie = 'SW' AND i.idssw IN ({}))".format(self._ssw))
 
-        qsatype.FLSqlQuery().execSql("INSERT INTO eg_sincromovistockweb (idstock, idmovimiento, referencia, talla, barcode, sincronizado, cantidad, fecha, hora) (SELECT m.idstock, m.idmovimiento, l.referencia, l.talla, l.barcode, false, lv.cantenviada, CURRENT_DATE, CURRENT_TIME FROM eg_seguimientoenvios sg INNER JOIN almacenes a on sg.codalmacen = a.codalmacen inner join tpv_comandas c on sg.coddocumento = c.codigo INNER JOIN tpv_lineascomanda l ON c.idtpv_comanda = l.idtpv_comanda INNER JOIN eg_lineasecommerceexcluidas e ON l.idtpv_linea = e.idtpv_linea INNER JOIN tpv_lineasmultitransstock lv ON (e.idviajemultitrans = lv.idviajemultitrans AND l.barcode = lv.barcode) INNER JOIN movistock m ON lv.idlinea = m.idlineatto INNER JOIN stocks s ON (s.idstock = m.idstock AND s.codalmacen = e.codalmacen) INNER JOIN eg_sincrostockwebinmediato i ON s.idstock = i.idstock WHERE c.fecha > CURRENT_DATE-30 AND e.pedidoanulado = false AND e.pedidoenviado = true AND e.pedidopreparado = true AND e.faltantecreada = false AND (e.codalmacen = 'LFWB' OR lower(a.egtipoalmacen) = 'community') AND (sg.numseguimiento IS NULL OR sg.numseguimiento = '') AND i.idssw IN ({}))".format(self._ssw))
+        qsatype.FLSqlQuery().execSql("INSERT INTO eg_sincromovistockweb (idstock, idmovimiento, referencia, talla, barcode, sincronizado, cantidad, fecha, hora) (SELECT m.idstock, m.idmovimiento, l.referencia, l.talla, l.barcode, false, lv.cantenviada, CURRENT_DATE, CURRENT_TIME FROM eg_seguimientoenvios sg INNER JOIN almacenes a on sg.codalmacen = a.codalmacen inner join tpv_comandas c on sg.coddocumento = c.codigo INNER JOIN tpv_lineascomanda l ON c.idtpv_comanda = l.idtpv_comanda INNER JOIN eg_lineasecommerceexcluidas e ON l.idtpv_linea = e.idtpv_linea INNER JOIN tpv_lineasmultitransstock lv ON (e.idviajemultitrans = lv.idviajemultitrans AND l.barcode = lv.barcode) INNER JOIN movistock m ON lv.idlinea = m.idlineatto INNER JOIN stocks s ON (s.idstock = m.idstock AND s.codalmacen = e.codalmacen) INNER JOIN eg_sincrostockwebinmediato i ON s.idstock = i.idstock WHERE c.fecha > CURRENT_DATE-30 AND e.pedidoanulado = false AND e.pedidoenviado = true AND e.pedidopreparado = true AND e.faltantecreada = false AND (e.codalmacen = 'LFWB' OR lower(a.egtipoalmacen) = 'community') AND (sg.numseguimiento IS NULL OR sg.numseguimiento = '') AND i.idssw IN ({}))".format(self._ssw))'''
 
         self.log("Exito", "Stock sincronizado correctamente")
 
