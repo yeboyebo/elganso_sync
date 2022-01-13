@@ -60,7 +60,9 @@ class Mg2OrdersSerializer(DefaultSerializer):
                 return False
 
             self.set_string_value("codigo", codigo, max_characters=15)
-            self.set_string_relation("fecha", "created_at", max_characters=10)
+            now = str(qsatype.Date())[:10]
+            # self.set_string_relation("fecha", "created_at", max_characters=10)
+            self.set_string_value("fecha", now, max_characters=10)
 
             tasaconv = 1
             divisa = str(self.init_data["currency"])
@@ -237,8 +239,11 @@ class Mg2OrdersSerializer(DefaultSerializer):
         return splitted_date[0]
 
     def get_hora(self):
-        hour = self.init_data["created_at"][-(8):]
-        hour = "23:59:59" if hour == "00:00:00" else hour
+        # hour = self.init_data["created_at"][-(8):]
+        # hour = "23:59:59" if hour == "00:00:00" else hour
+
+        now = str(qsatype.Date())
+        hour = now[-(8):]
 
         return hour
 

@@ -85,7 +85,7 @@ class SimpleProductSerializer(DefaultSerializer):
         return True
 
     def get_sku(self):
-        referencia = self.get_init_value("lsc.idobjeto")
+        referencia = self.get_init_value("a.referencia")
         talla = self.get_init_value("aa.talla")
 
         if talla == "TU":
@@ -105,11 +105,11 @@ class SimpleProductSerializer(DefaultSerializer):
     def get_serializador_store(self):
         self.set_string_value("product//sku", self.get_sku())
 
-        desc_store = qsatype.FLUtil.sqlSelect("traducciones", "traduccion", "campo = 'descripcion' AND codidioma = '" + self.get_init_value("store_id") + "' AND idcampo = '{}'".format(self.get_init_value("lsc.idobjeto")))
+        desc_store = qsatype.FLUtil.sqlSelect("traducciones", "traduccion", "campo = 'descripcion' AND codidioma = '" + self.get_init_value("store_id") + "' AND idcampo = '{}'".format(self.get_init_value("a.referencia")))
 
-        large_description_store = qsatype.FLUtil.sqlSelect("traducciones", "traduccion", "campo = 'mgdescripcion' AND codidioma = '" + self.get_init_value("store_id") + "' AND idcampo = '{}'".format(self.get_init_value("lsc.idobjeto")))
-        composicion_textil = qsatype.FLUtil.sqlSelect("traducciones", "traduccion", "campo = 'egcomposicion' AND codidioma = '" + self.get_init_value("store_id") + "' AND idcampo = '{}'".format(self.get_init_value("lsc.idobjeto")))
-        lavado = qsatype.FLUtil.sqlSelect("traducciones", "traduccion", "campo = 'egsignoslavado' AND codidioma = '" + self.get_init_value("store_id") + "' AND idcampo = '{}'".format(self.get_init_value("lsc.idobjeto")))
+        large_description_store = qsatype.FLUtil.sqlSelect("traducciones", "traduccion", "campo = 'mgdescripcion' AND codidioma = '" + self.get_init_value("store_id") + "' AND idcampo = '{}'".format(self.get_init_value("a.referencia")))
+        composicion_textil = qsatype.FLUtil.sqlSelect("traducciones", "traduccion", "campo = 'egcomposicion' AND codidioma = '" + self.get_init_value("store_id") + "' AND idcampo = '{}'".format(self.get_init_value("a.referencia")))
+        lavado = qsatype.FLUtil.sqlSelect("traducciones", "traduccion", "campo = 'egsignoslavado' AND codidioma = '" + self.get_init_value("store_id") + "' AND idcampo = '{}'".format(self.get_init_value("a.referencia")))
 
         if not desc_store or desc_store == "" or str(desc_store) == "None" or desc_store is None:
             desc_store = self.get_init_value("a.mgdescripcioncorta")
@@ -135,11 +135,11 @@ class SimpleProductSerializer(DefaultSerializer):
         if talla_modelo is not False and talla_modelo != "" and talla_modelo is not None and str(talla_modelo) != "None":
             custom_attributes.append({"attribute_code": "talla_modelo", "value": talla_modelo})
 
-        mas_info = qsatype.FLUtil.sqlSelect("traducciones", "traduccion", "campo = 'mgmasinfo' AND codidioma = '" + self.get_init_value("store_id") + "' AND idcampo = '{}'".format(self.get_init_value("lsc.idobjeto")))
+        mas_info = qsatype.FLUtil.sqlSelect("traducciones", "traduccion", "campo = 'mgmasinfo' AND codidioma = '" + self.get_init_value("store_id") + "' AND idcampo = '{}'".format(self.get_init_value("a.referencia")))
         if mas_info is not False and mas_info != "" and mas_info is not None and str(mas_info) != "None":
             custom_attributes.append({"attribute_code": "mas_info", "value": mas_info})
 
-        medidas_modelo = qsatype.FLUtil.sqlSelect("traducciones", "traduccion", "campo = 'mgmedidasmodelo' AND codidioma = '" + self.get_init_value("store_id") + "' AND idcampo = '{}'".format(self.get_init_value("lsc.idobjeto")))
+        medidas_modelo = qsatype.FLUtil.sqlSelect("traducciones", "traduccion", "campo = 'mgmedidasmodelo' AND codidioma = '" + self.get_init_value("store_id") + "' AND idcampo = '{}'".format(self.get_init_value("a.referencia")))
         if medidas_modelo is not False and medidas_modelo != "" and medidas_modelo is not None and str(medidas_modelo) != "None":
             custom_attributes.append({"attribute_code": "medidas_modelo", "value": medidas_modelo})
 

@@ -21,6 +21,7 @@ class ParentProductSerializer(ProductSerializer):
             del self.data["Product"]["ProductData"]["Clothing"]["ClassificationData"]["Color"]
             del self.data["Product"]["ProductData"]["Clothing"]["ClassificationData"]["Department"]
             del self.data["Product"]["ProductData"]["Clothing"]["ClassificationData"]["OuterMaterial"]
+            del self.data["Product"]["ProductData"]["Clothing"]["ClassificationData"]["CountryOfOrigin"]
             del self.data["Product"]["ProductData"]["Clothing"]["ClassificationData"]["SizeMap"]
 
         del self.data["Product"]["StandardProductID"]

@@ -53,6 +53,13 @@
             "type": "insertAfterNode",
             "path": "/models/flfact_tpv/so_comandassincro",
             "value": {
+                "so_inventariossincro": null
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/models/flfact_tpv/so_inventariossincro",
+            "value": {
                 "tpv_movpuntos": null
             }
         },

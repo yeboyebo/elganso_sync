@@ -1239,6 +1239,14 @@
             {
                 "path": "controllers/api/magento2/stock_incremental_night/serializers/",
                 "name": "ctrl_api_magento2_stock_incremental_night__stock_incremental_night_serializer.py"
+            },
+            {
+                "name": "model_flfact_tpv__so_inventariossincro.py",
+                "path": "models/flfact_tpv/"
+            },
+            {
+                "name": "model_flfact_tpv__so_inventariossincro_def.py",
+                "path": "models/flfact_tpv/"
             }
         ],
         "deleteFile": [],
@@ -1356,6 +1364,14 @@
             {
                 "path": "controllers/base/default/managers/",
                 "name": "ctrl_base_default_managers__task_manager.py"
+            },
+            {
+                "name": "ctrl_base_magento2_products__simple_product_serializer.py",
+                "path": "controllers/base/magento2/products/serializers/"
+            },
+            {
+                "name": "ctrl_base_magento2_products__product_link_serializer.py",
+                "path": "controllers/base/magento2/products/serializers/"
             }
         ]
     }

@@ -39,6 +39,13 @@
             "type": "insertAfterNode",
             "path": "/flfact_tpv/so_comandassincro",
             "value": {
+                "so_inventariossincro": null
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/flfact_tpv/so_inventariossincro",
+            "value": {
                 "eg_bonos": null
             }
         },

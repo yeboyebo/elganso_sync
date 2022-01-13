@@ -14,9 +14,6 @@ class InventorySerializer(DefaultSerializer):
 
         self.set_string_value("sku", referencia)
         self.set_string_value("source_code", str(self.init_data["s.codalmacen"]))
-        status = 0
-        if self.init_data["s.disponible"] > 0:
-            status = 1
 
         hoy = qsatype.Date()
         stockReservado = qsatype.FLUtil.sqlSelect("eg_anulacionstockreservado", "idstock", "idstock = {} AND activo = true AND fechatope >= '{}'".format(self.init_data["s.idstock"], hoy))
@@ -40,6 +37,10 @@ class InventorySerializer(DefaultSerializer):
 
         cant_rv = self.get_reservado(barcode, str(self.init_data["s.codalmacen"]))
         cant_disponible += cant_rv
+
+        status = 0
+        if cant_disponible > 0:
+            status = 1
 
         self.set_string_value("quantity", cant_disponible)
         self.set_string_value("status", status)
