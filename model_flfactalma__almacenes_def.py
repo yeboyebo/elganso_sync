@@ -56,6 +56,8 @@ class elganso_sync(flfactalma):
 
                 where_talla = ""
                 if "talla" in params:
+                    if len(str(params["talla"])) > 3:
+                        return {"Error": "Formato Incorrecto. Longitud talla no es coherente", "status": 10}
                     if str(params["talla"]) != "None":
                         where_talla = " AND s.talla = '" + str(params["talla"]) + "'"
 
@@ -96,32 +98,99 @@ class elganso_sync(flfactalma):
             return {"Error": "Petición Incorrecta", "status": 0}
         return False
 
-    def elganso_sync_eglogarticulosmagento(self, params):
+    def elganso_sync_damedisponibleaweb(self, params):
         try:
             if "auth" not in self.params:
                 self.params = syncppal.iface.get_param_sincro('apipass')
             if "passwd" in params and params['passwd'] == self.params['auth']:
+                if "sku" not in params:
+                    return {"Error": "Formato Incorrecto. Falta el parámetro sku", "status": 10}
 
-                if "product" not in params:
-                    return {"Error": "Formato Incorrecto. No viene informado el parametro product", "status": 0}
+                splitted_sku = str(params["sku"]).split("-")
 
-                curLogPedidoWeb = qsatype.FLSqlCursor("eg_logarticulosweb")
-                curLogPedidoWeb.setModeAccess(curLogPedidoWeb.Insert)
-                curLogPedidoWeb.refreshBuffer()
-                curLogPedidoWeb.setValueBuffer("procesado", False)
-                curLogPedidoWeb.setValueBuffer("fechaalta", str(qsatype.Date())[:10])
-                curLogPedidoWeb.setValueBuffer("horaalta", str(qsatype.Date())[-8:])
-                curLogPedidoWeb.setValueBuffer("sku", str(params["product"]["sku"]))
-                curLogPedidoWeb.setValueBuffer("website", "magento2")
-                curLogPedidoWeb.setValueBuffer("cuerpolog", str(params["product"]))
-                if not curLogPedidoWeb.commitBuffer():
-                    return False
-                return True
+                referencia = ""
+                talla = "TU"
+
+                if len(splitted_sku) == 2:
+                    referencia = str(splitted_sku[0])
+                    talla = str(splitted_sku[1])
+                elif len(splitted_sku) == 1:
+                    referencia = str(splitted_sku[0])
+                else:
+                    return {"Error": "Formato del SKU incorrecto", "status": 2}
+
+
+                q = qsatype.FLSqlQuery()
+                q.setSelect("referencia,talla,disponible")
+                q.setFrom("stocks")
+                q.setWhere("referencia = '" + referencia + "' AND talla <> '" + talla + "' AND codalmacen = 'AWEB' AND disponible > 0 ")
+
+                if not q.exec_():
+                    return {"Error": "Error en la consulta", "status": -1}
+
+                if not q.size():
+                    return {"Error": "No hay stock disponible para ninguna talla", "status": -2}
+
+                lista_disponibles = []
+
+                while(q.next()):
+                    sku = q.value("referencia")
+                    talla = q.value("talla")
+
+                    if talla != "TU":
+                        sku = "{}-{}".format(sku, talla)
+
+                    lista_disponibles.append({sku:q.value("disponible")})
+
+                return {"disponible":lista_disponibles}
             else:
                 return {"Error": "Petición Incorrecta", "status": 10}
         except Exception as e:
             print(e)
-            qsatype.debug(ustr(u"Error inesperado", e))
+            qsatype.debug(ustr(u"Error inesperado consulta de stock cambio: ", e))
+            return {"Error": "Petición Incorrecta", "status": 0}
+        return False
+
+    def elganso_sync_damestockawebcontrareembolso(self, params):
+        try:
+            if "auth" not in self.params:
+                self.params = syncppal.iface.get_param_sincro('apipass')
+            if "passwd" in params and params['passwd'] == self.params['auth']:
+                if "skus" not in params:
+                    return {"Error": "Formato Incorrecto. Falta el parámetro skus", "status": 10}
+
+                lista_disponibles = []
+                for idx in range(len(params["skus"])):
+                    sku = params["skus"][idx]
+
+                    splitted_sku = str(sku).split("-")
+
+                    referencia = ""
+                    talla = "TU"
+
+                    if len(splitted_sku) == 2:
+                        referencia = str(splitted_sku[0])
+                        talla = str(splitted_sku[1])
+                    elif len(splitted_sku) == 1:
+                        referencia = str(splitted_sku[0])
+                    else:
+                        return {"Error": "Formato del SKU incorrecto", "status": 2}
+
+                    disponible = qsatype.FLUtil.sqlSelect("stocks", "disponible", "referencia = '" + referencia + "' AND talla = '" + talla + "' AND codalmacen = 'AWEB'")
+
+                    if talla != "TU":
+                        sku = "{}-{}".format(referencia, talla)
+
+                    lista_disponibles.append({sku:disponible})
+
+                return {"disponible":lista_disponibles}
+            else:
+                print(params['passwd'])
+                print(params['skus'])
+                return {"Error": "Petición Incorrecta", "status": 10}
+        except Exception as e:
+            print(e)
+            qsatype.debug(ustr(u"Error inesperado consulta de stock cambio: ", e))
             return {"Error": "Petición Incorrecta", "status": 0}
         return False
 
@@ -134,6 +203,9 @@ class elganso_sync(flfactalma):
     def damealmacenesconstock(self, params):
         return self.ctx.elganso_sync_damealmacenesconstock(params)
 
-    def eglogarticulosmagento(self, params):
-        return self.ctx.elganso_sync_eglogarticulosmagento(params)
+    def damedisponibleaweb(self, params):
+        return self.ctx.elganso_sync_damedisponibleaweb(params)
+
+    def damestockawebcontrareembolso(self, params):
+        return self.ctx.elganso_sync_damestockawebcontrareembolso(params)
 

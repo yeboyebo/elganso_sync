@@ -10,6 +10,8 @@ from controllers.base.magento2.products.serializers.product_link_serializer impo
 
 class Mg2ProductsUpload(ProductsUpload):
 
+    indice_colores = None
+
     def __init__(self, params=None):
         super().__init__("mg2ProductsUpload", params)
 
@@ -28,6 +30,7 @@ class Mg2ProductsUpload(ProductsUpload):
         self.set_sync_params(self.get_param_sincro('mg2'))
 
         self.small_sleep = 2
+        self.indice_colores = []
 
     def dame_almacenessincroweb(self):
 
@@ -40,7 +43,7 @@ class Mg2ProductsUpload(ProductsUpload):
     def get_db_data(self):
         body = []
 
-        idlinea = qsatype.FLUtil.sqlSelect("lineassincro_catalogo", "id", "tiposincro = 'Enviar productos' AND NOT sincronizado AND website = 'MG2' ORDER BY id LIMIT 100")
+        idlinea = qsatype.FLUtil.sqlSelect("lineassincro_catalogo", "id", "tiposincro = 'Enviar productos' AND NOT sincronizado AND website = 'MG2' AND idobjeto IN (SELECT referencia FROM articulos WHERE configurable OR (referenciaconfigurable IS NULL OR referenciaconfigurable = '')) ORDER BY id LIMIT 100")
 
         if not idlinea:
             return body
@@ -50,9 +53,9 @@ class Mg2ProductsUpload(ProductsUpload):
         aListaAlmacenes = self.dame_almacenessincroweb().split(",")
 
         q = qsatype.FLSqlQuery()
-        q.setSelect("lsc.id, lsc.idsincro, lsc.idobjeto, lsc.descripcion, a.pvp, a.peso, aa.barcode, aa.talla, t.indicecommunity, a.mgdescripcion, a.mgdescripcioncorta, a.egcomposicion, a.egsignoslavado, tp.gruporemarketing, gm.descripcion, a.egcolor, ic.indicecommunity, a.codtemporada, a.anno, a.mgmasinfo, a.mgtallamodelo, a.mgmedidasmodelo")
-        q.setFrom("lineassincro_catalogo lsc INNER JOIN articulos a ON lsc.idobjeto = a.referencia INNER JOIN atributosarticulos aa ON a.referencia = aa.referencia INNER JOIN indicessincrocatalogo t ON (aa.talla = t.valor and t.tipo = 'tallas') INNER JOIN indicessincrocatalogo ic ON (a.egcolor = ic.valor AND ic.tipo = 'colores') LEFT JOIN tiposprenda tp on tp.codtipoprenda = a.codtipoprenda LEFT JOIN gruposmoda gm on gm.codgrupomoda = a.codgrupomoda")
-        q.setWhere("lsc.id = {} GROUP BY lsc.id, lsc.idsincro, lsc.idobjeto, lsc.descripcion, a.pvp, a.peso, aa.barcode, aa.talla, t.indicecommunity, a.mgdescripcion, a.mgdescripcioncorta, a.egcomposicion, a.egsignoslavado, tp.gruporemarketing, gm.descripcion, a.egcolor, ic.indicecommunity,a.codtemporada, a.anno, a.mgmasinfo, a.mgtallamodelo, a.mgmedidasmodelo ORDER BY lsc.id, lsc.idobjeto, aa.barcode".format(self.idlinea))
+        q.setSelect("lsc.id, lsc.idsincro, lsc.idobjeto, lsc.descripcion, a.pvp, a.peso, aa.barcode, aa.talla, t.indicecommunity, a.mgdescripcion, a.mgdescripcioncorta, a.egcomposicion, a.egsignoslavado, tp.gruporemarketing, gm.descripcion, a.egcolor, ic.indicecommunity, a.codtemporada, a.anno, a.mgmasinfo, a.mgtallamodelo, a.mgmedidasmodelo, a.referencia, a.configurable, a.referenciaconfigurable")
+        q.setFrom("lineassincro_catalogo lsc INNER JOIN articulos a ON (lsc.idobjeto = a.referencia OR lsc.idobjeto = a.referenciaconfigurable) INNER JOIN atributosarticulos aa ON a.referencia = aa.referencia INNER JOIN indicessincrocatalogo t ON (aa.talla = t.valor and t.tipo = 'tallas') INNER JOIN indicessincrocatalogo ic ON (a.egcolor = ic.valor AND ic.tipo = 'colores') LEFT JOIN tiposprenda tp on tp.codtipoprenda = a.codtipoprenda LEFT JOIN gruposmoda gm on gm.codgrupomoda = a.codgrupomoda")
+        q.setWhere("lsc.id = {} GROUP BY lsc.id, lsc.idsincro, lsc.idobjeto, lsc.descripcion, a.pvp, a.peso, aa.barcode, aa.talla, t.indicecommunity, a.mgdescripcion, a.mgdescripcioncorta, a.egcomposicion, a.egsignoslavado, tp.gruporemarketing, gm.descripcion, a.egcolor, ic.indicecommunity,a.codtemporada, a.anno, a.mgmasinfo, a.mgtallamodelo, a.mgmedidasmodelo, a.referencia, a.configurable, a.referenciaconfigurable ORDER BY lsc.id, lsc.idobjeto, aa.barcode, a.referencia".format(self.idlinea))
 
         q.exec_()
 
@@ -62,14 +65,19 @@ class Mg2ProductsUpload(ProductsUpload):
 
         body = self.fetch_query(q)
         self.idsincro = body[0]["lsc.idsincro"]
-        self.referencia = body[0]["lsc.idobjeto"]
+        self.referencia = body[0]["a.referencia"]
 
         for row in body:
             disponible = qsatype.FLUtil.sqlSelect("stocks", "sum(disponible)", "barcode = '" + row["aa.barcode"] + "' AND disponible > 0 AND codalmacen IN ('" + "', '".join(aListaAlmacenes) + "')")
 
             if disponible and float(disponible) > 0:
                 self.stock_disponible = True
-            self.indice_tallas.append(row["t.indicecommunity"])
+
+            if row["t.indicecommunity"] not in self.indice_tallas:
+                self.indice_tallas.append(row["t.indicecommunity"])
+
+            if row["ic.indicecommunity"] not in self.indice_colores:
+                self.indice_colores.append(row["ic.indicecommunity"])
 
         return body
 
@@ -80,6 +88,7 @@ class Mg2ProductsUpload(ProductsUpload):
             return data
 
         data[0]["indice_tallas"] = self.indice_tallas
+        data[0]["indice_colores"] = self.indice_colores
         data[0]["stock_disponible"] = self.stock_disponible
         data[0]["store_id"] = "all"
 

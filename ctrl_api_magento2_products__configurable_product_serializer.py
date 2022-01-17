@@ -17,13 +17,13 @@ class ConfigurableProductSerializer(DefaultSerializer):
         self.set_string_relation("product//name", "lsc.descripcion")
         self.set_string_relation("product//weight", "a.peso")
         self.set_string_relation("product//price", "a.pvp")
-        self.set_string_relation("product//sku", "lsc.idobjeto")
+        self.set_string_relation("product//sku", "a.referencia")
 
         self.set_string_value("product//attribute_set_id", "4")
         self.set_string_value("product//visibility", "4")
         self.set_string_value("product//type_id", "configurable")
 
-        sincronizadoprevio = qsatype.FLUtil.sqlSelect("lineassincro_catalogo", "id", "idobjeto = '{}' and sincronizado and idsincro <> {} AND tiposincro = 'Enviar productos' and website = 'MG2'".format(self.get_init_value("lsc.idobjeto"),self.get_init_value("lsc.idsincro")))
+        sincronizadoprevio = qsatype.FLUtil.sqlSelect("lineassincro_catalogo", "id", "idobjeto = '{}' and sincronizado and idsincro <> {} AND tiposincro = 'Enviar productos' and website = 'MG2'".format(self.get_init_value("a.referencia"),self.get_init_value("lsc.idsincro")))
 
         if str(sincronizadoprevio) == "None":
             self.set_string_value("product//status", "2")
@@ -64,14 +64,32 @@ class ConfigurableProductSerializer(DefaultSerializer):
             custom_attributes.append({"attribute_code": "medidas_modelo", "value": talla_modelo})
 
         size_values = [{"value_index": size} for size in self.get_init_value("indice_tallas")]
+        colores_values = [{"value_index": color} for color in self.get_init_value("indice_colores")]
         extension_attributes = {
             "configurable_product_options": [{
                 "attribute_id": 118,
                 "label": "Size",
                 "values": size_values
+            }, {
+                "attribute_id": 80,
+                "label": "Color",
+                "values": colores_values
             }],
             "stock_item": {"is_in_stock": self.get_init_value("stock_disponible")}
         }
+        refConfigurable = self.get_init_value("a.referenciaconfigurable")
+        print("refConfigurable: ", refConfigurable)
+        print("CONFIGURABLE: ", self.get_init_value("a.configurable"))
+        if (self.get_init_value("a.configurable") is False or self.get_init_value("a.configurable") is None or str(self.get_init_value("a.configurable")) == "None") and (refConfigurable is False or refConfigurable == "" or refConfigurable is None or str(refConfigurable) == "None"):
+            print("///////////ENTRAAAAA")
+            extension_attributes = {
+                "configurable_product_options": [{
+                    "attribute_id": 118,
+                    "label": "Size",
+                    "values": size_values
+                }],
+                "stock_item": {"is_in_stock": self.get_init_value("stock_disponible")}
+            }
 
         self.set_data_value("product//custom_attributes", custom_attributes)
         self.set_data_value("product//extension_attributes", extension_attributes)
@@ -79,10 +97,10 @@ class ConfigurableProductSerializer(DefaultSerializer):
         return True
 
     def get_serializador_store(self):
-        desc_store = qsatype.FLUtil.sqlSelect("traducciones", "traduccion", "campo = 'descripcion' AND codidioma = '" + self.get_init_value("store_id") + "' AND idcampo = '{}'".format(self.get_init_value("lsc.idobjeto")))
-        large_description_store = qsatype.FLUtil.sqlSelect("traducciones", "traduccion", "campo = 'mgdescripcion' AND codidioma = '" + self.get_init_value("store_id") + "' AND idcampo = '{}'".format(self.get_init_value("lsc.idobjeto")))
-        composicion_textil = qsatype.FLUtil.sqlSelect("traducciones", "traduccion", "campo = 'egcomposicion' AND codidioma = '" + self.get_init_value("store_id") + "' AND idcampo = '{}'".format(self.get_init_value("lsc.idobjeto")))
-        lavado = qsatype.FLUtil.sqlSelect("traducciones", "traduccion", "campo = 'egsignoslavado' AND codidioma = '" + self.get_init_value("store_id") + "' AND idcampo = '{}'".format(self.get_init_value("lsc.idobjeto")))
+        desc_store = qsatype.FLUtil.sqlSelect("traducciones", "traduccion", "campo = 'descripcion' AND codidioma = '" + self.get_init_value("store_id") + "' AND idcampo = '{}'".format(self.get_init_value("a.referencia")))
+        large_description_store = qsatype.FLUtil.sqlSelect("traducciones", "traduccion", "campo = 'mgdescripcion' AND codidioma = '" + self.get_init_value("store_id") + "' AND idcampo = '{}'".format(self.get_init_value("a.referencia")))
+        composicion_textil = qsatype.FLUtil.sqlSelect("traducciones", "traduccion", "campo = 'egcomposicion' AND codidioma = '" + self.get_init_value("store_id") + "' AND idcampo = '{}'".format(self.get_init_value("a.referencia")))
+        lavado = qsatype.FLUtil.sqlSelect("traducciones", "traduccion", "campo = 'egsignoslavado' AND codidioma = '" + self.get_init_value("store_id") + "' AND idcampo = '{}'".format(self.get_init_value("a.referencia")))
 
         if not desc_store or desc_store == "" or str(desc_store) == "None" or desc_store is None:
             desc_store = self.get_init_value("a.mgdescripcioncorta")
@@ -94,7 +112,7 @@ class ConfigurableProductSerializer(DefaultSerializer):
             if large_description_store is False or large_description_store == "" or large_description_store is None or str(large_description_store) == "None":
                 large_description_store = self.get_init_value("lsc.descripcion")
 
-        self.set_string_relation("product//sku", "lsc.idobjeto")
+        self.set_string_relation("product//sku", "a.referencia")
         self.set_string_value("product//type_id", "configurable")
         self.set_string_value("product//name", desc_store)
         # self.set_string_relation("product//price", "a.pvp")
@@ -111,11 +129,11 @@ class ConfigurableProductSerializer(DefaultSerializer):
         if talla_modelo is not False and talla_modelo != "" and talla_modelo is not None and str(talla_modelo) != "None":
             custom_attributes.append({"attribute_code": "talla_modelo", "value": talla_modelo})
 
-        mas_info = qsatype.FLUtil.sqlSelect("traducciones", "traduccion", "campo = 'mgmasinfo' AND codidioma = '" + self.get_init_value("store_id") + "' AND idcampo = '{}'".format(self.get_init_value("lsc.idobjeto")))
+        mas_info = qsatype.FLUtil.sqlSelect("traducciones", "traduccion", "campo = 'mgmasinfo' AND codidioma = '" + self.get_init_value("store_id") + "' AND idcampo = '{}'".format(self.get_init_value("a.referencia")))
         if mas_info is not False and mas_info != "" and mas_info is not None and str(mas_info) != "None":
             custom_attributes.append({"attribute_code": "mas_info", "value": mas_info})
 
-        medidas_modelo = qsatype.FLUtil.sqlSelect("traducciones", "traduccion", "campo = 'mgmedidasmodelo' AND codidioma = '" + self.get_init_value("store_id") + "' AND idcampo = '{}'".format(self.get_init_value("lsc.idobjeto")))
+        medidas_modelo = qsatype.FLUtil.sqlSelect("traducciones", "traduccion", "campo = 'mgmedidasmodelo' AND codidioma = '" + self.get_init_value("store_id") + "' AND idcampo = '{}'".format(self.get_init_value("a.referencia")))
         if medidas_modelo is not False and medidas_modelo != "" and medidas_modelo is not None and str(medidas_modelo) != "None":
             custom_attributes.append({"attribute_code": "medidas_modelo", "value": medidas_modelo})
 
@@ -132,7 +150,7 @@ class ConfigurableProductSerializer(DefaultSerializer):
         if large_description_store is False or large_description_store == "" or large_description_store is None or str(large_description_store) == "None":
             large_description_store = self.get_init_value("lsc.descripcion")
 
-        self.set_string_relation("product//sku", "lsc.idobjeto")
+        self.set_string_relation("product//sku", "a.referencia")
         # self.set_string_value("product//name", desc_store)
         # self.set_string_relation("product//price", "a.pvp")
 
