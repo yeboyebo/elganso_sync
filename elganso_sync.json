@@ -1247,6 +1247,22 @@
             {
                 "name": "model_flfact_tpv__so_inventariossincro_def.py",
                 "path": "models/flfact_tpv/"
+            },
+            {
+                "name": "ctrl_api_store_inventarios__download.py",
+                "path": "controllers/api/store/inventarios/"
+            },
+            {
+                "name": "ctrl_api_store_inventarios__eginventarios_download.py",
+                "path": "controllers/api/store/inventarios/controllers/"
+            },
+            {
+                "name": "ctrl_api_store_inventarios__eginventario_serializer.py",
+                "path": "controllers/api/store/inventarios/serializers/"
+            },
+            {
+                "name": "model_flfact_tpv__egstoreinventario_raw.py",
+                "path": "models/flfact_tpv/objects/"
             }
         ],
         "deleteFile": [],

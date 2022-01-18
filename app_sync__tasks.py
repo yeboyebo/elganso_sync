@@ -27,6 +27,7 @@ from controllers.api.b2b.customers.controllers.eg_customers_upload import EgB2bC
 
 # Tiendas
 from controllers.api.store.orders.controllers.egorders_download import EgStoreOrdersDownload
+from controllers.api.store.inventarios.controllers.eginventarios_download import EgStoreInventariosDownload
 
 # Mirakl
 from controllers.api.mirakl.orders.controllers.eg_orders_download import EgMiraklOrdersDownload
@@ -100,6 +101,10 @@ sync_object_dict = {
     },
     "store_orders_download": {
         "sync_object": EgStoreOrdersDownload,
+        "driver": PsqlStoreDriver
+    },
+    "store_inventarios_download": {
+        "sync_object": EgStoreInventariosDownload,
         "driver": PsqlStoreDriver
     },
     "refounds_download": {
