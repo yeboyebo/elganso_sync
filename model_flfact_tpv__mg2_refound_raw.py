@@ -41,6 +41,7 @@ class MgRefound(AQModel):
     def get_children_data(self):
         for item in self.data["children"]["lines"]:
             if item:
+                item["creditmemo"] = self.data["children"]["creditmemo"]
                 if "idl_ecommerce_devolucion" in self.data["children"]:
                     if self.data["children"]["idl_ecommerce_devolucion"]:
                         if "codtiendaentrega" in self.data["children"]["idl_ecommerce_devolucion"]:

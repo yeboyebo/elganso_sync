@@ -23,9 +23,9 @@ class Mg2RefoundLine(AQModel):
         self.dump_to_cursor()
         idsincro = qsatype.FactoriaModulos.get("formRecordlineaspedidoscli").iface.pub_commonCalculateField("idsincro", self.cursor)
         self.set_string_value("idsincro", idsincro, max_characters=30)
-        self.crear_registro_movistock(self.cursor)
+        self.crear_registro_movistock(self.cursor, parent_cursor)
 
-    def crear_registro_movistock(self, cursor):
+    def crear_registro_movistock(self, cursor, parent_cursor):
         codtiendaentrega = "AWEB"
         if "codtiendaentrega" in self.data and parseFloat(cursor.valueBuffer("cantidad")) < 0:
             codtiendaentrega = str(self.data["codtiendaentrega"])
@@ -48,6 +48,13 @@ class Mg2RefoundLine(AQModel):
             current_time = now[-(8):]
             curMoviStock.setValueBuffer("fechareal", current_date)
             curMoviStock.setValueBuffer("horareal", current_time)
+
+        if self.data["creditmemo"]:
+            fecha_comanda_original = str(qsatype.FLUtil.quickSqlSelect("tpv_comandas", "fecha", "codigo = '" + str(parent_cursor.valueBuffer("codcomandadevol")) + "'"))
+            hora_comanda_original = str(qsatype.FLUtil.quickSqlSelect("tpv_comandas", "hora", "codigo = '" + str(parent_cursor.valueBuffer("codcomandadevol")) + "'"))
+            curMoviStock.setValueBuffer("estado", "HECHO")
+            curMoviStock.setValueBuffer("fechareal", fecha_comanda_original)
+            curMoviStock.setValueBuffer("horareal", hora_comanda_original)
 
         curMoviStock.setValueBuffer("cantidad", (parseFloat(cursor.valueBuffer("cantidad")) * (-1)))
         curMoviStock.setValueBuffer("referencia", str(cursor.valueBuffer("referencia")))

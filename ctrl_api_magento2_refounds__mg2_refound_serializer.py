@@ -85,6 +85,9 @@ class Mg2RefoundsSerializer(DefaultSerializer):
             qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 16")
 
             self.data["children"]["cashcount"] = False
+            self.data["children"]["creditmemo"] = False
+            if str(self.init_data["status"]) == "creditmemo":
+                self.data["children"]["creditmemo"] = True
             qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 17")
         else:
 
@@ -98,7 +101,7 @@ class Mg2RefoundsSerializer(DefaultSerializer):
             if not idComanda:
                 return False
 
-        if self.init_data["status"] == "Complete" or "items_requested" in self.init_data:
+        if self.init_data["status"] == "Complete" or "items_requested" in self.init_data or self.init_data["status"] == "creditmemo":
             self.cerrar_devolucionweb(codigo)
 
         if self.init_data["status"] != "Complete" or "items_requested" in self.init_data:
@@ -468,6 +471,8 @@ class Mg2RefoundsSerializer(DefaultSerializer):
         return True
 
     def crear_registros_ecommerce(self):
+        if self.init_data["status"] == "creditmemo":
+            return True
         new_init_data = self.init_data.copy()
         excluir_idl = False
         """if str(self.init_data["warehouse"]) != "AWEB":
