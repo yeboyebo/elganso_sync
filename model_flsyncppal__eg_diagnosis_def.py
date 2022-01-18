@@ -116,7 +116,7 @@ class elganso_sync(interna):
                     syncppal.iface.log("Error. " + codTienda + ": Num Pagos Central: " +str(pagosC) + " Tienda: " + str(pagosT), proceso)
 
             if not hayError:
-                syncppal.iface.log("Exito. Están todas las ventas sincroizadas correctamente", proceso)
+                syncppal.iface.log("Exito. Estan todas las ventas sincroizadas correctamente", proceso)
 
         except Exception as e:
             syncppal.iface.log("Error. Ocurrio un error durante el proceso de diagnostico de sincro de ventas objeto", proceso)
@@ -575,7 +575,7 @@ class elganso_sync(interna):
             rows = cxC["cur"].fetchall()
             if len(rows) > 0:
                 if rows[0]["viajes"] > 0:
-                    syncppal.iface.log("Error. Hay movimientos en tránsito", proceso)
+                    syncppal.iface.log("Error. Hay movimientos en transito", proceso)
                     hayError = True
 
             if not hayError:
@@ -1080,7 +1080,7 @@ class elganso_sync(interna):
                 auth = datosCX["auth"]
                 params = {"max":"1"}
                 url = url + "?max=1" 
-                
+
                 headers = {
                     "Content-Type": "application/json",
                     "Authorization": auth
@@ -1090,7 +1090,7 @@ class elganso_sync(interna):
                 jSResult = json.loads(result)
                 totalCount = jSResult["total_count"]
                 if totalCount > numArtAbanQ:
-                    syncppal.iface.log("Error. El número de artícuos en mirakl es mayor que el de abanq", proceso)
+                    syncppal.iface.log("Error. El numero de artícuos en mirakl es mayor que el de abanq", proceso)
                     hayError = True
             if not hayError:
                 syncppal.iface.log("Exito. No hay registros en ew_jsonarticulosactivos", proceso)
@@ -1153,7 +1153,7 @@ class elganso_sync(interna):
             rows = cxC["cur"].fetchall()
             if len(rows) > 0:
                 if rows[0]["noprocesados"] > 10:
-                    syncppal.iface.log("Error. Hay más de 10 registros en eg_logpedidosweb sin procesar", proceso)
+                    syncppal.iface.log("Error. Hay mas de 10 registros en eg_logpedidosweb sin procesar", proceso)
                     hayError = True
 
             if not hayError:
