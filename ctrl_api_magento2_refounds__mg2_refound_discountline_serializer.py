@@ -45,7 +45,7 @@ class Mg2RefoundDiscountLineSerializer(Mg2RefoundLineSerializer):
         pvpSinDtoIva = pvpUnitarioIva
         pvpTotalIva = pvpUnitarioIva
 
-        if str(self.init_data["tipo_linea"]) == "BonoNegativo":
+        if str(self.init_data["tipo_linea"]) == "BonoPositivo":
             pvpSinDto = pvpSinDto * (-1)
             pvpTotal = pvpTotal * (-1)
             pvpSinDtoIva = pvpUnitarioIva * (-1)

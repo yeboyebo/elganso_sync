@@ -19,6 +19,10 @@ class Mg2RefoundsSerializer(DefaultSerializer):
         qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 1")
         if not self.control_tallas_devolucion():
             return False
+
+        if str(self.init_data["status"]) == "creditmemo":
+            if not self.control_creditmemo():
+                return False
         qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 2")
 
         codigo = "WDV2" + qsatype.FactoriaModulos.get("flfactppal").iface.cerosIzquierda(str(self.init_data["rma_id"]), 8)
@@ -629,3 +633,25 @@ class Mg2RefoundsSerializer(DefaultSerializer):
             codtarjetapuntos = ""
 
         return codtarjetapuntos
+
+    def control_creditmemo(self):
+        if not qsatype.FLUtil.quickSqlSelect("tpv_comandas", "codigo", "codcomandadevol = '{}'".format("WEB" + str(self.init_data["increment_id"]))):
+            return True
+
+        idtpv_comanda_original = qsatype.FLUtil.quickSqlSelect("tpv_comandas", "idtpv_comanda", "codigo = '{}'".format("WEB" + str(self.init_data["increment_id"])))
+        cod_comanda_original = "WEB" + str(self.init_data["increment_id"])
+
+        for line in self.init_data["items_refunded"]:
+            barcode_linea = self.get_barcode(line["sku"])
+            if qsatype.FLUtil.quickSqlSelect("eg_devolucionesweb dw INNER JOIN tpv_comandas c ON dw.codventa = c.codigo INNER JOIN tpv_lineascomanda lc ON c.idtpv_comanda = lc.idtpv_comanda", "lc.barcode", "dw.codventa = '{}' AND lc.barcode = '{}'".format(cod_comanda_original, barcode_linea), "eg_devolucionesweb,tpv_comandas,tpv_lineascomanda"):
+                raise NameError("Error CreditMemo. Devolucion ya realizada en una tienda.")
+                return False
+
+            cant_inicial = parseFloat(qsatype.FLUtil.quickSqlSelect("tpv_lineascomanda", "cantidad", "barcode = '{}' AND idtpv_comanda = '{}'".format(barcode_linea, idtpv_comanda_original)))
+
+            cant_devuelta = parseFloat(qsatype.FLUtil.quickSqlSelect("tpv_lineascomanda", "SUM(cantdevuelta)", "barcode = '{}' AND idtpv_comanda = '{}'".format(barcode_linea, idtpv_comanda_original)))
+
+            if (parseFloat(line["qty"]) + cant_devuelta) > cant_inicial:
+                raise NameError("Error CreditMemo. La cantidad de la devolucion mas lo devuelto supera la cantidad original de la venta.")
+                return False
+        return True

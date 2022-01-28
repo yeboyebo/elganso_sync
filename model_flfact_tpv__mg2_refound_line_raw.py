@@ -24,6 +24,7 @@ class Mg2RefoundLine(AQModel):
         idsincro = qsatype.FactoriaModulos.get("formRecordlineaspedidoscli").iface.pub_commonCalculateField("idsincro", self.cursor)
         self.set_string_value("idsincro", idsincro, max_characters=30)
         self.crear_registro_movistock(self.cursor, parent_cursor)
+        self.actualizar_cantidad_devuelta(self.cursor, parent_cursor)
 
     def crear_registro_movistock(self, cursor, parent_cursor):
         codtiendaentrega = "AWEB"
@@ -73,3 +74,13 @@ class Mg2RefoundLine(AQModel):
             numlinea = 0
 
         return numlinea + 1
+
+    def actualizar_cantidad_devuelta(self, cursor, parent_cursor):
+        idtpv_comanda_original = qsatype.FLUtil.quickSqlSelect("tpv_comandas", "idtpv_comanda", "codigo = '{}'".format(parent_cursor.valueBuffer("codcomandadevol")))
+
+        cant_devuelta = parseFloat(qsatype.FLUtil.quickSqlSelect("tpv_lineascomanda", "SUM(cantdevuelta)", "barcode = '{}' AND idtpv_comanda = '{}'".format(cursor.valueBuffer("barcode"), idtpv_comanda_original)))
+        cant_devuelta = cant_devuelta + (cursor.valueBuffer("cantidad") * (-1))
+
+        qsatype.FLSqlQuery().execSql("UPDATE tpv_lineascomanda SET cantdevuelta = {} WHERE cantdevuelta < cantidad AND barcode = '{}' AND idtpv_comanda = {}".format(cant_devuelta, cursor.valueBuffer("barcode"), idtpv_comanda_original))
+
+        return True

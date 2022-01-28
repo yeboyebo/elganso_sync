@@ -31,6 +31,8 @@ class Mg2ProductsUpload(ProductsUpload):
 
         self.small_sleep = 2
         self.indice_colores = []
+        self.indice_tallas = []
+        self.sincronizarsimple = True
 
     def dame_almacenessincroweb(self):
 
@@ -43,7 +45,7 @@ class Mg2ProductsUpload(ProductsUpload):
     def get_db_data(self):
         body = []
 
-        idlinea = qsatype.FLUtil.sqlSelect("lineassincro_catalogo", "id", "tiposincro = 'Enviar productos' AND NOT sincronizado AND website = 'MG2' AND idobjeto IN (SELECT referencia FROM articulos WHERE configurable OR (referenciaconfigurable IS NULL OR referenciaconfigurable = '')) ORDER BY id LIMIT 100")
+        idlinea = qsatype.FLUtil.sqlSelect("lineassincro_catalogo", "id", "tiposincro = 'Enviar productos' AND NOT sincronizado AND website = 'MG2' ORDER BY id LIMIT 100")
 
         if not idlinea:
             return body
@@ -53,9 +55,9 @@ class Mg2ProductsUpload(ProductsUpload):
         aListaAlmacenes = self.dame_almacenessincroweb().split(",")
 
         q = qsatype.FLSqlQuery()
-        q.setSelect("lsc.id, lsc.idsincro, lsc.idobjeto, lsc.descripcion, a.pvp, a.peso, aa.barcode, aa.talla, t.indicecommunity, a.mgdescripcion, a.mgdescripcioncorta, a.egcomposicion, a.egsignoslavado, tp.gruporemarketing, gm.descripcion, a.egcolor, ic.indicecommunity, a.codtemporada, a.anno, a.mgmasinfo, a.mgtallamodelo, a.mgmedidasmodelo, a.referencia, a.configurable, a.referenciaconfigurable")
-        q.setFrom("lineassincro_catalogo lsc INNER JOIN articulos a ON (lsc.idobjeto = a.referencia OR lsc.idobjeto = a.referenciaconfigurable) INNER JOIN atributosarticulos aa ON a.referencia = aa.referencia INNER JOIN indicessincrocatalogo t ON (aa.talla = t.valor and t.tipo = 'tallas') INNER JOIN indicessincrocatalogo ic ON (a.egcolor = ic.valor AND ic.tipo = 'colores') LEFT JOIN tiposprenda tp on tp.codtipoprenda = a.codtipoprenda LEFT JOIN gruposmoda gm on gm.codgrupomoda = a.codgrupomoda")
-        q.setWhere("lsc.id = {} GROUP BY lsc.id, lsc.idsincro, lsc.idobjeto, lsc.descripcion, a.pvp, a.peso, aa.barcode, aa.talla, t.indicecommunity, a.mgdescripcion, a.mgdescripcioncorta, a.egcomposicion, a.egsignoslavado, tp.gruporemarketing, gm.descripcion, a.egcolor, ic.indicecommunity,a.codtemporada, a.anno, a.mgmasinfo, a.mgtallamodelo, a.mgmedidasmodelo, a.referencia, a.configurable, a.referenciaconfigurable ORDER BY lsc.id, lsc.idobjeto, aa.barcode, a.referencia".format(self.idlinea))
+        q.setSelect("lsc.id, lsc.idsincro, lsc.idobjeto, lsc.descripcion, a.pvp, a.peso, aa.barcode, aa.talla, t.indicecommunity, a.mgdescripcion, a.mgdescripcioncorta, a.egcomposicion, a.egsignoslavado, tp.gruporemarketing, gm.descripcion, a.egcolor, ic.indicecommunity, a.codtemporada, a.anno, a.mgmasinfo, a.mgtallamodelo, a.mgmedidasmodelo, a.referencia, a.configurable, a.referenciaconfigurable, aa.referencia")
+        q.setFrom("lineassincro_catalogo lsc INNER JOIN articulos a ON lsc.idobjeto = a.referencia LEFT JOIN articulos a2 on a.referenciaconfigurable = a2.referencia LEFT JOIN articulos a3 on a2.referencia = a3.referenciaconfigurable INNER JOIN atributosarticulos aa ON (a.referencia = aa.referencia or a3.referencia = aa.referencia) INNER JOIN indicessincrocatalogo t ON (aa.talla = t.valor and t.tipo = 'tallas') INNER JOIN indicessincrocatalogo ic ON (a.egcolor = ic.valor AND ic.tipo = 'colores') LEFT JOIN tiposprenda tp on tp.codtipoprenda = a.codtipoprenda LEFT JOIN gruposmoda gm on gm.codgrupomoda = a.codgrupomoda")
+        q.setWhere("lsc.id = {} GROUP BY lsc.id, lsc.idsincro, lsc.idobjeto, lsc.descripcion, a.pvp, a.peso, aa.barcode, aa.talla, t.indicecommunity, a.mgdescripcion, a.mgdescripcioncorta, a.egcomposicion, a.egsignoslavado, tp.gruporemarketing, gm.descripcion, a.egcolor, ic.indicecommunity,a.codtemporada, a.anno, a.mgmasinfo, a.mgtallamodelo, a.mgmedidasmodelo, a.referencia, a.configurable, a.referenciaconfigurable, aa.referencia ORDER BY lsc.id, lsc.idobjeto, aa.barcode, a.referencia".format(self.idlinea))
 
         q.exec_()
 
@@ -78,6 +80,10 @@ class Mg2ProductsUpload(ProductsUpload):
 
             if row["ic.indicecommunity"] not in self.indice_colores:
                 self.indice_colores.append(row["ic.indicecommunity"])
+            
+            if str(row["a.referenciaconfigurable"]) != "None":
+                if str(row["a.configurable"]) != "True":
+                    self.sincronizarsimple = False
 
         return body
 
@@ -101,24 +107,27 @@ class Mg2ProductsUpload(ProductsUpload):
         configurable_product_fr = self.get_configurable_product_serializer().serialize(data[0])
         data[0]["store_id"] = "DE"
         configurable_product_de = self.get_configurable_product_serializer().serialize(data[0])
-        simple_products_default = []
-        simple_products_es = []
-        simple_products_en = []
-        simple_products_fr = []
-        simple_products_de = []
+    
+        if self.sincronizarsimple:
+            simple_products_default = []
+            simple_products_es = []
+            simple_products_en = []
+            simple_products_fr = []
+            simple_products_de = []
         product_links = []
 
         for row in data:
-            row["store_id"] = "all"
-            simple_products_default.append(self.get_simple_product_serializer().serialize(row))
-            row["store_id"] = "ES"
-            simple_products_es.append(self.get_simple_product_serializer().serialize(row))
-            row["store_id"] = "EN"
-            simple_products_en.append(self.get_simple_product_serializer().serialize(row))
-            row["store_id"] = "FR"
-            simple_products_fr.append(self.get_simple_product_serializer().serialize(row))
-            row["store_id"] = "DE"
-            simple_products_de.append(self.get_simple_product_serializer().serialize(row))
+            if self.sincronizarsimple:
+                row["store_id"] = "all"
+                simple_products_default.append(self.get_simple_product_serializer().serialize(row))
+                row["store_id"] = "ES"
+                simple_products_es.append(self.get_simple_product_serializer().serialize(row))
+                row["store_id"] = "EN"
+                simple_products_en.append(self.get_simple_product_serializer().serialize(row))
+                row["store_id"] = "FR"
+                simple_products_fr.append(self.get_simple_product_serializer().serialize(row))
+                row["store_id"] = "DE"
+                simple_products_de.append(self.get_simple_product_serializer().serialize(row))
             product_links.append(self.get_product_link_serializer().serialize(row))
 
         if not configurable_product_default and not simple_products_default and not product_links:
@@ -127,17 +136,27 @@ class Mg2ProductsUpload(ProductsUpload):
         if product_links[0] == False:
             product_links = False
 
+        if self.sincronizarsimple:
+            return {
+                "configurable_product_default": configurable_product_default,
+                "configurable_product_es": configurable_product_es,
+                "configurable_product_en": configurable_product_en,
+                "configurable_product_fr": configurable_product_fr,
+                "configurable_product_de": configurable_product_de,
+                "simple_products_default": simple_products_default,
+                "simple_products_es": simple_products_es,
+                "simple_products_en": simple_products_en,
+                "simple_products_fr": simple_products_fr,
+                "simple_products_de": simple_products_de,
+                "product_links": product_links,
+            }
+            
         return {
             "configurable_product_default": configurable_product_default,
             "configurable_product_es": configurable_product_es,
             "configurable_product_en": configurable_product_en,
             "configurable_product_fr": configurable_product_fr,
             "configurable_product_de": configurable_product_de,
-            "simple_products_default": simple_products_default,
-            "simple_products_es": simple_products_es,
-            "simple_products_en": simple_products_en,
-            "simple_products_fr": simple_products_fr,
-            "simple_products_de": simple_products_de,
             "product_links": product_links,
         }
 
@@ -205,67 +224,69 @@ class Mg2ProductsUpload(ProductsUpload):
         if data["configurable_product_pt"]:
             self.send_request("post", url=product_url.format("pt_pt"), data=json.dumps(data["configurable_product_pt"]))'''
 
-        if data["simple_products_default"]:
-            for simple_product in data["simple_products_default"]:
-                self.send_request("post", url=product_url.format("all"), data=json.dumps(simple_product))
-                print(str(product_url.format("all")))
-                print(str(json.dumps(simple_product)))
-                print("---------------------")
+        if self.sincronizarsimple:
+            if data["simple_products_default"]:
+                for simple_product in data["simple_products_default"]:
+                    self.send_request("post", url=product_url.format("all"), data=json.dumps(simple_product))
+                    print(str(product_url.format("all")))
+                    print(str(json.dumps(simple_product)))
+                    print("---------------------")
 
-        '''if data["simple_products_es"]:
-            for simple_product in data["simple_products_es"]:
-                self.send_request("post", url=product_url.format("es"), data=json.dumps(simple_product))
-                self.send_request("post", url=product_url.format("es_cn"), data=json.dumps(simple_product))
-                self.send_request("post", url=product_url.format("intl_es"), data=json.dumps(simple_product))
-                self.send_request("post", url=product_url.format("pt_es"), data=json.dumps(simple_product))
+            '''if data["simple_products_es"]:
+                for simple_product in data["simple_products_es"]:
+                    self.send_request("post", url=product_url.format("es"), data=json.dumps(simple_product))
+                    self.send_request("post", url=product_url.format("es_cn"), data=json.dumps(simple_product))
+                    self.send_request("post", url=product_url.format("intl_es"), data=json.dumps(simple_product))
+                    self.send_request("post", url=product_url.format("pt_es"), data=json.dumps(simple_product))
 
-                print(str(product_url.format("es")))
-                print(str(product_url.format("es_cn")))
-                print(str(product_url.format("intl_es")))
-                print(str(product_url.format("pt_es")))
-                print(str(json.dumps(simple_product)))
-                print("---------------------")'''
+                    print(str(product_url.format("es")))
+                    print(str(product_url.format("es_cn")))
+                    print(str(product_url.format("intl_es")))
+                    print(str(product_url.format("pt_es")))
+                    print(str(json.dumps(simple_product)))
+                    print("---------------------")'''
 
-        if data["simple_products_en"]:
-            for simple_product in data["simple_products_en"]:
-                self.send_request("post", url=product_url.format("en"), data=json.dumps(simple_product))
-                self.send_request("post", url=product_url.format("intl_en"), data=json.dumps(simple_product))
-                self.send_request("post", url=product_url.format("intl_uk"), data=json.dumps(simple_product))
-                # self.send_request("post", url=product_url.format("pt_en"), data=json.dumps(simple_product))
-                print(str(product_url.format("en")))
-                print(str(product_url.format("intl_en")))
-                print(str(product_url.format("intl_uk")))
-                print(str(product_url.format("pt_en")))
-                print(str(json.dumps(simple_product)))
-                print("---------------------")
+            if data["simple_products_en"]:
+                for simple_product in data["simple_products_en"]:
+                    self.send_request("post", url=product_url.format("en"), data=json.dumps(simple_product))
+                    self.send_request("post", url=product_url.format("intl_en"), data=json.dumps(simple_product))
+                    self.send_request("post", url=product_url.format("intl_uk"), data=json.dumps(simple_product))
+                    # self.send_request("post", url=product_url.format("pt_en"), data=json.dumps(simple_product))
+                    print(str(product_url.format("en")))
+                    print(str(product_url.format("intl_en")))
+                    print(str(product_url.format("intl_uk")))
+                    print(str(product_url.format("pt_en")))
+                    print(str(json.dumps(simple_product)))
+                    print("---------------------")
 
-        if data["simple_products_fr"]:
-            for simple_product in data["simple_products_fr"]:
-                self.send_request("post", url=product_url.format("fr"), data=json.dumps(simple_product))
-                self.send_request("post", url=product_url.format("intl_fr"), data=json.dumps(simple_product))
-                self.send_request("post", url=product_url.format("fr_fr"), data=json.dumps(simple_product))
+            if data["simple_products_fr"]:
+                for simple_product in data["simple_products_fr"]:
+                    self.send_request("post", url=product_url.format("fr"), data=json.dumps(simple_product))
+                    self.send_request("post", url=product_url.format("intl_fr"), data=json.dumps(simple_product))
+                    self.send_request("post", url=product_url.format("fr_fr"), data=json.dumps(simple_product))
+                    print(str(product_url.format("fr")))
+                    print(str(product_url.format("intl_fr")))
+                    print(str(product_url.format("fr_fr")))
+                    print(str(json.dumps(simple_product)))
+                    print("---------------------")
 
-                print(str(product_url.format("fr")))
-                print(str(product_url.format("intl_fr")))
-                print(str(product_url.format("fr_fr")))
-                print(str(json.dumps(simple_product)))
-                print("---------------------")
+            if data["simple_products_de"]:
+                for simple_product in data["simple_products_de"]:
+                    self.send_request("post", url=product_url.format("intl_de"), data=json.dumps(simple_product))
+                    print(str(product_url.format("intl_de")))
+                    print(str(json.dumps(simple_product)))
+                    print("---------------------")
 
-        if data["simple_products_de"]:
-            for simple_product in data["simple_products_de"]:
-                self.send_request("post", url=product_url.format("intl_de"), data=json.dumps(simple_product))
-
-                print(str(product_url.format("intl_de")))
-                print(str(json.dumps(simple_product)))
-                print("---------------------")
-
-        ''' Esto hay que mirarlo para portugués
-        if data["simple_products_pt"]:
-            for simple_product in data["simple_products_pt"]:
-                self.send_request("post", url=product_url.format("pt_pt"), data=json.dumps(simple_product))'''
+            ''' Esto hay que mirarlo para portugués
+            if data["simple_products_pt"]:
+                for simple_product in data["simple_products_pt"]:
+                    self.send_request("post", url=product_url.format("pt_pt"), data=json.dumps(simple_product))'''
 
         if data["product_links"]:
             for product_link in data["product_links"]:
+                print(str(link_url.format(data["configurable_product_default"]["product"]["sku"])))
+                print(str(json.dumps(product_link)))
+                print("---------------------")
                 self.send_request("post", url=link_url.format(data["configurable_product_default"]["product"]["sku"]), data=json.dumps(product_link))
 
         try:
