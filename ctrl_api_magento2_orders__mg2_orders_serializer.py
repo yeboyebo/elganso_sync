@@ -1,5 +1,6 @@
 from YBLEGACY import qsatype
 from YBLEGACY.constantes import *
+import json
 
 from controllers.base.default.serializers.default_serializer import DefaultSerializer
 
@@ -16,9 +17,12 @@ from controllers.api.magento2.orders.serializers.mg2_discountunknownline_seriali
 
 
 class Mg2OrdersSerializer(DefaultSerializer):
-
     def get_data(self):
         increment = str(self.init_data["increment_id"])
+
+        if not self.actualizar_items_lineas():
+            raise NameError("Error al actualizar el items de las lineas.")
+            return Falsess
 
         codigo = "WEB{}".format(qsatype.FactoriaModulos.get("flfactppal").iface.cerosIzquierda(increment, 9))
 
@@ -434,6 +438,48 @@ class Mg2OrdersSerializer(DefaultSerializer):
             return "TU"
 
     def distribucion_almacenes(self):
+
+        jsonDatos = self.init_data
+
+        codpago = self.get_codpago()
+        if str(codpago) == "CREE":
+            return True
+
+        almacenes = self.dame_almacenes(jsonDatos)
+
+        def puntua_combinacion(combinacion):
+            puntos = 100000 * self.puntos_productos_disponibles(combinacion)
+            puntos += 10000 * self.puntos_cantidad_almacenes(combinacion, almacenes)
+            puntos += 1000 * self.puntos_almacen_local(jsonDatos, combinacion)
+            puntos += 100 * self.puntos_prioridad(combinacion, almacenes)
+            puntos += 10 * self.puntos_bajo_limite(combinacion, almacenes)
+            return puntos
+
+        combinaciones = self.combinaciones_almacenes(almacenes)
+        if len(combinaciones) == 0:
+            return True
+
+        combinaciones_ordenadas = sorted(combinaciones, key=puntua_combinacion, reverse=False)
+        mejor_combinacion = combinaciones_ordenadas[0]
+        print("MEJOR COMBINACION ", str(mejor_combinacion))
+
+        lineas_data = jsonDatos["items"]
+        disponibles = self.disponiboles_x_almacen(mejor_combinacion)
+
+        for linea in lineas_data:
+            barcode = self.get_barcode(linea["sku"])
+            for almacen in mejor_combinacion:
+                clave_disp = self.clave_disponible(almacen, barcode)
+                can_disponible = disponibles.get(clave_disp, 0)
+                if can_disponible > 0:
+                    disponibles[clave_disp] -= 1
+                    linea["almacen"] = almacen["cod_almacen"]
+                    linea["emailtienda"] = almacen["emailtienda"]
+                    break
+
+        return True
+
+    def dame_almacenes(self, jsonDatos):
         codpago = self.get_codpago()
         if str(codpago) == "CREE":
             return True
@@ -446,6 +492,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
         q.exec_()
 
         if not q.size():
+            print("Return 1")
             return True
 
         margen_almacenes = {}
@@ -458,72 +505,161 @@ class Mg2OrdersSerializer(DefaultSerializer):
         lineas_data = self.init_data["items"]
         almacenes = []
 
-        # for almacen in self.init_data["almacenes"]:
-        # almacenes.append({ "cod_almacen": almacen["source_code"], "emailtienda": almacen["email"], "total": 0, "lineas": {} })
+        for indice, almacen in enumerate(jsonDatos["almacenes"]):
+            limite_pedido_minimo = qsatype.FLUtil.quickSqlSelect("param_parametros", "valor", "nombre = 'LPEDIDO_" + almacen["source_code"] + "'")
+            if not limite_pedido_minimo:
+                limite_pedido_minimo = 1000
 
-        codpais = self.init_data["shipping_address"]["country_id"]
-
-        # print(str(codpais))
-
-        for indice, almacen in enumerate(self.init_data["almacenes"]):
-            almacenes.append({
-                "cod_almacen": almacen["source_code"],
-                "emailtienda": almacen["email"],
-                "total": 0,
-                "lineas": {},
-                "prioridad": 0.99 - indice * 0.01
-            })
-
-        barcodes = []
-        lineas = {}
-        ref_regalo = qsatype.FLUtil.quickSqlSelect("param_parametros", "valor", "nombre = 'ART_REGALOWEB'")
-        for linea_data in lineas_data:
-            referencia = self.get_referencia(linea_data["sku"])
-            if str(ref_regalo)[1:-1] != str(referencia):
-                barcode = self.get_barcode(linea_data["sku"])
-                barcodes.append(barcode)
-                lineas[barcode] = linea_data["cantidad"]
-
-        for almacen in almacenes:
-            cod_almacen = almacen["cod_almacen"]
+            barcodes = []
+            lineas = {}
+            ref_regalo = qsatype.FLUtil.quickSqlSelect("param_parametros", "valor", "nombre = 'ART_REGALOWEB'")
+            for linea_data in lineas_data:
+                referencia = self.get_referencia(linea_data["sku"])
+                if str(ref_regalo)[1:-1] != str(referencia):
+                    barcode = self.get_barcode(linea_data["sku"])
+                    barcodes.append(barcode)
+                    lineas[barcode] = linea_data["cantidad"]
 
             q = qsatype.FLSqlQuery()
             q.setSelect(u"barcode, disponible")
             q.setFrom(u"stocks")
-            q.setWhere(u"codalmacen = '" + cod_almacen + "' AND barcode IN ('" + "', '".join(barcodes) + "')")
+            q.setWhere(u"codalmacen = '" + almacen["source_code"] + "' AND barcode IN ('" + "', '".join(barcodes) + "')")
 
             q.exec_()
 
             if not q.size():
                 continue
 
+            jBarcodes = {}
+            cant_disponible = 0
             while q.next():
-                barcode = q.value("barcode")
-                margen = margen_almacenes.get("RSTOCK_" + cod_almacen, 0)
-                codpaisalmacen = pais_almacenes.get("RSTOCK_" + cod_almacen, 'ES')
+                margen = margen_almacenes.get("RSTOCK_" + almacen["source_code"], 0)
+                cant_disponible = q.value("disponible") - margen
+                if cant_disponible < 0:
+                    cant_disponible = 0
 
-                sumalineatotal = 1
-                if(str(codpais) == str(codpaisalmacen)):
-                    sumalineatotal = 2
+                jBarcodes[q.value("barcode")] = cant_disponible
 
-                if (q.value("disponible") - margen) >= lineas[barcode]:
-                    almacen["total"] = almacen["total"] + sumalineatotal
-                    almacen["lineas"][barcode] = True
+            almacenes.append({
+                "cod_almacen": almacen["source_code"],
+                "emailtienda": almacen["email"],
+                "total": 0,
+                "lineas": {},
+                "prioridad": 0.99 - indice * 0.01,
+                "codpais": almacen["country_id"],
+                "bajo_limite": limite_pedido_minimo,
+                "disponibles": jBarcodes
+            })
 
-        def dame_orden(almacen):
-            orden = almacen["total"] + almacen["prioridad"]
-            return orden
+        print("///almacenes: ", str(almacenes))
 
-        almacenes_ordenados = sorted(almacenes, key=dame_orden, reverse=True)
+        return almacenes
 
-        # print(str(almacenes_ordenados))
+    def clave_disponible(self, almacen, barcode):
+        return almacen["cod_almacen"] + "_X_" + barcode
 
-        for linea_data in lineas_data:
-            barcode = self.get_barcode(linea_data["sku"])
-            for almacen in almacenes_ordenados:
-                if almacen["lineas"].get(barcode, False):
-                    linea_data["almacen"] = almacen["cod_almacen"]
-                    linea_data["emailtienda"] = almacen["emailtienda"]
+    def disponiboles_x_almacen(self, combinacion):
+        disponibles = {}
+        for almacen in combinacion:
+            for barcode in almacen["disponibles"]:
+                disponibles[self.clave_disponible(almacen, barcode)] = almacen["disponibles"][barcode]
+
+        return disponibles
+
+    def puntos_productos_disponibles(self, combinacion):
+        lineas = self.init_data["items"]
+
+        max_puntos = len(lineas)
+        total_disponible = 0
+        disponibles = self.disponiboles_x_almacen(combinacion)
+        for linea in lineas:
+            barcode = self.get_barcode(linea["sku"])
+            for almacen in combinacion:
+                clave_disp = self.clave_disponible(almacen, barcode)
+                can_disponible = disponibles.get(self.clave_disponible(almacen, barcode), 0)
+                if can_disponible > 0:
+                    disponibles[clave_disp] -= 1
+                    total_disponible += 1
                     break
 
+        result = total_disponible * 10 / max_puntos
+        return result
+
+    def puntos_cantidad_almacenes(self, combinacion, almacenes):
+        max_puntos = len(almacenes)
+        puntos = len(almacenes) - len(combinacion) + 1
+        result = puntos * 10 / max_puntos
+        return result
+
+    def puntos_almacen_local(self, jsonDatos, combinacion):
+        def es_local(pais):
+            return pais == jsonDatos["shipping_address"]["country_id"]
+
+        max_puntos = len(combinacion)
+        puntos = 0
+        for i in range(len(combinacion)):
+            puntos += 1 if es_local(combinacion[i]["codpais"]) else 0
+
+        result = puntos * 10 / max_puntos
+        return result
+
+    def puntos_prioridad(self, combinacion, almacenes):
+        max_puntos = 0
+        for almacen in almacenes:
+            max_puntos += almacen["prioridad"]
+
+        prioridad = 0
+        total_almacenes = len(almacenes)
+        for almacen in combinacion:
+            prioridad += total_almacenes - almacen["prioridad"]
+
+        result = prioridad * 10 / max_puntos
+        return result
+
+    def puntos_bajo_limite(self, combinacion, almacenes):
+        max_puntos = len(almacenes)
+        puntos = 0
+
+        for almacen in combinacion:
+            puntos += 1 if parseFloat(almacen["bajo_limite"]) > 0 else 0
+
+        result = puntos * 10 / max_puntos
+
+        return result
+
+    def combinacion_viable(self, combinacion):
+        return self.puntos_productos_disponibles(combinacion) == 10
+
+    def combinaciones_almacenes(self, almacenes):
+        from itertools import combinations
+        result = []
+        for can_almacenes in range(1, len(almacenes) + 1):
+            combinaciones = combinations(almacenes, can_almacenes)
+            hay_viables = False
+            for c in combinaciones:
+                if self.combinacion_viable(c):
+                    hay_viables = True
+                    result.append(c)
+
+            if hay_viables:
+                break
+
+        return result
+
+    def actualizar_items_lineas(self):
+        aItems = []
+        for item in self.init_data["items"]:
+            if item["cantidad"] > 1:
+                for i in range(item["cantidad"]):
+                    sku = item["sku"]
+                    cantidad = 1
+                    iva = item["iva"]
+                    pvptotaliva = item["pvptotaliva"] / item["cantidad"]
+                    ivaincluido = item["ivaincluido"]
+                    pvpunitarioiva = item["pvpunitarioiva"]
+                    pvpsindtoiva = item["pvpsindtoiva"] / item["cantidad"]
+                    aItems.append({"sku": sku, "cantidad": cantidad, "iva": iva, "pvptotaliva": pvptotaliva, "ivaincluido": ivaincluido, "pvpunitarioiva": pvpunitarioiva, "pvpsindtoiva": pvpsindtoiva})
+            else:
+                aItems.append(item)
+        self.init_data["items"] = aItems
         return True

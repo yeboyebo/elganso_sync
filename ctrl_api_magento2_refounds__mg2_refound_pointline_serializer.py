@@ -32,12 +32,10 @@ class Mg2RefoundPointLineSerializer(Mg2RefoundLineSerializer):
         self.set_data_value("ivaincluido", True)
         self.set_data_relation("iva", "iva")
 
-        discount_refunded = round(parseFloat(self.init_data["discount_refunded"]) * (-1), 2)
-
-        pvpUnitario = (parseFloat(self.init_data["discount_refunded"])) / ((100 + iva) / 100)
+        pvpUnitario = (parseFloat(self.init_data["points_used"])) / ((100 + iva) / 100)
         pvpSinDto = pvpUnitario
         pvpTotal = pvpSinDto
-        pvpUnitarioIva = (parseFloat(self.init_data["discount_refunded"]))
+        pvpUnitarioIva = (parseFloat(self.init_data["points_used"]))
         pvpSinDtoIva = pvpUnitarioIva
         pvpTotalIva = pvpUnitarioIva
 
