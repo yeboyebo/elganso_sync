@@ -163,7 +163,7 @@ class AzFeedsUpload(UploadSync, ABC):
         data = data.replace("&", "&amp;")
         data = data.replace("€", "&euro;")
         data = data.replace("©", "&copy;")
-        data = data.replace("®", "&reg;")
+        data = data.replace("®", " TM")
 
         data = data.replace("#", "&#35;")
         data = data.replace("Á", "&#193;")

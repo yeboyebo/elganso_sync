@@ -30,9 +30,10 @@ class ProductSerializer(DefaultSerializer):
             self.set_string_relation("Product//ProductData//Shoes//ClassificationData//SizeMap", "aa.talla")
             self.set_string_value("Product//ProductData//Shoes//ClassificationData//TargetGender", self.get_target(self.init_data["a.codgrupomoda"]))
 
-            self.set_string_value("Product//ProductData//Shoes//ShoeSizeComplianceData//AgeRangeDescription", "adult")
+            edad = self.get_age_range_shoes(self.init_data["a.codgrupomoda"])
+            self.set_string_value("Product//ProductData//Shoes//ShoeSizeComplianceData//AgeRangeDescription", edad)
             self.set_string_value("Product//ProductData//Shoes//ShoeSizeComplianceData//FootwearSizeSystem", "eu_footwear_size_system")
-            self.set_string_value("Product//ProductData//Shoes//ShoeSizeComplianceData//ShoeSizeAgeGroup", "adult")
+            self.set_string_value("Product//ProductData//Shoes//ShoeSizeComplianceData//ShoeSizeAgeGroup", edad)
             self.set_string_value("Product//ProductData//Shoes//ShoeSizeComplianceData//ShoeSizeClass", "numeric")
             self.set_string_value("Product//ProductData//Shoes//ShoeSizeComplianceData//ShoeSizeWidth", "medium")
             self.set_string_value("Product//ProductData//Shoes//ShoeSizeComplianceData//ShoeSize", "numeric_" + self.init_data['aa.talla'])
@@ -120,5 +121,11 @@ class ProductSerializer(DefaultSerializer):
     def get_age_range(self, data):
         if data == "3" or data == "5":
             return "Infantil"
+        else:
+            return "adult"
+
+    def get_age_range_shoes(self, data):
+        if data == "3" or data == "5":
+            return "toddler"
         else:
             return "adult"
