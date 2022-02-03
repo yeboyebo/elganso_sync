@@ -464,7 +464,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
         print("MEJOR COMBINACION ", str(mejor_combinacion))
 
         lineas_data = jsonDatos["items"]
-        disponibles = self.disponiboles_x_almacen(mejor_combinacion)
+        disponibles = self.disponibles_x_almacen(mejor_combinacion)
 
         for linea in lineas_data:
             barcode = self.get_barcode(linea["sku"])
@@ -558,7 +558,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
     def clave_disponible(self, almacen, barcode):
         return almacen["cod_almacen"] + "_X_" + barcode
 
-    def disponiboles_x_almacen(self, combinacion):
+    def disponibles_x_almacen(self, combinacion):
         disponibles = {}
         for almacen in combinacion:
             for barcode in almacen["disponibles"]:
@@ -571,7 +571,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
 
         max_puntos = len(lineas)
         total_disponible = 0
-        disponibles = self.disponiboles_x_almacen(combinacion)
+        disponibles = self.disponibles_x_almacen(combinacion)
         for linea in lineas:
             barcode = self.get_barcode(linea["sku"])
             for almacen in combinacion:
