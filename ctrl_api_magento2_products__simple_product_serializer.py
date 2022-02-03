@@ -14,7 +14,7 @@ class SimpleProductSerializer(DefaultSerializer):
             return self.get_serializador_store_es()
 
         talla = self.get_init_value("aa.talla")
-        self.set_string_relation("product//name", "lsc.descripcion")
+        self.set_string_relation("product//name", "a.descripcion")
         self.set_string_relation("product//weight", "a.peso")
         self.set_string_relation("product//price", "a.pvp")
 
@@ -45,12 +45,12 @@ class SimpleProductSerializer(DefaultSerializer):
 
         large_description = self.get_init_value("a.mgdescripcion")
         if large_description is False or large_description == "" or large_description is None or str(large_description) == "None":
-            large_description = self.get_init_value("lsc.descripcion")
+            large_description = self.get_init_value("a.descripcion")
 
         short_description = self.get_init_value("a.mgdescripcioncorta")
 
         if short_description is False or short_description == "" or short_description is None or str(short_description) == "None":
-            short_description = self.get_init_value("lsc.descripcion")
+            short_description = self.get_init_value("a.descripcion")
 
         custom_attributes = [
             {"attribute_code": "description", "value": large_description},
@@ -85,7 +85,7 @@ class SimpleProductSerializer(DefaultSerializer):
         return True
 
     def get_sku(self):
-        referencia = self.get_init_value("a.referencia")
+        referencia = self.get_init_value("aa.referencia")
         talla = self.get_init_value("aa.talla")
 
         if talla == "TU":
@@ -114,12 +114,12 @@ class SimpleProductSerializer(DefaultSerializer):
         if not desc_store or desc_store == "" or str(desc_store) == "None" or desc_store is None:
             desc_store = self.get_init_value("a.mgdescripcioncorta")
             if not desc_store or desc_store == "" or str(desc_store) == "None" or desc_store is None:
-                desc_store = self.get_init_value("lsc.descripcion")
+                desc_store = self.get_init_value("a.descripcion")
 
         if large_description_store is False or large_description_store == "" or large_description_store is None or str(large_description_store) == "None":
             large_description_store = self.get_init_value("a.mgdescripcion")
             if large_description_store is False or large_description_store == "" or large_description_store is None or str(large_description_store) == "None":
-                large_description_store = self.get_init_value("lsc.descripcion")
+                large_description_store = self.get_init_value("a.descripcion")
 
         self.set_string_value("product//name", desc_store)
 
@@ -152,11 +152,11 @@ class SimpleProductSerializer(DefaultSerializer):
 
         desc_store = self.get_init_value("a.mgdescripcioncorta")
         if not desc_store or desc_store == "" or str(desc_store) == "None" or desc_store is None:
-            desc_store = self.get_init_value("lsc.descripcion")
+            desc_store = self.get_init_value("a.descripcion")
 
         large_description_store = self.get_init_value("a.mgdescripcion")
         if large_description_store is False or large_description_store == "" or large_description_store is None or str(large_description_store) == "None":
-            large_description_store = self.get_init_value("lsc.descripcion")
+            large_description_store = self.get_init_value("a.descripcion")
 
         # self.set_string_value("product//name", desc_store)
 

@@ -11,6 +11,7 @@ from controllers.base.magento2.products.serializers.product_link_serializer impo
 class Mg2ProductsUpload(ProductsUpload):
 
     indice_colores = None
+    indiceconfigurable = 0
 
     def __init__(self, params=None):
         super().__init__("mg2ProductsUpload", params)
@@ -54,10 +55,18 @@ class Mg2ProductsUpload(ProductsUpload):
 
         aListaAlmacenes = self.dame_almacenessincroweb().split(",")
 
+        refConfig = qsatype.FLUtil.sqlSelect("articulos a INNER JOIN lineassincro_catalogo l on a.referencia = l.idobjeto", "referenciaconfigurable", "l.id = " + str(idlinea))
+
         q = qsatype.FLSqlQuery()
-        q.setSelect("lsc.id, lsc.idsincro, lsc.idobjeto, lsc.descripcion, a.pvp, a.peso, aa.barcode, aa.talla, t.indicecommunity, a.mgdescripcion, a.mgdescripcioncorta, a.egcomposicion, a.egsignoslavado, tp.gruporemarketing, gm.descripcion, a.egcolor, ic.indicecommunity, a.codtemporada, a.anno, a.mgmasinfo, a.mgtallamodelo, a.mgmedidasmodelo, a.referencia, a.configurable, a.referenciaconfigurable, aa.referencia")
-        q.setFrom("lineassincro_catalogo lsc INNER JOIN articulos a ON lsc.idobjeto = a.referencia LEFT JOIN articulos a2 on a.referenciaconfigurable = a2.referencia LEFT JOIN articulos a3 on a2.referencia = a3.referenciaconfigurable INNER JOIN atributosarticulos aa ON (a.referencia = aa.referencia or a3.referencia = aa.referencia) INNER JOIN indicessincrocatalogo t ON (aa.talla = t.valor and t.tipo = 'tallas') INNER JOIN indicessincrocatalogo ic ON (a.egcolor = ic.valor AND ic.tipo = 'colores') LEFT JOIN tiposprenda tp on tp.codtipoprenda = a.codtipoprenda LEFT JOIN gruposmoda gm on gm.codgrupomoda = a.codgrupomoda")
-        q.setWhere("lsc.id = {} GROUP BY lsc.id, lsc.idsincro, lsc.idobjeto, lsc.descripcion, a.pvp, a.peso, aa.barcode, aa.talla, t.indicecommunity, a.mgdescripcion, a.mgdescripcioncorta, a.egcomposicion, a.egsignoslavado, tp.gruporemarketing, gm.descripcion, a.egcolor, ic.indicecommunity,a.codtemporada, a.anno, a.mgmasinfo, a.mgtallamodelo, a.mgmedidasmodelo, a.referencia, a.configurable, a.referenciaconfigurable, aa.referencia ORDER BY lsc.id, lsc.idobjeto, aa.barcode, a.referencia".format(self.idlinea))
+
+        if (str(refConfig)) != "None":
+            q.setSelect("lsc.id, lsc.idsincro, lsc.idobjeto, a.descripcion, a.pvp, a.peso, aa.barcode, aa.talla, t.indicecommunity, a.mgdescripcion, a.mgdescripcioncorta, a.egcomposicion, a.egsignoslavado, tp.gruporemarketing, gm.descripcion, a.egcolor, ic.indicecommunity, a.codtemporada, a.anno, a.mgmasinfo, a.mgtallamodelo, a.mgmedidasmodelo, a.referencia, a3.configurable, a3.referenciaconfigurable, aa.referencia")
+            q.setFrom("lineassincro_catalogo lsc INNER JOIN articulos a3 ON lsc.idobjeto = a3.referencia INNER JOIN articulos a2 on a3.referenciaconfigurable = a2.referencia INNER JOIN articulos a on a2.referencia = a.referenciaconfigurable INNER JOIN atributosarticulos aa ON (a.referencia = aa.referencia) INNER JOIN indicessincrocatalogo t ON (aa.talla = t.valor and t.tipo = 'tallas') INNER JOIN indicessincrocatalogo ic ON (a.egcolor = ic.valor AND ic.tipo = 'colores') LEFT JOIN tiposprenda tp on tp.codtipoprenda = a.codtipoprenda LEFT JOIN gruposmoda gm on gm.codgrupomoda = a.codgrupomoda")
+            q.setWhere("lsc.id = {} GROUP BY lsc.id, lsc.idsincro, lsc.idobjeto, a.descripcion, a.pvp, a.peso, aa.barcode, aa.talla, t.indicecommunity, a.mgdescripcion, a.mgdescripcioncorta, a.egcomposicion, a.egsignoslavado, tp.gruporemarketing, gm.descripcion, a.egcolor, ic.indicecommunity, a.codtemporada, a.anno, a.mgmasinfo, a.mgtallamodelo, a.mgmedidasmodelo, a.referencia, a3.configurable, a3.referenciaconfigurable, aa.referencia".format(self.idlinea))
+        else:
+            q.setSelect("lsc.id, lsc.idsincro, lsc.idobjeto, a.descripcion, a.pvp, a.peso, aa.barcode, aa.talla, t.indicecommunity, a.mgdescripcion, a.mgdescripcioncorta, a.egcomposicion, a.egsignoslavado, tp.gruporemarketing, gm.descripcion, a.egcolor, ic.indicecommunity, a.codtemporada, a.anno, a.mgmasinfo, a.mgtallamodelo, a.mgmedidasmodelo, a.referencia, a.configurable, a.referenciaconfigurable, aa.referencia")
+            q.setFrom("lineassincro_catalogo lsc INNER JOIN articulos a ON lsc.idobjeto = a.referencia INNER JOIN atributosarticulos aa ON a.referencia = aa.referencia INNER JOIN indicessincrocatalogo t ON (aa.talla = t.valor and t.tipo = 'tallas') INNER JOIN indicessincrocatalogo ic ON (a.egcolor = ic.valor AND ic.tipo = 'colores') LEFT JOIN tiposprenda tp on tp.codtipoprenda = a.codtipoprenda LEFT JOIN gruposmoda gm on gm.codgrupomoda = a.codgrupomoda")
+            q.setWhere("lsc.id = {} GROUP BY lsc.id, lsc.idsincro, lsc.idobjeto, a.descripcion, a.pvp, a.peso, aa.barcode, aa.talla, t.indicecommunity, a.mgdescripcion, a.mgdescripcioncorta, a.egcomposicion, a.egsignoslavado, tp.gruporemarketing, gm.descripcion, a.egcolor, ic.indicecommunity, a.codtemporada, a.anno, a.mgmasinfo, a.mgtallamodelo, a.mgmedidasmodelo, a.referencia, a.configurable, a.referenciaconfigurable, aa.referencia".format(self.idlinea))
 
         q.exec_()
 
@@ -67,8 +76,10 @@ class Mg2ProductsUpload(ProductsUpload):
 
         body = self.fetch_query(q)
         self.idsincro = body[0]["lsc.idsincro"]
-        self.referencia = body[0]["a.referencia"]
+        self.referencia = body[0]["lsc.idobjeto"]
 
+        i = 0
+        print(str(i))
         for row in body:
             disponible = qsatype.FLUtil.sqlSelect("stocks", "sum(disponible)", "barcode = '" + row["aa.barcode"] + "' AND disponible > 0 AND codalmacen IN ('" + "', '".join(aListaAlmacenes) + "')")
 
@@ -80,10 +91,16 @@ class Mg2ProductsUpload(ProductsUpload):
 
             if row["ic.indicecommunity"] not in self.indice_colores:
                 self.indice_colores.append(row["ic.indicecommunity"])
-            
-            if str(row["a.referenciaconfigurable"]) != "None":
-                if str(row["a.configurable"]) != "True":
-                    self.sincronizarsimple = False
+
+            if (str(refConfig)) != "None":
+                if str(row["a3.referenciaconfigurable"]) != "None":
+                    if str(row["a3.configurable"]) != "True":
+                        self.sincronizarsimple = False
+            if str(row["lsc.idobjeto"]) == str(row["a.referencia"]):
+                self.indiceconfigurable = int(i)
+            i = i + 1
+
+        print(str(self.indiceconfigurable))
 
         return body
 
@@ -93,10 +110,13 @@ class Mg2ProductsUpload(ProductsUpload):
         if data == []:
             return data
 
+        '''
         data[0]["indice_tallas"] = self.indice_tallas
         data[0]["indice_colores"] = self.indice_colores
         data[0]["stock_disponible"] = self.stock_disponible
         data[0]["store_id"] = "all"
+
+        str(self.indiceconfigurable)
 
         configurable_product_default = self.get_configurable_product_serializer().serialize(data[0])
         data[0]["store_id"] = "ES"
@@ -106,8 +126,23 @@ class Mg2ProductsUpload(ProductsUpload):
         data[0]["store_id"] = "FR"
         configurable_product_fr = self.get_configurable_product_serializer().serialize(data[0])
         data[0]["store_id"] = "DE"
-        configurable_product_de = self.get_configurable_product_serializer().serialize(data[0])
-    
+        configurable_product_de = self.get_configurable_product_serializer().serialize(data[0])'''
+
+        data[self.indiceconfigurable]["indice_tallas"] = self.indice_tallas
+        data[self.indiceconfigurable]["indice_colores"] = self.indice_colores
+        data[self.indiceconfigurable]["stock_disponible"] = self.stock_disponible
+        data[self.indiceconfigurable]["store_id"] = "all"
+
+        configurable_product_default = self.get_configurable_product_serializer().serialize(data[self.indiceconfigurable])
+        data[self.indiceconfigurable]["store_id"] = "ES"
+        configurable_product_es = self.get_configurable_product_serializer().serialize(data[self.indiceconfigurable])
+        data[self.indiceconfigurable]["store_id"] = "EN"
+        configurable_product_en = self.get_configurable_product_serializer().serialize(data[self.indiceconfigurable])
+        data[self.indiceconfigurable]["store_id"] = "FR"
+        configurable_product_fr = self.get_configurable_product_serializer().serialize(data[self.indiceconfigurable])
+        data[self.indiceconfigurable]["store_id"] = "DE"
+        configurable_product_de = self.get_configurable_product_serializer().serialize(data[self.indiceconfigurable])
+
         if self.sincronizarsimple:
             simple_products_default = []
             simple_products_es = []
@@ -150,7 +185,7 @@ class Mg2ProductsUpload(ProductsUpload):
                 "simple_products_de": simple_products_de,
                 "product_links": product_links,
             }
-            
+
         return {
             "configurable_product_default": configurable_product_default,
             "configurable_product_es": configurable_product_es,
@@ -205,10 +240,10 @@ class Mg2ProductsUpload(ProductsUpload):
             print("---------------------")
 
         if data["configurable_product_fr"]:
-            self.send_request("post", url=product_url.format("fr"), data=json.dumps(data["configurable_product_fr"]))
+            # self.send_request("post", url=product_url.format("fr"), data=json.dumps(data["configurable_product_fr"]))
             self.send_request("post", url=product_url.format("intl_fr"), data=json.dumps(data["configurable_product_fr"]))
             self.send_request("post", url=product_url.format("fr_fr"), data=json.dumps(data["configurable_product_fr"]))
-            print(str(product_url.format("fr")))
+
             print(str(product_url.format("intl_fr")))
             print(str(product_url.format("fr_fr")))
             print(str(json.dumps(data["configurable_product_fr"])))
@@ -261,10 +296,10 @@ class Mg2ProductsUpload(ProductsUpload):
 
             if data["simple_products_fr"]:
                 for simple_product in data["simple_products_fr"]:
-                    self.send_request("post", url=product_url.format("fr"), data=json.dumps(simple_product))
+                    # self.send_request("post", url=product_url.format("fr"), data=json.dumps(simple_product))
                     self.send_request("post", url=product_url.format("intl_fr"), data=json.dumps(simple_product))
                     self.send_request("post", url=product_url.format("fr_fr"), data=json.dumps(simple_product))
-                    print(str(product_url.format("fr")))
+
                     print(str(product_url.format("intl_fr")))
                     print(str(product_url.format("fr_fr")))
                     print(str(json.dumps(simple_product)))
@@ -284,10 +319,12 @@ class Mg2ProductsUpload(ProductsUpload):
 
         if data["product_links"]:
             for product_link in data["product_links"]:
-                print(str(link_url.format(data["configurable_product_default"]["product"]["sku"])))
+                # print(str(link_url.format(data["configurable_product_default"]["product"]["sku"])))
+                print(str(link_url.format(self.referencia)))                
                 print(str(json.dumps(product_link)))
                 print("---------------------")
-                self.send_request("post", url=link_url.format(data["configurable_product_default"]["product"]["sku"]), data=json.dumps(product_link))
+                #self.send_request("post", url=link_url.format(data["configurable_product_default"]["product"]["sku"]), data=json.dumps(product_link))
+                self.send_request("post", url=link_url.format(self.referencia), data=json.dumps(product_link))
 
         try:
             self.send_request("get", url=get_url.format(self.referencia))

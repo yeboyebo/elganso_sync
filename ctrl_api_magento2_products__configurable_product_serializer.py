@@ -14,7 +14,7 @@ class ConfigurableProductSerializer(DefaultSerializer):
         elif self.get_init_value("store_id") == "ES":
             return self.get_serializador_store_es()
 
-        self.set_string_relation("product//name", "lsc.descripcion")
+        self.set_string_relation("product//name", "a.descripcion")
         self.set_string_relation("product//weight", "a.peso")
         self.set_string_relation("product//price", "a.pvp")
         self.set_string_relation("product//sku", "a.referencia")
@@ -30,12 +30,12 @@ class ConfigurableProductSerializer(DefaultSerializer):
 
         large_description = self.get_init_value("a.mgdescripcion")
         if large_description is False or large_description == "" or large_description is None or str(large_description) == "None":
-            large_description = self.get_init_value("lsc.descripcion")
+            large_description = self.get_init_value("a.descripcion")
 
         short_description = self.get_init_value("a.mgdescripcioncorta")
 
         if short_description is False or short_description == "" or short_description is None or str(short_description) == "None":
-            short_description = self.get_init_value("lsc.descripcion")
+            short_description = self.get_init_value("a.descripcion")
 
         custom_attributes = [
             {"attribute_code": "description", "value": large_description},
@@ -48,7 +48,8 @@ class ConfigurableProductSerializer(DefaultSerializer):
             {"attribute_code": "gruporemarketing", "value": self.get_init_value("tp.gruporemarketing")},
             {"attribute_code": "color", "value": self.get_init_value("ic.indicecommunity")},
             {"attribute_code": "product_tag", "value": "98"},
-            {"attribute_code": "season", "value": self.get_dametemporada()}
+            {"attribute_code": "season", "value": self.get_dametemporada()},
+            {"attribute_code": "default_color", "value": self.get_init_value("ic.indicecommunity")}
         ]
 
         talla_modelo = self.get_init_value("a.mgtallamodelo")
@@ -77,10 +78,10 @@ class ConfigurableProductSerializer(DefaultSerializer):
             }],
             "stock_item": {"is_in_stock": self.get_init_value("stock_disponible")}
         }
-        refConfigurable = self.get_init_value("a.referenciaconfigurable")
+        refConfigurable = self.get_init_value("a3.referenciaconfigurable")
         print("refConfigurable: ", refConfigurable)
-        print("CONFIGURABLE: ", self.get_init_value("a.configurable"))
-        if (self.get_init_value("a.configurable") is False or self.get_init_value("a.configurable") is None or str(self.get_init_value("a.configurable")) == "None") and (refConfigurable is False or refConfigurable == "" or refConfigurable is None or str(refConfigurable) == "None"):
+        
+        if (refConfigurable is False or refConfigurable == "" or refConfigurable is None or str(refConfigurable) == "None"):
             print("///////////ENTRAAAAA")
             extension_attributes = {
                 "configurable_product_options": [{
@@ -105,12 +106,12 @@ class ConfigurableProductSerializer(DefaultSerializer):
         if not desc_store or desc_store == "" or str(desc_store) == "None" or desc_store is None:
             desc_store = self.get_init_value("a.mgdescripcioncorta")
             if not desc_store or desc_store == "" or str(desc_store) == "None" or desc_store is None:
-                desc_store = self.get_init_value("lsc.descripcion")
+                desc_store = self.get_init_value("a.descripcion")
 
         if large_description_store is False or large_description_store == "" or large_description_store is None or str(large_description_store) == "None":
             large_description_store = self.get_init_value("a.mgdescripcion")
             if large_description_store is False or large_description_store == "" or large_description_store is None or str(large_description_store) == "None":
-                large_description_store = self.get_init_value("lsc.descripcion")
+                large_description_store = self.get_init_value("a.descripcion")
 
         self.set_string_relation("product//sku", "a.referencia")
         self.set_string_value("product//type_id", "configurable")
@@ -144,11 +145,11 @@ class ConfigurableProductSerializer(DefaultSerializer):
     def get_serializador_store_es(self):
         desc_store = self.get_init_value("a.mgdescripcioncorta")
         if not desc_store or desc_store == "" or str(desc_store) == "None" or desc_store is None:
-            desc_store = self.get_init_value("lsc.descripcion")
+            desc_store = self.get_init_value("a.descripcion")
 
         large_description_store = self.get_init_value("a.mgdescripcion")
         if large_description_store is False or large_description_store == "" or large_description_store is None or str(large_description_store) == "None":
-            large_description_store = self.get_init_value("lsc.descripcion")
+            large_description_store = self.get_init_value("a.descripcion")
 
         self.set_string_relation("product//sku", "a.referencia")
         # self.set_string_value("product//name", desc_store)
