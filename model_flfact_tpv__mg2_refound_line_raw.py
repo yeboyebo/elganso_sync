@@ -81,6 +81,14 @@ class Mg2RefoundLine(AQModel):
         cant_devuelta = parseFloat(qsatype.FLUtil.quickSqlSelect("tpv_lineascomanda", "SUM(cantdevuelta)", "barcode = '{}' AND idtpv_comanda = '{}'".format(cursor.valueBuffer("barcode"), idtpv_comanda_original)))
         cant_devuelta = cant_devuelta + (cursor.valueBuffer("cantidad") * (-1))
 
-        qsatype.FLSqlQuery().execSql("UPDATE tpv_lineascomanda SET cantdevuelta = {} WHERE cantdevuelta < cantidad AND barcode = '{}' AND idtpv_comanda = {}".format(cant_devuelta, cursor.valueBuffer("barcode"), idtpv_comanda_original))
+        total_lineas_barcode = parseFloat(qsatype.FLUtil.quickSqlSelect("tpv_lineascomanda", "COUNT(*)", "barcode = '{}' AND idtpv_comanda = '{}'".format(cursor.valueBuffer("barcode"), idtpv_comanda_original)))
+
+        cant_linea = int(cursor.valueBuffer("cantidad") * -1)
+        if total_lineas_barcode > 1:
+            for i in range(cant_linea):
+                idtpv_linea_sin_devolver = qsatype.FLUtil.quickSqlSelect("tpv_lineascomanda", "idtpv_linea", "barcode = '{}' AND idtpv_comanda = '{}' AND cantdevuelta < cantidad".format(cursor.valueBuffer("barcode"), idtpv_comanda_original))
+                qsatype.FLSqlQuery().execSql("UPDATE tpv_lineascomanda SET cantdevuelta = cantdevuelta + cantidad WHERE idtpv_linea = {}".format(idtpv_linea_sin_devolver))
+        else:
+            qsatype.FLSqlQuery().execSql("UPDATE tpv_lineascomanda SET cantdevuelta = {} WHERE cantdevuelta < cantidad AND barcode = '{}' AND idtpv_comanda = {}".format(cant_devuelta, cursor.valueBuffer("barcode"), idtpv_comanda_original))
 
         return True

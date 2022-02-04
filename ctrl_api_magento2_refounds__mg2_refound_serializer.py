@@ -647,7 +647,7 @@ class Mg2RefoundsSerializer(DefaultSerializer):
                 raise NameError("Error CreditMemo. Devolucion ya realizada en una tienda.")
                 return False
 
-            cant_inicial = parseFloat(qsatype.FLUtil.quickSqlSelect("tpv_lineascomanda", "cantidad", "barcode = '{}' AND idtpv_comanda = '{}'".format(barcode_linea, idtpv_comanda_original)))
+            cant_inicial = parseFloat(qsatype.FLUtil.quickSqlSelect("tpv_lineascomanda", "SUM(cantidad)", "barcode = '{}' AND idtpv_comanda = '{}'".format(barcode_linea, idtpv_comanda_original)))
 
             cant_devuelta = parseFloat(qsatype.FLUtil.quickSqlSelect("tpv_lineascomanda", "SUM(cantdevuelta)", "barcode = '{}' AND idtpv_comanda = '{}'".format(barcode_linea, idtpv_comanda_original)))
 
