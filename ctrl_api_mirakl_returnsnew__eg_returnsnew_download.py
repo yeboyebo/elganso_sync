@@ -56,6 +56,7 @@ class EgMiraklReturnsNewDownload(ReturnsDownload):
                     continue
 
                 bodyMensaje = str(data["body"])
+                print("*******BODYMENSAJE 1******: ", bodyMensaje)
                 bodyMensaje = bodyMensaje.replace("\"", "__aqcomillas__")
                 bodyMensaje = bodyMensaje.replace("'", "\"")
                 bodyMensaje = bodyMensaje.replace("__aqcomillas__", "'")
@@ -93,6 +94,7 @@ class EgMiraklReturnsNewDownload(ReturnsDownload):
         idComandaO = qsatype.FLUtil.quickSqlSelect("ew_ventaseciweb", "idtpv_comanda", "idweb = '{}'".format(data["order_id"]))
 
         bodyMensaje = str(data["body"])
+        print("*******BODYMENSAJE 2******: ", bodyMensaje)
         bodyMensaje = bodyMensaje.replace("\"", "__aqcomillas__")
         bodyMensaje = bodyMensaje.replace("'", "\"")
         bodyMensaje = bodyMensaje.replace("__aqcomillas__", "'")
