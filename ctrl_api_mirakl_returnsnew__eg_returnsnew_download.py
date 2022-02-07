@@ -130,32 +130,41 @@ class EgMiraklReturnsNewDownload(ReturnsDownload):
         return True
 
     def masAccionesProcessData(self, eciweb_data):
+        print("*************masAccionesProcessData")
         eciweb_data["datosdevol"] = json.loads(json.dumps(eciweb_data["datosdevol"]))
+        print("*************masAccionesProcessData 1")
         return_data = self.get_return_serializer().serialize(eciweb_data)
+        print("*************masAccionesProcessData 2")
         if not return_data:
             return False
-
+        print("*************masAccionesProcessData 3")
         return_data["valdemoro"] = False
         objReturn = EgReturn(return_data)
+        print("*************masAccionesProcessData 4")
         objReturn.save()
+        print("*************masAccionesProcessData 5")
         idtpvDevol = objReturn.cursor.valueBuffer("idtpv_comanda")
-        codComandaDevol = qsatype.FLUtil.quickSqlSelect("tpv_comandas", "codcomandaDevol", "idtpv_comanda = '{}'".format(idtpvDevol))
+        print("*************masAccionesProcessData 6")
+        codComandaDevol = qsatype.FLUtil.quickSqlSelect("tpv_comandas", "codcomandadevol", "idtpv_comanda = '{}'".format(idtpvDevol))
+        print("*************masAccionesProcessData 7")
         idtpvVenta = qsatype.FLUtil.quickSqlSelect("tpv_comandas", "idtpv_comanda", "codigo = '{}'".format(codComandaDevol))
-
+        print("*************masAccionesProcessData 8")
         qL = qsatype.FLSqlQuery()
         qL.setSelect("barcode, cantidad")
         qL.setFrom("tpv_lineascomanda")
         qL.setWhere("idtpv_comanda = {}".format(idtpvDevol))
-
+        print("*************masAccionesProcessData 9")
         if not qL.exec_():
-            syncppal.iface.log("Error. Fallo la query al obtener los datos de devolución {}".format(idtpvDevol), "egmiraklreturns")
+            self.log("Error. Fallo la query al obtener los datos de devolución {}".format(idtpvDevol), "egmiraklreturns")
             return False
 
         while qL.first():
-            cantDev = qsatype.FLUtil.sqlSelect("tpv_lineascomanda", "cantdevuelta", "idtpv_comanda = {} AND barcode = '{}'".format(idtpvVenta, qL.value("barcode"))) + (int(qL.value("cantidad"))*-1)
+            print("*************masAccionesProcessData 10")
+            cantDev = qsatype.FLUtil.sqlSelect("tpv_lineascomanda", "cantdevuelta", "idtpv_comanda = {} AND barcode = '{}'".format(idtpvVenta, qL.value("barcode"))) + (int(qL.value("cantidad")) * -1)
+            print("*************masAccionesProcessData 11")
             if not qsatype.FLUtil.sqlUpdate("tpv_lineascomanda", ["cantdevuelta"], [cantDev], "idtpv_comanda = {} AND barcode = '{}'".format(idtpvVenta, qL.value("barcode"))):
                 return False
-
+        print("*************masAccionesProcessData 12")
         return objReturn.cursor.valueBuffer("idtpv_comanda")
 
     def get_return_serializer(self):
