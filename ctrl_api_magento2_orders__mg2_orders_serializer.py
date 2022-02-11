@@ -20,9 +20,11 @@ class Mg2OrdersSerializer(DefaultSerializer):
     def get_data(self):
         increment = str(self.init_data["increment_id"])
 
+        # self.dame_almacenes(self.init_data)
+
         if not self.actualizar_items_lineas():
             raise NameError("Error al actualizar el items de las lineas.")
-            return Falsess
+            return False
 
         codigo = "WEB{}".format(qsatype.FactoriaModulos.get("flfactppal").iface.cerosIzquierda(increment, 9))
 
@@ -438,7 +440,6 @@ class Mg2OrdersSerializer(DefaultSerializer):
             return "TU"
 
     def distribucion_almacenes(self):
-
         jsonDatos = self.init_data
 
         codpago = self.get_codpago()
@@ -461,7 +462,6 @@ class Mg2OrdersSerializer(DefaultSerializer):
 
         combinaciones_ordenadas = sorted(combinaciones, key=puntua_combinacion, reverse=False)
         mejor_combinacion = combinaciones_ordenadas[0]
-        print("MEJOR COMBINACION ", str(mejor_combinacion))
 
         lineas_data = jsonDatos["items"]
         disponibles = self.disponibles_x_almacen(mejor_combinacion)
@@ -510,6 +510,10 @@ class Mg2OrdersSerializer(DefaultSerializer):
             if not limite_pedido_minimo:
                 limite_pedido_minimo = 1000
 
+            pedidos_almacen = qsatype.FLUtil.quickSqlSelect("eg_lineasecommerceexcluidas e INNER JOIN tpv_comandas c ON e.codcomanda = c.codigo", "COUNT(*)", "e.codalmacen = '" + almacen["source_code"] + "' AND c.fecha = CURRENT_DATE")
+            if int(pedidos_almacen) >= int(limite_pedido_minimo):
+                continue
+
             barcodes = []
             lineas = {}
             ref_regalo = qsatype.FLUtil.quickSqlSelect("param_parametros", "valor", "nombre = 'ART_REGALOWEB'")
@@ -532,24 +536,26 @@ class Mg2OrdersSerializer(DefaultSerializer):
 
             jBarcodes = {}
             cant_disponible = 0
+            hay_disponible = False
             while q.next():
                 margen = margen_almacenes.get("RSTOCK_" + almacen["source_code"], 0)
                 cant_disponible = q.value("disponible") - margen
-                if cant_disponible < 0:
-                    cant_disponible = 0
-
+                if cant_disponible <= 0:
+                    continue
+                hay_disponible = True
                 jBarcodes[q.value("barcode")] = cant_disponible
 
-            almacenes.append({
-                "cod_almacen": almacen["source_code"],
-                "emailtienda": almacen["email"],
-                "total": 0,
-                "lineas": {},
-                "prioridad": 0.99 - indice * 0.01,
-                "codpais": almacen["country_id"],
-                "bajo_limite": limite_pedido_minimo,
-                "disponibles": jBarcodes
-            })
+            if hay_disponible:
+                almacenes.append({
+                    "cod_almacen": almacen["source_code"],
+                    "emailtienda": almacen["email"],
+                    "total": 0,
+                    "lineas": {},
+                    "prioridad": 0.99 - indice * 0.01,
+                    "codpais": almacen["country_id"],
+                    "bajo_limite": limite_pedido_minimo,
+                    "disponibles": jBarcodes
+                })
 
         print("///almacenes: ", str(almacenes))
 
@@ -568,12 +574,11 @@ class Mg2OrdersSerializer(DefaultSerializer):
 
     def puntos_productos_disponibles(self, combinacion):
         lineas = self.init_data["items"]
-
         max_puntos = len(lineas)
         total_disponible = 0
         disponibles = self.disponibles_x_almacen(combinacion)
         for linea in lineas:
-            barcode = self.get_barcode(linea["sku"])
+            barcode = linea["barcode"]
             for almacen in combinacion:
                 clave_disp = self.clave_disponible(almacen, barcode)
                 can_disponible = disponibles.get(self.clave_disponible(almacen, barcode), 0)
@@ -653,13 +658,16 @@ class Mg2OrdersSerializer(DefaultSerializer):
                 for i in range(item["cantidad"]):
                     sku = item["sku"]
                     cantidad = 1
+                    barcode = self.get_barcode(item["sku"])
                     iva = item["iva"]
                     pvptotaliva = item["pvptotaliva"] / item["cantidad"]
                     ivaincluido = item["ivaincluido"]
                     pvpunitarioiva = item["pvpunitarioiva"]
                     pvpsindtoiva = item["pvpsindtoiva"] / item["cantidad"]
-                    aItems.append({"sku": sku, "cantidad": cantidad, "iva": iva, "pvptotaliva": pvptotaliva, "ivaincluido": ivaincluido, "pvpunitarioiva": pvpunitarioiva, "pvpsindtoiva": pvpsindtoiva})
+                    aItems.append({"sku": sku, "cantidad": cantidad, "iva": iva, "pvptotaliva": pvptotaliva, "ivaincluido": ivaincluido, "pvpunitarioiva": pvpunitarioiva, "pvpsindtoiva": pvpsindtoiva, "barcode": barcode})
             else:
+                item["barcode"] = self.get_barcode(item["sku"])
                 aItems.append(item)
+
         self.init_data["items"] = aItems
         return True
