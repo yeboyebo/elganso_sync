@@ -187,13 +187,14 @@ class AzFeedsUpload(UploadSync, ABC):
         data = data.replace("\r", "\n")
         data = data.replace("|", "&#124;")
         data = data.replace("!", "&#33;")
-        data = data.replace("”", "&#34;")
+        data = data.replace("”", "&#8220;")
         data = data.replace("“", "&#8220;")
         data = data.replace("$", "&#36;")
         data = data.replace("%", "&#37;")
         data = data.replace("’", "&#39;")
         data = data.replace("(", "&#40;")
         data = data.replace(")", "&#41;")
+        data = data.replace("–", "&#8211;")
 
         data = data.replace("<br>", "\n")
 
