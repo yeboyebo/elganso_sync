@@ -16,7 +16,7 @@ class Mg2PaymentSerializer(DefaultSerializer):
         self.set_data_value("nogenerarasiento", True)
 
         self.set_string_value("estado", "Pagado")
-        self.set_string_value("codtienda", "AWEB")
+        self.set_string_value("codtienda", self.init_data["codtienda"])
         self.set_string_value("codtpv_agente", "0350")
         self.set_string_value("idtpv_arqueo", idarqueo, max_characters=8)
 

@@ -6,22 +6,23 @@ from controllers.base.default.serializers.default_serializer import DefaultSeria
 class Mg2CashCountSerializer(DefaultSerializer):
 
     def get_data(self):
-        idarqueo = qsatype.FLUtil.sqlSelect("tpv_arqueos", "idtpv_arqueo", "codtienda = 'AWEB' AND diadesde >= '{}' AND idasiento IS NULL ORDER BY diadesde ASC".format(self.init_data["fecha"]))
-
+  
+        idarqueo = qsatype.FLUtil.sqlSelect("tpv_arqueos", "idtpv_arqueo", "codtienda = '{}' AND diadesde >= '{}' AND idasiento IS NULL ORDER BY diadesde ASC".format(self.init_data["codtienda"],self.init_data["fecha"]))
+ 
         if idarqueo:
             self.data = {"idtpv_arqueo": idarqueo, "skip": True}
             return True
 
         fecha = qsatype.Date()
-        idarqueo = qsatype.FLUtil.sqlSelect("tpv_arqueos", "idtpv_arqueo", "codtienda = 'AWEB' AND diadesde = '{}'".format(fecha))
+        idarqueo = qsatype.FLUtil.sqlSelect("tpv_arqueos", "idtpv_arqueo", "codtienda = '{}' AND diadesde = '{}'".format(self.init_data["codtienda"],fecha))
 
         if idarqueo:
             self.data = {"idtpv_arqueo": idarqueo, "skip": True}
             return True
 
-        punto_venta = qsatype.FLUtil.sqlSelect("tpv_puntosventa", "codtpv_puntoventa", "codtienda = 'AWEB'")
+        punto_venta = qsatype.FLUtil.sqlSelect("tpv_puntosventa", "codtpv_puntoventa", "codtienda = '{}'".format(self.init_data["codtienda"]))
 
-        self.set_string_value("codtienda", "AWEB")
+        self.set_string_value("codtienda", self.init_data["codtienda"])
         self.set_string_value("codtpv_agenteapertura", "0350")
         self.set_string_value("ptoventa", punto_venta, max_characters=6)
         self.set_string_value("diadesde", fecha)
@@ -34,7 +35,7 @@ class Mg2CashCountSerializer(DefaultSerializer):
         self.set_data_value("idfactura", 0)
 
         fake_cursor = qsatype.FLSqlCursor("tpv_arqueos")
-        fake_cursor.select("codtienda = 'AWEB'")
+        fake_cursor.select("codtienda = '" + self.init_data["codtienda"] + "'")
         fake_cursor.first()
         fake_cursor.refreshBuffer()
 
