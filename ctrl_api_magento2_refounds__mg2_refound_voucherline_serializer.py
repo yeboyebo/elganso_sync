@@ -32,10 +32,10 @@ class Mg2RefoundVoucherLineSerializer(Mg2RefoundLineSerializer):
         self.set_data_value("ivaincluido", True)
         self.set_data_relation("iva", "tax_refunded")
 
-        pvpUnitario = parseFloat(self.init_data["vale_total"]) / ((100 + iva) / 100)
+        pvpUnitario = parseFloat(self.init_data["vale_total"]) / ((100 + iva) / 100) * self.init_data["tasaconv"]
         pvpSinDto = pvpUnitario
         pvpTotal = pvpSinDto
-        pvpUnitarioIva = parseFloat(self.init_data["vale_total"])
+        pvpUnitarioIva = parseFloat(self.init_data["vale_total"]) * self.init_data["tasaconv"]
         pvpSinDtoIva = pvpUnitarioIva
         pvpTotalIva = pvpUnitarioIva
 

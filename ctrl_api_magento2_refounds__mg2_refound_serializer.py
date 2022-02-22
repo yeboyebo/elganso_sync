@@ -40,6 +40,17 @@ class Mg2RefoundsSerializer(DefaultSerializer):
                 return False
             qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 5")
 
+            tasaconv = 1
+            divisa = str(self.init_data["currency"])
+
+            if divisa:
+                if divisa != "None" and divisa != "EUR" and divisa != "CLP":
+                    tasaconv = qsatype.FLUtil.quickSqlSelect("divisas", "tasaconv", "coddivisa = '{}'".format(divisa))
+                    if not tasaconv:
+                        tasaconv = 1
+
+            self.init_data["tasaconv"] = tasaconv
+
             self.crear_cabecera_comanda_devolucionweb(codigo)
             qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 6")
 
@@ -61,7 +72,8 @@ class Mg2RefoundsSerializer(DefaultSerializer):
             for line in self.init_data["items_refunded"]:
                 line.update({
                     "codcomanda": codigo,
-                    "tipo_linea": "refounded"
+                    "tipo_linea": "refounded",
+                    "tasaconv": tasaconv
                 })
 
                 line_data = Mg2RefoundLineSerializer().serialize(line)
@@ -73,7 +85,8 @@ class Mg2RefoundsSerializer(DefaultSerializer):
                 for linea in self.init_data["items_requested"]:
                     linea.update({
                         "codcomanda": codigo,
-                        "tipo_linea": "requested"
+                        "tipo_linea": "requested",
+                        "tasaconv": tasaconv
                     })
                     line_data = Mg2RefoundLineSerializer().serialize(linea)
                     self.data["children"]["lines"].append(line_data)
@@ -94,6 +107,16 @@ class Mg2RefoundsSerializer(DefaultSerializer):
                 self.data["children"]["creditmemo"] = True
             qsatype.debug(u"+++++++++++++++++++++++++++++++++++++++ 17")
         else:
+
+            tasaconv = 1
+            divisa = str(self.init_data["currency"])
+            if divisa:
+                if divisa != "None" and divisa != "EUR" and divisa != "CLP":
+                    tasaconv = qsatype.FLUtil.quickSqlSelect("divisas", "tasaconv", "coddivisa = '{}'".format(divisa))
+                    if not tasaconv:
+                        tasaconv = 1
+
+            self.init_data["tasaconv"] = tasaconv
 
             if "lines" not in self.data["children"]:
                 self.data["children"]["lines"] = []
@@ -149,9 +172,8 @@ class Mg2RefoundsSerializer(DefaultSerializer):
         region = self.init_data["pickup_address"]["region"]
         codDivisa = str(self.init_data["currency"])
 
-        totalIva = parseFloat(self.init_data["tax_refunded"])
-        # totalVenta = parseFloat(self.init_data["subtotal_refunded"]) - parseFloat(self.init_data["discount_refunded"]) - parseFloat(self.init_data["vale_total"]) + parseFloat(self.init_data["shipping_price"])
-        totalVenta = parseFloat(self.init_data["total_refunded"])
+        totalIva = parseFloat(self.init_data["tax_refunded"]) * self.init_data["tasaconv"]
+        totalVenta = parseFloat(self.init_data["total_refunded"]) * self.init_data["tasaconv"]
         totalNeto = totalVenta - totalIva
 
         if "items_requested" in self.init_data:
@@ -162,10 +184,10 @@ class Mg2RefoundsSerializer(DefaultSerializer):
         self.set_string_value("codserie", self.get_codserie(codpais, self.init_data["pickup_address"]["postcode"]))
         self.set_string_value("codejercicio", self.get_codejercicio(str(qsatype.Date())))
         self.set_string_value("codcomandadevol", str(codComandaDevol))
-        self.set_string_value("codtpv_puntoventa", "AWEB")
+        self.set_string_value("codtpv_puntoventa", self.get_puntoventa())
         self.set_string_value("codtpv_agente", "0350")
         self.set_string_value("codalmacen", "AWEB")
-        self.set_string_value("codtienda", "AWEB")
+        self.set_string_value("codtienda", self.get_codtienda())
         self.set_string_value("fecha", str(qsatype.Date())[:10])
         self.set_string_value("hora", self.get_hora(str(qsatype.Date())))
         self.set_string_value("nombrecliente", nombreCliente[:100] if nombreCliente else nombreCliente)
@@ -360,8 +382,24 @@ class Mg2RefoundsSerializer(DefaultSerializer):
             raise NameError("La devolucion ya tiene un pago creado.")
             return False
 
+        tasaconv = 1
+        divisa = str(self.init_data["currency"])
+        if divisa:
+            if divisa != "None" and divisa != "EUR" and divisa != "CLP":
+                tasaconv = qsatype.FLUtil.quickSqlSelect("divisas", "tasaconv", "coddivisa = '{}'".format(divisa))
+                if not tasaconv:
+                    tasaconv = 1
+
+        self.init_data["tasaconv"] = tasaconv
+
+        if str(self.init_data["store_id"]) == "13":
+            codtienda = self.get_codtienda()
+        else:
+            codtienda = "AWEB"
+
         self.data.update({
-            "fecha": qsatype.Date()
+            "fecha": qsatype.Date(),
+            "codtienda": codtienda
         })
         arqueo_web = Mg2CashCountSerializer().serialize(self.data)
 
@@ -384,16 +422,28 @@ class Mg2RefoundsSerializer(DefaultSerializer):
         if "items_requested" in self.init_data:
             self.set_string_value("pagado", "0")
         else:
-            self.set_string_value("pagado", float(self.init_data["total_pay"]) * (-1))
+            self.set_string_value("pagado", float(self.init_data["total_pay"] * self.init_data["tasaconv"]) * (-1))
 
         return True
 
     def crear_pagos_devolucionweb(self, arqueo_web, codigo):
+        tasaconv = 1
+        divisa = str(self.init_data["currency"])
+        if divisa:
+            if divisa != "None" and divisa != "EUR" and divisa != "CLP":
+                tasaconv = qsatype.FLUtil.quickSqlSelect("divisas", "tasaconv", "coddivisa = '{}'".format(divisa))
+                if not tasaconv:
+                    tasaconv = 1
+
+        self.init_data["tasaconv"] = tasaconv
+
         new_init_data = self.init_data.copy()
         new_init_data.update(
             {"idarqueo": arqueo_web["idtpv_arqueo"],
             "tipo_pago": "Negativo",
-            "codcomanda": codigo
+            "codcomanda": codigo,
+            "codtienda": self.get_codtienda(),
+            "puntoventa": self.get_puntoventa()
             }
         )
 
@@ -405,7 +455,9 @@ class Mg2RefoundsSerializer(DefaultSerializer):
             new_init_data.update(
                 {"idarqueo": arqueo_web["idtpv_arqueo"],
                 "tipo_pago": "Positivo",
-                "codcomanda": codigo
+                "codcomanda": codigo,
+                "codtienda": self.get_codtienda(),
+                "puntoventa": self.get_puntoventa()
                 }
             )
             pago_web = Mg2RefoundPaymentSerializer().serialize(new_init_data)
@@ -465,7 +517,7 @@ class Mg2RefoundsSerializer(DefaultSerializer):
         curMotivos.setValueBuffer("descripcion", self.get_descripcion(linea["sku"]))
         curMotivos.setValueBuffer("talla", self.get_talla(linea["sku"]))
         curMotivos.setValueBuffer("cantidad", parseFloat(linea["qty"]))
-        curMotivos.setValueBuffer("pvpunitarioiva", parseFloat(linea["original_price"]))
+        curMotivos.setValueBuffer("pvpunitarioiva", parseFloat(linea["original_price"] * self.init_data["tasaconv"]))
         curMotivos.setValueBuffer("idsincro", str(codigo) + "_" + str(curMotivos.valueBuffer("id")))
         curMotivos.setValueBuffer("motivos", str(linea["reason"]))
         curMotivos.setValueBuffer("sincronizada", True)
@@ -655,3 +707,13 @@ class Mg2RefoundsSerializer(DefaultSerializer):
                 raise NameError("Error CreditMemo. La cantidad de la devolucion mas lo devuelto supera la cantidad original de la venta.")
                 return False
         return True
+
+    def get_codtienda(self):
+        if str(self.init_data["store_id"]) == "13":
+            return qsatype.FLUtil.quickSqlSelect("mg_storeviews", "egcodtiendarebajas", "idmagento = '{}'".format(str(self.init_data["store_id"])))
+        return "AWEB"
+
+    def get_puntoventa(self):
+        if str(self.init_data["store_id"]) == "13":
+            return qsatype.FLUtil.quickSqlSelect("tpv_puntosventa", "codtpv_puntoventa", "codtienda = '{}'".format(str(self.get_codtienda())))
+        return "AWEB"

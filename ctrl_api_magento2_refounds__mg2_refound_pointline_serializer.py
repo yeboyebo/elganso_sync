@@ -7,7 +7,6 @@ from controllers.api.magento2.refounds.serializers.mg2_refound_line_serializer i
 class Mg2RefoundPointLineSerializer(Mg2RefoundLineSerializer):
 
     def get_data(self):
-
         if not self.init_data["points_used"] or str(self.init_data["points_used"]) == "None":
             return False
 
@@ -32,10 +31,10 @@ class Mg2RefoundPointLineSerializer(Mg2RefoundLineSerializer):
         self.set_data_value("ivaincluido", True)
         self.set_data_relation("iva", "iva")
 
-        pvpUnitario = (parseFloat(self.init_data["points_used"])) / ((100 + iva) / 100)
+        pvpUnitario = (parseFloat(self.init_data["points_used"])) / ((100 + iva) / 100) * self.init_data["tasaconv"]
         pvpSinDto = pvpUnitario
         pvpTotal = pvpSinDto
-        pvpUnitarioIva = (parseFloat(self.init_data["points_used"]))
+        pvpUnitarioIva = (parseFloat(self.init_data["points_used"])) * self.init_data["tasaconv"]
         pvpSinDtoIva = pvpUnitarioIva
         pvpTotalIva = pvpUnitarioIva
 

@@ -10,7 +10,6 @@ class Mg2RefoundDiscountLineSerializer(Mg2RefoundLineSerializer):
     bono = None
 
     def get_data(self):
-
         if str(self.init_data["cupon_bono"]) == "None":
             return False
 
@@ -38,14 +37,14 @@ class Mg2RefoundDiscountLineSerializer(Mg2RefoundLineSerializer):
         self.set_data_value("cantdevuelta", 0)
         self.set_data_value("cantidad", self.get_cantidad())
 
-        pvpUnitario = parseFloat(self.init_data["discount_refunded"]) / ((100 + iva) / 100)
+        pvpUnitario = parseFloat(self.init_data["discount_refunded"]) / ((100 + iva) / 100) * self.init_data["tasaconv"]
         pvpSinDto = pvpUnitario
         pvpTotal = pvpSinDto
-        pvpUnitarioIva = parseFloat(self.init_data["discount_refunded"])
+        pvpUnitarioIva = parseFloat(self.init_data["discount_refunded"]) * self.init_data["tasaconv"]
         pvpSinDtoIva = pvpUnitarioIva
         pvpTotalIva = pvpUnitarioIva
 
-        if str(self.init_data["tipo_linea"]) == "BonoPositivo":
+        if str(self.init_data["tipo_linea"]) == "BonoNegativo":
             pvpSinDto = pvpSinDto * (-1)
             pvpTotal = pvpTotal * (-1)
             pvpSinDtoIva = pvpUnitarioIva * (-1)

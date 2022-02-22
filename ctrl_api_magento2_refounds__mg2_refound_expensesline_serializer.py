@@ -6,6 +6,7 @@ from controllers.api.magento2.refounds.serializers.mg2_refound_line_serializer i
 class Mg2RefoundExpensesLineSerializer(Mg2RefoundLineSerializer):
 
     def get_data(self):
+
         if "shipping_price" not in self.init_data:
             return False
 
@@ -37,13 +38,13 @@ class Mg2RefoundExpensesLineSerializer(Mg2RefoundLineSerializer):
         self.set_data_relation("iva", "iva")
 
         cant_linea = self.get_cantidad()
-        pvpunitarioiva = parseFloat(shipping_price)
-        pvpsindtoiva = parseFloat(shipping_price)
-        pvptotaliva = parseFloat(shipping_price)
+        pvpunitarioiva = parseFloat(shipping_price) * self.init_data["tasaconv"]
+        pvpsindtoiva = parseFloat(shipping_price) * self.init_data["tasaconv"]
+        pvptotaliva = parseFloat(shipping_price) * self.init_data["tasaconv"]
 
-        pvpunitario = parseFloat(shipping_price)
-        pvpsindto = parseFloat(shipping_price)
-        pvptotal = parseFloat(shipping_price)
+        pvpunitario = parseFloat(shipping_price) * self.init_data["tasaconv"]
+        pvpsindto = parseFloat(shipping_price) * self.init_data["tasaconv"]
+        pvptotal = parseFloat(shipping_price) * self.init_data["tasaconv"]
         if iva and iva != 0:
             pvpunitario = pvpunitario / (1 + (parseFloat(iva) / 100))
             pvpsindto = pvpsindto / (1 + (parseFloat(iva) / 100))

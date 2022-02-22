@@ -22,12 +22,12 @@ class Mg2RefoundLineSerializer(DefaultSerializer):
         self.set_string_relation("codcomanda", "codcomanda", max_characters=12)
 
         cant = parseFloat(self.init_data["qty"])
-        pvpunitario = parseFloat(self.init_data["price"])
-        pvpsindto = parseFloat(self.init_data["price"]) * cant
-        pvptotal = parseFloat(self.init_data["price"]) * cant
-        pvpunitarioiva = parseFloat(self.init_data["original_price"])
-        pvpsindtoiva = parseFloat(self.init_data["original_price"]) * cant
-        pvptotaliva = parseFloat(self.init_data["original_price"]) * cant
+        pvpunitario = parseFloat(self.init_data["price"]) * self.init_data["tasaconv"]
+        pvpsindto = parseFloat(self.init_data["price"]) * self.init_data["tasaconv"] * cant
+        pvptotal = parseFloat(self.init_data["price"]) * self.init_data["tasaconv"] * cant
+        pvpunitarioiva = parseFloat(self.init_data["original_price"]) * self.init_data["tasaconv"]
+        pvpsindtoiva = parseFloat(self.init_data["original_price"]) * self.init_data["tasaconv"] * cant
+        pvptotaliva = parseFloat(self.init_data["original_price"]) * self.init_data["tasaconv"] * cant
 
         if self.init_data["tipo_linea"] == "refounded":
             pvpsindto = pvpsindto * (-1)
