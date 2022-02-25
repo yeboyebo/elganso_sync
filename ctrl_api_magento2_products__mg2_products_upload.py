@@ -46,7 +46,7 @@ class Mg2ProductsUpload(ProductsUpload):
     def get_db_data(self):
         body = []
 
-        idlinea = qsatype.FLUtil.sqlSelect("lineassincro_catalogo l inner join articulos a on l.idobjeto = a.referencia", "l.id", "l.tiposincro = 'Enviar productos' AND NOT l.sincronizado AND l.website = 'MG2' ORDER BY a.configurable,l.id LIMIT 100")
+        idlinea = qsatype.FLUtil.sqlSelect("lineassincro_catalogo l inner join articulos a on l.idobjeto = a.referencia", "l.id", "l.tiposincro = 'Enviar productos' AND NOT l.sincronizado AND l.website = 'MG2' ORDER BY a.configurable DESC,l.id LIMIT 100")
 
         if not idlinea:
             return body

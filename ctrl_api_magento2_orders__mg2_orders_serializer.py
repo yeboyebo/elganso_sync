@@ -458,43 +458,28 @@ class Mg2OrdersSerializer(DefaultSerializer):
             return True
 
         almacenes = self.dame_almacenes(jsonDatos)
-        print("Almacenes: ", almacenes)
-
-        print("****************************** distribucion_almacenes 0")
 
         def puntua_combinacion(combinacion):
-            print("****************************** distribucion_almacenes 0.0")
             puntos = 100000 * self.puntos_productos_disponibles(combinacion)
-            print("****************************** distribucion_almacenes 0.1")
             puntos += 10000 * self.puntos_cantidad_almacenes(combinacion, almacenes)
-            print("****************************** distribucion_almacenes 0.2")
             puntos += 1000 * self.puntos_almacen_local(jsonDatos, combinacion)
-            print("****************************** distribucion_almacenes 0.3")
             puntos += 100 * self.puntos_prioridad(combinacion, almacenes)
-            print("****************************** distribucion_almacenes 0.4")
             puntos += 10 * self.puntos_bajo_limite(combinacion, almacenes)
-            print("****************************** distribucion_almacenes 0.5")
             return puntos
 
-        print("****************************** distribucion_almacenes 1")
         combinaciones = self.combinaciones_almacenes(almacenes)
         if len(combinaciones) == 0:
             return True
 
-        print("****************************** distribucion_almacenes 2")
         combinaciones_ordenadas = sorted(combinaciones, key=puntua_combinacion, reverse=False)
-        print("****************************** distribucion_almacenes 3")
         mejor_combinacion = combinaciones_ordenadas[0]
         print("MEJOR COMBINACION: ", mejor_combinacion)
         lineas_data = jsonDatos["items"]
         disponibles = self.disponibles_x_almacen(mejor_combinacion)
-        print("****************************** distribucion_almacenes 4")
 
         for linea in lineas_data:
-            print("****************************** distribucion_almacenes 4.1")
             barcode = self.get_barcode(linea["sku"])
             for almacen in mejor_combinacion:
-                print("****************************** distribucion_almacenes 4.2")
                 clave_disp = self.clave_disponible(almacen, barcode)
                 can_disponible = disponibles.get(clave_disp, 0)
                 if can_disponible > 0:
@@ -503,7 +488,6 @@ class Mg2OrdersSerializer(DefaultSerializer):
                     linea["emailtienda"] = almacen["emailtienda"]
                     break
 
-        print("****************************** distribucion_almacenes OK")
         return True
 
     def dame_almacenes(self, jsonDatos):
@@ -519,7 +503,6 @@ class Mg2OrdersSerializer(DefaultSerializer):
         q.exec_()
 
         if not q.size():
-            print("Return 1")
             return True
 
         margen_almacenes = {}
@@ -616,8 +599,6 @@ class Mg2OrdersSerializer(DefaultSerializer):
                     })
 
         self.barcodes_con_stock = qsatype.FLUtil.quickSqlSelect("atributosarticulos", "COUNT(*)", "barcode IN (SELECT barcode FROM stocks WHERE disponible > 0 AND codalmacen IN ({}) AND barcode IN ({}) GROUP BY barcode)".format(self.cod_almacenes, self.barcodes_lineas))
-
-        print("///almacenes: ", str(almacenes))
 
         return almacenes
 
