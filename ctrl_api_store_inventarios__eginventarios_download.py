@@ -23,7 +23,7 @@ class EgStoreInventariosDownload(DownloadSync):
         data = []
         print("///////////////// get_data")
 
-        where = "codalmacen = '{}' AND NOT sincronizado AND fecha >= '2022-01-01' AND enviado ORDER BY fecha, hora LIMIT 3".format(self.codtienda)
+        where = "codalmacen = '{}' AND (NOT sincronizado OR sincronizado is null) AND fecha >= '2022-01-01' AND enviado ORDER BY fecha, hora LIMIT 3".format(self.codtienda)
         print("///////////////// get_data where: " + str(where))
 
         cabeceras = self.execute("SELECT * FROM eg_inventarios WHERE {}".format(where))
