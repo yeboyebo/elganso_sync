@@ -17,9 +17,14 @@ from controllers.api.magento2.orders.serializers.mg2_discountunknownline_seriali
 
 
 class Mg2OrdersSerializer(DefaultSerializer):
+    cod_almacenes = ""
+    barcodes_lineas = ""
+    barcodes_con_stock = 0
     def get_data(self):
         increment = str(self.init_data["increment_id"])
-
+        self.cod_almacenes = ""
+        self.barcodes_lineas = ""
+        self.barcodes_con_stock = 0
         # self.dame_almacenes(self.init_data)
 
         if not self.actualizar_items_lineas():
@@ -453,28 +458,43 @@ class Mg2OrdersSerializer(DefaultSerializer):
             return True
 
         almacenes = self.dame_almacenes(jsonDatos)
+        print("Almacenes: ", almacenes)
+
+        print("****************************** distribucion_almacenes 0")
 
         def puntua_combinacion(combinacion):
+            print("****************************** distribucion_almacenes 0.0")
             puntos = 100000 * self.puntos_productos_disponibles(combinacion)
+            print("****************************** distribucion_almacenes 0.1")
             puntos += 10000 * self.puntos_cantidad_almacenes(combinacion, almacenes)
+            print("****************************** distribucion_almacenes 0.2")
             puntos += 1000 * self.puntos_almacen_local(jsonDatos, combinacion)
+            print("****************************** distribucion_almacenes 0.3")
             puntos += 100 * self.puntos_prioridad(combinacion, almacenes)
+            print("****************************** distribucion_almacenes 0.4")
             puntos += 10 * self.puntos_bajo_limite(combinacion, almacenes)
+            print("****************************** distribucion_almacenes 0.5")
             return puntos
 
+        print("****************************** distribucion_almacenes 1")
         combinaciones = self.combinaciones_almacenes(almacenes)
         if len(combinaciones) == 0:
             return True
 
+        print("****************************** distribucion_almacenes 2")
         combinaciones_ordenadas = sorted(combinaciones, key=puntua_combinacion, reverse=False)
+        print("****************************** distribucion_almacenes 3")
         mejor_combinacion = combinaciones_ordenadas[0]
-
+        print("MEJOR COMBINACION: ", mejor_combinacion)
         lineas_data = jsonDatos["items"]
         disponibles = self.disponibles_x_almacen(mejor_combinacion)
+        print("****************************** distribucion_almacenes 4")
 
         for linea in lineas_data:
+            print("****************************** distribucion_almacenes 4.1")
             barcode = self.get_barcode(linea["sku"])
             for almacen in mejor_combinacion:
+                print("****************************** distribucion_almacenes 4.2")
                 clave_disp = self.clave_disponible(almacen, barcode)
                 can_disponible = disponibles.get(clave_disp, 0)
                 if can_disponible > 0:
@@ -483,6 +503,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
                     linea["emailtienda"] = almacen["emailtienda"]
                     break
 
+        print("****************************** distribucion_almacenes OK")
         return True
 
     def dame_almacenes(self, jsonDatos):
@@ -511,14 +532,21 @@ class Mg2OrdersSerializer(DefaultSerializer):
         lineas_data = self.init_data["items"]
         almacenes = []
 
+        # combinaciones_almacen = {}
+        indice_limite = 0
+        limite_sobrepasado = False
         for indice, almacen in enumerate(jsonDatos["almacenes"]):
+            limite_sobrepasado = False
             limite_pedido_minimo = qsatype.FLUtil.quickSqlSelect("param_parametros", "valor", "nombre = 'LPEDIDO_" + almacen["source_code"] + "'")
             if not limite_pedido_minimo:
                 limite_pedido_minimo = 1000
 
-            pedidos_almacen = qsatype.FLUtil.quickSqlSelect("eg_lineasecommerceexcluidas e INNER JOIN tpv_comandas c ON e.codcomanda = c.codigo", "COUNT(*)", "e.codalmacen = '" + almacen["source_code"] + "' AND c.fecha = CURRENT_DATE")
+            # pedidos_almacen = qsatype.FLUtil.quickSqlSelect("eg_lineasecommerceexcluidas e INNER JOIN tpv_comandas c ON e.codcomanda = c.codigo", "COUNT(*)", "e.codalmacen = '" + almacen["source_code"] + "' AND c.fecha = CURRENT_DATE")
+            pedidos_almacen = qsatype.FLUtil.quickSqlSelect("tpv_comandas", "COUNT(*)", "fecha = CURRENT_DATE AND codigo like 'WEB%' and codtienda in ('AWEB','AWCL') and idtpv_comanda in (select c.idtpv_comanda from eg_lineasecommerceexcluidas le inner join tpv_lineascomanda l on le.idtpv_linea = l.idtpv_linea inner join tpv_comandas c on (l.idtpv_comanda = c.idtpv_comanda and le.codcomanda = c.codigo) WHERE le.codalmacen = '" + almacen["source_code"] + "' and c.fecha = CURRENT_DATE AND c.codigo like 'WEB%' and c.codtienda in ('AWEB','AWCL') group by c.idtpv_comanda)")
+            # limite_sobrepasado = int(pedidos_almacen) >= int(limite_pedido_minimo)
             if int(pedidos_almacen) >= int(limite_pedido_minimo):
-                continue
+                limite_sobrepasado = True
+                indice_limite += len(jsonDatos["almacenes"])
 
             barcodes = []
             lineas = {}
@@ -533,7 +561,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
             q = qsatype.FLSqlQuery()
             q.setSelect(u"barcode, disponible")
             q.setFrom(u"stocks")
-            q.setWhere(u"codalmacen = '" + almacen["source_code"] + "' AND barcode IN ('" + "', '".join(barcodes) + "')")
+            q.setWhere(u"codalmacen = '" + almacen["source_code"] + "' AND barcode IN ('" + "', '".join(barcodes) + "') ORDER BY barcode")
 
             q.exec_()
 
@@ -543,7 +571,9 @@ class Mg2OrdersSerializer(DefaultSerializer):
             jBarcodes = {}
             cant_disponible = 0
             hay_disponible = False
+            # mi_combinacion = str(limite_sobrepasado)
             while q.next():
+                
                 #margen = margen_almacenes.get("RSTOCK_" + almacen["source_code"], 0)
                 margen = 0
                 cant_disponible = q.value("disponible") - margen
@@ -551,18 +581,41 @@ class Mg2OrdersSerializer(DefaultSerializer):
                     continue
                 hay_disponible = True
                 jBarcodes[q.value("barcode")] = cant_disponible
+                # mi_combinacion += q.value("barcode") + "-" + str(cant_disponible) + ";"
 
+
+            #if hay_disponible and mi_combinacion not in combinaciones_almacen:
             if hay_disponible:
-                almacenes.append({
-                    "cod_almacen": almacen["source_code"],
-                    "emailtienda": almacen["email"],
-                    "total": 0,
-                    "lineas": {},
-                    "prioridad": 0.99 - indice * 0.01,
-                    "codpais": almacen["country_id"],
-                    "bajo_limite": limite_pedido_minimo,
-                    "disponibles": jBarcodes
-                })
+                # combinaciones_almacen[mi_combinacion] = True
+                if self.cod_almacenes == "":
+                    self.cod_almacenes = "'" + almacen["source_code"] + "'"
+                else:
+                    self.cod_almacenes += ",'" + almacen["source_code"] + "'"
+
+                if limite_sobrepasado:
+                    almacenes.append({
+                        "cod_almacen": almacen["source_code"],
+                        "emailtienda": almacen["email"],
+                        "total": 0,
+                        "lineas": {},
+                        "prioridad": 0.99 - indice_limite * 0.01,
+                        "codpais": almacen["country_id"],
+                        "bajo_limite": limite_pedido_minimo,
+                        "disponibles": jBarcodes
+                    })
+                else:
+                    almacenes.append({
+                        "cod_almacen": almacen["source_code"],
+                        "emailtienda": almacen["email"],
+                        "total": 0,
+                        "lineas": {},
+                        "prioridad": 0.99 - indice * 0.01,
+                        "codpais": almacen["country_id"],
+                        "bajo_limite": limite_pedido_minimo,
+                        "disponibles": jBarcodes
+                    })
+
+        self.barcodes_con_stock = qsatype.FLUtil.quickSqlSelect("atributosarticulos", "COUNT(*)", "barcode IN (SELECT barcode FROM stocks WHERE disponible > 0 AND codalmacen IN ({}) AND barcode IN ({}) GROUP BY barcode)".format(self.cod_almacenes, self.barcodes_lineas))
 
         print("///almacenes: ", str(almacenes))
 
@@ -582,6 +635,8 @@ class Mg2OrdersSerializer(DefaultSerializer):
     def puntos_productos_disponibles(self, combinacion):
         lineas = self.init_data["items"]
         max_puntos = len(lineas)
+        if len(lineas) > self.barcodes_con_stock:
+            max_puntos = len(lineas) - (len(lineas) - self.barcodes_con_stock)
         total_disponible = 0
         disponibles = self.disponibles_x_almacen(combinacion)
         for linea in lineas:
@@ -640,12 +695,14 @@ class Mg2OrdersSerializer(DefaultSerializer):
         return result
 
     def combinacion_viable(self, combinacion):
-        return self.puntos_productos_disponibles(combinacion) == 10
+        puntos = self.puntos_productos_disponibles(combinacion)
+        return puntos == 10
 
     def combinaciones_almacenes(self, almacenes):
         from itertools import combinations
         result = []
         for can_almacenes in range(1, len(almacenes) + 1):
+        # for can_almacenes in range(1, 4):
             combinaciones = combinations(almacenes, can_almacenes)
             hay_viables = False
             for c in combinaciones:
@@ -677,6 +734,13 @@ class Mg2OrdersSerializer(DefaultSerializer):
                 aItems.append(item)
 
         self.init_data["items"] = aItems
+
+        self.barcodes_lineas = ""
+        for linea in aItems:
+            if self.barcodes_lineas == "":
+                self.barcodes_lineas = "'" + linea["barcode"] + "'"
+            else:
+                self.barcodes_lineas += ",'" + linea["barcode"] + "'"
         return True
 
     def get_codtienda(self):
