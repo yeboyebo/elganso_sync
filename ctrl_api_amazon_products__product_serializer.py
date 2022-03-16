@@ -48,6 +48,7 @@ class ProductSerializer(DefaultSerializer):
             self.set_string_value("Product//ProductData//Clothing//ClassificationData//OuterMaterial", "material")
             self.set_string_value("Product//ProductData//Clothing//ClassificationData//CountryOfOrigin", "ES")
             self.set_string_relation("Product//ProductData//Clothing//ClassificationData//SizeMap", "aa.talla")
+            self.set_string_relation("Product//ProductData//Clothing//ClassificationData//FabricType", "a.egcomposicion")
             self.set_string_value("Product//ProductData//Clothing//ClassificationData//TargetGender", self.get_target(self.init_data["a.codgrupomoda"]))
 
             edad = self.get_age_range(self.init_data["a.codgrupomoda"])
