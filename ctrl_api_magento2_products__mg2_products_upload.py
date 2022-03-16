@@ -211,10 +211,10 @@ class Mg2ProductsUpload(ProductsUpload):
         get_url = self.get_url if self.driver.in_production else self.get_test_url
 
         if data["configurable_product_default"]:
-            self.send_request("post", url=product_url.format("all"), data=json.dumps(data["configurable_product_default"]))
             print(str(product_url.format("all")))
             print(str(json.dumps(data["configurable_product_default"])))
             print("---------------------")
+            self.send_request("post", url=product_url.format("all"), data=json.dumps(data["configurable_product_default"]))
 
         '''if data["configurable_product_es"]:
             self.send_request("post", url=product_url.format("es"), data=json.dumps(data["configurable_product_es"]))
@@ -347,9 +347,9 @@ class Mg2ProductsUpload(ProductsUpload):
             else:
                 where_almacenes += ",'" + str(lista_almacenes[idx]) + "'"
 
-        qsatype.FLSqlQuery().execSql("UPDATE eg_sincrostockwebinmediato set sincronizado = false where sincronizado = true AND idstock in (select idstock from stocks where referencia = '" + self.referencia + "' AND codalmacen IN (" + where_almacenes + "))")
+        qsatype.FLSqlQuery().execSql("UPDATE eg_sincrostockweb set sincronizado = false where sincronizado = true AND idstock in (select idstock from stocks where referencia = '" + self.referencia + "' AND codalmacen IN (" + where_almacenes + "))")
 
-        qsatype.FLSqlQuery().execSql("INSERT into eg_sincrostockwebinmediato (fecha, hora, sincronizado, idstock) (SELECT CURRENT_DATE, CURRENT_TIME, false, s.idstock FROM stocks s left outer join eg_sincrostockwebinmediato e on s.idstock = e.idstock WHERE s.referencia = '" + self.referencia + "' AND s.codalmacen IN (" + where_almacenes + ") AND e.idssw is null)")
+        qsatype.FLSqlQuery().execSql("INSERT into eg_sincrostockweb (fecha, hora, sincronizado, idstock) (SELECT CURRENT_DATE, CURRENT_TIME, false, s.idstock FROM stocks s left outer join eg_sincrostockweb e on s.idstock = e.idstock WHERE s.referencia = '" + self.referencia + "' AND s.codalmacen IN (" + where_almacenes + ") AND e.idssw is null)")
 
         lineas_no_sincro = qsatype.FLUtil.sqlSelect("lineassincro_catalogo", "id", "idsincro = '{}' AND NOT sincronizado LIMIT 1".format(self.idsincro))
 

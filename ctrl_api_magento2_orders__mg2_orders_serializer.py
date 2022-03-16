@@ -533,10 +533,23 @@ class Mg2OrdersSerializer(DefaultSerializer):
 
             barcodes = []
             lineas = {}
-            ref_regalo = qsatype.FLUtil.quickSqlSelect("param_parametros", "valor", "nombre = 'ART_REGALOWEB'")
+            ref_regalo = qsatype.FLUtil.quickSqlSelect("param_parametros", "valor", "nombre = 'ART_REGALOWEB'")            
+            aRegalo = ref_regalo.split(",")
+            paramRegalo = False
+            if len(aRegalo) > 0:
+                paramRegalo = True
+                
+            esRegalo = False
+
             for linea_data in lineas_data:
                 referencia = self.get_referencia(linea_data["sku"])
-                if str(ref_regalo)[1:-1] != str(referencia):
+                
+                if paramRegalo:
+                    for i in range(len(aRegalo)):
+                        if str(aRegalo[i][1:-1]) == str(referencia):
+                            esRegalo = True
+
+                if not esRegalo:
                     barcode = self.get_barcode(linea_data["sku"])
                     barcodes.append(barcode)
                     lineas[barcode] = linea_data["cantidad"]

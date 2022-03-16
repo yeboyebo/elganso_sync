@@ -21,5 +21,6 @@ class Mg2LineaEcommerceExcluidaSerializer(DefaultSerializer):
         self.set_string_relation("codcomanda", "codcomanda", max_characters=15)
         self.set_string_value("viajecreado", False)
         self.set_string_value("correoenviado", False)
+        self.set_string_value("faltantecreada", False)
 
         return True
