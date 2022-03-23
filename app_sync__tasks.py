@@ -73,6 +73,7 @@ from controllers.api.magento2.products_upload.controllers.mg2_products_process i
 from controllers.api.magento2.delete_special_price.controllers.mg2_delete_special_price_upload import Mg2DeleteSpecialPriceUpload
 from controllers.api.magento2.delete_tierprice.controllers.mg2_delete_tierprice_upload import Mg2DeleteTierPriceUpload
 from controllers.api.magento2.stock_incremental_night.controllers.mg2_stock_incremental_night_upload import Mg2StockIncrementalNightUpload
+from controllers.api.magento2.inventory_canal.controllers.mg2_inventorycanal_upload import Mg2InventoryCanalUpload
 
 sync_object_dict = {
     "stock_upload": {
@@ -246,6 +247,9 @@ sync_object_dict = {
     },
     "mg2_stock_incremental_night_upload": {
         "sync_object": Mg2StockIncrementalNightUpload
+    },
+    "mg2_inventorycanal_upload": {
+        "sync_object": Mg2InventoryCanalUpload
     }
 }
 

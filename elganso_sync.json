@@ -1271,6 +1271,18 @@
             {
                 "name": "model_flfactalma__eg_sincrostockwebcanalweb_def.py",
                 "path": "models/flfactalma/"
+            },
+            {
+                "name": "ctrl_api_magento2_inventory_canal__upload.py",
+                "path": "controllers/api/magento2/inventory_canal/"
+            },
+            {
+                "name": "ctrl_api_magento2_inventory_canal__inventorycanal_serializer.py",
+                "path": "controllers/api/magento2/inventory_canal/serializers/"
+            },
+            {
+                "name": "ctrl_api_magento2_inventory_canal__mg2_inventorycanal_upload.py",
+                "path": "controllers/api/magento2/inventory_canal/controllers/"
             }
         ],
         "deleteFile": [],
