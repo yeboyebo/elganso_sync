@@ -7,6 +7,7 @@ class Mg2PriceUpload(PriceUpload):
 
     error = False
     _idls = None
+    idsReferencia = None
 
     def __init__(self, params=None):
         super().__init__("mg2price", params)
@@ -27,6 +28,7 @@ class Mg2PriceUpload(PriceUpload):
 
         new_price = []
         idObjeto = None
+        refArticulo = False
         for idx in range(len(data)):
             price = self.get_price_serializer().serialize(data[idx])
             new_price.append(price)
@@ -37,6 +39,17 @@ class Mg2PriceUpload(PriceUpload):
             if str(data[idx]["ls.id"]) != idObjeto:
                 idObjeto = str(data[idx]["ls.id"])
                 self._idls += "," + str(data[idx]["ls.id"])
+
+            if not refArticulo:
+                refArticulo = str(data[idx]["ls.idobjeto"].split("-")[0])
+                self.idsReferencia = "'" + refArticulo + "'"
+            else:
+                if str(data[idx]["ls.idobjeto"].split("-")[0]) != refArticulo:
+                    refArticulo = str(data[idx]["ls.idobjeto"].split("-")[0])
+                    if self.idsReferencia == None:
+                        self.idsReferencia = "'" + refArticulo + "'"
+                    else:
+                        self.idsReferencia += ",'" + refArticulo + "'"
 
         if not new_price:
             return False
@@ -109,11 +122,12 @@ class Mg2PriceUpload(PriceUpload):
 
     def after_sync(self, response_data=None):
         print("SSW: ", self._idls)
+        print("REFERNCIAS: ", self.idsReferencia)
         if self.error:
             self.log("Error", "No se pudo sincronizar las tarifas de articulos: {})".format(self._idls))
             return self.small_sleep
 
-        qsatype.FLSqlQuery().execSql("UPDATE articulostarifas SET sincronizado = TRUE WHERE sincronizado = FALSE AND ((fechamod < '{}' OR (fechamod = '{}' AND horamod <= '{}')) OR (fechaalta < '{}' OR (fechaalta = '{}' AND horaalta <= '{}')))".format(self.start_date, self.start_date, self.start_time, self.start_date, self.start_date, self.start_time))
+        qsatype.FLSqlQuery().execSql("UPDATE articulostarifas SET sincronizado = TRUE WHERE referencia IN ({}) AND sincronizado = FALSE AND ((fechamod < '{}' OR (fechamod = '{}' AND horamod <= '{}')) OR (fechaalta < '{}' OR (fechaalta = '{}' AND horaalta <= '{}')))".format(self.idsReferencia, self.start_date, self.start_date, self.start_time, self.start_date, self.start_date, self.start_time))
         qsatype.FLSqlQuery().execSql("UPDATE tpv_fechasincrotienda SET fechasincro = '{}', horasincro = '{}' WHERE codtienda = 'AWEB' AND esquema = 'PRICES_WEB'".format(self.start_date, self.start_time))
         qsatype.FLSqlQuery().execSql("UPDATE lineassincro_catalogo SET sincronizado = TRUE WHERE id IN ({})".format(self._idls))
 
