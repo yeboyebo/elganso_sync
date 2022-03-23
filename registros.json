@@ -258,6 +258,13 @@
         },
         {
             "type": "insertAfterNode",
+            "path": "/flfactalma/articulostarifas",
+            "value": {
+                "eg_sincrostockwebcanalweb": null
+            }
+        },
+        {
+            "type": "insertAfterNode",
             "path": "/flfactppal/usuarios",
             "value": {
                 "solicitudescliente": null

@@ -1263,6 +1263,14 @@
             {
                 "name": "model_flfact_tpv__egstoreinventario_raw.py",
                 "path": "models/flfact_tpv/objects/"
+            },
+            {
+                "name": "model_flfactalma__eg_sincrostockwebcanalweb.py",
+                "path": "models/flfactalma/"
+            },
+            {
+                "name": "model_flfactalma__eg_sincrostockwebcanalweb_def.py",
+                "path": "models/flfactalma/"
             }
         ],
         "deleteFile": [],

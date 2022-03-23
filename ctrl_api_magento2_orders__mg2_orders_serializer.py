@@ -507,12 +507,39 @@ class Mg2OrdersSerializer(DefaultSerializer):
 
         margen_almacenes = {}
         pais_almacenes = {}
+        
+        ref_regalo = qsatype.FLUtil.quickSqlSelect("param_parametros", "valor", "nombre = 'ART_REGALOWEB'")
+        
+        aRegalo = ref_regalo.split(",")
+        paramRegalo = False
+        if len(aRegalo) > 0:
+            paramRegalo = True
+            
+        esRegalo = False
+        
+        lineas_data = self.init_data["items"]
+        
+        barcodes = []
+        lineas = {}
+
+        for linea_data in lineas_data:
+            esRegalo = False
+            referencia = self.get_referencia(linea_data["sku"])
+            
+            if paramRegalo:
+                for i in range(len(aRegalo)):
+                    if str(aRegalo[i][1:-1]) == str(referencia):
+                        esRegalo = True
+
+            if not esRegalo:
+                barcode = self.get_barcode(linea_data["sku"])
+                barcodes.append(barcode)
+                lineas[barcode] = linea_data["cantidad"]
 
         while q.next():
             margen_almacenes[str(q.value(u"p.nombre"))] = int(q.value(u"p.valor"))
             pais_almacenes[str(q.value(u"p.nombre"))] = str(q.value(u"a.codpais"))
 
-        lineas_data = self.init_data["items"]
         almacenes = []
 
         # combinaciones_almacen = {}
@@ -531,28 +558,6 @@ class Mg2OrdersSerializer(DefaultSerializer):
                 limite_sobrepasado = True
                 indice_limite += len(jsonDatos["almacenes"])
 
-            barcodes = []
-            lineas = {}
-            ref_regalo = qsatype.FLUtil.quickSqlSelect("param_parametros", "valor", "nombre = 'ART_REGALOWEB'")            
-            aRegalo = ref_regalo.split(",")
-            paramRegalo = False
-            if len(aRegalo) > 0:
-                paramRegalo = True
-                
-            esRegalo = False
-
-            for linea_data in lineas_data:
-                referencia = self.get_referencia(linea_data["sku"])
-                
-                if paramRegalo:
-                    for i in range(len(aRegalo)):
-                        if str(aRegalo[i][1:-1]) == str(referencia):
-                            esRegalo = True
-
-                if not esRegalo:
-                    barcode = self.get_barcode(linea_data["sku"])
-                    barcodes.append(barcode)
-                    lineas[barcode] = linea_data["cantidad"]
 
             q = qsatype.FLSqlQuery()
             q.setSelect(u"barcode, disponible")
@@ -568,8 +573,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
             cant_disponible = 0
             hay_disponible = False
             # mi_combinacion = str(limite_sobrepasado)
-            while q.next():
-                
+            while q.next():                
                 #margen = margen_almacenes.get("RSTOCK_" + almacen["source_code"], 0)
                 margen = 0
                 cant_disponible = q.value("disponible") - margen
@@ -611,7 +615,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
                         "disponibles": jBarcodes
                     })
 
-        self.barcodes_con_stock = qsatype.FLUtil.quickSqlSelect("atributosarticulos", "COUNT(*)", "barcode IN (SELECT barcode FROM stocks WHERE disponible > 0 AND codalmacen IN ({}) AND barcode IN ({}) GROUP BY barcode)".format(self.cod_almacenes, self.barcodes_lineas))
+        self.barcodes_con_stock = qsatype.FLUtil.quickSqlSelect("atributosarticulos", "COUNT(*)", "barcode IN (SELECT barcode FROM stocks WHERE disponible > 0 AND codalmacen IN ({}) AND barcode IN ({}) AND referencia NOT IN ({}) GROUP BY barcode)".format(self.cod_almacenes, self.barcodes_lineas, ref_regalo))
 
         return almacenes
 
@@ -706,7 +710,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
 
             if hay_viables:
                 break
-
+                
         return result
 
     def actualizar_items_lineas(self):

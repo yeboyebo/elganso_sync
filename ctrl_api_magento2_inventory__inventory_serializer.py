@@ -70,7 +70,7 @@ class InventorySerializer(DefaultSerializer):
 
     def get_reservado(self, barcode, almacen):
         if self.tipo_almacen(almacen) == "Principal":
-            return self.get_reservado_idl(barcode) + self.get_reservado_pedidos(barcode)
+            return self.get_reservado_idl(barcode) + self.get_reservado_pedidos(barcode) + self.get_reservado_viajestransito(barcode)
         elif self.tipo_almacen(almacen) == "Tienda":
             return self.get_reservado_tienda(barcode, almacen)
         elif self.tipo_almacen(almacen) == "Otros":
@@ -92,6 +92,12 @@ class InventorySerializer(DefaultSerializer):
     @staticmethod
     def get_reservado_otros(barcode, almacen):
         return qsatype.FLUtil.sqlSelect("tpv_comandas c inner join tpv_lineascomanda l ON c.idtpv_comanda = l.idtpv_comanda INNER JOIN eg_lineasecommerceexcluidas e ON l.idtpv_linea = e.idtpv_linea inner join eg_seguimientoenvios sg on (e.codalmacen = sg.codalmacen and c.codigo = sg.coddocumento) inner join almacenes a on e.codalmacen = a.codalmacen", "COALESCE(sum(l.cantidad), 0)", "c.fecha > CURRENT_DATE-30 AND e.pedidoanulado = false AND e.pedidoenviado = true AND e.pedidopreparado = true AND e.faltantecreada = false AND (sg.numseguimiento IS NULL OR sg.numseguimiento = '') and l.barcode = '" + str(barcode) + "' and e.codalmacen = '" + str(almacen) + "'")
+
+    @staticmethod
+    def get_reservado_viajestransito(barcode):
+        viajes = qsatype.FLUtil.sqlSelect("param_parametros", "valor", "nombre = 'STOCK_WEB_VIAJES_ECI_TRANSITO'")
+        
+        return qsatype.FLUtil.sqlSelect("tpv_lineasmultitransstock", "COALESCE(sum(cantenviada), 0)", "codalmadestino = 'AWEB' AND barcode = '" + str(barcode) + "' AND estado = 'EN TRANSITO' AND idviajemultitrans IN (" + str(viajes) + ")")
 
     @staticmethod
     def tipo_almacen(almacen):
