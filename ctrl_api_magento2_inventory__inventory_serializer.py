@@ -83,7 +83,7 @@ class InventorySerializer(DefaultSerializer):
 
     @staticmethod
     def get_reservado_pedidos(barcode):
-        return qsatype.FLUtil.sqlSelect("pedidoscli p INNER JOIN lineaspedidoscli l on p.idpedido = l.idpedido", "COALESCE(sum(l.cantidad), 0)", "p.codserie = 'SW' AND l.barcode = '" + str(barcode) + "'")
+        return qsatype.FLUtil.sqlSelect("pedidoscli p INNER JOIN lineaspedidoscli l on p.idpedido = l.idpedido", "COALESCE(sum(l.cantidad), 0)", "p.fecha >= CURRENT_DATE-30 AND p.codserie = 'SW' AND l.barcode = '" + str(barcode) + "'")
 
     @staticmethod
     def get_reservado_tienda(barcode, almacen):

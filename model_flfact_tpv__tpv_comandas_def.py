@@ -29,6 +29,10 @@ class elganso_sync(flfact_tpv):
                 curLogPedidoWeb.setValueBuffer("codcomanda", "WEB" + str(params["order"]["increment_id"]))
                 curLogPedidoWeb.setValueBuffer("website", "magento2")
                 curLogPedidoWeb.setValueBuffer("cuerpolog", str(params["order"]))
+
+                if "codcanalweb" in params['order']:
+                    curLogPedidoWeb.setValueBuffer("codcanalweb", str(params["order"]["codcanalweb"]))
+
                 if not curLogPedidoWeb.commitBuffer():
                     return False
                 return True

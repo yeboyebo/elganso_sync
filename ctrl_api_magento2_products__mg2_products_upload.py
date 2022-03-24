@@ -350,6 +350,15 @@ class Mg2ProductsUpload(ProductsUpload):
         qsatype.FLSqlQuery().execSql("UPDATE eg_sincrostockweb set sincronizado = false where sincronizado = true AND idstock in (select idstock from stocks where referencia = '" + self.referencia + "' AND codalmacen IN (" + where_almacenes + "))")
 
         qsatype.FLSqlQuery().execSql("INSERT into eg_sincrostockweb (fecha, hora, sincronizado, idstock) (SELECT CURRENT_DATE, CURRENT_TIME, false, s.idstock FROM stocks s left outer join eg_sincrostockweb e on s.idstock = e.idstock WHERE s.referencia = '" + self.referencia + "' AND s.codalmacen IN (" + where_almacenes + ") AND e.idssw is null)")
+        
+        # QUITAR EL UPDATE DE eg_sincrostockweb DE ARRIBA CUANDO SOLO SE UTILICE LA SINCRO DE STOCK DE CANALWEB
+        qsatype.FLSqlQuery().execSql("UPDATE eg_sincrostockwebcanalweb set sincronizado = false where sincronizado = true AND barcode in (select barcode from atributosarticulos where referencia = '" + self.referencia + "')")
+        
+        oCanales = json.loads(qsatype.FLUtil.sqlSelect("param_parametros", "valor", "nombre = 'CANALES_WEB'"))
+        
+        for canalweb in oCanales:
+            print(str(canalweb))
+            qsatype.FLSqlQuery().execSql("INSERT into eg_sincrostockwebcanalweb (fecha, hora, sincronizado, sincronizadoeci, barcode, codcanalweb) (SELECT CURRENT_DATE, CURRENT_TIME, false, true, aa.barcode, '" + str(canalweb) + "' from atributosarticulos aa left join eg_sincrostockwebcanalweb s on aa.barcode = s.barcode and s.codcanalweb = '" + str(canalweb) + "' where aa.referencia = '" + self.referencia + "' and s.idss is null)")
 
         lineas_no_sincro = qsatype.FLUtil.sqlSelect("lineassincro_catalogo", "id", "idsincro = '{}' AND NOT sincronizado LIMIT 1".format(self.idsincro))
 

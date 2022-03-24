@@ -31,10 +31,11 @@ class Mg2InventoryCanalUpload(InventoryUpload):
         new_inventory = []
 
         oCanales = json.loads(qsatype.FLUtil.sqlSelect("param_parametros", "valor", "nombre = 'CANALES_WEB'"))
-        
+        datos = {}
+        datos["ocanales"] = oCanales
         for idx in range(len(data)):
-            data[idx].append(oCanales)
-            inventory = self.get_inventorycanal_serializer().serialize(data[idx])
+            datos["linea"] = data[idx]
+            inventory = self.get_inventorycanal_serializer().serialize(datos)
             new_inventory.append(inventory)
         if not new_inventory:
             return new_inventory
@@ -69,7 +70,7 @@ class Mg2InventoryCanalUpload(InventoryUpload):
         q = qsatype.FLSqlQuery()
         q.setSelect("ssw.idss, ssw.barcode, ssw.codcanalweb, aa.referencia, aa.talla")
         q.setFrom("eg_sincrostockwebcanalweb ssw INNER JOIN atributosarticulos aa ON ssw.barcode = aa.barcode")
-        q.setWhere("(NOT ssw.sincronizado OR ssw.sincronizado = false) ORDER BY ssw.fecha desc, ssw.hora desc, ssw.idss LIMIT 1000")
+        q.setWhere("(NOT ssw.sincronizado OR ssw.sincronizado = false) ORDER BY ssw.fecha desc, ssw.hora desc, ssw.idss LIMIT 100")
 
         q.exec_()
 
