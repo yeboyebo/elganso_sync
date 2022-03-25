@@ -27,7 +27,7 @@ class InventorySerializer(DefaultSerializer):
         self.set_string_value("sku", referencia)
         self.set_string_value("source_code", str(linea["ssw.codcanalweb"]))
 
-        cant_disponible = qsatype.FLUtil.sqlSelect("stocks s LEFT JOIN param_parametros p ON 'RSTOCK_' || s.codalmacen = p.nombre", "COALESCE(SUM(disponible - COALESCE(CAST(valor AS INTEGER), 0)), 0)", "s.barcode = '" + barcode + "' and s.codalmacen IN (" + almacenes + ")")
+        cant_disponible = qsatype.FLUtil.sqlSelect("stocks s LEFT JOIN param_parametros p ON 'RSTOCK_' || s.codalmacen = p.nombre", "COALESCE(SUM(CASE WHEN (s.disponible-COALESCE(CAST(p.valor as integer),0)) > 0 THEN (s.disponible-COALESCE(CAST(p.valor as integer),0)) ELSE 0 END), 0)", "s.barcode = '" + barcode + "' and s.codalmacen IN (" + almacenes + ")")
 
         cant_rv = self.get_reservado(barcode, codcanalweb, almacenes)
         cant_disponible += cant_rv
