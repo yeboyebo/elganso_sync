@@ -156,6 +156,13 @@
         },
         {
             "type": "insertAfterNode",
+            "path": "/flfact_tpv/eg_logdevolucionesweb",
+            "value": {
+                "eg_directorderspendientes": null
+            }
+        },
+        {
+            "type": "insertAfterNode",
             "path": "/flfactalma/articulos",
             "value": {
                 "atributosarticulos": null

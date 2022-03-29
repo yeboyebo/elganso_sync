@@ -53,6 +53,7 @@ class Mg2InventoryCanalUpload(InventoryUpload):
         for idx in range(len(data["sourceItems"])):
             del data["sourceItems"][idx]["children"]
         if data:
+            print(str(inventory_url))
             print(str(json.dumps(data)))
             result = self.send_request("post", url=inventory_url, data=json.dumps(data))
             print(str(result))
@@ -68,9 +69,9 @@ class Mg2InventoryCanalUpload(InventoryUpload):
         body = []
 
         q = qsatype.FLSqlQuery()
-        q.setSelect("ssw.idss, ssw.barcode, ssw.codcanalweb, aa.referencia, aa.talla")
-        q.setFrom("eg_sincrostockwebcanalweb ssw INNER JOIN atributosarticulos aa ON ssw.barcode = aa.barcode")
-        q.setWhere("(NOT ssw.sincronizado OR ssw.sincronizado = false) ORDER BY ssw.fecha desc, ssw.hora desc, ssw.idss LIMIT 100")
+        q.setSelect("ssw.idss, ssw.barcode, ssw.codcanalweb, aa.referencia, aa.talla, st.idstockmagento")
+        q.setFrom("eg_sincrostockwebcanalweb ssw INNER JOIN atributosarticulos aa ON ssw.barcode = aa.barcode INNER JOIN mg_storeviews st ON ssw.codcanalweb = st.codcanalweb")
+        q.setWhere("(NOT ssw.sincronizado OR ssw.sincronizado = false) GROUP BY ssw.idss, ssw.barcode, ssw.codcanalweb, aa.referencia, aa.talla, st.idstockmagento ORDER BY ssw.fecha desc, ssw.hora desc, ssw.idss LIMIT 100")
 
         q.exec_()
 

@@ -26,11 +26,12 @@ class InventorySerializer(DefaultSerializer):
 
         self.set_string_value("sku", referencia)
         self.set_string_value("source_code", str(linea["ssw.codcanalweb"]))
+        self.set_string_value("stock_id", str(linea["st.idstockmagento"]))
 
         cant_disponible = qsatype.FLUtil.sqlSelect("stocks s LEFT JOIN param_parametros p ON 'RSTOCK_' || s.codalmacen = p.nombre", "COALESCE(SUM(CASE WHEN (s.disponible-COALESCE(CAST(p.valor as integer),0)) > 0 THEN (s.disponible-COALESCE(CAST(p.valor as integer),0)) ELSE 0 END), 0)", "s.barcode = '" + barcode + "' and s.codalmacen IN (" + almacenes + ")")
 
-        cant_rv = self.get_reservado(barcode, codcanalweb, almacenes)
-        cant_disponible += cant_rv
+        # cant_rv = self.get_reservado(barcode, codcanalweb, almacenes)
+        # cant_disponible += cant_rv
 
         status = 0
         if cant_disponible > 0:
@@ -40,7 +41,7 @@ class InventorySerializer(DefaultSerializer):
         self.set_string_value("status", status)
         return True
 
-    def get_reservado(self, barcode, codcanalweb, almacenes):
+    '''def get_reservado(self, barcode, codcanalweb, almacenes):
             return self.get_reservado_idl(barcode, codcanalweb) + self.get_reservado_pedidos(barcode, codcanalweb, almacenes) + self.get_reservado_viajestransito(barcode, almacenes) + self.get_reservado_tienda(barcode, codcanalweb, almacenes) + self.get_reservado_otros(barcode, codcanalweb, almacenes)
 
     @staticmethod
@@ -63,6 +64,6 @@ class InventorySerializer(DefaultSerializer):
     def get_reservado_viajestransito(barcode, almacenes):
         viajes = qsatype.FLUtil.sqlSelect("param_parametros", "valor", "nombre = 'STOCK_WEB_VIAJES_ECI_TRANSITO'")
         
-        return qsatype.FLUtil.sqlSelect("tpv_lineasmultitransstock", "COALESCE(sum(cantenviada), 0)", "codalmadestino = 'AWEB' AND barcode = '" + str(barcode) + "' AND estado = 'EN TRANSITO' AND idviajemultitrans IN (" + str(viajes) + ") AND codalmadestino IN (" + almacenes + ")")
+        return qsatype.FLUtil.sqlSelect("tpv_lineasmultitransstock", "COALESCE(sum(cantenviada), 0)", "codalmadestino = 'AWEB' AND barcode = '" + str(barcode) + "' AND estado = 'EN TRANSITO' AND idviajemultitrans IN (" + str(viajes) + ") AND codalmadestino IN (" + almacenes + ")")'''
 
 

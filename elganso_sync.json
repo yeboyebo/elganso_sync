@@ -1283,6 +1283,26 @@
             {
                 "name": "ctrl_api_magento2_inventory_canal__mg2_inventorycanal_upload.py",
                 "path": "controllers/api/magento2/inventory_canal/controllers/"
+            },
+            {
+                "name": "model_flfact_tpv__eg_directorderspendientes.py",
+                "path": "models/flfact_tpv/"
+            },
+            {
+                "name": "model_flfact_tpv__eg_directorderspendientes_def.py",
+                "path": "models/flfact_tpv/"
+            },
+            {
+                "name": "ctrl_api_magento2_directorders_pending__process.py",
+                "path": "controllers/api/magento2/directorders_pending/"
+            },
+            {
+                "name": "ctrl_api_magento2_directorders_pending__mg2_directorders_pending_serializer.py",
+                "path": "controllers/api/magento2/directorders_pending/serializers/"
+            },
+            {
+                "name": "ctrl_api_magento2_directorders_pending__mg2_directorders_pending_process.py",
+                "path": "controllers/api/magento2/directorders_pending/controllers/"
             }
         ],
         "deleteFile": [],

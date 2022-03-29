@@ -74,6 +74,7 @@ from controllers.api.magento2.delete_special_price.controllers.mg2_delete_specia
 from controllers.api.magento2.delete_tierprice.controllers.mg2_delete_tierprice_upload import Mg2DeleteTierPriceUpload
 from controllers.api.magento2.stock_incremental_night.controllers.mg2_stock_incremental_night_upload import Mg2StockIncrementalNightUpload
 from controllers.api.magento2.inventory_canal.controllers.mg2_inventorycanal_upload import Mg2InventoryCanalUpload
+from controllers.api.magento2.directorders_pending.controllers.mg2_directorders_pending_process import Mg2DirectOrdersPendingProcess
 
 sync_object_dict = {
     "stock_upload": {
@@ -250,6 +251,10 @@ sync_object_dict = {
     },
     "mg2_inventorycanal_upload": {
         "sync_object": Mg2InventoryCanalUpload
+    },
+    "mg2_directorders_pending_process": {
+        "sync_object": Mg2DirectOrdersPendingProcess,
+        "driver": MagentoDriver
     }
 }
 
