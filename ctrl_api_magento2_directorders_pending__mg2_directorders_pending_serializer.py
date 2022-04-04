@@ -350,3 +350,65 @@ class Mg2DirectOrdersPendingSerializer(DefaultSerializer):
         if not curLineaEcommerce.commitBuffer():
             return False
         return True
+
+    def crearRegistroEcommerce(self):
+        print("ENTRA EN crearRegistroEcommerce")
+
+        curIdlEcomerce = qsatype.FLSqlCursor("idl_ecommerce")
+        curIdlEcomerce.setModeAccess(curIdlEcomerce.Insert)
+        curIdlEcomerce.refreshBuffer()
+        curIdlEcomerce.setValueBuffer("idtpv_comanda", qsatype.FLUtil.quickSqlSelect("tpv_comandas", "idtpv_comanda", "codigo = '{}'".format(self.init_data["codcomanda"])))
+        curIdlEcomerce.setValueBuffer("codcomanda", self.init_data["codcomanda"])
+        curIdlEcomerce.setValueBuffer("envioidl", False)
+        curIdlEcomerce.setValueBuffer("confirmacionenvio","No")
+        curIdlEcomerce.setNull("idlogenvio")
+        curIdlEcomerce.setNull("idconfirmacion")
+
+        curIdlEcomerce.setValueBuffer("tipo","DIRECTORDERS")
+
+        sufijo = ""
+        cod_tienda_recogida = qsatype.FLUtil.quickSqlSelect("tpv_comandas", "codtiendarecogida", "codigo = '{}'".format(self.init_data["codcomanda"]))
+        if cod_tienda_recogida and str(cod_tienda_recogida) != "" and str(cod_tienda_recogida) != "None":
+            curIdlEcomerce.setValueBuffer("imprimiralbaran", True)
+            sufijo = "_RT";
+        else:
+            curIdlEcomerce.setValueBuffer("imprimiralbaran", False) 
+
+        curIdlEcomerce.setValueBuffer("imprimirfactura", False);
+        curIdlEcomerce.setValueBuffer("imprimirdedicatoria", False);
+        curIdlEcomerce.setValueBuffer("esregalo", False);
+        curIdlEcomerce.setNull("emisor");
+        curIdlEcomerce.setNull("receptor");
+        curIdlEcomerce.setNull("mensajededicatoria");
+
+        metodoEnvioMg = False
+        metodoEnvioIdl = False
+        transportista = False
+
+        cod_pais = str(qsatype.FLUtil.quickSqlSelect("tpv_comandas", "codpais", "codigo = '{}'".format(self.init_data["codcomanda"])))
+        if cod_pais == "ES" or cod_pais == "PT" or cod_pais == "GI" or cod_pais == "AD":
+            metodoEnvioMg = "DIRECTORDERS_ESP" + sufijo
+        else:
+            metodoEnvioMg = "DIRECTORDERS_EXT" + sufijo
+
+        if metodoEnvioMg:
+            transportista = qsatype.FLUtil.quickSqlSelect("metodosenvio_transportista", "transportista", "metodoenviomg = '" + metodoEnvioMg + "'")
+            metodoEnvioIdl = qsatype.FLUtil.quickSqlSelect("metodosenvio_transportista", "metodoenvioidl", "metodoenviomg = '" + metodoEnvioMg + "'")
+
+        if transportista and transportista != "":
+            curIdlEcomerce.setValueBuffer("transportista", transportista)
+        else:
+            curIdlEcomerce.setNull("transportista")
+
+        
+        if metodoEnvioIdl and metodoEnvioIdl != "":
+            curIdlEcomerce.setValueBuffer("metodoenvioidl", metodoEnvioIdl)
+        else:
+            curIdlEcomerce.setNull("metodoenvioidl")
+
+        curIdlEcomerce.setValueBuffer("facturaimpresa", False)
+        curIdlEcomerce.setValueBuffer("numseguimientoinformado", False)
+        curIdlEcomerce.setNull("numseguimiento")
+        curIdlEcomerce.commitBuffer()
+
+        return True

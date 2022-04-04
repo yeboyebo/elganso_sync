@@ -30,18 +30,22 @@ class Mg2DirectOrdersPendingProcess(InventoryUpload):
         for row in body:
             print("CODPEDIDO: ", row["codpedido"])
             qPedidos = qsatype.FLSqlQuery()
-            qPedidos.setSelect("lp.referencia || '-' || lp.talla, lp.cantidad, lp.barcode, lc.idtpv_linea")
-            qPedidos.setFrom("pedidoscli p INNER JOIN lineaspedidoscli lp ON p.idpedido = lp.idpedido INNER JOIN tpv_comandas c ON p.egcodvtaweb = c.codigo INNER JOIN tpv_lineascomanda lc ON c.idtpv_comanda = lc.idtpv_comanda")
+            qPedidos.setSelect("lp.referencia || '-' || lp.talla, lp.cantidad, lp.barcode")
+            qPedidos.setFrom("pedidoscli p INNER JOIN lineaspedidoscli lp ON p.idpedido = lp.idpedido")
             qPedidos.setWhere("p.codigo = '" + row["codpedido"] + "'")
 
             qPedidos.exec_()
             bodyPedidos = self.fetch_query(qPedidos)
             for linea in bodyPedidos:
-                aData.append({"idtpv_linea": linea["lc.idtpv_linea"], "sku": linea["lp.referencia || '-' || lp.talla"],"barcode": linea["lp.barcode"], "cantidad": int(linea["lp.cantidad"])})
-                print("Despues de asignar")
+                print("barcode:", linea["lp.barcode"])
+                idtpv_linea = qsatype.FLUtil.quickSqlSelect("tpv_lineascomanda", "idtpv_linea", "barcode = '{}' AND idtpv_comanda IN (SELECT idtpv_comanda FROM tpv_comandas WHERE codigo = '{}')".format(linea["lp.barcode"], row["codcomanda"]))
+                print("IDLINEA: ", idtpv_linea)
+                if idtpv_linea:
+                    aData.append({"idtpv_linea": linea["lc.idtpv_linea"], "sku": linea["lp.referencia || '-' || lp.talla"],"barcode": linea["lp.barcode"], "cantidad": int(linea["lp.cantidad"])})
 
-            datos = {"codcomanda": row["codcomanda"], "codpedido": row["codpedido"], "items" : aData}
-            result = self.get_directorders_pending_serializer().serialize(datos)
+            if aData != []:
+                datos = {"codcomanda": row["codcomanda"], "codpedido": row["codpedido"], "items" : aData}
+                result = self.get_directorders_pending_serializer().serialize(datos)
 
         return True
 
