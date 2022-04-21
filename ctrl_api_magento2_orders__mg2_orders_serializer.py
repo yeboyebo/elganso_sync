@@ -152,11 +152,14 @@ class Mg2OrdersSerializer(DefaultSerializer):
             self.set_string_value("codtarjetapuntos", self.get_codtarjetapuntos(), max_characters=15)
             self.set_string_relation("cifnif", "cif", max_characters=20, default="-")
 
-            self.set_string_relation("codpostal", "billing_address//postcode", max_characters=10)
-            self.set_string_relation("ciudad", "billing_address//city", max_characters=100)
-            self.set_string_relation("provincia", "billing_address//region", max_characters=100)
+            # self.set_string_relation("codpostal", "billing_address//postcode", max_characters=10)
+            # self.set_string_relation("ciudad", "billing_address//city", max_characters=100)
+            # self.set_string_relation("provincia", "billing_address//region", max_characters=100)
+            self.set_string_value("codpostal", self.get_formateaCadena(self.init_data["billing_address"]["postcode"]), max_characters=10)
+            self.set_string_value("ciudad", self.get_formateaCadena(self.init_data["billing_address"]["city"]), max_characters=100)
+            self.set_string_value("provincia", self.get_formateaCadena(self.init_data["billing_address"]["region"]), max_characters=100)
             self.set_string_relation("codpais", "billing_address//country_id", max_characters=20)
-            self.set_string_relation("telefono1", "billing_address//telephone", max_characters=30)
+            self.set_string_value("telefono1", self.get_formateaCadena(self.init_data["billing_address"]["telephone"]), max_characters=30)
 
             recogidatienda = self.get_recogidatienda()
 
@@ -175,10 +178,10 @@ class Mg2OrdersSerializer(DefaultSerializer):
             dirnum = street[2] if len(street) >= 3 else ""
             dirotros = street[3] if len(street) >= 4 else ""
 
-            self.set_string_value("dirtipovia", dirtipovia, max_characters=100)
-            self.set_string_value("direccion", direccion, max_characters=100)
-            self.set_string_value("dirnum", dirnum, max_characters=100)
-            self.set_string_value("dirotros", dirotros, max_characters=100)
+            self.set_string_value("dirtipovia", self.get_formateaCadena(dirtipovia), max_characters=100)
+            self.set_string_value("direccion", self.get_formateaCadena(direccion), max_characters=100)
+            self.set_string_value("dirnum", self.get_formateaCadena(dirnum), max_characters=100)
+            self.set_string_value("dirotros", self.get_formateaCadena(dirotros), max_characters=100)
 
             self.set_string_value("codserie", self.get_codserie())
             self.set_string_value("codejercicio", self.get_codejercicio())
@@ -748,3 +751,11 @@ class Mg2OrdersSerializer(DefaultSerializer):
         if str(self.init_data["store_id"]) == "13":
             return qsatype.FLUtil.quickSqlSelect("tpv_puntosventa", "codtpv_puntoventa", "codtienda = '{}'".format(str(self.get_codtienda())))
         return "AWEB"
+
+    def get_formateaCadena(self, cadena):
+        cadena = cadena.replace("\r\n", "")
+        cadena = cadena.replace("\r", "")
+        cadena = cadena.replace("\n", "")
+        cadena = cadena.replace("\t", "")
+        cadena = " ".join( cadena.split() )
+        return cadena
