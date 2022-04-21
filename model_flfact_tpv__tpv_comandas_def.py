@@ -19,6 +19,10 @@ class elganso_sync(flfact_tpv):
                 if "increment_id" not in params['order']:
                     return {"Error": "Formato Incorrecto. No viene el parametro increment_id dentro de order", "status": 0}
 
+                existe_pedido = qsatype.FLUtil.quickSqlSelect("eg_logpedidosweb", "codcomanda", "estadopedidomagento = '{}' AND increment_id = '{}'".format(str(params["order"]["status"]), str(params["order"]["increment_id"])))
+                if existe_pedido:
+                    return True
+
                 curLogPedidoWeb = qsatype.FLSqlCursor("eg_logpedidosweb")
                 curLogPedidoWeb.setModeAccess(curLogPedidoWeb.Insert)
                 curLogPedidoWeb.refreshBuffer()
@@ -29,6 +33,8 @@ class elganso_sync(flfact_tpv):
                 curLogPedidoWeb.setValueBuffer("codcomanda", "WEB" + str(params["order"]["increment_id"]))
                 curLogPedidoWeb.setValueBuffer("website", "magento2")
                 curLogPedidoWeb.setValueBuffer("cuerpolog", str(params["order"]))
+                curLogPedidoWeb.setValueBuffer("estadopedidomagento", str(params["order"]["status"]))
+
 
                 if "codcanalweb" in params['order']:
                     curLogPedidoWeb.setValueBuffer("codcanalweb", str(params["order"]["codcanalweb"]))
