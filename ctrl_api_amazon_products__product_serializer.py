@@ -62,9 +62,9 @@ class ProductSerializer(DefaultSerializer):
                 self.set_string_value("Product//ProductData//Clothing//ApparelSizeClass", self.get_apparel_size_class(self.init_data["ta.codgrupotalla"]))
                 self.set_string_value("Product//ProductData//Clothing//ApparelSizeSystem", "as4")
             elif self.init_data['f.codfamiliaaz'] == 'Shirt':
-                if edad != "Infantil":
-                    self.set_string_value("Product//ProductData//Clothing//ShirtBodyType", "regular")
-                    self.set_string_value("Product//ProductData//Clothing//ShirtHeightType", "regular")
+                '''if edad != "Infantil":
+                    self.set_string_value("Product//ProductData//Clothing//ShirtBodyType", "")
+                    self.set_string_value("Product//ProductData//Clothing//ShirtHeightType", "")'''
                 self.set_string_value("Product//ProductData//Clothing//ShirtSize", self.get_apparel_size(self.init_data["ta.codgrupotalla"], self.init_data["aa.talla"]))
                 self.set_string_value("Product//ProductData//Clothing//ShirtSizeClass", self.get_apparel_size_class(self.init_data["ta.codgrupotalla"]))
                 self.set_string_value("Product//ProductData//Clothing//ShirtSizeSystem", "as4")

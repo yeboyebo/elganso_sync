@@ -753,6 +753,8 @@ class Mg2OrdersSerializer(DefaultSerializer):
         return "AWEB"
 
     def get_formateaCadena(self, cadena):
+        if str(cadena) == "" or str(cadena) == "None":
+            return cadena
         cadena = cadena.replace("\r\n", "")
         cadena = cadena.replace("\r", "")
         cadena = cadena.replace("\n", "")
