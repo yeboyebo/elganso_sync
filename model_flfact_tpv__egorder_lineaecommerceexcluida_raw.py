@@ -19,6 +19,8 @@ class EgOrderLineaEcommerceExcluida(AQModel):
         self.dump_to_cursor()
         if not self.crear_viaje_lineasecommerce(str(self.cursor.valueBuffer("codcomanda"))):
             raise NameError("Error al crear el viaje de recogida en tienda.")
+        if not self.actualizar_importe_ventas_tienda(self.cursor, parent_cursor):
+            raise NameError("Error al actualizar el importe de ventas.")
 
     def crear_viaje_lineasecommerce(self, codcomanda):
         qsatype.FactoriaModulos.get('flfactalma').iface.movimientoStockWeb_ = True
@@ -137,3 +139,11 @@ class EgOrderLineaEcommerceExcluida(AQModel):
         h = fecha[-(8):]
         h = "23:59:59" if h == "00:00:00" else h
         return h
+
+    def actualizar_importe_ventas_tienda(self, cursor, parent_cursor):
+        importeLinea = parseFloat(parent_cursor.valueBuffer("pvpunitarioiva"))
+        importe_ventas = parseFloat(qsatype.FLUtil.quickSqlSelect("almacenescanalweb", "importeventas", "codalmacen = '{}'".format(str(self.cursor.valueBuffer("codalmacen")))))
+        nuevo_importe = importeLinea + importe_ventas
+        qsatype.FLSqlQuery().execSql("UPDATE almacenescanalweb SET importeventas = {} WHERE codalmacen = '{}'".format(nuevo_importe, str(self.cursor.valueBuffer("codalmacen"))))
+
+        return True

@@ -31,6 +31,10 @@ class Mg2OrdersSerializer(DefaultSerializer):
             raise NameError("Error al actualizar el items de las lineas.")
             return False
 
+        """if not self.distribucion_almacenes():
+            raise NameError("El numero de unidades indicadas y la cantidad de lineas no coincide.")
+            return False"""
+
         codigo = "WEB{}".format(qsatype.FactoriaModulos.get("flfactppal").iface.cerosIzquierda(increment, 9))
 
         if qsatype.FLUtil.sqlSelect("tpv_comandas", "idtpv_comanda", "codigo = '{}'".format(codigo)):
@@ -456,9 +460,9 @@ class Mg2OrdersSerializer(DefaultSerializer):
     def distribucion_almacenes(self):
         jsonDatos = self.init_data
 
-        codpago = self.get_codpago()
+        """codpago = self.get_codpago()
         if str(codpago) == "CREE":
-            return True
+            return True"""
 
         almacenes = self.dame_almacenes(jsonDatos)
 
@@ -520,14 +524,14 @@ class Mg2OrdersSerializer(DefaultSerializer):
                         continue
 
         jsonDatos["almacenes"] = []
-
+        print("////////////CODCANALWEB: ", codcanalweb)
         if codcanalweb == "":
             return True
 
         q = qsatype.FLSqlQuery()
-        q.setSelect(u"a.codpais, a.email, a.codalmacen")
+        q.setSelect(u"a.codpais, a.email, a.codalmacen, ac.porcentajeteorico, ac.importeventas")
         q.setFrom(u"almacenes a INNER JOIN almacenescanalweb ac ON a.codalmacen = ac.codalmacen")
-        q.setWhere(u"a.codalmacen IN (" + almacenes + ") AND ac.codcanalweb = '" + codcanalweb + "' ORDER BY ac.prioridadcanalweb")
+        q.setWhere(u"a.codalmacen IN (" + almacenes + ") AND ac.codcanalweb = '" + codcanalweb + "' ORDER BY ac.porcentajeteorico DESC")
 
         q.exec_()
         print(q.sql())
@@ -548,7 +552,6 @@ class Mg2OrdersSerializer(DefaultSerializer):
         
         barcodes = []
         lineas = {}
-
         for linea_data in lineas_data:
             esRegalo = False
             referencia = self.get_referencia(linea_data["sku"])
@@ -567,7 +570,8 @@ class Mg2OrdersSerializer(DefaultSerializer):
             jsonDatos["almacenes"].append({
                 "source_code": str(q.value(u"a.codalmacen")),
                 "email": str(q.value(u"a.email")),
-                "country_id": str(q.value(u"a.codpais"))
+                "country_id": str(q.value(u"a.codpais")),
+                "porcentaje_teorico": parseFloat(q.value(u"ac.porcentajeteorico"))
             })
 
         almacenes = []
@@ -575,10 +579,21 @@ class Mg2OrdersSerializer(DefaultSerializer):
         # combinaciones_almacen = {}
         indice_limite = 0
 
+        importe_total_ventas = parseFloat(qsatype.FLUtil.quickSqlSelect("almacenescanalweb", "SUM(importeventas)", "codcanalweb = '" + codcanalweb + "'"))
+
         for indice, almacen in enumerate(jsonDatos["almacenes"]):
             limite_pedido_minimo = qsatype.FLUtil.quickSqlSelect("param_parametros", "valor", "nombre = 'LPEDIDO_" + almacen["source_code"] + "'")
             if not limite_pedido_minimo:
                 limite_pedido_minimo = 1000
+
+            importe_total_ventas_almacen = parseFloat(qsatype.FLUtil.quickSqlSelect("almacenescanalweb", "importeventas", "codalmacen = '" + almacen["source_code"] + "' AND codcanalweb = '" + codcanalweb + "'"))
+
+            porcentaje_tienda_real = 0
+            if parseFloat(importe_total_ventas) != 0:
+                porcentaje_tienda_real = (parseFloat(importe_total_ventas_almacen) * 100) / parseFloat(importe_total_ventas)
+
+  
+            prioridad_almacen = parseFloat(almacen["porcentaje_teorico"]) - parseFloat(porcentaje_tienda_real)
 
             # pedidos_almacen = qsatype.FLUtil.quickSqlSelect("eg_lineasecommerceexcluidas e INNER JOIN tpv_comandas c ON e.codcomanda = c.codigo", "COUNT(*)", "e.codalmacen = '" + almacen["source_code"] + "' AND c.fecha = CURRENT_DATE")
             pedidos_almacen = qsatype.FLUtil.quickSqlSelect("tpv_comandas", "COUNT(*)", "fecha = CURRENT_DATE AND codigo like 'WEB%' and codtienda in ('AWEB','AWCL') and idtpv_comanda in (select c.idtpv_comanda from eg_lineasecommerceexcluidas le inner join tpv_lineascomanda l on le.idtpv_linea = l.idtpv_linea inner join tpv_comandas c on (l.idtpv_comanda = c.idtpv_comanda and le.codcomanda = c.codigo) WHERE le.codalmacen = '" + almacen["source_code"] + "' and c.fecha = CURRENT_DATE AND c.codigo like 'WEB%' and c.codtienda in ('AWEB','AWCL') group by c.idtpv_comanda)")
@@ -614,7 +629,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
                     "emailtienda": almacen["email"],
                     "total": 0,
                     "lineas": {},
-                    "prioridad": (len(jsonDatos["almacenes"]) - indice) / len(jsonDatos["almacenes"]),
+                    "prioridad": prioridad_almacen,
                     "codpais": almacen["country_id"],
                     "bajo_limite": (int(limite_pedido_minimo)-int(pedidos_almacen)) / int(limite_pedido_minimo),
                     "disponibles": jBarcodes
