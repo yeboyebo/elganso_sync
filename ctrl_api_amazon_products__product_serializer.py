@@ -55,16 +55,16 @@ class ProductSerializer(DefaultSerializer):
             self.set_string_value("Product//ProductData//Clothing//AgeRangeDescription", edad)
 
             if self.init_data['f.codfamiliaaz'] == 'Socks' or self.init_data['f.codfamiliaaz'] == 'Dress' or self.init_data['f.codfamiliaaz'] == 'Sweater' or self.init_data['f.codfamiliaaz'] == 'Kurta' or self.init_data['f.codfamiliaaz'] == 'Coat' or self.init_data['f.codfamiliaaz'] == 'Tunic' or self.init_data['f.codfamiliaaz'] == 'Underpants' or self.init_data['f.codfamiliaaz'] == 'Sweatshirt' or self.init_data['f.codfamiliaaz'] == 'Pajamas' or self.init_data['f.codfamiliaaz'] == 'Suit' or self.init_data['f.codfamiliaaz'] == 'Robe' or self.init_data['f.codfamiliaaz'] == 'Tights' or self.init_data['f.codfamiliaaz'] == 'Blazer' or self.init_data['f.codfamiliaaz'] == 'TrackSuit' or self.init_data['f.codfamiliaaz'] == 'Vest' or self.init_data['f.codfamiliaaz'] == 'SalwarSuitSet':
-                if edad != "Infantil" and self.init_data['f.codfamiliaaz'] != 'Socks' and self.init_data['f.codfamiliaaz'] != 'Vest' and self.init_data['f.codfamiliaaz'] != 'Coat':
+                '''if edad != "Infantil" and self.init_data['f.codfamiliaaz'] != 'Socks' and self.init_data['f.codfamiliaaz'] != 'Vest' and self.init_data['f.codfamiliaaz'] != 'Coat':
                     self.set_string_value("Product//ProductData//Clothing//ApparelBodyType", "regular")
-                    self.set_string_value("Product//ProductData//Clothing//ApparelHeightType", "regular")
+                    self.set_string_value("Product//ProductData//Clothing//ApparelHeightType", "regular")'''
                 self.set_string_value("Product//ProductData//Clothing//ApparelSize", self.get_apparel_size(self.init_data["ta.codgrupotalla"], self.init_data["aa.talla"]))
                 self.set_string_value("Product//ProductData//Clothing//ApparelSizeClass", self.get_apparel_size_class(self.init_data["ta.codgrupotalla"]))
                 self.set_string_value("Product//ProductData//Clothing//ApparelSizeSystem", "as4")
             elif self.init_data['f.codfamiliaaz'] == 'Shirt':
                 '''if edad != "Infantil":
-                    self.set_string_value("Product//ProductData//Clothing//ShirtBodyType", "")
-                    self.set_string_value("Product//ProductData//Clothing//ShirtHeightType", "")'''
+                    self.set_string_value("Product//ProductData//Clothing//ShirtBodyType", "regular")
+                    self.set_string_value("Product//ProductData//Clothing//ShirtHeightType", "regular")'''
                 self.set_string_value("Product//ProductData//Clothing//ShirtSize", self.get_apparel_size(self.init_data["ta.codgrupotalla"], self.init_data["aa.talla"]))
                 self.set_string_value("Product//ProductData//Clothing//ShirtSizeClass", self.get_apparel_size_class(self.init_data["ta.codgrupotalla"]))
                 self.set_string_value("Product//ProductData//Clothing//ShirtSizeSystem", "as4")
