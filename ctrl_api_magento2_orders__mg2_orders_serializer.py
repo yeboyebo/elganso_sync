@@ -460,9 +460,9 @@ class Mg2OrdersSerializer(DefaultSerializer):
     def distribucion_almacenes(self):
         jsonDatos = self.init_data
 
-        """codpago = self.get_codpago()
+        codpago = self.get_codpago()
         if str(codpago) == "CREE":
-            return True"""
+            return True
 
         almacenes = self.dame_almacenes(jsonDatos)
 
