@@ -1303,6 +1303,14 @@
             {
                 "name": "ctrl_api_magento2_directorders_pending__mg2_directorders_pending_process.py",
                 "path": "controllers/api/magento2/directorders_pending/controllers/"
+            },
+            {
+                "name": "ctrl_api_mirakl_shippingorders__egorder_serializer.py",
+                "path": "controllers/api/mirakl/shippingorders/serializers/"
+            },
+            {
+                "name": "ctrl_api_mirakl_shippingorders__egorder_line_serializer.py",
+                "path": "controllers/api/mirakl/shippingorders/serializers/"
             }
         ],
         "deleteFile": [],
