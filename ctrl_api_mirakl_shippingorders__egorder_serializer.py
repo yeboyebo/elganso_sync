@@ -20,7 +20,6 @@ class EgOrderSerializer(DefaultSerializer):
     barcodes_lineas = ""
     barcodes_con_stock = 0
     def get_data(self):
-        print("////////////ENTRA EN EGORDER")
         self.cod_almacenes = ""
         self.barcodes_lineas = ""
         self.barcodes_con_stock = 0
@@ -285,38 +284,38 @@ class EgOrderSerializer(DefaultSerializer):
                 "country_id": str(q.value(u"a.codpais")),
                 "porcentaje_teorico": parseFloat(q.value(u"ac.porcentajeteorico"))
             })
-        print("////////////////1")
+
         almacenes = []
-        print("////////////////2")
+
         # combinaciones_almacen = {}
         indice_limite = 0
-        print("////////////////3")
+
         importe_total_ventas = parseFloat(qsatype.FLUtil.quickSqlSelect("almacenescanalweb", "SUM(importeventas)", "codcanalweb = '" + codcanalweb + "'"))
-        print("////////////////4")
+
         for indice, almacen in enumerate(jsonDatos["almacenes"]):
             limite_pedido_minimo = qsatype.FLUtil.quickSqlSelect("param_parametros", "valor", "nombre = 'LPEDIDO_" + almacen["source_code"] + "'")
             if not limite_pedido_minimo:
                 limite_pedido_minimo = 1000
-            print("////////////////4.1")
+
             importe_total_ventas_almacen = parseFloat(qsatype.FLUtil.quickSqlSelect("almacenescanalweb", "importeventas", "codalmacen = '" + almacen["source_code"] + "' AND codcanalweb = '" + codcanalweb + "'"))
 
             porcentaje_tienda_real = 0
             if parseFloat(importe_total_ventas) != 0:
                 porcentaje_tienda_real = (parseFloat(importe_total_ventas_almacen) * 100) / parseFloat(importe_total_ventas)
 
-            print("////////////////4.2")
+
             prioridad_almacen = parseFloat(almacen["porcentaje_teorico"]) - parseFloat(porcentaje_tienda_real)
 
             # pedidos_almacen = qsatype.FLUtil.quickSqlSelect("eg_lineasecommerceexcluidas e INNER JOIN tpv_comandas c ON e.codcomanda = c.codigo", "COUNT(*)", "e.codalmacen = '" + almacen["source_code"] + "' AND c.fecha = CURRENT_DATE")
             pedidos_almacen = qsatype.FLUtil.quickSqlSelect("tpv_comandas", "COUNT(*)", "fecha = CURRENT_DATE AND codigo like 'WEB%' and codtienda in ('AWEB','AWCL') and idtpv_comanda in (select c.idtpv_comanda from eg_lineasecommerceexcluidas le inner join tpv_lineascomanda l on le.idtpv_linea = l.idtpv_linea inner join tpv_comandas c on (l.idtpv_comanda = c.idtpv_comanda and le.codcomanda = c.codigo) WHERE le.codalmacen = '" + almacen["source_code"] + "' and c.fecha = CURRENT_DATE AND c.codigo like 'WEB%' and c.codtienda in ('AWEB','AWCL') group by c.idtpv_comanda)")
-            print("////////////////4.3")
+
             q = qsatype.FLSqlQuery()
             q.setSelect(u"barcode, disponible")
             q.setFrom(u"stocks")
             q.setWhere(u"codalmacen = '" + almacen["source_code"] + "' AND barcode IN ('" + "', '".join(barcodes) + "') ORDER BY barcode")
 
             q.exec_()
-            print("////////////////4.4")
+
             if not q.size():
                 continue
 
@@ -350,7 +349,7 @@ class EgOrderSerializer(DefaultSerializer):
         if self.cod_almacenes != "":
             print("////////BARCODES CON STOCK: ", self.barcodes_lineas)
             self.barcodes_con_stock = qsatype.FLUtil.quickSqlSelect("atributosarticulos", "COUNT(*)", "barcode IN (SELECT barcode FROM stocks WHERE disponible > 0 AND codalmacen IN ({}) AND barcode IN ({}) GROUP BY barcode)".format(self.cod_almacenes, self.barcodes_lineas))
-        print("////////////////5")
+
         return almacenes
 
     def clave_disponible(self, almacen, barcode):

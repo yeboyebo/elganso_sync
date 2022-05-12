@@ -39,7 +39,7 @@ class EgOrderLineSerializer(DefaultSerializer):
         self.set_data_relation("pvpunitarioiva", "price_unit")
         self.set_data_relation("pvpsindtoiva", "price")
         self.set_data_relation("pvptotaliva", "total_price")
-        print("//////////////////////////******************+ORDER LINEEEE")
+
         if "almacen" in self.init_data:
             print("///////////entra: ", str(self.init_data["almacen"]))
             if str(self.init_data["almacen"]) != "AWEB":
