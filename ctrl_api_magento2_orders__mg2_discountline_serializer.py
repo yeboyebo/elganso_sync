@@ -19,13 +19,8 @@ class Mg2DiscountLineSerializer(Mg2OrderLineSerializer):
         if not dto or dto == 0 or dto == "0.0000" or dto == "0.00":
             return False
 
-        importe_puntos = 0
-        if "puntos_gastados" in self.init_data:
-            # importe_puntos = float(self.init_data["puntos_gastados"])
-            importe_puntos = round(parseFloat(self.init_data["puntos_gastados"] * tasaconv), 2)
-
-        # importe_puntos viene en positivo
-        dto = dto + importe_puntos
+        if not self.init_data["discount_description"] or str(self.init_data["discount_description"]) == "None":
+            return False
 
         self.get_bono_data()
 

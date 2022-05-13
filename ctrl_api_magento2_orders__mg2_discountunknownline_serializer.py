@@ -22,6 +22,9 @@ class Mg2DiscountUnknownLineSerializer(Mg2OrderLineSerializer):
         importe_puntos = 0
         if "puntos_gastados" in self.init_data:
             importe_puntos = float(self.init_data["puntos_gastados"])
+            if importe_puntos > 0:
+                return False
+
 
         # importe_puntos viene en positivo
         dto = dto + importe_puntos

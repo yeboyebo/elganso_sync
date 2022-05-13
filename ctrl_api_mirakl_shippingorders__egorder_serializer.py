@@ -305,7 +305,8 @@ class EgOrderSerializer(DefaultSerializer):
 
 
             prioridad_almacen = parseFloat(almacen["porcentaje_teorico"]) - parseFloat(porcentaje_tienda_real)
-
+            if almacen["source_code"] == "AWEB":
+                prioridad_almacen = 1
             # pedidos_almacen = qsatype.FLUtil.quickSqlSelect("eg_lineasecommerceexcluidas e INNER JOIN tpv_comandas c ON e.codcomanda = c.codigo", "COUNT(*)", "e.codalmacen = '" + almacen["source_code"] + "' AND c.fecha = CURRENT_DATE")
             pedidos_almacen = qsatype.FLUtil.quickSqlSelect("tpv_comandas", "COUNT(*)", "fecha = CURRENT_DATE AND codigo like 'WEB%' and codtienda in ('AWEB','AWCL') and idtpv_comanda in (select c.idtpv_comanda from eg_lineasecommerceexcluidas le inner join tpv_lineascomanda l on le.idtpv_linea = l.idtpv_linea inner join tpv_comandas c on (l.idtpv_comanda = c.idtpv_comanda and le.codcomanda = c.codigo) WHERE le.codalmacen = '" + almacen["source_code"] + "' and c.fecha = CURRENT_DATE AND c.codigo like 'WEB%' and c.codtienda in ('AWEB','AWCL') group by c.idtpv_comanda)")
 

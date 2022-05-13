@@ -41,7 +41,6 @@ class EgOrderLineSerializer(DefaultSerializer):
         self.set_data_relation("pvptotaliva", "total_price")
 
         if "almacen" in self.init_data:
-            print("///////////entra: ", str(self.init_data["almacen"]))
             if str(self.init_data["almacen"]) != "AWEB":
                 linea_ecommerce_excluida = Mg2LineaEcommerceExcluidaSerializer().serialize(self.init_data)
                 self.data["children"]["lineaecommerceexcluida"] = linea_ecommerce_excluida
