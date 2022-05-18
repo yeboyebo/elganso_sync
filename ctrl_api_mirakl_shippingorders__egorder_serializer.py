@@ -213,15 +213,18 @@ class EgOrderSerializer(DefaultSerializer):
 
         def puntua_combinacion(combinacion):
             print(str(combinacion))
-            puntos = 100000 * self.puntos_productos_disponibles(combinacion)
-            #print("disponibles:", str(puntos))
-            puntos += 10000 * self.puntos_cantidad_almacenes(combinacion, almacenes)
-            #print("cantidad almacenes:", str(puntos))
-            puntos += 1000 * self.puntos_almacen_local(jsonDatos, combinacion)
-            #print("almacen local:", str(puntos))
-            puntos += 100 * self.puntos_prioridad(combinacion, almacenes)
-            #print("prioridad:", str(puntos))
-            puntos += 10 * self.puntos_bajo_limite(combinacion, almacenes)
+            puntos = 1000000 * self.puntos_productos_disponibles(combinacion)
+            # print("disponibles:", str(puntos))
+            puntos += 100000 * self.puntos_cantidad_almacenes(combinacion, almacenes)
+            # print("cantidad almacenes:", str(puntos))
+            puntos += 10000 * self.puntos_almacen_local(jsonDatos, combinacion)
+            # print("almacen local:", str(puntos))
+            puntos += 1000  * self.puntos_bajo_limite(combinacion, almacenes)
+            # print("bajo limite:", str(puntos))
+            puntos += 100 * self.puntos_porcentaje(combinacion, almacenes)
+            # print("prioridad porcentaje:", str(puntos))
+            puntos += 10 * self.puntos_prioridad(combinacion, almacenes)
+            # print("prioridad:", str(puntos))
             print("Puntos", str(puntos))
             return puntos
 
@@ -257,7 +260,7 @@ class EgOrderSerializer(DefaultSerializer):
         q = qsatype.FLSqlQuery()
         q.setSelect(u"a.codpais, a.email, a.codalmacen, ac.porcentajeteorico, ac.importeventas")
         q.setFrom(u"almacenes a INNER JOIN almacenescanalweb ac ON a.codalmacen = ac.codalmacen")
-        q.setWhere(u"a.codalmacen IN ('" + almacenes_sincro_mk + "') ORDER BY ac.porcentajeteorico DESC")
+        q.setWhere(u"a.codalmacen IN ('" + almacenes_sincro_mk + "') ORDER BY ac.prioridadcanalweb")
 
         q.exec_()
         print(q.sql())
@@ -304,9 +307,11 @@ class EgOrderSerializer(DefaultSerializer):
                 porcentaje_tienda_real = (parseFloat(importe_total_ventas_almacen) * 100) / parseFloat(importe_total_ventas)
 
 
-            prioridad_almacen = parseFloat(almacen["porcentaje_teorico"]) - parseFloat(porcentaje_tienda_real)
+            prioridad_almacen = (len(jsonDatos["almacenes"]) - indice) / len(jsonDatos["almacenes"])
+
+            porcentaje_almacen = parseFloat(almacen["porcentaje_teorico"]) - parseFloat(porcentaje_tienda_real)
             if almacen["source_code"] == "AWEB":
-                prioridad_almacen = 1
+                porcentaje_almacen = 1
             # pedidos_almacen = qsatype.FLUtil.quickSqlSelect("eg_lineasecommerceexcluidas e INNER JOIN tpv_comandas c ON e.codcomanda = c.codigo", "COUNT(*)", "e.codalmacen = '" + almacen["source_code"] + "' AND c.fecha = CURRENT_DATE")
             pedidos_almacen = qsatype.FLUtil.quickSqlSelect("tpv_comandas", "COUNT(*)", "fecha = CURRENT_DATE AND codigo like 'WEB%' and codtienda in ('AWEB','AWCL') and idtpv_comanda in (select c.idtpv_comanda from eg_lineasecommerceexcluidas le inner join tpv_lineascomanda l on le.idtpv_linea = l.idtpv_linea inner join tpv_comandas c on (l.idtpv_comanda = c.idtpv_comanda and le.codcomanda = c.codigo) WHERE le.codalmacen = '" + almacen["source_code"] + "' and c.fecha = CURRENT_DATE AND c.codigo like 'WEB%' and c.codtienda in ('AWEB','AWCL') group by c.idtpv_comanda)")
 
@@ -342,13 +347,13 @@ class EgOrderSerializer(DefaultSerializer):
                     "total": 0,
                     "lineas": {},
                     "prioridad": prioridad_almacen,
+                    "porcentaje": porcentaje_almacen,
                     "codpais": almacen["country_id"],
                     "bajo_limite": (int(limite_pedido_minimo)-int(pedidos_almacen)) / int(limite_pedido_minimo),
                     "disponibles": jBarcodes
                 })
 
         if self.cod_almacenes != "":
-            print("////////BARCODES CON STOCK: ", self.barcodes_lineas)
             self.barcodes_con_stock = qsatype.FLUtil.quickSqlSelect("atributosarticulos", "COUNT(*)", "barcode IN (SELECT barcode FROM stocks WHERE disponible > 0 AND codalmacen IN ({}) AND barcode IN ({}) GROUP BY barcode)".format(self.cod_almacenes, self.barcodes_lineas))
 
         return almacenes
@@ -407,6 +412,16 @@ class EgOrderSerializer(DefaultSerializer):
 
         for almacen in combinacion:
             prioridad += almacen["prioridad"]
+
+        result = prioridad * 10
+
+        return result
+
+    def puntos_porcentaje(self, combinacion, almacenes):
+        prioridad = 0
+
+        for almacen in combinacion:
+            prioridad += almacen["porcentaje"]
 
         result = prioridad * 10
 
