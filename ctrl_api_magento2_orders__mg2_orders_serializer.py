@@ -464,19 +464,27 @@ class Mg2OrdersSerializer(DefaultSerializer):
         if str(codpago) == "CREE":
             return True
 
+        if self.barcodes_lineas == "":
+            return True
+
         almacenes = self.dame_almacenes(jsonDatos)
 
         def puntua_combinacion(combinacion):
             print(str(combinacion))
-            puntos = 100000 * self.puntos_productos_disponibles(combinacion)
-            #print("disponibles:", str(puntos))
-            puntos += 10000 * self.puntos_cantidad_almacenes(combinacion, almacenes)
-            #print("cantidad almacenes:", str(puntos))
-            puntos += 1000 * self.puntos_almacen_local(jsonDatos, combinacion)
-            #print("almacen local:", str(puntos))
-            puntos += 100 * self.puntos_prioridad(combinacion, almacenes)
-            #print("prioridad:", str(puntos))
-            puntos += 10 * self.puntos_bajo_limite(combinacion, almacenes)
+            puntos = 1000000 * self.puntos_productos_disponibles(combinacion)
+            # print("disponibles:", str(puntos))
+            # puntos = 100000 * self.puntos_recogida_tienda(jsonDatos, combinacion)
+            # print("recogida tienda:", str(puntos))
+            puntos += 100000 * self.puntos_cantidad_almacenes(combinacion, almacenes)
+            # print("cantidad almacenes:", str(puntos))
+            puntos += 10000 * self.puntos_almacen_local(jsonDatos, combinacion)
+            # print("almacen local:", str(puntos))
+            puntos += 1000  * self.puntos_bajo_limite(combinacion, almacenes)
+            # print("bajo limite:", str(puntos))
+            puntos += 100 * self.puntos_porcentaje(combinacion, almacenes)
+            # print("prioridad porcentaje:", str(puntos))
+            puntos += 10 * self.puntos_prioridad(combinacion, almacenes)
+            # print("prioridad:", str(puntos))
             print("Puntos", str(puntos))
             return puntos
 
@@ -531,7 +539,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
         q = qsatype.FLSqlQuery()
         q.setSelect(u"a.codpais, a.email, a.codalmacen, ac.porcentajeteorico, ac.importeventas")
         q.setFrom(u"almacenes a INNER JOIN almacenescanalweb ac ON a.codalmacen = ac.codalmacen")
-        q.setWhere(u"a.codalmacen IN (" + almacenes + ") AND ac.codcanalweb = '" + codcanalweb + "' ORDER BY ac.porcentajeteorico DESC")
+        q.setWhere(u"a.codalmacen IN (" + almacenes + ") AND ac.codcanalweb = '" + codcanalweb + "' ORDER BY ac.prioridadcanalweb")
 
         q.exec_()
         print(q.sql())
@@ -563,8 +571,9 @@ class Mg2OrdersSerializer(DefaultSerializer):
 
             if not esRegalo:
                 barcode = self.get_barcode(linea_data["sku"])
-                barcodes.append(barcode)
-                lineas[barcode] = linea_data["cantidad"]
+                if "almacen" not in linea_data:
+                    barcodes.append(barcode)
+                    lineas[barcode] = linea_data["cantidad"]
 
         while q.next():
             jsonDatos["almacenes"].append({
@@ -572,6 +581,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
                 "email": str(q.value(u"a.email")),
                 "country_id": str(q.value(u"a.codpais")),
                 "porcentaje_teorico": parseFloat(q.value(u"ac.porcentajeteorico"))
+                
             })
 
         almacenes = []
@@ -592,10 +602,12 @@ class Mg2OrdersSerializer(DefaultSerializer):
             if parseFloat(importe_total_ventas) != 0:
                 porcentaje_tienda_real = (parseFloat(importe_total_ventas_almacen) * 100) / parseFloat(importe_total_ventas)
 
-  
-            prioridad_almacen = parseFloat(almacen["porcentaje_teorico"]) - parseFloat(porcentaje_tienda_real)
+            
+            prioridad_almacen = (len(jsonDatos["almacenes"]) - indice) / len(jsonDatos["almacenes"])
+
+            porcentaje_almacen = parseFloat(almacen["porcentaje_teorico"]) - parseFloat(porcentaje_tienda_real)
             if almacen["source_code"] == "AWEB":
-                prioridad_almacen = 1
+                porcentaje_almacen = 1
             # pedidos_almacen = qsatype.FLUtil.quickSqlSelect("eg_lineasecommerceexcluidas e INNER JOIN tpv_comandas c ON e.codcomanda = c.codigo", "COUNT(*)", "e.codalmacen = '" + almacen["source_code"] + "' AND c.fecha = CURRENT_DATE")
             pedidos_almacen = qsatype.FLUtil.quickSqlSelect("tpv_comandas", "COUNT(*)", "fecha = CURRENT_DATE AND codigo like 'WEB%' and codtienda in ('AWEB','AWCL') and idtpv_comanda in (select c.idtpv_comanda from eg_lineasecommerceexcluidas le inner join tpv_lineascomanda l on le.idtpv_linea = l.idtpv_linea inner join tpv_comandas c on (l.idtpv_comanda = c.idtpv_comanda and le.codcomanda = c.codigo) WHERE le.codalmacen = '" + almacen["source_code"] + "' and c.fecha = CURRENT_DATE AND c.codigo like 'WEB%' and c.codtienda in ('AWEB','AWCL') group by c.idtpv_comanda)")
 
@@ -631,6 +643,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
                     "total": 0,
                     "lineas": {},
                     "prioridad": prioridad_almacen,
+                    "porcentaje": porcentaje_almacen,
                     "codpais": almacen["country_id"],
                     "bajo_limite": (int(limite_pedido_minimo)-int(pedidos_almacen)) / int(limite_pedido_minimo),
                     "disponibles": jBarcodes
@@ -650,6 +663,20 @@ class Mg2OrdersSerializer(DefaultSerializer):
                 disponibles[self.clave_disponible(almacen, barcode)] = almacen["disponibles"][barcode]
 
         return disponibles
+
+        
+    def puntos_recogida_tienda(self, jsonDatos, combinacion):
+        
+        puntos = 0
+        max_puntos = len(combinacion)
+        recogidatienda = self.get_recogidatienda()
+        if recogidatienda:
+            for almacen in combinacion:
+                if str(almacen["cod_almacen"]) == str(jsonDatos["shipping_address"]["lastname"]):
+                    puntos = 1
+      
+        result = puntos * 10 / max_puntos
+        return result
 
     def puntos_productos_disponibles(self, combinacion):
         lineas = self.init_data["items"]
@@ -699,6 +726,16 @@ class Mg2OrdersSerializer(DefaultSerializer):
 
         return result
 
+    def puntos_porcentaje(self, combinacion, almacenes):
+        prioridad = 0
+
+        for almacen in combinacion:
+            prioridad += almacen["porcentaje"]
+
+        result = prioridad * 10
+
+        return result
+
     def puntos_bajo_limite(self, combinacion, almacenes):
         puntos = 0
 
@@ -743,19 +780,33 @@ class Mg2OrdersSerializer(DefaultSerializer):
                     ivaincluido = item["ivaincluido"]
                     pvpunitarioiva = item["pvpunitarioiva"]
                     pvpsindtoiva = item["pvpsindtoiva"] / item["cantidad"]
-                    aItems.append({"sku": sku, "cantidad": cantidad, "iva": iva, "pvptotaliva": pvptotaliva, "ivaincluido": ivaincluido, "pvpunitarioiva": pvpunitarioiva, "pvpsindtoiva": pvpsindtoiva, "barcode": barcode})
+
+                    recogidatienda = self.get_recogidatienda()
+                    if recogidatienda:
+                        if qsatype.FLUtil.quickSqlSelect("stocks", "idstock", "barcode = '{}' AND disponible >= {} AND codalmacen = '{}'".format(barcode, item["cantidad"], str(self.init_data["shipping_address"]["lastname"]))):
+                            emailtienda = qsatype.FLUtil.quickSqlSelect("almacenes", "email", "codalmacen = '{}'".format(str(self.init_data["shipping_address"]["lastname"])))
+                            aItems.append({"sku": sku, "cantidad": cantidad, "iva": iva, "pvptotaliva": pvptotaliva, "ivaincluido": ivaincluido, "pvpunitarioiva": pvpunitarioiva, "pvpsindtoiva": pvpsindtoiva, "barcode": barcode, "almacen": str(self.init_data["shipping_address"]["lastname"]),"emailtienda": str(emailtienda)})
+                    else:
+                        aItems.append({"sku": sku, "cantidad": cantidad, "iva": iva, "pvptotaliva": pvptotaliva, "ivaincluido": ivaincluido, "pvpunitarioiva": pvpunitarioiva, "pvpsindtoiva": pvpsindtoiva, "barcode": barcode})
             else:
                 item["barcode"] = self.get_barcode(item["sku"])
+                recogidatienda = self.get_recogidatienda()
+                if recogidatienda:
+                    if qsatype.FLUtil.quickSqlSelect("stocks", "idstock", "barcode = '{}' AND disponible >= {} AND codalmacen = '{}'".format(self.get_barcode(item["sku"]), item["cantidad"], str(self.init_data["shipping_address"]["lastname"]))):
+                        emailtienda = qsatype.FLUtil.quickSqlSelect("almacenes", "email", "codalmacen = '{}'".format(str(self.init_data["shipping_address"]["lastname"])))
+                        item["emailtienda"] = str(emailtienda)
+                        item["almacen"] = str(self.init_data["shipping_address"]["lastname"])
                 aItems.append(item)
 
         self.init_data["items"] = aItems
 
         self.barcodes_lineas = ""
         for linea in aItems:
-            if self.barcodes_lineas == "":
-                self.barcodes_lineas = "'" + linea["barcode"] + "'"
-            else:
-                self.barcodes_lineas += ",'" + linea["barcode"] + "'"
+            if "almacen" not in linea:
+                if self.barcodes_lineas == "":
+                    self.barcodes_lineas = "'" + linea["barcode"] + "'"
+                else:
+                    self.barcodes_lineas += ",'" + linea["barcode"] + "'"
         return True
 
     def get_codtienda(self):
@@ -777,3 +828,5 @@ class Mg2OrdersSerializer(DefaultSerializer):
         cadena = cadena.replace("\t", "")
         cadena = " ".join( cadena.split() )
         return cadena
+
+
