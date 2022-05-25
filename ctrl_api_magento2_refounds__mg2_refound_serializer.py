@@ -424,6 +424,14 @@ class Mg2RefoundsSerializer(DefaultSerializer):
         else:
             self.set_string_value("pagado", float(self.init_data["total_pay"] * self.init_data["tasaconv"]) * (-1))
 
+        if self.init_data["status"] == "creditmemo":
+            if str(self.init_data["store_id"]) == "13":
+                codtiendaentrega = "ACHI"
+                if "codtiendaentrega" in self.init_data:
+                    codtiendaentrega = self.init_data["codtiendaentrega"]
+
+                if not self.crear_viaje_recogidatienda(self.data["codigo"], codtiendaentrega):
+                    raise NameError("Error al crear el viaje de recogida en tienda.")
         return True
 
     def crear_pagos_devolucionweb(self, arqueo_web, codigo):
@@ -553,7 +561,7 @@ class Mg2RefoundsSerializer(DefaultSerializer):
 
         return True
 
-    def crear_viaje_recogidatienda(self, codcomanda):
+    def crear_viaje_recogidatienda(self, codcomanda, codtiendaentrega):
 
         id_viaje =  qsatype.FactoriaModulos.get("formRecordtpv_comandas").iface.obtenerIdViaje()
 
@@ -569,7 +577,7 @@ class Mg2RefoundsSerializer(DefaultSerializer):
             raise NameError("La cantidad para crear el viaje es menor o igual que cero.")
             return False
 
-        nombre_destino = str(qsatype.FLUtil.quickSqlSelect("almacenes", "nombre", "codalmacen = '" + str(self.init_data["warehouse"]) + "'"))
+        nombre_destino = str(qsatype.FLUtil.quickSqlSelect("almacenes", "nombre", "codalmacen = '" + str(codtiendaentrega) + "'"))
         curViaje = qsatype.FLSqlCursor("tpv_viajesmultitransstock")
         curViaje.setModeAccess(curViaje.Insert)
         curViaje.refreshBuffer()
@@ -577,13 +585,13 @@ class Mg2RefoundsSerializer(DefaultSerializer):
         curViaje.setValueBuffer("fecha", qsatype.Date())
         curViaje.setValueBuffer("codalmaorigen", "AWEB")
         curViaje.setValueBuffer("nombreorigen", "WEB")
-        curViaje.setValueBuffer("codalmadestino", str(self.init_data["warehouse"]))
+        curViaje.setValueBuffer("codalmadestino", str(codtiendaentrega))
         curViaje.setValueBuffer("nombredestino", nombre_destino)
         curViaje.setValueBuffer("cantidad", cantidad_viaje)
-        curViaje.setValueBuffer("estado", "EN TRANSITO")
+        curViaje.setValueBuffer("estado", "RECIBIDO")
         curViaje.setValueBuffer("enviocompletado", True)
         curViaje.setValueBuffer("ptesincroenvio", True)
-        curViaje.setValueBuffer("recepcioncompletada", False)
+        curViaje.setValueBuffer("recepcioncompletada", True)
         curViaje.setValueBuffer("azkarok", False)
         curViaje.setValueBuffer("egnumseguimiento", codcomanda)
 
@@ -593,19 +601,19 @@ class Mg2RefoundsSerializer(DefaultSerializer):
 
         num_linea = 1
         for linea in self.init_data["items_refunded"]:
-            if not self.crear_lineas_viaje_recogidatienda(id_viaje, linea, num_linea):
+            if not self.crear_lineas_viaje_recogidatienda(id_viaje, linea, num_linea, str(codtiendaentrega)):
                 raise NameError("Error al crear las líneas del viaje.")
                 return False
             num_linea += 1
 
 
-        if not qsatype.FLUtil.execSql("INSERT INTO eg_viajestiendaemail (idviajemultitrans, email, correoenviado) VALUES ('" + str(id_viaje) + "', '" + str(self.init_data["warehouse_email"]) + "', false)"):
-            raise NameError("Error al insertar el registro en eg_viajestiendaemail.")
+        if not qsatype.FLUtil.execSql("INSERT INTO eg_viajeswebtiendaptes (idviajemultitrans) VALUES ('" + str(id_viaje) + "')"):
+            raise NameError("Error al insertar el registro en eg_viajeswebtiendaptes.")
             return False
 
         return True
 
-    def crear_lineas_viaje_recogidatienda(self, id_viaje, linea, num_linea):
+    def crear_lineas_viaje_recogidatienda(self, id_viaje, linea, num_linea, codtiendaentrega):
 
         if parseFloat(linea["qty"]) <= 0:
             raise NameError("La cantidad de la línea es menor o igual que cero.")
@@ -622,25 +630,27 @@ class Mg2RefoundsSerializer(DefaultSerializer):
         curLV.setValueBuffer("barcode", self.get_barcode(linea["sku"]))
         curLV.setValueBuffer("talla", self.get_talla(linea["sku"]))
         curLV.setValueBuffer("codalmaorigen", "AWEB")
-        curLV.setValueBuffer("codalmadestino", str(self.init_data["warehouse"]))
-        curLV.setValueBuffer("estado", "EN TRANSITO")
+        curLV.setValueBuffer("codalmadestino", str(codtiendaentrega))
+        curLV.setValueBuffer("estado", "RECIBIDO")
         curLV.setValueBuffer("cantidad", parseFloat(linea["qty"]))
         curLV.setValueBuffer("numlinea", num_linea)
         curLV.setValueBuffer("cantpteenvio", 0)
         curLV.setValueBuffer("cantenviada", parseFloat(linea["qty"]))
         curLV.setValueBuffer("cantpterecibir", parseFloat(linea["qty"]))
-        curLV.setValueBuffer("cantrecibida", 0)
+        curLV.setValueBuffer("cantrecibida", parseFloat(linea["qty"]))
         curLV.setValueBuffer("excentral", "OK")
         curLV.setValueBuffer("extienda", "OK")
-        curLV.setValueBuffer("rxcentral", "PTE")
-        curLV.setValueBuffer("rxtienda", "PTE")
+        curLV.setValueBuffer("rxcentral", "OK")
+        curLV.setValueBuffer("rxtienda", "OK")
         curLV.setValueBuffer("ptestockcentral", False)
         curLV.setValueBuffer("cerradorx", False)
         curLV.setValueBuffer("cerradoex", False)
         curLV.setValueBuffer("revisada", False)
-        curLV.setValueBuffer("ptestockrx", True)
+        curLV.setValueBuffer("ptestockrx", False)
         curLV.setValueBuffer("fechaex", str(qsatype.Date())[:10])
         curLV.setValueBuffer("horaex", self.get_hora(str(qsatype.Date())))
+        curLV.setValueBuffer("fecharx", str(qsatype.Date())[:10])
+        curLV.setValueBuffer("horarx", self.get_hora(str(qsatype.Date())))
         curLV.setValueBuffer("idsincro", "CENTRAL_" + str(curLV.valueBuffer("idlinea")))
 
         if not curLV.commitBuffer():
