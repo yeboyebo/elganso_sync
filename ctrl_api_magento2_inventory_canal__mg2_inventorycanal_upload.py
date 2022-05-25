@@ -37,6 +37,21 @@ class Mg2InventoryCanalUpload(InventoryUpload):
             datos["linea"] = data[idx]
             inventory = self.get_inventorycanal_serializer().serialize(datos)
             new_inventory.append(inventory)
+            
+            '''inventory_default = inventory.copy()
+            cantidad = 0
+            if float(inventory_default['quantity']) > 0:
+                cantidad = 1
+            
+            inventory_default.update({
+                "source_code": "default",
+                "stock_id": "1",
+                "quantity": 1,
+                "status": 1
+            })
+            
+            new_inventory.append(inventory_default)'''
+
         if not new_inventory:
             return new_inventory
 
@@ -61,17 +76,12 @@ class Mg2InventoryCanalUpload(InventoryUpload):
         return data
 
     def get_db_data(self):
-        # hora1 = datetime.strptime("06:30:00", "%X").time()
-        # hora2 = datetime.strptime("01:30:00", "%X").time()
-        # hora_act = datetime.now().time()
-
-        # if hora_act > hora1 or hora_act < hora2:
         body = []
 
         q = qsatype.FLSqlQuery()
         q.setSelect("ssw.idss, ssw.barcode, ssw.codcanalweb, aa.referencia, aa.talla, st.idstockmagento")
         q.setFrom("eg_sincrostockwebcanalweb ssw INNER JOIN atributosarticulos aa ON ssw.barcode = aa.barcode INNER JOIN mg_storeviews st ON ssw.codcanalweb = st.codcanalweb")
-        q.setWhere("(NOT ssw.sincronizado OR ssw.sincronizado = false) GROUP BY ssw.idss, ssw.barcode, ssw.codcanalweb, aa.referencia, aa.talla, st.idstockmagento ORDER BY ssw.fecha desc, ssw.hora desc, ssw.idss LIMIT 100")
+        q.setWhere("(NOT ssw.sincronizado OR ssw.sincronizado = false) GROUP BY ssw.idss, ssw.barcode, ssw.codcanalweb, aa.referencia, aa.talla, st.idstockmagento ORDER BY ssw.fecha desc, ssw.hora desc, ssw.idss LIMIT 50")
 
         q.exec_()
 
@@ -86,8 +96,6 @@ class Mg2InventoryCanalUpload(InventoryUpload):
             else:
                 self._ssw += ","
                 self._ssw += str(row['ssw.idss'])
-        # else:
-            # return []
 
         return body
 
