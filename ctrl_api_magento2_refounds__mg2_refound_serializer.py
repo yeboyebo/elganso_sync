@@ -76,6 +76,12 @@ class Mg2RefoundsSerializer(DefaultSerializer):
                     "tasaconv": tasaconv
                 })
 
+                if "codtiendaentrega" in self.init_data:
+                    if str(self.init_data["codtiendaentrega"]) != "AWEB":
+                        line.update({
+                         "codtiendaentrega": self.init_data["codtiendaentrega"]
+                        })
+
                 line_data = Mg2RefoundLineSerializer().serialize(line)
                 self.data["children"]["lines"].append(line_data)
                 iva = line["tax_percent"]
@@ -428,10 +434,10 @@ class Mg2RefoundsSerializer(DefaultSerializer):
             if str(self.init_data["store_id"]) == "13":
                 codtiendaentrega = "ACHI"
                 if "codtiendaentrega" in self.init_data:
-                    codtiendaentrega = self.init_data["codtiendaentrega"]
-
-                if not self.crear_viaje_recogidatienda(self.data["codigo"], codtiendaentrega):
-                    raise NameError("Error al crear el viaje de recogida en tienda.")
+                    if str(self.init_data["codtiendaentrega"]) != "AWEB":
+                        codtiendaentrega = self.init_data["codtiendaentrega"]
+                        if not self.crear_viaje_recogidatienda(self.data["codigo"], codtiendaentrega):
+                            raise NameError("Error al crear el viaje de recogida en tienda.")
         return True
 
     def crear_pagos_devolucionweb(self, arqueo_web, codigo):

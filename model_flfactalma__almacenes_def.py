@@ -123,7 +123,8 @@ class elganso_sync(flfactalma):
                 q = qsatype.FLSqlQuery()
                 q.setSelect("referencia,talla,disponible")
                 q.setFrom("stocks")
-                q.setWhere("referencia = '" + referencia + "' AND talla <> '" + talla + "' AND codalmacen = 'AWEB' AND disponible > 0 ")
+                #q.setWhere("referencia = '" + referencia + "' AND talla <> '" + talla + "' AND codalmacen = 'AWEB' AND disponible > 0 ")
+                q.setWhere("referencia = '" + referencia + "' AND codalmacen = 'AWEB' AND disponible > 0 ")
 
                 if not q.exec_():
                     return {"Error": "Error en la consulta", "status": -1}

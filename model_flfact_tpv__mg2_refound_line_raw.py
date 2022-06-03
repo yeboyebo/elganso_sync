@@ -2,7 +2,7 @@ from YBLEGACY import qsatype
 from YBLEGACY.constantes import *
 
 from models.flsyncppal.objects.aqmodel_raw import AQModel
-
+from models.flfact_tpv.objects.egrefound_lineasdevolucioneswebtienda_raw import EgRefoundLineasDevolucionesWebTienda
 
 class Mg2RefoundLine(AQModel):
 
@@ -15,6 +15,11 @@ class Mg2RefoundLine(AQModel):
         cursor.setActivatedCommitActions(False)
 
         return cursor
+
+    def get_children_data(self):
+        if "lineadevolucionwebtienda" in self.data["children"]:
+            if self.data["children"]["lineadevolucionwebtienda"]:
+                self.children.append(EgRefoundLineasDevolucionesWebTienda(self.data["children"]["lineadevolucionwebtienda"]))
 
     def get_parent_data(self, parent_cursor):
         self.set_data_value("idtpv_comanda", parent_cursor.valueBuffer("idtpv_comanda"))
