@@ -37,3 +37,6 @@ class InventorySerializer(DefaultSerializer):
         self.set_string_value("quantity", cant_disponible)
         self.set_string_value("status", status)
         return True
+
+
+

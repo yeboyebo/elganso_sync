@@ -13,8 +13,8 @@ class AzImagesUpload(AzFeedsUpload, ABC):
     def get_query(self):
         q = qsatype.FLSqlQuery()
         q.setSelect("az.referencia, aa.barcode, urls.urls_sinfondo")
-        q.setFrom("az_articulosamazon az INNER JOIN atributosarticulos aa ON az.referencia = aa.referencia LEFT JOIN eg_urlsimagenesarticulosmgt urls ON az.referencia = urls.referencia")
-        q.setWhere("az.referencia IN (SELECT referencia FROM az_articulosamazon WHERE sincroarticulo AND articulocreado AND sincrorelacion AND NOT sincroimagenes AND NOT errorsincro LIMIT {}) AND urls.urls_sinfondo IS NOT NULL AND urls.urls_sinfondo <> ''".format(self.driver.azQueryLimit))
+        q.setFrom("articulos a INNER JOIN az_articulosamazon az ON a.referencia = az.referencia INNER JOIN atributosarticulos aa ON az.referencia = aa.referencia LEFT JOIN eg_urlsimagenesarticulosmgt urls ON az.referencia = urls.referencia")
+        q.setWhere("az.referencia IN (SELECT referencia FROM az_articulosamazon WHERE sincroarticulo AND articulocreado AND sincrorelacion AND NOT sincroimagenes AND NOT errorsincro LIMIT {}) AND urls.urls_sinfondo IS NOT NULL AND urls.urls_sinfondo <> '' AND barcode not in (select barcode from atributosarticulos where a.referencia = aa.referencia and aa.talla >= '35' and (a.codgrupomoda = '3' OR a.codgrupomoda = '5'))".format(self.driver.azQueryLimit))
 
         return q
 

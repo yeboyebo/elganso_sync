@@ -13,8 +13,8 @@ class AzRelationshipsUpload(AzFeedsUpload, ABC):
     def get_query(self):
         q = qsatype.FLSqlQuery()
         q.setSelect("az.referencia, aa.barcode")
-        q.setFrom("az_articulosamazon az INNER JOIN atributosarticulos aa ON az.referencia = aa.referencia")
-        q.setWhere("az.referencia IN (SELECT referencia FROM az_articulosamazon WHERE sincroarticulo AND articulocreado AND NOT sincrorelacion AND NOT errorsincro LIMIT {}) AND aa.talla <> '35'".format(self.driver.azQueryLimit))
+        q.setFrom("articulos a INNER JOIN az_articulosamazon az ON a.referencia = az.referencia INNER JOIN atributosarticulos aa ON az.referencia = aa.referencia")
+        q.setWhere("az.referencia IN (SELECT referencia FROM az_articulosamazon WHERE sincroarticulo AND articulocreado AND NOT sincrorelacion AND NOT errorsincro LIMIT {}) AND barcode not in (select barcode from atributosarticulos where a.referencia = aa.referencia and aa.talla >= '35' and (a.codgrupomoda = '3' OR a.codgrupomoda = '5'))".format(self.driver.azQueryLimit))
 
         return q
 
