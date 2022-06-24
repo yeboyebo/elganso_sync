@@ -54,8 +54,8 @@ class Mg2TierpriceUpload(TierpriceUpload):
         if data:
             result = True
             try:
-                # print("DATA: ", json.dumps(data))
-                # print("URL: ", tierprice_url)
+                print("DATA: ", json.dumps(data))
+                print("URL: ", tierprice_url)
                 self.send_request("post", url=tierprice_url.format("es"), data=json.dumps(data))
                 self.send_request("post", url=tierprice_url.format("fr"), data=json.dumps(data))
                 self.send_request("post", url=tierprice_url.format("en"), data=json.dumps(data))
@@ -72,9 +72,10 @@ class Mg2TierpriceUpload(TierpriceUpload):
     def get_db_data(self):
         body = []
         q = qsatype.FLSqlQuery()
-        q.setSelect("ls.id, at.referencia, at.talla, ap.pvp, p.desde || ' ' || p.horadesde, ap.activo, p.hasta || ' ' || p.horahasta, mg.idwebsite, mg.codstoreview")
+        q.setSelect("ls.id, at.referencia, at.talla, ap.pvp, p.desde || ' ' || p.horadesde, ap.activo, p.hasta || ' ' || p.horahasta, mg.idwebsite, mg.codstoreview, p.elgansociety")
         q.setFrom("eg_planprecios p INNER JOIN eg_articulosplan ap ON p.codplan = ap.codplan INNER JOIN atributosarticulos at ON ap.referencia = at.referencia INNER JOIN eg_tiendasplanprecios tp ON p.codplan = tp.codplan INNER JOIN mg_storeviews mg ON tp.codtienda = mg.egcodtiendarebajas INNER JOIN lineassincro_catalogo ls ON (p.codplan = ls.idobjeto AND at.referencia || '-' || at.talla || '-' || mg.idmagento = ls.descripcion)")
-        q.setWhere("p.elgansociety = TRUE AND ls.sincronizado = FALSE AND ls.tiposincro = 'Planificador Precios' AND (p.desde < CURRENT_DATE OR (p.desde = CURRENT_DATE AND p.horadesde <= CURRENT_TIME)) GROUP BY ls.id,at.referencia, at.talla, ap.pvp, p.desde || ' ' || p.horadesde, p.hasta || ' ' || p.horahasta, mg.idwebsite, ap.activo, mg.codstoreview ORDER BY ls.id LIMIT 10000")
+        #q.setWhere("p.elgansociety = TRUE AND ls.sincronizado = FALSE AND ls.tiposincro = 'Planificador Precios' AND (p.desde < CURRENT_DATE OR (p.desde = CURRENT_DATE AND p.horadesde <= CURRENT_TIME)) AND ap.activo GROUP BY ls.id,at.referencia, at.talla, ap.pvp, p.desde || ' ' || p.horadesde, p.hasta || ' ' || p.horahasta, mg.idwebsite, ap.activo, mg.codstoreview ORDER BY ls.id LIMIT 2000")
+        q.setWhere("ls.sincronizado = FALSE AND ls.tiposincro = 'Planificador Precios' AND (p.desde < CURRENT_DATE OR (p.desde = CURRENT_DATE AND p.horadesde <= CURRENT_TIME)) AND ap.activo GROUP BY ls.id,at.referencia, at.talla, ap.pvp, p.desde || ' ' || p.horadesde, p.hasta || ' ' || p.horahasta, mg.idwebsite, ap.activo, mg.codstoreview, p.elgansociety ORDER BY ls.id LIMIT 2000")
 
         q.exec_()
 

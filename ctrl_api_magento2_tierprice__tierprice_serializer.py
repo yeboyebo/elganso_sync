@@ -11,7 +11,9 @@ class TierpriceSerializer(DefaultSerializer):
         self.set_string_value("sku", referencia)
         self.set_data_relation("price", "ap.pvp")
         self.set_data_relation("website_id", "mg.idwebsite")
-        self.set_string_value("customer_group", "General")
+        self.set_string_value("customer_group", "ALL GROUPS")
+        if self.init_data["p.elgansociety"] == True:
+            self.set_string_value("customer_group", "General")
         self.set_string_value("price_type", "fixed")
         self.set_data_value("quantity", 1)
 

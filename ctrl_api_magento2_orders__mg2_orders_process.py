@@ -52,6 +52,9 @@ class Mg2OrdersProcess(DownloadSync):
             cuerpolog = cuerpolog.replace("'", " ")
             cuerpolog = cuerpolog.replace("\\xa0", " ")
             cuerpolog = cuerpolog.replace("\\xad", "")
+            cuerpolog = cuerpolog.replace("\\x81", "")
+            cuerpolog = cuerpolog.replace("\\n", " ")
+            cuerpolog = cuerpolog.replace("\n", " ")
 
             # print(str(cuerpolog))
             # cuerpolog = cuerpolog.replace("False", "\"False\"")
