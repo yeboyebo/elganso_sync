@@ -51,11 +51,9 @@ class Mg2RefoundLineSerializer(DefaultSerializer):
         self.set_string_value("pvptotaliva", pvptotaliva)
         self.set_string_value("iva", iva)
         self.set_data_value("ivaincluido", True)
-        print("////////////////////1")
+
         if "codtiendaentrega" in self.init_data:
-            print("////////////////////2")
             if str(self.init_data["codtiendaentrega"]) != "AWEB":
-                print("////////////////////3")
                 linea_devolucion_web_tienda = Mg2LineasDevolucionesWebTienda().serialize(self.init_data)
                 self.data["children"]["lineadevolucionwebtienda"] = linea_devolucion_web_tienda
         return True
