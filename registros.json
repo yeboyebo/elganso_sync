@@ -272,6 +272,20 @@
         },
         {
             "type": "insertAfterNode",
+            "path": "/flfactalma/eg_sincrostockwebcanalweb",
+            "value": {
+                "eg_look": null
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/flfactalma/eg_look",
+            "value": {
+                "eg_articuloslook": null
+            }
+        },
+        {
+            "type": "insertAfterNode",
             "path": "/flfactppal/usuarios",
             "value": {
                 "solicitudescliente": null

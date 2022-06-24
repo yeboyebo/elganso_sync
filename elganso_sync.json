@@ -1327,6 +1327,30 @@
             {
                 "name": "model_flfact_tpv__egrefound_lineasdevolucioneswebtienda_raw.py",
                 "path": "models/flfact_tpv/objects/"
+            },
+            {
+                "name": "model_flfactalma__eg_look.py",
+                "path": "models/flfactalma/"
+            },
+            {
+                "name": "model_flfactalma__eg_look_def.py",
+                "path": "models/flfactalma/"
+            },
+            {
+                "name": "model_flfactalma__eg_articuloslook.py",
+                "path": "models/flfactalma/"
+            },
+            {
+                "name": "model_flfactalma__eg_articuloslook_def.py",
+                "path": "models/flfactalma/"
+            },
+            {
+                "name": "ctrl_api_magento2_look__upload.py",
+                "path": "controllers/api/magento2/look/"
+            },
+            {
+                "name": "ctrl_api_magento2_look__mg2_look_upload.py",
+                "path": "controllers/api/magento2/look/controllers/"
             }
         ],
         "deleteFile": [],

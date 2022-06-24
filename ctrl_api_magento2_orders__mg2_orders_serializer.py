@@ -786,6 +786,8 @@ class Mg2OrdersSerializer(DefaultSerializer):
                         if qsatype.FLUtil.quickSqlSelect("stocks", "idstock", "barcode = '{}' AND disponible >= {} AND codalmacen = '{}'".format(barcode, item["cantidad"], str(self.init_data["shipping_address"]["lastname"]))):
                             emailtienda = qsatype.FLUtil.quickSqlSelect("almacenes", "email", "codalmacen = '{}'".format(str(self.init_data["shipping_address"]["lastname"])))
                             aItems.append({"sku": sku, "cantidad": cantidad, "iva": iva, "pvptotaliva": pvptotaliva, "ivaincluido": ivaincluido, "pvpunitarioiva": pvpunitarioiva, "pvpsindtoiva": pvpsindtoiva, "barcode": barcode, "almacen": str(self.init_data["shipping_address"]["lastname"]),"emailtienda": str(emailtienda)})
+                        else:
+                            aItems.append({"sku": sku, "cantidad": cantidad, "iva": iva, "pvptotaliva": pvptotaliva, "ivaincluido": ivaincluido, "pvpunitarioiva": pvpunitarioiva, "pvpsindtoiva": pvpsindtoiva, "barcode": barcode})
                     else:
                         aItems.append({"sku": sku, "cantidad": cantidad, "iva": iva, "pvptotaliva": pvptotaliva, "ivaincluido": ivaincluido, "pvpunitarioiva": pvpunitarioiva, "pvpsindtoiva": pvpsindtoiva, "barcode": barcode})
             else:

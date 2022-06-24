@@ -247,6 +247,20 @@
         },
         {
             "type": "insertAfterNode",
+            "path": "/models/flfactalma/eg_sincrostockwebcanalweb",
+            "value": {
+                "eg_look": null
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/models/flfactalma/eg_look",
+            "value": {
+                "eg_articuloslook": null
+            }
+        },
+        {
+            "type": "insertAfterNode",
             "path": "/models/flfactppal/zonasgeo",
             "value": {
                 "idl_recepciones": null
