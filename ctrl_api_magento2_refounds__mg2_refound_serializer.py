@@ -44,7 +44,7 @@ class Mg2RefoundsSerializer(DefaultSerializer):
             divisa = str(self.init_data["currency"])
 
             if divisa:
-                if divisa != "None" and divisa != "EUR" and divisa != "CLP":
+                if divisa != "None" and divisa != "EUR" and divisa != "CLP" and divisa != "MXN":
                     tasaconv = qsatype.FLUtil.quickSqlSelect("divisas", "tasaconv", "coddivisa = '{}'".format(divisa))
                     if not tasaconv:
                         tasaconv = 1
@@ -117,7 +117,7 @@ class Mg2RefoundsSerializer(DefaultSerializer):
             tasaconv = 1
             divisa = str(self.init_data["currency"])
             if divisa:
-                if divisa != "None" and divisa != "EUR" and divisa != "CLP":
+                if divisa != "None" and divisa != "EUR" and divisa != "CLP" and divisa != "MXN":
                     tasaconv = qsatype.FLUtil.quickSqlSelect("divisas", "tasaconv", "coddivisa = '{}'".format(divisa))
                     if not tasaconv:
                         tasaconv = 1
@@ -391,14 +391,14 @@ class Mg2RefoundsSerializer(DefaultSerializer):
         tasaconv = 1
         divisa = str(self.init_data["currency"])
         if divisa:
-            if divisa != "None" and divisa != "EUR" and divisa != "CLP":
+            if divisa != "None" and divisa != "EUR" and divisa != "CLP" and divisa != "MXN":
                 tasaconv = qsatype.FLUtil.quickSqlSelect("divisas", "tasaconv", "coddivisa = '{}'".format(divisa))
                 if not tasaconv:
                     tasaconv = 1
 
         self.init_data["tasaconv"] = tasaconv
 
-        if str(self.init_data["store_id"]) == "13":
+        if str(self.init_data["store_id"]) == "13" or str(self.init_data["store_id"]) == "14":
             codtienda = self.get_codtienda()
         else:
             codtienda = "AWEB"
@@ -444,7 +444,7 @@ class Mg2RefoundsSerializer(DefaultSerializer):
         tasaconv = 1
         divisa = str(self.init_data["currency"])
         if divisa:
-            if divisa != "None" and divisa != "EUR" and divisa != "CLP":
+            if divisa != "None" and divisa != "EUR" and divisa != "CLP" and divisa != "MXN":
                 tasaconv = qsatype.FLUtil.quickSqlSelect("divisas", "tasaconv", "coddivisa = '{}'".format(divisa))
                 if not tasaconv:
                     tasaconv = 1
@@ -725,11 +725,11 @@ class Mg2RefoundsSerializer(DefaultSerializer):
         return True
 
     def get_codtienda(self):
-        if str(self.init_data["store_id"]) == "13":
+        if str(self.init_data["store_id"]) == "13" or str(self.init_data["store_id"]) == "14":
             return qsatype.FLUtil.quickSqlSelect("mg_storeviews", "egcodtiendarebajas", "idmagento = '{}'".format(str(self.init_data["store_id"])))
         return "AWEB"
 
     def get_puntoventa(self):
-        if str(self.init_data["store_id"]) == "13":
+        if str(self.init_data["store_id"]) == "13" or str(self.init_data["store_id"]) == "14":
             return qsatype.FLUtil.quickSqlSelect("tpv_puntosventa", "codtpv_puntoventa", "codtienda = '{}'".format(str(self.get_codtienda())))
         return "AWEB"

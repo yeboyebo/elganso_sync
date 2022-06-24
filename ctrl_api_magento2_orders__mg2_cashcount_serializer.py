@@ -12,7 +12,7 @@ class Mg2CashCountSerializer(DefaultSerializer):
         if idarqueo:
             self.data = {"idtpv_arqueo": idarqueo, "skip": True}
             return True
-
+        print("CODTIENDA: " ,  self.init_data["codtienda"])
         fecha = qsatype.Date()
         idarqueo = qsatype.FLUtil.sqlSelect("tpv_arqueos", "idtpv_arqueo", "codtienda = '{}' AND diadesde = '{}'".format(self.init_data["codtienda"],fecha))
 

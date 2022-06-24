@@ -83,7 +83,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
             divisa = str(self.init_data["currency"])
 
             if divisa:
-                if divisa != "None" and divisa != "EUR" and divisa != "CLP":
+                if divisa != "None" and divisa != "EUR" and divisa != "CLP" and divisa != "MXN":
                     tasaconv = qsatype.FLUtil.quickSqlSelect("divisas", "tasaconv", "coddivisa = '{}'".format(divisa))
                     if not tasaconv:
                         tasaconv = 1
@@ -200,7 +200,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
             linea_vale = Mg2VoucherLineSerializer().serialize(new_init_data)
             linea_dtodesconocido = Mg2DiscountUnknownLineSerializer().serialize(new_init_data)
             new_data = self.data.copy()
-            if str(self.init_data["store_id"]) == "13":
+            if str(self.init_data["store_id"]) == "13" or str(self.init_data["store_id"]) == "14":
                 new_data.update({
                     "codtienda": self.get_codtienda()
                 })
@@ -812,12 +812,12 @@ class Mg2OrdersSerializer(DefaultSerializer):
         return True
 
     def get_codtienda(self):
-        if str(self.init_data["store_id"]) == "13":
+        if str(self.init_data["store_id"]) == "13" or str(self.init_data["store_id"]) == "14":
             return qsatype.FLUtil.quickSqlSelect("mg_storeviews", "egcodtiendarebajas", "idmagento = '{}'".format(str(self.init_data["store_id"])))
         return "AWEB"
 
     def get_puntoventa(self):
-        if str(self.init_data["store_id"]) == "13":
+        if str(self.init_data["store_id"]) == "13" or str(self.init_data["store_id"]) == "14":
             return qsatype.FLUtil.quickSqlSelect("tpv_puntosventa", "codtpv_puntoventa", "codtienda = '{}'".format(str(self.get_codtienda())))
         return "AWEB"
 
