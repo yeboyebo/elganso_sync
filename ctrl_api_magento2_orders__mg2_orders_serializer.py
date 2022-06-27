@@ -83,7 +83,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
             divisa = str(self.init_data["currency"])
 
             if divisa:
-                if divisa != "None" and divisa != "EUR" and divisa != "CLP" and divisa != "MXN":
+                if divisa != "None" and divisa != "EUR" and divisa != "CLP":
                     tasaconv = qsatype.FLUtil.quickSqlSelect("divisas", "tasaconv", "coddivisa = '{}'".format(divisa))
                     if not tasaconv:
                         tasaconv = 1
