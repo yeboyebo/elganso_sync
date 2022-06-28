@@ -265,7 +265,7 @@ class Mg2RefoundsSerializer(DefaultSerializer):
         return codPago
 
     def control_tallas_devolucion(self):
-
+        return True
         refDevol = ""
         refCambio = False
 

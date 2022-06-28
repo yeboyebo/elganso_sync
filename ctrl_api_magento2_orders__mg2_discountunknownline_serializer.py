@@ -25,21 +25,7 @@ class Mg2DiscountUnknownLineSerializer(Mg2OrderLineSerializer):
             if importe_puntos > 0:
                 return False
 
-
-        # importe_puntos viene en positivo
-        dto = dto + importe_puntos
-
-        self.get_bono_data()
-
-        if self.bono:
-            if "discount" in self.bono:
-                dto = self.bono["discount"]
-
-        dif = (self.init_data["discount_amount"]) - (dto - importe_puntos)
-
-        if abs(dif) > 0.01:
-            dto = dif
-        else:
+        if self.init_data["discount_description"] and str(self.init_data["discount_description"]) != "None":
             return False
 
         iva = self.init_data["iva"]
