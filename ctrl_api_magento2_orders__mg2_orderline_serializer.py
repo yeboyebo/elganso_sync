@@ -56,6 +56,14 @@ class Mg2OrderLineSerializer(DefaultSerializer):
                 linea_ecommerce_excluida = Mg2LineaEcommerceExcluidaSerializer().serialize(self.init_data)
                 self.data["children"]["lineaecommerceexcluida"] = linea_ecommerce_excluida
 
+        
+        if str(self.init_data["store_id"]) == "14":
+            if "almacen" not in self.init_data:
+                self.init_data["almacen"] = "AANT"
+                self.init_data["emailtienda"] = qsatype.FLUtil.quickSqlSelect("almacenes", "email", "codalmacen = '{}'".format("AANT"))
+                linea_ecommerce_excluida = Mg2LineaEcommerceExcluidaSerializer().serialize(self.init_data)
+                self.data["children"]["lineaecommerceexcluida"] = linea_ecommerce_excluida
+
         return True
 
     def get_splitted_sku(self):

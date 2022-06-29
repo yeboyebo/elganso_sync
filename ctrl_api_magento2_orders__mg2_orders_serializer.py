@@ -106,7 +106,8 @@ class Mg2OrdersSerializer(DefaultSerializer):
             for item in self.init_data["items"]:
                 item.update({
                     "codcomanda": self.data["codigo"],
-                    "tasaconv": tasaconv
+                    "tasaconv": tasaconv,
+                    "store_id": self.init_data["store_id"]
                 })
 
                 line_data = Mg2OrderLineSerializer().serialize(item)
