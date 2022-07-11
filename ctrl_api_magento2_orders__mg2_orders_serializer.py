@@ -71,6 +71,8 @@ class Mg2OrdersSerializer(DefaultSerializer):
                 num_lineas = num_lineas + float(item["cantidad"])
 
             if float(num_lineas) != float(self.init_data["units"]):
+                print(str(num_lineas))
+                print(str(self.init_data["units"]))
                 raise NameError("El número de unidades indicadas y la cantidad de líneas no coincide.")
                 return False
 
@@ -98,7 +100,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
                 self.data["children"]["payments"] = []
 
             if not self.distribucion_almacenes():
-                raise NameError("El numero de unidades indicadas y la cantidad de lineas no coincide.")
+                raise NameError("Error en la distribucion de los almacenes.")
                 return False
 
             ivaInformado = False
@@ -831,5 +833,3 @@ class Mg2OrdersSerializer(DefaultSerializer):
         cadena = cadena.replace("\t", "")
         cadena = " ".join( cadena.split() )
         return cadena
-
-
