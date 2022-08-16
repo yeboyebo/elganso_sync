@@ -130,10 +130,10 @@ class Mg2RefoundDiscountLineSerializer(Mg2RefoundLineSerializer):
             if existeBono == "None":
                 return True
 
-            importeMovBono = parseFloat(self.init_data["discount_refunded"])
+            importeMovBono = parseFloat(self.init_data["discount_refunded"]) * (-1)
 
             if str(self.init_data["tipo_linea"]) == "BonoPositivo":
-                importeMovBono = parseFloat(self.init_data["discount_refunded"]) * (-1)
+                importeMovBono = parseFloat(self.init_data["discount_refunded"])
 
             curMoviBono = qsatype.FLSqlCursor("eg_movibono")
             curMoviBono.setModeAccess(curMoviBono.Insert)

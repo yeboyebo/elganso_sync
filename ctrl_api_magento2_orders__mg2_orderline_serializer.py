@@ -57,10 +57,14 @@ class Mg2OrderLineSerializer(DefaultSerializer):
                 self.data["children"]["lineaecommerceexcluida"] = linea_ecommerce_excluida
 
         
-        if str(self.init_data["store_id"]) == "14":
+        if str(self.init_data["store_id"]) == "14" or str(self.init_data["store_id"]) == "13":
             if "almacen" not in self.init_data:
-                self.init_data["almacen"] = "AANT"
-                self.init_data["emailtienda"] = qsatype.FLUtil.quickSqlSelect("almacenes", "email", "codalmacen = '{}'".format("AANT"))
+                if str(self.init_data["store_id"]) == "14":
+                    self.init_data["almacen"] = "AANT"
+                    self.init_data["emailtienda"] = qsatype.FLUtil.quickSqlSelect("almacenes", "email", "codalmacen = '{}'".format("AANT"))
+                else:
+                    self.init_data["almacen"] = "ACHI"
+                    self.init_data["emailtienda"] = qsatype.FLUtil.quickSqlSelect("almacenes", "email", "codalmacen = '{}'".format("ACHI"))
                 linea_ecommerce_excluida = Mg2LineaEcommerceExcluidaSerializer().serialize(self.init_data)
                 self.data["children"]["lineaecommerceexcluida"] = linea_ecommerce_excluida
 
