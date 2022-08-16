@@ -18,7 +18,7 @@ class AzStocksUpload(AzFeedsUpload, ABC):
         q = qsatype.FLSqlQuery()
         q.setSelect("az.referencia, aa.barcode, s.disponible, p.valor")
         q.setFrom("articulos a INNER JOIN az_articulosamazon az ON a.referencia = az.referencia INNER JOIN atributosarticulos aa ON az.referencia = aa.referencia LEFT JOIN stocks s ON aa.barcode = s.barcode INNER JOIN param_parametros p ON p.nombre = 'RSTOCK_AMAZ'")
-        q.setWhere("az.referencia IN (SELECT referencia FROM az_articulosamazon WHERE articulocreado AND NOT sincrostock LIMIT {}) AND s.codalmacen = 'AWEB' AND aa.barcode not in (select barcode from atributosarticulos where a.referencia = aa.referencia and aa.talla >= '35' and (a.codgrupomoda = '3' OR a.codgrupomoda = '5'))".format(self.driver.azQueryLimit))
+        q.setWhere("az.referencia IN (SELECT referencia FROM az_articulosamazon WHERE articulocreado AND NOT sincrostock LIMIT {}) AND s.codalmacen = 'AWEB' AND aa.barcode not in (select barcode from atributosarticulos where a.referencia = aa.referencia and aa.talla in ('35','36','37','38','39','40') and (a.codgrupomoda = '3' OR a.codgrupomoda = '5'))".format(self.driver.azQueryLimit))
 
         return q
 

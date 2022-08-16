@@ -27,7 +27,7 @@ class AzProductsUpload(AzFeedsUpload, ABC):
         q = qsatype.FLSqlQuery()
         q.setSelect("lsc.id, lsc.idsincro, lsc.idobjeto, lsc.descripcion, az.referencia, aa.barcode, aa.talla, a.egcolor, a.mgdescripcion, a.mgdescripcioncorta, a.codgrupomoda, f.codfamiliaaz, ta.codgrupotalla, a.egcomposicion")
         q.setFrom("lineassincro_catalogo lsc INNER JOIN az_articulosamazon az ON lsc.idobjeto = az.referencia INNER JOIN articulos a ON lsc.idobjeto = a.referencia INNER JOIN atributosarticulos aa ON a.referencia = aa.referencia INNER JOIN familias f ON a.codfamilia = f.codfamilia INNER JOIN tallas ta ON aa.talla = ta.codtalla")
-        q.setWhere("lsc.id IN (SELECT id FROM lineassincro_catalogo WHERE tiposincro = 'Enviar productos' AND NOT sincronizado AND website = 'AMAZON' LIMIT {}) AND barcode not in (select barcode from atributosarticulos where a.referencia = aa.referencia and aa.talla >= '35' and (a.codgrupomoda = '3' OR a.codgrupomoda = '5'))".format(self.driver.azQueryLimit))
+        q.setWhere("lsc.id IN (SELECT id FROM lineassincro_catalogo WHERE tiposincro = 'Enviar productos' AND NOT sincronizado AND website = 'AMAZON' LIMIT {}) AND barcode not in (select barcode from atributosarticulos where a.referencia = aa.referencia and aa.talla in ('35','36','37','38','39','40') and (a.codgrupomoda = '3' OR a.codgrupomoda = '5'))".format(self.driver.azQueryLimit))
 
         return q
 
