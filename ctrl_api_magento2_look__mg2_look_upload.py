@@ -49,7 +49,8 @@ class Mg2LookUpload(ProductsUpload):
         qLook.setWhere("sincronizado = FALSE ORDER BY idlook ASC")
 
         qLook.exec_()
-        if not qLook.size():
+        if not qLook.size() or qLook.size() == 0:
+            self.log("Exito", "No hay nada que sincronizar")
             return []
 
         bodyLook = self.fetch_query(qLook)
@@ -89,8 +90,9 @@ class Mg2LookUpload(ProductsUpload):
         return jRelated
 
     def after_sync(self, response_data=None):
-        qsatype.FLSqlQuery().execSql("UPDATE eg_look SET sincronizado = true WHERE idlook IN ({})".format(self._ssw))
 
-        self.log("Exito", "LOOK sincronizado correctamente")
+        if self._ssw != "":
+            qsatype.FLSqlQuery().execSql("UPDATE eg_look SET sincronizado = true WHERE idlook IN ({})".format(self._ssw))
+            self.log("Exito", "LOOK sincronizado correctamente")
 
         return self.small_sleep
