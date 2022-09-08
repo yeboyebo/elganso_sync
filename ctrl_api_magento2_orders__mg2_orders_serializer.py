@@ -71,8 +71,8 @@ class Mg2OrdersSerializer(DefaultSerializer):
                 num_lineas = num_lineas + float(item["cantidad"])
 
             if float(num_lineas) != float(self.init_data["units"]):
-                print(str(num_lineas))
-                print(str(self.init_data["units"]))
+                # print(str(num_lineas))
+                # print(str(self.init_data["units"]))
                 raise NameError("El número de unidades indicadas y la cantidad de líneas no coincide.")
                 return False
 
@@ -473,7 +473,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
         almacenes = self.dame_almacenes(jsonDatos)
 
         def puntua_combinacion(combinacion):
-            print(str(combinacion))
+            # print(str(combinacion))
             puntos = 1000000 * self.puntos_productos_disponibles(combinacion)
             # print("disponibles:", str(puntos))
             # puntos = 100000 * self.puntos_recogida_tienda(jsonDatos, combinacion)
@@ -488,7 +488,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
             # print("prioridad porcentaje:", str(puntos))
             puntos += 10 * self.puntos_prioridad(combinacion, almacenes)
             # print("prioridad:", str(puntos))
-            print("Puntos", str(puntos))
+            # print("Puntos", str(puntos))
             return puntos
 
         combinaciones = self.combinaciones_almacenes(almacenes)
@@ -497,7 +497,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
 
         combinaciones_ordenadas = sorted(combinaciones, key=puntua_combinacion, reverse=True)
         mejor_combinacion = combinaciones_ordenadas[0]
-        print(str(combinaciones_ordenadas))
+        #print(str(combinaciones_ordenadas))
         print("MEJOR COMBINACION: ", str(mejor_combinacion))
         lineas_data = jsonDatos["items"]
         disponibles = self.disponibles_x_almacen(mejor_combinacion)
@@ -535,7 +535,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
                         continue
 
         jsonDatos["almacenes"] = []
-        print("////////////CODCANALWEB: ", codcanalweb)
+        # print("////////////CODCANALWEB: ", codcanalweb)
         if codcanalweb == "":
             return True
 
@@ -545,7 +545,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
         q.setWhere(u"a.codalmacen IN (" + almacenes + ") AND ac.codcanalweb = '" + codcanalweb + "' ORDER BY ac.prioridadcanalweb")
 
         q.exec_()
-        print(q.sql())
+        # print(q.sql())
 
         if not q.size():
             return True
@@ -680,12 +680,20 @@ class Mg2OrdersSerializer(DefaultSerializer):
       
         result = puntos * 10 / max_puntos
         return result
+        
+    def agrupar_lineas_por_barcode(self, lineas):
+        dict_lineas = {linea["barcode"] : True for linea in lineas}
+        array_barcodes = [key for key, value in dict_lineas.items()]
+        return array_barcodes 
 
     def puntos_productos_disponibles(self, combinacion):
         lineas = self.init_data["items"]
+        barcodes_agrupadas = self.agrupar_lineas_por_barcode(lineas)
         max_puntos = len(lineas)
-        if len(lineas) > self.barcodes_con_stock:
-            max_puntos = len(lineas) - (len(lineas) - self.barcodes_con_stock)
+        # if len(lineas) > self.barcodes_con_stock:
+            # max_puntos = len(lineas) - (len(lineas) - self.barcodes_con_stock)
+        if len(barcodes_agrupadas) > self.barcodes_con_stock:
+            max_puntos = len(barcodes_agrupadas) - (len(barcodes_agrupadas) - self.barcodes_con_stock)
         total_disponible = 0
         disponibles = self.disponibles_x_almacen(combinacion)
         for linea in lineas:
@@ -699,6 +707,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
                     break
 
         result = total_disponible * 10 / max_puntos
+        
         return result
 
     def puntos_cantidad_almacenes(self, combinacion, almacenes):
@@ -751,7 +760,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
 
     def combinacion_viable(self, combinacion):
         puntos = self.puntos_productos_disponibles(combinacion)
-        return puntos == 10
+        return puntos >= 10
 
     def combinaciones_almacenes(self, almacenes):
         from itertools import combinations
@@ -767,7 +776,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
 
             if hay_viables:
                 break
-                
+
         return result
 
     def actualizar_items_lineas(self):
