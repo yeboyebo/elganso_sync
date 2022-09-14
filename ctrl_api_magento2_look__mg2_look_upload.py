@@ -20,7 +20,7 @@ class Mg2LookUpload(ProductsUpload):
 
         self.small_sleep = 1
         self.large_sleep = 30
-        self.no_sync_sleep = 60
+        self.no_sync_sleep = 120
 
     def get_data(self):
         data = self.get_db_data()
@@ -55,10 +55,15 @@ class Mg2LookUpload(ProductsUpload):
 
         bodyLook = self.fetch_query(qLook)
         for idLook in bodyLook:
-            if self._ssw == "":
-                self._ssw = str(idLook["idlook"])
-            else:
-                self._ssw += "," + str(idLook["idlook"])
+            if not qsatype.FLUtil.quickSqlSelect("eg_articuloslook a INNER JOIN lineassincro_catalogo ls ON a.referencia = ls.idobjeto", "a.referencia", " ls.sincronizado = FALSE AND ls.tiposincro = 'Enviar productos' AND ls.website = 'MG2' AND a.idlook = " + str(idLook["idlook"]) + " GROUP BY referencia"):
+                if self._ssw == "":
+                    self._ssw = str(idLook["idlook"])
+                else:
+                    self._ssw += "," + str(idLook["idlook"])
+
+        if self._ssw == "":
+            self.log("Exito", "No hay nada que sincronizar")
+            return []
 
         q = qsatype.FLSqlQuery()
         q.setSelect("referencia")
@@ -94,5 +99,6 @@ class Mg2LookUpload(ProductsUpload):
         if self._ssw != "":
             qsatype.FLSqlQuery().execSql("UPDATE eg_look SET sincronizado = true WHERE idlook IN ({})".format(self._ssw))
             self.log("Exito", "LOOK sincronizado correctamente")
+            return self.small_sleep
 
-        return self.small_sleep
+        return self.no_sync_sleep

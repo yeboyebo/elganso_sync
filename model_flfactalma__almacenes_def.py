@@ -13,19 +13,19 @@ class elganso_sync(flfactalma):
                 self.params = syncppal.iface.get_param_sincro('apipass')
             if "passwd" in params and params['passwd'] == self.params['auth']:
 
-                lista_almacenes = qsatype.FLUtil.sqlSelect("param_parametros", "valor", "nombre = 'ALMACENES_SINCRO'").replace(",", "','")
+                '''lista_almacenes = qsatype.FLUtil.sqlSelect("param_parametros", "valor", "nombre = 'ALMACENES_SINCRO'").replace(",", "','")
                 print(lista_almacenes)
                 if not lista_almacenes:
-                    return {"Error": "Petición Incorrecta. No se ha encontrado la lista de almacenes", "status": 10}
+                    return {"Error": "Petición Incorrecta. No se ha encontrado la lista de almacenes", "status": 10}'''
 
-                empresasCorner = qsatype.FactoriaModulos.get('flfactppal').iface.listaEmpresaCorner()
+                #empresasCorner = qsatype.FactoriaModulos.get('flfactppal').iface.listaEmpresaCorner()
 
                 q = qsatype.FLSqlQuery()
                 q.setTablesList("tiendas,provincias")
-                q.setSelect("t.codtienda,t.latitud,t.longitud,t.descripcion,t.direccion,t.ciudad,p.mg_idprovincia,t.provincia,t.codpostal,t.codpais,t.telefono")
+                q.setSelect("t.codtienda,t.latitud,t.longitud,t.descripcion,t.direccion,t.ciudad,p.mg_idprovincia,t.provincia,t.codpostal,t.codpais,t.telefono,t.generotienda")
                 q.setFrom("tpv_tiendas t INNER JOIN provincias p ON t.idprovincia = p.idprovincia")
-                q.setWhere("t.sincroactiva GROUP BY t.codtienda,t.latitud,t.longitud,t.descripcion,t.direccion,t.ciudad,t.provincia,p.mg_idprovincia,t.codpostal,t.codpais,t.telefono ORDER BY t.codtienda".format(empresasCorner))
-                print(q.sql())
+                q.setWhere("t.sincroactiva GROUP BY t.codtienda,t.latitud,t.longitud,t.descripcion,t.direccion,t.ciudad,t.provincia,p.mg_idprovincia,t.codpostal,t.codpais,t.telefono,t.generotienda ORDER BY t.codtienda")
+
                 if not q.exec_():
                     return {"Error": "Falló la consulta", "status": -1}
 
@@ -35,7 +35,22 @@ class elganso_sync(flfactalma):
                 lista_almacenes = []
 
                 while(q.next()):
-                        lista_almacenes.append({"id": q.value("t.codtienda"), "lat": q.value("t.latitud"), "lng": q.value("t.longitud"), "descripcion": q.value("t.descripcion"), "direccion": q.value("t.direccion"), "provincia": q.value("t.provincia"), "idprovincia": q.value("p.mg_idprovincia"), "telefono": q.value("t.telefono"), "codpostal": q.value("t.codpostal"), "ciudad": q.value("t.ciudad"), "codpais": q.value("t.codpais")})
+                        codTienda = q.value("t.codtienda")
+
+                        qGenero = qsatype.FLSqlQuery()
+                        qGenero.setTablesList(u"eg_clasificacioncategoria,gruposmoda")
+                        qGenero.setSelect(u"g.descripcion")
+                        qGenero.setFrom(u"eg_clasificacioncategoria c INNER JOIN gruposmoda g ON c.codgrupomoda = g.codgrupomoda")
+                        qGenero.setWhere(ustr(u"c.codtienda = '", codTienda, u"'"))
+
+                        if not qGenero.exec_():
+                            return {"Error": "Falló la consulta de genero", "status": -3}
+
+                        listaGenero = ""
+                        while(qGenero.next()):
+                            listaGenero += qGenero.value("g.descripcion") + "/"
+
+                        lista_almacenes.append({"id": codTienda, "lat": q.value("t.latitud"), "lng": q.value("t.longitud"), "descripcion": q.value("t.descripcion"), "direccion": q.value("t.direccion"), "provincia": q.value("t.provincia"), "idprovincia": q.value("p.mg_idprovincia"), "telefono": q.value("t.telefono"), "codpostal": q.value("t.codpostal"), "ciudad": q.value("t.ciudad"), "codpais": q.value("t.codpais"), "tipo": listaGenero})
 
                 return lista_almacenes
             else:
