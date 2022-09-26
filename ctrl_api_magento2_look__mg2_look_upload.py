@@ -44,9 +44,9 @@ class Mg2LookUpload(ProductsUpload):
         body = []
 
         qLook = qsatype.FLSqlQuery()
-        qLook.setSelect("idlook")
-        qLook.setFrom("eg_look")
-        qLook.setWhere("sincronizado = FALSE ORDER BY idlook ASC")
+        qLook.setSelect("l.idlook, l.referencia")
+        qLook.setFrom("eg_look l INNER JOIN lineassincro_catalogo ls ON l.referencia = ls.idobjeto")
+        qLook.setWhere("l.sincronizado = FALSE AND ls.sincronizado = TRUE AND ls.tiposincro = 'Enviar productos' AND ls.website = 'MG2' GROUP BY l.idlook, l.referencia ORDER BY l.idlook ASC LIMIT 20")
 
         qLook.exec_()
         if not qLook.size() or qLook.size() == 0:
@@ -54,12 +54,41 @@ class Mg2LookUpload(ProductsUpload):
             return []
 
         bodyLook = self.fetch_query(qLook)
+        
+        items_related = []
+        jRelated = []
+        
         for idLook in bodyLook:
-            if not qsatype.FLUtil.quickSqlSelect("eg_articuloslook a INNER JOIN lineassincro_catalogo ls ON a.referencia = ls.idobjeto", "a.referencia", " ls.sincronizado = FALSE AND ls.tiposincro = 'Enviar productos' AND ls.website = 'MG2' AND a.idlook = " + str(idLook["idlook"]) + " GROUP BY referencia"):
-                if self._ssw == "":
-                    self._ssw = str(idLook["idlook"])
-                else:
-                    self._ssw += "," + str(idLook["idlook"])
+            if self._ssw == "":
+                self._ssw = str(idLook["l.idlook"])
+            else:
+                self._ssw += "," + str(idLook["l.idlook"])
+                
+            print(str(idLook["l.idlook"]))
+            
+            items_related = []
+            qry = qsatype.FLSqlQuery()
+            qry.setSelect("a.referencia")
+            qry.setFrom("eg_articuloslook a INNER JOIN lineassincro_catalogo ls ON a.referencia = ls.idobjeto")
+            qry.setWhere("ls.sincronizado AND ls.tiposincro = 'Enviar productos' AND ls.website = 'MG2' AND a.idlook = " + str(idLook["l.idlook"]) + " GROUP BY a.referencia")
+            qry.exec_()
+            
+            if not qry.size() or qLook.size() == 0:
+                continue
+
+            bQry = self.fetch_query(qry)
+            for ref in bQry:
+                items_related.append({"sku": ref["a.referencia"]})
+
+            jRelated.append({"sku": str(idLook["l.referencia"]), "items_related": items_related})
+
+        return jRelated
+            
+        ''' if not qsatype.FLUtil.quickSqlSelect("eg_articuloslook a INNER JOIN lineassincro_catalogo ls ON a.referencia = ls.idobjeto", "a.referencia", "ls.sincronizado = FALSE AND ls.tiposincro = 'Enviar productos' AND ls.website = 'MG2' AND a.idlook = " + str(idLook["idlook"]) + " GROUP BY referencia"):
+            if self._ssw == "":
+                self._ssw = str(idLook["idlook"])
+            else:
+                self._ssw += "," + str(idLook["idlook"])
 
         if self._ssw == "":
             self.log("Exito", "No hay nada que sincronizar")
@@ -67,8 +96,8 @@ class Mg2LookUpload(ProductsUpload):
 
         q = qsatype.FLSqlQuery()
         q.setSelect("referencia")
-        q.setFrom("eg_articuloslook")
-        q.setWhere("idlook IN (" + str(self._ssw) + ") GROUP BY referencia ORDER BY referencia")
+        q.setFrom("eg_look")
+        q.setWhere("idlook IN (" + str(self._ssw) + ") ORDER BY idlook")
 
         q.exec_()
 
@@ -84,7 +113,7 @@ class Mg2LookUpload(ProductsUpload):
             qry = qsatype.FLSqlQuery()
             qry.setSelect("referencia")
             qry.setFrom("eg_articuloslook")
-            qry.setWhere("idlook IN (SELECT idlook FROM eg_articuloslook WHERE idLook IN (" + str(self._ssw) + ") AND referencia = '" + row["referencia"] + "') AND referencia <> '" + row["referencia"] + "'")
+            qry.setWhere("idlook = " + str(self._ssw))
             qry.exec_()
             bQry = self.fetch_query(qry)
             for ref in bQry:
@@ -92,7 +121,7 @@ class Mg2LookUpload(ProductsUpload):
 
             jRelated.append({"sku": row["referencia"], "items_related": items_related})
 
-        return jRelated
+        return jRelated '''
 
     def after_sync(self, response_data=None):
 
