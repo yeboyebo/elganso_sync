@@ -1,4 +1,5 @@
 from YBLEGACY.constantes import *
+from YBLEGACY import qsatype
 
 from controllers.base.default.serializers.default_serializer import DefaultSerializer
 
@@ -37,7 +38,12 @@ class Mg2ShippingLineSerializer(DefaultSerializer):
         self.set_string_value("mg_codpostalenv", self.get_formateaCadena(self.init_data["shipping_address"]["postcode"]), max_characters=10)
         self.set_string_value("mg_ciudadenv", self.get_formateaCadena(self.init_data["shipping_address"]["city"]), max_characters=100)
         self.set_string_relation("mg_paisenv", "shipping_address//country_id", max_characters=100)
-        self.set_string_value("mg_provinciaenv", self.get_formateaCadena(self.init_data["shipping_address"]["region"]), max_characters=100)
+        if str(self.init_data["shipping_address"]["region_id"]) != "None":
+            self.set_string_value("mg_provinciaenv", self.get_formateaCadena(qsatype.FLUtil.quickSqlSelect("provincias", "provincia", "mg_idprovincia = {}".format(self.init_data["shipping_address"]["region_id"]))), max_characters=100)
+        else:
+            self.set_string_value("mg_provinciaenv", self.get_formateaCadena(self.init_data["shipping_address"]["region"]), max_characters=100)
+
+        
         self.set_string_value("mg_telefonoenv", self.get_formateaCadena(self.init_data["shipping_address"]["telephone"]), max_characters=30)
 
         self.set_data_value("mg_confac", False)
