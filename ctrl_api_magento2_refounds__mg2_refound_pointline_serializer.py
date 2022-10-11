@@ -78,7 +78,7 @@ class Mg2RefoundPointLineSerializer(Mg2RefoundLineSerializer):
 
         curMP = qsatype.FLSqlCursor("tpv_movpuntos")
         curMP.setModeAccess(curMP.Insert)
-        curMP.setActivatedCommitActions(False)
+        # curMP.setActivatedCommitActions(False)
         curMP.refreshBuffer()
         curMP.setValueBuffer("codtarjetapuntos", str(self.get_codtarjetapuntos()))
         curMP.setValueBuffer("fecha", str(qsatype.Date())[:10])
@@ -95,8 +95,8 @@ class Mg2RefoundPointLineSerializer(Mg2RefoundLineSerializer):
         if not curMP.commitBuffer():
             return False
 
-        if not qsatype.FLUtil.execSql(ustr(u"UPDATE tpv_tarjetaspuntos SET saldopuntos = CASE WHEN (SELECT SUM(canpuntos) FROM tpv_movpuntos WHERE codtarjetapuntos = tpv_tarjetaspuntos.codtarjetapuntos) IS NULL THEN 0 ELSE (SELECT SUM(canpuntos) FROM tpv_movpuntos WHERE codtarjetapuntos = tpv_tarjetaspuntos.codtarjetapuntos) END WHERE codtarjetapuntos = '{}'".format(str(self.get_codtarjetapuntos())))):
-            return False
+        """if not qsatype.FLUtil.execSql(ustr(u"UPDATE tpv_tarjetaspuntos SET saldopuntos = CASE WHEN (SELECT SUM(canpuntos) FROM tpv_movpuntos WHERE codtarjetapuntos = tpv_tarjetaspuntos.codtarjetapuntos) IS NULL THEN 0 ELSE (SELECT SUM(canpuntos) FROM tpv_movpuntos WHERE codtarjetapuntos = tpv_tarjetaspuntos.codtarjetapuntos) END WHERE codtarjetapuntos = '{}'".format(str(self.get_codtarjetapuntos())))):
+            return False"""
 
         return True
 
