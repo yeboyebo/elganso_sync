@@ -172,7 +172,9 @@ class Mg2RefoundsSerializer(DefaultSerializer):
         codComandaDevol = "WEB" + str(self.init_data["increment_id"])
         city = self.init_data["pickup_address"]["city"]
         codpais = qsatype.FLUtil.quickSqlSelect("tpv_comandas", "codpais", "codigo = '" + str(codComandaDevol) + "'")
-        telefonofac = self.init_data["pickup_address"]["phone"]
+        telefonofac = self.init_data["phone"]
+        if "phone" in self.init_data["pickup_address"]:
+            telefonofac = self.init_data["pickup_address"]["phone"]
         codpago = self.get_codpago(str(self.init_data["payment_method"]))
         email = self.init_data["email"]
         region = self.init_data["pickup_address"]["region"]
