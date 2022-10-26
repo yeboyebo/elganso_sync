@@ -58,7 +58,16 @@ class Mg2OrderLine(AQModel):
         curMoviStock.setModeAccess(curMoviStock.Insert)
         curMoviStock.refreshBuffer()
         curMoviStock.setValueBuffer("idlineaco", cursor.valueBuffer("idtpv_linea"))
-        curMoviStock.setValueBuffer("estado", "PTE")
+        print("///////////////////////EMPIEZA POR: " +  str(cursor.valueBuffer("codcomanda"))[:5])
+        if str(cursor.valueBuffer("codcomanda"))[:5] == "WEB13" or str(cursor.valueBuffer("codcomanda"))[:5] == "WEB14":
+            curMoviStock.setValueBuffer("estado", "HECHO")
+            now = str(qsatype.Date())
+            current_date = now[:10]
+            current_time = now[-(8):]
+            curMoviStock.setValueBuffer("fechareal", current_date)
+            curMoviStock.setValueBuffer("horareal", current_time)
+        else:
+            curMoviStock.setValueBuffer("estado", "PTE")
         curMoviStock.setValueBuffer("cantidad", (parseFloat(cursor.valueBuffer("cantidad")) * (-1)))
         curMoviStock.setValueBuffer("referencia", str(cursor.valueBuffer("referencia")))
         curMoviStock.setValueBuffer("barcode", str(cursor.valueBuffer("barcode")))
