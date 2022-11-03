@@ -230,6 +230,15 @@ class Mg2OrdersSerializer(DefaultSerializer):
             self.data["children"]["lines"].append(linea_puntos)
             self.data["children"]["lines"].append(linea_dtodesconocido)
             self.data["children"]["payments"].append(pago_web)
+            if "tarjeta_monedero" in self.init_data:
+                if float(self.init_data["tarjeta_monedero"]["importe_gastado"]) > 0:
+                    new_data.update({
+                        "cod_uso": str(self.init_data["tarjeta_monedero"]["cod_uso"]),
+                        "importe_gastado": self.init_data["tarjeta_monedero"]["importe_gastado"]
+                    })
+                    pago_tarjeta_monedero = Mg2PaymentSerializer().serialize(new_data)
+                    self.data["children"]["payments"].append(pago_tarjeta_monedero)
+
             self.data["children"]["shippingline"] = linea_envio
 
             if "skip" in arqueo_web and arqueo_web["skip"]:
