@@ -164,7 +164,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
             # self.set_string_relation("provincia", "billing_address//region", max_characters=100)
             self.set_string_value("codpostal", self.get_formateaCadena(self.init_data["billing_address"]["postcode"]), max_characters=10)
             self.set_string_value("ciudad", self.get_formateaCadena(self.init_data["billing_address"]["city"]), max_characters=100)
-            print("/////////////**************REGION_ID: ", str(self.init_data["billing_address"]["region_id"]))
+
             if str(self.init_data["billing_address"]["region_id"]) != "None":
                 self.set_string_value("provincia", self.get_formateaCadena(qsatype.FLUtil.quickSqlSelect("provincias", "provincia", "mg_idprovincia = {}".format(self.init_data["billing_address"]["region_id"]))), max_characters=100)
                 self.set_string_value("idprovincia", qsatype.FLUtil.quickSqlSelect("provincias", "idprovincia", "mg_idprovincia = {}".format(self.init_data["billing_address"]["region_id"])))
