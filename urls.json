@@ -156,6 +156,20 @@
         },
         {
             "type": "insertAfterNode",
+            "path": "/models/flfact_tpv/eg_lineasdevolucioneswebtienda",
+            "value": {
+                "eg_tarjetamonedero": null
+            }
+        },
+        {
+            "type": "insertAfterNode",
+            "path": "/models/flfact_tpv/eg_tarjetamonedero",
+            "value": {
+                "eg_movitarjetamonedero": null
+            }
+        },
+        {
+            "type": "insertAfterNode",
             "path": "/models/flfactalma/lineasregstocks",
             "value": {
                 "movistock": null

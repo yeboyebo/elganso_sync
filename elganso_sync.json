@@ -1351,6 +1351,22 @@
             {
                 "name": "ctrl_api_magento2_look__mg2_look_upload.py",
                 "path": "controllers/api/magento2/look/controllers/"
+            },
+            {
+                "name": "model_flfact_tpv__eg_tarjetamonedero.py",
+                "path": "models/flfact_tpv/"
+            },
+            {
+                "name": "model_flfact_tpv__eg_tarjetamonedero_def.py",
+                "path": "models/flfact_tpv/"
+            },
+            {
+                "name": "model_flfact_tpv__eg_movitarjetamonedero.py",
+                "path": "models/flfact_tpv/"
+            },
+            {
+                "name": "model_flfact_tpv__eg_movitarjetamonedero_def.py",
+                "path": "models/flfact_tpv/"
             }
         ],
         "deleteFile": [],
