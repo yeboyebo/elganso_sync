@@ -466,6 +466,15 @@ class Mg2RefoundsSerializer(DefaultSerializer):
         pago_web = Mg2RefoundPaymentSerializer().serialize(new_init_data)
         self.data["children"]["payments"].append(pago_web)
 
+        if "tarjeta_monedero" in self.init_data:
+            if float(self.init_data["tarjeta_monedero"]["importe_gastado"]) > 0:
+                new_init_data.update({
+                    "cod_uso": str(self.init_data["tarjeta_monedero"]["cod_uso"]),
+                    "importe_gastado": parseFloat(self.init_data["tarjeta_monedero"]["importe_gastado"]) * -1
+                })
+                pago_tarjeta_monedero = Mg2RefoundPaymentSerializer().serialize(new_init_data)
+                self.data["children"]["payments"].append(pago_tarjeta_monedero)
+
         if "items_requested" in self.init_data:
             new_init_data = self.init_data.copy()
             new_init_data.update(
@@ -478,6 +487,8 @@ class Mg2RefoundsSerializer(DefaultSerializer):
             )
             pago_web = Mg2RefoundPaymentSerializer().serialize(new_init_data)
             self.data["children"]["payments"].append(pago_web)
+
+
 
         return True
 
