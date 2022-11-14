@@ -2,7 +2,7 @@ import hmac
 import hashlib
 import urllib.parse
 from lxml import etree
-
+import time
 from base64 import b64encode
 
 from YBLEGACY import qsatype
@@ -46,7 +46,7 @@ class AzOrdersResultGet(DownloadSync, ABC):
             "AWSAccessKeyId": self.driver.azAccessKey,
             "SellerId": self.driver.azMerchant,
             "SignatureVersion": "2",
-            "Timestamp": (datetime.now() - timedelta(hours=1)).strftime('%Y-%m-%dT%H:%M:%SZ'),
+            "Timestamp": (datetime.now() + timedelta(seconds=time.timezone)).strftime('%Y-%m-%dT%H:%M:%SZ'),
             "Version": "2013-09-01",
             "SignatureMethod": "HmacSHA256",
             "CreatedAfter": self.get_fechasincro(),

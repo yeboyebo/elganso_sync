@@ -1,6 +1,7 @@
 import hmac
 import hashlib
 import urllib.parse
+import time
 
 from base64 import b64encode
 from abc import ABC, abstractmethod
@@ -119,7 +120,7 @@ class AzFeedsUpload(UploadSync, ABC):
             "Action": "SubmitFeed",
             "Merchant": self.driver.azMerchant,
             "SignatureVersion": "2",
-            "Timestamp": (datetime.now() - timedelta(hours=1)).strftime('%Y-%m-%dT%H:%M:%SZ'),
+            "Timestamp": (datetime.now() - timedelta(seconds=time.timezone)).strftime('%Y-%m-%dT%H:%M:%SZ'),
             "Version": "2009-01-01",
             "ContentMD5Value": self.get_hash(data),
             "SignatureMethod": "HmacSHA256",
