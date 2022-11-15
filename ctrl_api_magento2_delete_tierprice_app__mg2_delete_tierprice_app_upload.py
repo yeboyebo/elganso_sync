@@ -3,15 +3,15 @@ import requests
 import json
 
 from controllers.base.magento2.tierprice.controllers.tierprice_upload import TierpriceUpload
-from controllers.api.magento2.delete_tierprice.serializers.delete_tierprice_serializer import DeleteTierpriceSerializer
+from controllers.api.magento2.delete_tierprice_app.serializers.delete_tierprice_app_serializer import DeleteTierpriceAppSerializer
 
-class Mg2DeleteTierPriceUpload(TierpriceUpload):
+class Mg2DeleteTierPriceAppUpload(TierpriceUpload):
 
     error = False
     _ssw = None
 
     def __init__(self, params=None):
-        super().__init__("mg2deletetierprice", params)
+        super().__init__("mg2deletetierpriceapp", params)
 
         delete_tierprice_params = self.get_param_sincro('mg2DeleteTierpricesUpload')
         self.delete_tierprice_url = delete_tierprice_params['url']
@@ -73,9 +73,9 @@ class Mg2DeleteTierPriceUpload(TierpriceUpload):
         body = []
 
         q = qsatype.FLSqlQuery()
-        q.setSelect("ls.id, at.referencia, at.talla, ap.pvp, p.desde || ' ' || p.horadesde, ap.activo, p.hasta || ' ' || p.horahasta, mg.idwebsite, mg.codstoreview, p.elgansociety")
+        q.setSelect("ls.id, at.referencia, at.talla, ap.pvp, p.desdeapp || ' ' || p.horadesdeapp, ap.activo, p.hastaapp || ' ' || p.horahastaapp, mg.idwebsite, mg.codstoreview")
         q.setFrom("eg_planprecios p INNER JOIN eg_articulosplan ap ON p.codplan = ap.codplan INNER JOIN atributosarticulos at ON ap.referencia = at.referencia INNER JOIN eg_tiendasplanprecios tp ON p.codplan = tp.codplan INNER JOIN mg_storeviews mg ON tp.codtienda = mg.egcodtiendarebajas INNER JOIN lineassincro_catalogo ls ON (p.codplan = ls.idobjeto AND at.referencia || '-' || at.talla || '-' || mg.idmagento = ls.descripcion)")
-        q.setWhere("ls.sincronizado = FALSE AND ls.tiposincro = 'Eliminar Planificador' AND (p.hasta < CURRENT_DATE OR (p.hasta = CURRENT_DATE AND p.horahasta <= CURRENT_TIME)) GROUP BY ls.id,at.referencia, at.talla, ap.pvp, p.desde || ' ' || p.horadesde, p.hasta || ' ' || p.horahasta, mg.idwebsite, ap.activo, mg.codstoreview, p.elgansociety ORDER BY ls.id LIMIT 2000")
+        q.setWhere("ls.sincronizado = FALSE AND ls.tiposincro = 'Eliminar Planificador App' AND (p.hastaapp < CURRENT_DATE OR (p.hastaapp = CURRENT_DATE AND p.horahastaapp <= CURRENT_TIME)) GROUP BY ls.id,at.referencia, at.talla, ap.pvp, p.desdeapp || ' ' || p.horadesdeapp, p.hastaapp || ' ' || p.horahastaapp, mg.idwebsite, ap.activo, mg.codstoreview ORDER BY ls.id LIMIT 2000")
 
         q.exec_()
 
@@ -87,7 +87,7 @@ class Mg2DeleteTierPriceUpload(TierpriceUpload):
         return body
 
     def get_delete_tierprice_serializer(self):
-        return DeleteTierpriceSerializer()
+        return DeleteTierpriceAppSerializer()
 
     def after_sync(self, response_data=None):
         print("SSW: ", self._ssw)

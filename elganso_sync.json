@@ -1367,6 +1367,38 @@
             {
                 "name": "model_flfact_tpv__eg_movitarjetamonedero_def.py",
                 "path": "models/flfact_tpv/"
+            },
+            {
+                "name": "ctrl_api_magento2_tierprice_app__tierprice_serializer.py",
+                "path": "controllers/api/magento2/tierprice_app/serializers/"
+            },
+            {
+                "name": "ctrl_api_magento2_tierprice_app__mg2_tierprice_upload.py",
+                "path": "controllers/api/magento2/tierprice_app/controllers/"
+            },
+            {
+                "name": "ctrl_api_magento2_tierprice_app__upload.py",
+                "path": "controllers/api/magento2/tierprice_app/"
+            },
+            {
+                "name": "ctrl_api_magento2_tierprice_app__tierprice_app_serializer.py",
+                "path": "controllers/api/magento2/tierprice_app/serializers/"
+            },
+            {
+                "name": "ctrl_api_magento2_tierprice_app__mg2_tierprice_app_upload.py",
+                "path": "controllers/api/magento2/tierprice_app/controllers/"
+            },
+            {
+                "name": "ctrl_api_magento2_delete_tierprice_app__upload.py",
+                "path": "controllers/api/magento2/delete_tierprice_app/"
+            },
+            {
+                "name": "ctrl_api_magento2_delete_tierprice_app__delete_tierprice_app_serializer.py",
+                "path": "controllers/api/magento2/delete_tierprice_app/serializers/"
+            },
+            {
+                "name": "ctrl_api_magento2_delete_tierprice_app__mg2_delete_tierprice_app_upload.py",
+                "path": "controllers/api/magento2/delete_tierprice_app/controllers/"
             }
         ],
         "deleteFile": [],

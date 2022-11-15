@@ -76,6 +76,8 @@ from controllers.api.magento2.stock_incremental_night.controllers.mg2_stock_incr
 from controllers.api.magento2.inventory_canal.controllers.mg2_inventorycanal_upload import Mg2InventoryCanalUpload
 from controllers.api.magento2.directorders_pending.controllers.mg2_directorders_pending_process import Mg2DirectOrdersPendingProcess
 from controllers.api.magento2.look.controllers.mg2_look_upload import Mg2LookUpload
+from controllers.api.magento2.tierprice_app.controllers.mg2_tierprice_app_upload import Mg2TierpriceAppUpload
+from controllers.api.magento2.delete_tierprice_app.controllers.mg2_delete_tierprice_app_upload import Mg2DeleteTierPriceAppUpload
 
 sync_object_dict = {
     "stock_upload": {
@@ -259,6 +261,12 @@ sync_object_dict = {
     },
     "mg2_look_upload": {
         "sync_object": Mg2LookUpload
+    },
+    "mg2_tierprice_app_upload": {
+        "sync_object": Mg2TierpriceAppUpload
+    },
+    "mg2_delete_tierprice_app_upload": {
+        "sync_object": Mg2DeleteTierPriceAppUpload
     }
 }
 
