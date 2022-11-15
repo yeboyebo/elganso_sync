@@ -258,6 +258,9 @@ class elganso_sync(interna):
         if not q.exec_():
             return False
 
+        if q.size() <= 0:
+            return False
+
         while q.next():
 
             curTpvTarjetas.select("codtarjetapuntos = '" + q.value("codtarjetapuntos") + "'")
