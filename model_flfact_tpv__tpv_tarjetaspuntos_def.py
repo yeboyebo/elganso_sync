@@ -238,8 +238,12 @@ class elganso_sync(interna):
                 saldo = parseFloat(params['saldo'])
                 email = str(params['email'])
 
-                if not qsatype.FLSqlQuery().execSql(ustr(u"UPDATE tpv_tarjetaspuntos SET saldopuntos = " , saldo , " WHERE email = '" , email , "'")):
-                    return False
+                if "codtarjetapuntos" in params:
+                    if not qsatype.FLSqlQuery().execSql(ustr(u"UPDATE tpv_tarjetaspuntos SET saldopuntos = " , saldo , " WHERE codtarjetapuntos = '" , str(params['codtarjetapuntos']) , "'")):
+                        return False
+                else:
+                    if not qsatype.FLSqlQuery().execSql(ustr(u"UPDATE tpv_tarjetaspuntos SET saldopuntos = " , saldo , " WHERE email = '" , email , "'")):
+                        return False
 
                 return True
         except Exception as e:
@@ -283,7 +287,7 @@ class elganso_sync(interna):
             curMP.setValueBuffer("canpuntos", params['canpuntos'])
             curMP.setValueBuffer("operacion", str(params['operacion']))
             curMP.setValueBuffer("sincronizado", True)
-            if("codTienda" in params):
+            if "codTienda" in params:
                 curMP.setValueBuffer("codtienda", params["codTienda"])
             else:
                 curMP.setValueBuffer("codtienda", "AWEB")
