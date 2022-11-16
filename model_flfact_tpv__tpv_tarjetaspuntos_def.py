@@ -253,7 +253,10 @@ class elganso_sync(interna):
         q = qsatype.FLSqlQuery()
         q.setSelect("codtarjetapuntos, saldopuntos")
         q.setFrom("tpv_tarjetaspuntos")
-        q.setWhere("email = '" + str(params['email']) + "'")
+        if "codtarjetapuntos" in params:
+            q.setWhere("codtarjetapuntos = '" + str(params['codtarjetapuntos']) + "'")
+        else:
+            q.setWhere("email = '" + str(params['email']) + "'")
 
         if not q.exec_():
             return False
