@@ -280,7 +280,10 @@ class elganso_sync(interna):
             curMP.setValueBuffer("canpuntos", params['canpuntos'])
             curMP.setValueBuffer("operacion", str(params['operacion']))
             curMP.setValueBuffer("sincronizado", True)
-            curMP.setValueBuffer("codtienda", "AWEB")
+            if("codTienda" in params):
+                curMP.setValueBuffer("codtienda", params["codTienda"])
+            else:
+                curMP.setValueBuffer("codtienda", "AWEB")
 
             if not qsatype.FactoriaModulos.get('flfact_tpv').iface.controlIdSincroMovPuntos(curMP):
                 return False

@@ -120,7 +120,7 @@ class AzFeedsUpload(UploadSync, ABC):
             "Action": "SubmitFeed",
             "Merchant": self.driver.azMerchant,
             "SignatureVersion": "2",
-            "Timestamp": (datetime.now() - timedelta(seconds=time.timezone)).strftime('%Y-%m-%dT%H:%M:%SZ'),
+            "Timestamp": (datetime.now() + timedelta(seconds=time.timezone)).strftime('%Y-%m-%dT%H:%M:%SZ'),
             "Version": "2009-01-01",
             "ContentMD5Value": self.get_hash(data),
             "SignatureMethod": "HmacSHA256",
