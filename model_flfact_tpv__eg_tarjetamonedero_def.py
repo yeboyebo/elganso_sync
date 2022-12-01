@@ -181,6 +181,14 @@ class elganso_sync(interna):
                 curTarjeta.setValueBuffer("saldopendiente", parseFloat(params["importeTarjeta"]))
                 curTarjeta.setValueBuffer("venta", str(params['codigoVenta']))
 
+                if "fechaEmail" in params:
+                    if str(params["fechaEmail"]) != "None" and str(params["fechaEmail"]) != "":
+                        curTarjeta.setValueBuffer("fechaemail", str(params['fechaEmail']))
+
+                if "horaEmail" in params:
+                    if str(params["horaEmail"]) != "None" and str(params["horaEmail"]) != "":
+                        curTarjeta.setValueBuffer("horaemail", str(params['horaEmail']))
+
                 if not curTarjeta.commitBuffer():
                     return {"Error": "Error en inserción de movimiento de la tarjeta monedero", "status": -4}
 
