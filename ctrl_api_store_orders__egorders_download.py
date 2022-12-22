@@ -28,8 +28,9 @@ class EgStoreOrdersDownload(DownloadSync):
             lineas = self.execute("SELECT * FROM tpv_lineascomanda WHERE idtpv_comanda = {}".format(cabecera["idtpv_comanda"]))
             pagos = self.execute("SELECT * FROM tpv_pagoscomanda WHERE idtpv_comanda = {}".format(cabecera["idtpv_comanda"]))
             motivos = self.execute("SELECT * FROM eg_motivosdevolucion WHERE codcomandadevol = '{}'".format(cabecera["codigo"]))
+            datosenvio = self.execute("SELECT * FROM mg_datosenviocomanda WHERE codcomanda = '{}'".format(cabecera["codigo"]))
 
-            data.append({"cabecera": cabecera, "lineas": lineas, "pagos": pagos, "motivos": motivos})
+            data.append({"cabecera": cabecera, "lineas": lineas, "pagos": pagos, "motivos": motivos, "datosenvio": datosenvio})
 
         return data
 
