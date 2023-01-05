@@ -15,5 +15,11 @@ class Mg2LineasDevolucionesWebTienda(DefaultSerializer):
         self.set_string_value("viajecreado", False)
         self.set_string_value("correoenviado", False)
         self.set_string_value("devolucionrecibida", False)
+        self.set_string_value("incidencia", False)
+        self.set_string_value("gestionadoatc", False)
+        self.set_string_value("aprobado", False)
+        self.set_string_value("anulada", False)
+        self.set_string_value("devolucionrecibida", False)
+        self.set_string_value("reembolsado", False)
 
         return True

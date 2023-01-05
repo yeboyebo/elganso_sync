@@ -199,6 +199,44 @@ class elganso_sync(interna):
             qsatype.debug(ustr(u"Error inesperado generacion de bono: ", e))
             return {"Error": "Petición Incorrecta", "status": 0}
         return False
+        
+
+    def elganso_sync_consultatarjetasregaloemail(self, params):
+        try:
+            if "auth" not in self.params:
+                self.params = syncppal.iface.get_param_sincro('apipass')
+            if "passwd" in params and params['passwd'] == self.params['auth']:
+                
+                if "email" not in params:
+                    return {"Error": "Formato Incorrecto", "status": 0}
+    
+                q = qsatype.FLSqlQuery()
+                q.setSelect(u"codactivacion, coduso, saldoinicial, saldopendiente, coddivisa, venta, email, emailregalo, activo")
+                q.setFrom(u"eg_tarjetamonedero")
+                q.setWhere(ustr(u"email = '", params['email'], u"'"))
+
+                if not q.exec_():
+                    return {"Error": "Fallo consulta.", "status": -1}
+                    
+                tarjetas_regalo = []
+                while q.next():
+                    tarjetas_regalo.append({
+                        "codActivacion": q.value("codactivacion"),
+                        "codUso": q.value("coduso"),
+                        "saldoTarjeta": q.value("saldoinicial"),
+                        "saldoPendiente": q.value("saldopendiente"),
+                        "divisa": q.value("coddivisa"),
+                        "venta": q.value("venta"),
+                        "emailRegalo": q.value("emailregalo")
+                    })
+                    
+                return tarjetas_regalo
+                
+            else:
+                return {"Error": "Petición Incorrecta", "status": -1}
+        except Exception as e:
+            return {"Error": "Petición Incorrectaa", "status": -2}
+        return False
 
     def getDesc(self):
         return self.ctx.elganso_sync_getDesc()
@@ -211,6 +249,10 @@ class elganso_sync(interna):
 
     def creatarjetamonedero(self, params):
         return self.ctx.elganso_sync_creatarjetamonedero(params)
+
+    def consultatarjetasregaloemail(self, params):
+        return self.ctx.elganso_sync_consultatarjetasregaloemail(params)
+
 
 
 

@@ -31,6 +31,10 @@ class elganso_sync_eg_tarjetamonedero(interna_eg_tarjetamonedero, helpers.MixinC
     @helpers.decoradores.csr()
     def creatarjetamonedero(params):
         return form.iface.creatarjetamonedero(params)
+        
+    @helpers.decoradores.csr()
+    def consultatarjetasregaloemail(params):
+        return form.iface.consultatarjetasregaloemail(params)
 
 
 # @class_declaration eg_tarjetamonedero #
