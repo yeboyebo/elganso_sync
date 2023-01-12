@@ -170,6 +170,13 @@
         },
         {
             "type": "insertAfterNode",
+            "path": "/models/flfact_tpv/eg_movitarjetamonedero",
+            "value": {
+                "eg_seguimientoenvios": null
+            }
+        },
+        {
+            "type": "insertAfterNode",
             "path": "/models/flfactalma/lineasregstocks",
             "value": {
                 "movistock": null

@@ -23,3 +23,5 @@ class Mg2LineasDevolucionesWebTienda(DefaultSerializer):
         self.set_string_value("reembolsado", False)
 
         return True
+
+    

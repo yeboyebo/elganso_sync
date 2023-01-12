@@ -1399,6 +1399,14 @@
             {
                 "name": "ctrl_api_magento2_delete_tierprice_app__mg2_delete_tierprice_app_upload.py",
                 "path": "controllers/api/magento2/delete_tierprice_app/controllers/"
+            },
+            {
+                "name": "model_flfact_tpv__eg_seguimientoenvios.py",
+                "path": "models/flfact_tpv/"
+            },
+            {
+                "name": "model_flfact_tpv__eg_seguimientoenvios_def.py",
+                "path": "models/flfact_tpv/"
             }
         ],
         "deleteFile": [],

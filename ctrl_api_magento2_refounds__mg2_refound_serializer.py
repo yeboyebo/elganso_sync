@@ -86,6 +86,12 @@ class Mg2RefoundsSerializer(DefaultSerializer):
                     line_data = Mg2RefoundLineSerializer().serialize(linea)
                     self.data["children"]["lines"].append(line_data)
 
+            if "codtiendaentrega" in self.init_data:
+                if str(self.init_data["codtiendaentrega"]) != "AWEB":
+                    if "numero_seguimiento" in self.init_data:
+                        if str(self.init_data["numero_seguimiento"]) != "None" and str(self.init_data["numero_seguimiento"]) != "":
+                            self.crearSeguimientoEnvio(codigo)
+
             self.crear_registros_descuentos(iva)
             self.crear_registros_puntos(iva)
             self.crear_registros_vales(iva)
@@ -729,3 +735,28 @@ class Mg2RefoundsSerializer(DefaultSerializer):
         if str(self.init_data["store_id"]) == "13" or str(self.init_data["store_id"]) == "14":
             return qsatype.FLUtil.quickSqlSelect("tpv_puntosventa", "codtpv_puntoventa", "codtienda = '{}'".format(str(self.get_codtienda())))
         return "AWEB"
+
+    def crearSeguimientoEnvio(self, codigo):
+
+        items = []
+        for line in self.init_data["items_refunded"]:
+            items.append({"sku" : line["sku"], "qty": line["qty"], "almacen": str(self.init_data["codtiendaentrega"])})
+
+        curSegEnvio = qsatype.FLSqlCursor("eg_seguimientoenvios")
+        curSegEnvio.setModeAccess(curSegEnvio.Insert)
+        curSegEnvio.refreshBuffer()
+        curSegEnvio.setValueBuffer("informadocompleto", False)
+        curSegEnvio.setValueBuffer("fechamagento", str(qsatype.Date())[:10])
+        curSegEnvio.setValueBuffer("horamagento", str(qsatype.Date())[-(8):])
+        curSegEnvio.setValueBuffer("numseguimiento", self.init_data["numero_seguimiento"])
+        curSegEnvio.setValueBuffer("codalmacen", str(self.init_data["codtiendaentrega"]))
+        curSegEnvio.setValueBuffer("tipo", "ECOMMERCE")
+        curSegEnvio.setValueBuffer("items", items)
+        curSegEnvio.setValueBuffer("numseguimientoinformado", True)
+        curSegEnvio.setValueBuffer("transportista", "MRW")
+        curSegEnvio.setValueBuffer("coddocumento", codigo)
+
+        if not curSegEnvio.commitBuffer():
+            return True
+
+        return True
