@@ -55,12 +55,12 @@ class Mg2TierpriceUpload(TierpriceUpload):
             result = True
             try:
                 print("DATA: ", json.dumps(data))
-                print("URL: ", tierprice_url)
-                self.send_request("post", url=tierprice_url.format("es"), data=json.dumps(data))
-                self.send_request("post", url=tierprice_url.format("fr"), data=json.dumps(data))
-                self.send_request("post", url=tierprice_url.format("en"), data=json.dumps(data))
+                print("URL: ", tierprice_url.format("es"))
+                result = self.send_request("post", url=tierprice_url.format("es"), data=json.dumps(data))
+                ### self.send_request("post", url=tierprice_url.format("fr"), data=json.dumps(data))
+                ### self.send_request("post", url=tierprice_url.format("en"), data=json.dumps(data))
                 ## result = self.send_request("post", url=delete_tierprice_url.format("es"), data=json.dumps(data))
-                ## print("RESULT: ", str(result))
+                print("RESULT: ", str(result))
             except Exception as e:
                 # print(str(e))
                 # print("exception")
@@ -70,12 +70,21 @@ class Mg2TierpriceUpload(TierpriceUpload):
         return data
 
     def get_db_data(self):
+        codplan = qsatype.FLUtil.sqlSelect("eg_planprecios p INNER JOIN eg_articulosplan ap ON p.codplan = ap.codplan INNER JOIN atributosarticulos at ON ap.referencia = at.referencia INNER JOIN eg_tiendasplanprecios tp ON p.codplan = tp.codplan INNER JOIN mg_storeviews mg ON tp.codtienda = mg.egcodtiendarebajas INNER JOIN lineassincro_catalogo ls ON (p.codplan = ls.idobjeto AND at.referencia || '-' || at.talla || '-' || mg.idwebsite = ls.descripcion) LEFT JOIN eg_gruposclientesplanprecios gc on p.codplan = tp.codplan", "p.codplan", "ls.sincronizado = FALSE AND ls.tiposincro = 'Planificador Precios' AND (p.desde < CURRENT_DATE OR (p.desde = CURRENT_DATE AND p.horadesde <= CURRENT_TIME)) AND ap.activo GROUP BY p.codplan ORDER BY p.desde, p.horadesde limit 1")
+        
+        if not codplan:
+            return []
+        
+        limitConsulta = qsatype.FLUtil.sqlSelect("eg_gruposclientesplanprecios","CASE WHEN count(*) = 0 THEN 1000 ELSE count(*) * 1000 END","codplan = '" + codplan + "'")
+    
         body = []
         q = qsatype.FLSqlQuery()
-        q.setSelect("ls.id, at.referencia, at.talla, ap.pvp, p.desde || ' ' || p.horadesde, ap.activo, p.hasta || ' ' || p.horahasta, mg.idwebsite, mg.codstoreview, p.elgansociety")
-        q.setFrom("eg_planprecios p INNER JOIN eg_articulosplan ap ON p.codplan = ap.codplan INNER JOIN atributosarticulos at ON ap.referencia = at.referencia INNER JOIN eg_tiendasplanprecios tp ON p.codplan = tp.codplan INNER JOIN mg_storeviews mg ON tp.codtienda = mg.egcodtiendarebajas INNER JOIN lineassincro_catalogo ls ON (p.codplan = ls.idobjeto AND at.referencia || '-' || at.talla || '-' || mg.idmagento = ls.descripcion)")
-        #q.setWhere("p.elgansociety = TRUE AND ls.sincronizado = FALSE AND ls.tiposincro = 'Planificador Precios' AND (p.desde < CURRENT_DATE OR (p.desde = CURRENT_DATE AND p.horadesde <= CURRENT_TIME)) AND ap.activo GROUP BY ls.id,at.referencia, at.talla, ap.pvp, p.desde || ' ' || p.horadesde, p.hasta || ' ' || p.horahasta, mg.idwebsite, ap.activo, mg.codstoreview ORDER BY ls.id LIMIT 2000")
-        q.setWhere("ls.sincronizado = FALSE AND ls.tiposincro = 'Planificador Precios' AND (p.desde < CURRENT_DATE OR (p.desde = CURRENT_DATE AND p.horadesde <= CURRENT_TIME)) AND ap.activo GROUP BY ls.id,at.referencia, at.talla, ap.pvp, p.desde || ' ' || p.horadesde, p.hasta || ' ' || p.horahasta, mg.idwebsite, ap.activo, mg.codstoreview, p.elgansociety ORDER BY ls.id LIMIT 2000")
+        q.setSelect("ls.id, at.referencia, at.talla, ap.pvp, p.desde || ' ' || p.horadesde, ap.activo, p.hasta || ' ' || p.horahasta, mg.idwebsite, p.elgansociety, gc.codgrupo")
+        q.setFrom("eg_planprecios p INNER JOIN eg_articulosplan ap ON p.codplan = ap.codplan INNER JOIN atributosarticulos at ON ap.referencia = at.referencia INNER JOIN eg_tiendasplanprecios tp ON p.codplan = tp.codplan INNER JOIN mg_storeviews mg ON tp.codtienda = mg.egcodtiendarebajas INNER JOIN lineassincro_catalogo ls ON (p.codplan = ls.idobjeto AND at.referencia || '-' || at.talla || '-' || mg.idwebsite = ls.descripcion) LEFT JOIN eg_gruposclientesplanprecios gc on p.codplan = tp.codplan")
+
+        q.setWhere("p.codplan = '" + str(codplan) + "' AND ls.sincronizado = FALSE AND ls.tiposincro = 'Planificador Precios' AND (p.desde < CURRENT_DATE OR (p.desde = CURRENT_DATE AND p.horadesde <= CURRENT_TIME)) AND ap.activo GROUP BY ls.id,at.referencia, at.talla, ap.pvp, p.desde || ' ' || p.horadesde, p.hasta || ' ' || p.horahasta, mg.idwebsite, ap.activo, p.elgansociety, gc.codgrupo ORDER BY ls.id LIMIT " + str(limitConsulta))
+        
+        print("CONSULTA: ", q.sql())
 
         q.exec_()
 

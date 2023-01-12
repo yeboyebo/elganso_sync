@@ -27,7 +27,7 @@ class Mg2DiscountLineSerializer(Mg2OrderLineSerializer):
         if self.bono:
             if "discount" in self.bono:
                 # dto = self.bono["discount"]
-                dto = round(parseFloat(self.init_data["discount"] * tasaconv), 2)
+                dto = round(parseFloat(self.init_data["discount_amount"] * tasaconv), 2)
 
         iva = self.init_data["iva"]
         if not iva or iva == "":
@@ -88,7 +88,7 @@ class Mg2DiscountLineSerializer(Mg2OrderLineSerializer):
                     "descripcion": "CUPON {}".format(coddescuento)
                 }
             if str(coddescuento)[:2] == "BX":
-                dto = qsatype.FLUtil.sqlSelect("eg_movibono", "importe", "codbono = '{}' AND venta = '{}'".format(coddescuento, self.init_data["codcomanda"]))
+                dto = qsatype.FLUtil.sqlSelect("eg_movibono", "importe", "codbono = '{}' AND venta = '{}'".format(coddescuento, self.init_data["increment_id"]))
                 qsatype.debug(ustr(u"---------------------------------------------- dto 1: ", str(dto)))
                 if dto:
                     if float(dto) != 0:
