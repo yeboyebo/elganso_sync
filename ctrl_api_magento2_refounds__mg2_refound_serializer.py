@@ -748,12 +748,14 @@ class Mg2RefoundsSerializer(DefaultSerializer):
         curSegEnvio.setValueBuffer("informadocompleto", False)
         curSegEnvio.setValueBuffer("fechamagento", str(qsatype.Date())[:10])
         curSegEnvio.setValueBuffer("horamagento", str(qsatype.Date())[-(8):])
-        curSegEnvio.setValueBuffer("numseguimiento", self.init_data["numero_seguimiento"])
+        num_seguimiento = self.init_data["numero_seguimiento"].replace(" ", "")
+        num_seguimiento = num_seguimiento.split(":")
+        curSegEnvio.setValueBuffer("transportista", num_seguimiento[0])
+        curSegEnvio.setValueBuffer("numseguimiento", num_seguimiento[1])
         curSegEnvio.setValueBuffer("codalmacen", str(self.init_data["codtiendaentrega"]))
         curSegEnvio.setValueBuffer("tipo", "ECOMMERCE")
         curSegEnvio.setValueBuffer("items", items)
         curSegEnvio.setValueBuffer("numseguimientoinformado", True)
-        curSegEnvio.setValueBuffer("transportista", "MRW")
         curSegEnvio.setValueBuffer("coddocumento", codigo)
 
         if not curSegEnvio.commitBuffer():
