@@ -1,7 +1,7 @@
 
 # @class_declaration elganso_sync #
 from models.flsyncppal import flsyncppal_def as syncppal
-
+import requests
 
 class elganso_sync(flfact_tpv):
 
@@ -83,6 +83,39 @@ class elganso_sync(flfact_tpv):
             return {"Error": "Petición Incorrecta", "status": 0}
         return False
 
+    def elganso_sync_consultasaft(self, params):
+        try:
+            if "auth" not in self.params:
+                self.params = syncppal.iface.get_param_sincro('apipass')
+            if "passwd" in params and params['passwd'] == self.params['auth']:
+
+                if "codcomanda" not in params:
+                    return {"Error": "Formato Incorrecto. No viene informado el parametro codcomanda", "status": 0}
+                print("////*******CODCOMANDA: ", params["codcomanda"])
+                url = "https://ediwinws.sedeb2b.com/EdiwinWS/rest/EdiwinIntegrationRest/getCustomData"
+                payload={'user': 'WS_EDIWIN_INTEGRATION_510138543',
+                'password': '85ufripdsd',
+                'domain': '510138543',
+                'process': 'IN_RESPONSE_SAFT_INVOICE_GETCUSTOMDATA_510138543',
+                'parameters': '[{"name": "IDEXTERNO", "operator": "LIKE", "value": "' + params["codcomanda"] + '"}]',
+                'unzipResponse': 'true'}
+                files=[]
+                headers = {}
+
+                #response = self.send_request("post", url, headers=headers, data=payload, files=files)
+                response = requests.request("post", url, headers=headers, data=payload, files=files)
+
+                print(response.text)
+
+                return {"datos": response.text}
+            else:
+                return {"Error": "Petición Incorrecta", "status": 10}
+        except Exception as e:
+            print(e)
+            qsatype.debug(ustr(u"Error inesperado", e))
+            return {"Error": "Petición Incorrecta", "status": 0}
+        return False
+
     def __init__(self, context=None):
         super().__init__(context)
 
@@ -91,4 +124,7 @@ class elganso_sync(flfact_tpv):
 
     def eglogdevolucionesweb(self, params):
         return self.ctx.elganso_sync_eglogdevolucionesweb(params)
+
+    def consultasaft(self, params):
+        return self.ctx.elganso_sync_consultasaft(params)
 

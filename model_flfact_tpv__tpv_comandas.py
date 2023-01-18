@@ -21,3 +21,7 @@ class elganso_sync_tpv_comandas(flfact_tpv_tpv_comandas, helpers.MixinConAccione
     def eglogdevolucionesweb(params):
         return form.iface.eglogdevolucionesweb(params)
 
+    @helpers.decoradores.csr()
+    def consultasaft(params):
+        return form.iface.consultasaft(params)
+
