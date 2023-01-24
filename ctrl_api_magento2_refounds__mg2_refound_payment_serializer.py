@@ -1,4 +1,5 @@
 from YBLEGACY import qsatype
+from YBLEGACY.constantes import *
 from controllers.base.default.serializers.default_serializer import DefaultSerializer
 
 
@@ -8,6 +9,19 @@ class Mg2RefoundPaymentSerializer(DefaultSerializer):
 
         idarqueo = self.init_data["idarqueo"]
         if not idarqueo:
+            return False
+
+        importe_monedero = 0
+        if "tarjeta_monedero" in self.init_data:
+            if "importe_gastado" in self.init_data["tarjeta_monedero"]:
+                importe_monedero = parseFloat(self.init_data["tarjeta_monedero"]["importe_gastado"])
+
+        importe = (float(self.init_data["total_pay"]) - importe_monedero)  * self.init_data["tasaconv"]
+        cod_uso = False
+        if "cod_uso" in self.init_data:
+            cod_uso = True
+
+        if importe == 0 and not cod_uso:
             return False
 
         self.set_data_value("anulado", False)
@@ -21,7 +35,7 @@ class Mg2RefoundPaymentSerializer(DefaultSerializer):
         self.set_string_value("idtpv_arqueo", idarqueo, max_characters=8)
         self.set_string_value("codcomanda", str(self.init_data["codcomanda"]))
         codPago = self.get_codpago()
-        importe = float(self.init_data["total_pay"])  * self.init_data["tasaconv"]
+
         if str(self.init_data["tipo_pago"]) == "Negativo":
             importe = importe * (-1)
 

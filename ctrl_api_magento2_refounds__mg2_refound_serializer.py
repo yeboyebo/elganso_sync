@@ -452,17 +452,24 @@ class Mg2RefoundsSerializer(DefaultSerializer):
             }
         )
 
+        if "payments" not in self.data["children"]:
+            self.data["children"]["payments"] = []
         pago_web = Mg2RefoundPaymentSerializer().serialize(new_init_data)
-        self.data["children"]["payments"].append(pago_web)
+
+        if pago_web:
+            self.data["children"]["payments"].append(pago_web)
 
         if "tarjeta_monedero" in self.init_data:
-            if float(self.init_data["tarjeta_monedero"]["importe_gastado"]) > 0:
-                new_init_data.update({
-                    "cod_uso": str(self.init_data["tarjeta_monedero"]["cod_uso"]),
-                    "importe_gastado": parseFloat(self.init_data["tarjeta_monedero"]["importe_gastado"]) * -1
-                })
-                pago_tarjeta_monedero = Mg2RefoundPaymentSerializer().serialize(new_init_data)
-                self.data["children"]["payments"].append(pago_tarjeta_monedero)
+            if "importe_gastado" in self.init_data["tarjeta_monedero"]:
+                if float(self.init_data["tarjeta_monedero"]["importe_gastado"]) > 0:
+                    new_init_data.update({
+                        "cod_uso": str(self.init_data["tarjeta_monedero"]["cod_uso"]),
+                        "importe_gastado": parseFloat(self.init_data["tarjeta_monedero"]["importe_gastado"]) * -1
+                    })
+                    pago_tarjeta_monedero = Mg2RefoundPaymentSerializer().serialize(new_init_data)
+                    self.data["children"]["payments"].append(pago_tarjeta_monedero)
+                    if not self.crear_movimiento_tarjeta_monedero():
+                        return False
 
         if "items_requested" in self.init_data:
             new_init_data = self.init_data.copy()
@@ -760,5 +767,30 @@ class Mg2RefoundsSerializer(DefaultSerializer):
 
         if not curSegEnvio.commitBuffer():
             return True
+
+        return True
+
+    def crear_movimiento_tarjeta_monedero(self):
+
+        codigo = "WDV2" + qsatype.FactoriaModulos.get("flfactppal").iface.cerosIzquierda(str(self.init_data["rma_id"]), 8)
+        id_tarjeta = qsatype.FLUtil.quickSqlSelect("eg_tarjetamonedero", "idtarjeta", "coduso = '{}'".format(str(self.init_data["tarjeta_monedero"]["cod_uso"])))
+
+        curTarjeta = qsatype.FLSqlCursor("eg_movitarjetamonedero")
+        curTarjeta.setModeAccess(curTarjeta.Insert)
+        curTarjeta.refreshBuffer()
+        curTarjeta.setValueBuffer("fecha", str(qsatype.Date())[:10])
+        curTarjeta.setValueBuffer("hora", self.get_hora(str(qsatype.Date())))
+        curTarjeta.setValueBuffer("idtarjeta", id_tarjeta)
+        curTarjeta.setValueBuffer("importe", parseFloat(self.init_data["tarjeta_monedero"]["importe_gastado"]))
+        curTarjeta.setValueBuffer("codcomanda", codigo)
+        curTarjeta.setValueBuffer("coduso", str(self.init_data["tarjeta_monedero"]["cod_uso"]))
+        if not curTarjeta.commitBuffer():
+            return False
+
+        if not qsatype.FLUtil.execSql(ustr(u"UPDATE eg_tarjetamonedero SET saldoconsumido = CASE WHEN (SELECT SUM(importe) FROM eg_movitarjetamonedero WHERE idtarjeta = eg_tarjetamonedero.idtarjeta) IS NULL THEN 0 ELSE (SELECT SUM(importe) FROM eg_movitarjetamonedero WHERE idtarjeta = eg_tarjetamonedero.idtarjeta) END WHERE idtarjeta = {}".format(str(id_tarjeta)))):
+            return False
+
+        if not qsatype.FLUtil.execSql(ustr(u"UPDATE eg_tarjetamonedero SET saldopendiente = CASE WHEN (saldoinicial - saldoconsumido) IS NULL THEN 0 ELSE (saldoinicial - saldoconsumido) END, fechamod = CURRENT_DATE, horamod = CURRENT_TIME WHERE idtarjeta = {}".format(str(id_tarjeta)))):
+            return False
 
         return True
