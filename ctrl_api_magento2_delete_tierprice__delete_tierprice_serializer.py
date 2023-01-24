@@ -14,6 +14,8 @@ class DeleteTierpriceSerializer(DefaultSerializer):
         self.set_string_value("customer_group", "ALL GROUPS")
         if self.init_data["p.elgansociety"] == True:
             self.set_string_value("customer_group", "General")
+        if self.init_data["gc.codgrupo"]:
+            self.set_data_relation("customer_group", "gc.codgrupo")
         self.set_string_value("price_type", "fixed")
         self.set_data_value("quantity", 1)
 
