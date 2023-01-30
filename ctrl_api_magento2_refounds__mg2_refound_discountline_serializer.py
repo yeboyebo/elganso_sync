@@ -35,7 +35,7 @@ class Mg2RefoundDiscountLineSerializer(Mg2RefoundLineSerializer):
         self.set_string_value("iva", self.init_data["iva"])
         self.set_data_value("ivaincluido", True)
         self.set_data_value("cantdevuelta", 0)
-        self.set_data_value("cantidad", self.get_cantidad())
+        
 
         pvpUnitario = parseFloat(self.init_data["discount_refunded"]) / ((100 + iva) / 100) * self.init_data["tasaconv"]
         pvpSinDto = pvpUnitario
@@ -43,13 +43,21 @@ class Mg2RefoundDiscountLineSerializer(Mg2RefoundLineSerializer):
         pvpUnitarioIva = parseFloat(self.init_data["discount_refunded"]) * self.init_data["tasaconv"]
         pvpSinDtoIva = pvpUnitarioIva
         pvpTotalIva = pvpUnitarioIva
+        cant_linea = self.get_cantidad()
 
-        if str(self.init_data["tipo_linea"]) == "BonoNegativo":
+        if str(self.init_data["tipo_linea"]) == "BonoPositivo":
+            cant_linea = cant_linea * (-1)
+            pvpUnitario = pvpUnitario  * (-1)
+            pvpUnitarioIva = pvpUnitarioIva  * (-1)
+        else:
+            pvpUnitario = pvpUnitario  * (-1)
+            pvpUnitarioIva = pvpUnitarioIva  * (-1)
             pvpSinDto = pvpSinDto * (-1)
             pvpTotal = pvpTotal * (-1)
-            pvpSinDtoIva = pvpUnitarioIva * (-1)
-            pvpTotalIva = pvpUnitarioIva * (-1)
+            pvpSinDtoIva = pvpSinDtoIva * (-1)
+            pvpTotalIva = pvpTotalIva * (-1)
 
+        self.set_string_value("cantidad", cant_linea)
         self.set_string_value("pvpunitario", pvpUnitario)
         self.set_string_value("pvpsindto", pvpSinDto)
         self.set_string_value("pvptotal", pvpTotal)

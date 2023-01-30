@@ -1407,6 +1407,14 @@
             {
                 "name": "model_flfact_tpv__eg_seguimientoenvios_def.py",
                 "path": "models/flfact_tpv/"
+            },
+            {
+                "name": "ctrl_api_magento2_orders__mg2_tarjetaregaloline_serializer.py",
+                "path": "controllers/api/magento2/orders/serializers/"
+            },
+            {
+                "name": "ctrl_api_magento2_refounds__mg2_refound_tarjetaregaloline_serializer.py",
+                "path": "controllers/api/magento2/refounds/serializers/"
             }
         ],
         "deleteFile": [],

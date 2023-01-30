@@ -13,6 +13,7 @@ from controllers.api.magento2.orders.serializers.mg2_payment_serializer import M
 from controllers.api.magento2.orders.serializers.mg2_cashcount_serializer import Mg2CashCountSerializer
 from controllers.api.magento2.orders.serializers.mg2_idlecommerce_serializer import Mg2IdlEcommerce
 from controllers.api.magento2.orders.serializers.mg2_pointsline_serializer import Mg2PointsLineSerializer
+from controllers.api.magento2.orders.serializers.mg2_tarjetaregaloline_serializer import Mg2TarjetaRegaloLineSerializer
 from controllers.api.magento2.orders.serializers.mg2_discountunknownline_serializer import Mg2DiscountUnknownLineSerializer
 
 
@@ -143,11 +144,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
             self.set_data_value("ptesincrofactura", True)
 
             # iva = self.init_data["items"][-1]["iva"]
-            importe_monedero = 0
-            if "tarjeta_monedero" in self.init_data:
-                if "importe_gastado" in self.init_data["tarjeta_monedero"]:
-                    importe_monedero = float(self.init_data["tarjeta_monedero"]["importe_gastado"])
-            total = round(parseFloat((self.init_data["grand_total"] + importe_monedero) * tasaconv), 2)
+            total = round(parseFloat((self.init_data["grand_total"]) * tasaconv), 2)
             importe_monedero = 0
             neto = round(parseFloat(total / ((100 + iva) / 100)), 2)
             total_iva = total - neto
@@ -213,6 +210,19 @@ class Mg2OrdersSerializer(DefaultSerializer):
             linea_puntos = Mg2PointsLineSerializer().serialize(new_init_data)
             linea_vale = Mg2VoucherLineSerializer().serialize(new_init_data)
             linea_dtodesconocido = Mg2DiscountUnknownLineSerializer().serialize(new_init_data)
+
+            if "tarjeta_monedero" in self.init_data:
+                if "importe_gastado" in self.init_data["tarjeta_monedero"]:
+                    if float(self.init_data["tarjeta_monedero"]["importe_gastado"]) > 0:
+                        new_init_data.update({
+                            "cod_uso": str(self.init_data["tarjeta_monedero"]["cod_uso"]),
+                            "importe_gastado": self.init_data["tarjeta_monedero"]["importe_gastado"],
+                            "tasaconv": tasaconv
+                        })
+                        linea_tarjeta_monedero = Mg2TarjetaRegaloLineSerializer().serialize(new_init_data)
+                        self.data["children"]["lines"].append(linea_tarjeta_monedero)
+
+
             new_data = self.data.copy()
             if str(self.init_data["store_id"]) == "13" or str(self.init_data["store_id"]) == "14":
                 new_data.update({
@@ -236,15 +246,6 @@ class Mg2OrdersSerializer(DefaultSerializer):
             self.data["children"]["lines"].append(linea_puntos)
             self.data["children"]["lines"].append(linea_dtodesconocido)
             self.data["children"]["payments"].append(pago_web)
-            if "tarjeta_monedero" in self.init_data:
-                if "importe_gastado" in self.init_data["tarjeta_monedero"]:
-                    if float(self.init_data["tarjeta_monedero"]["importe_gastado"]) > 0:
-                        new_data.update({
-                            "cod_uso": str(self.init_data["tarjeta_monedero"]["cod_uso"]),
-                            "importe_gastado": self.init_data["tarjeta_monedero"]["importe_gastado"]
-                        })
-                        pago_tarjeta_monedero = Mg2PaymentSerializer().serialize(new_data)
-                        self.data["children"]["payments"].append(pago_tarjeta_monedero)
 
             self.data["children"]["shippingline"] = linea_envio
 

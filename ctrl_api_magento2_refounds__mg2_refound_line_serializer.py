@@ -28,10 +28,6 @@ class Mg2RefoundLineSerializer(DefaultSerializer):
         pvpunitarioiva = parseFloat(self.init_data["original_price"]) * self.init_data["tasaconv"]
         pvpsindtoiva = parseFloat(self.init_data["original_price"]) * self.init_data["tasaconv"] * cant
         pvptotaliva = parseFloat(self.init_data["row_total_incl_tax"]) * self.init_data["tasaconv"]
-        if parseFloat(self.init_data["discount"]) > 0:
-            pvptotal = round(parseFloat(self.init_data["row_total_incl_tax"] / ((100 + parseFloat(iva)) / 100)), 2)
-            dtolineal = parseFloat(self.init_data["discount"])*-1
-            self.set_string_value("dtolineal", dtolineal)
 
         if self.init_data["tipo_linea"] == "refounded":
             pvpsindto = pvpsindto * (-1)

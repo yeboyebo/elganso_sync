@@ -11,7 +11,7 @@ class Mg2RefoundVoucherLineSerializer(Mg2RefoundLineSerializer):
         if str(self.init_data["vale_description"]) == "None" or str(self.init_data["vale_total"]) == "None":
             return False
 
-        iva = parseFloat(self.init_data["tax_refunded"])
+        iva = parseFloat(self.init_data["iva"])
         if not iva or iva == "":
             iva = 0
 
@@ -27,10 +27,9 @@ class Mg2RefoundVoucherLineSerializer(Mg2RefoundLineSerializer):
         self.set_string_relation("codcomanda", "codcomanda", max_characters=12)
 
         self.set_data_value("cantdevuelta", 0)
-        self.set_data_value("cantidad", self.get_cantidad())
 
         self.set_data_value("ivaincluido", True)
-        self.set_data_relation("iva", "tax_refunded")
+        self.set_string_value("iva", iva)
 
         pvpUnitario = parseFloat(self.init_data["vale_total"]) / ((100 + iva) / 100) * self.init_data["tasaconv"]
         pvpSinDto = pvpUnitario
@@ -38,13 +37,21 @@ class Mg2RefoundVoucherLineSerializer(Mg2RefoundLineSerializer):
         pvpUnitarioIva = parseFloat(self.init_data["vale_total"]) * self.init_data["tasaconv"]
         pvpSinDtoIva = pvpUnitarioIva
         pvpTotalIva = pvpUnitarioIva
+        cant_linea = self.get_cantidad()
 
         if self.init_data["tipo_linea"] == "ValesNegativos":
+           pvpUnitario = pvpUnitario * (-1)
+           pvpUnitarioIva = pvpUnitarioIva * (-1)
+           cant_linea = cant_linea * (-1)
+        else:
+            pvpUnitario = pvpUnitario * (-1)
+            pvpUnitarioIva = pvpUnitarioIva * (-1)
             pvpSinDto = pvpSinDto * (-1)
             pvpTotal = pvpTotal * (-1)
-            pvpSinDtoIva = pvpUnitarioIva * (-1)
-            pvpTotalIva = pvpUnitarioIva * (-1)
+            pvpSinDtoIva = pvpSinDtoIva * (-1)
+            pvpTotalIva = pvpTotalIva * (-1)
 
+        self.set_data_value("cantidad", cant_linea)
         self.set_data_value("pvpunitario", pvpUnitario)
         self.set_data_value("pvpsindto", pvpSinDto)
         self.set_data_value("pvptotal", pvpTotal)

@@ -11,18 +11,7 @@ class Mg2RefoundPaymentSerializer(DefaultSerializer):
         if not idarqueo:
             return False
 
-        importe_monedero = 0
-        if "tarjeta_monedero" in self.init_data:
-            if "importe_gastado" in self.init_data["tarjeta_monedero"]:
-                importe_monedero = parseFloat(self.init_data["tarjeta_monedero"]["importe_gastado"])
-
-        importe = (float(self.init_data["total_pay"]) - importe_monedero)  * self.init_data["tasaconv"]
-        cod_uso = False
-        if "cod_uso" in self.init_data:
-            cod_uso = True
-
-        if importe == 0 and not cod_uso:
-            return False
+        importe = float(self.init_data["total_pay"])  * self.init_data["tasaconv"]
 
         self.set_data_value("anulado", False)
         self.set_data_value("editable", True)
@@ -39,13 +28,8 @@ class Mg2RefoundPaymentSerializer(DefaultSerializer):
         if str(self.init_data["tipo_pago"]) == "Negativo":
             importe = importe * (-1)
 
-        if "cod_uso" in self.init_data:
-            self.set_string_value("importe", self.init_data["importe_gastado"])
-            self.set_string_value("coduso", self.init_data["cod_uso"])
-            self.set_string_value("codpago", self.get_formaPagoTarjetaMonedero())
-        else:
-            self.set_string_value("importe", importe)
-            self.set_string_value("codpago", codPago)
+        self.set_string_value("importe", importe)
+        self.set_string_value("codpago", codPago)
 
 
 
@@ -61,6 +45,3 @@ class Mg2RefoundPaymentSerializer(DefaultSerializer):
                 codPago = "CONT"
 
         return codPago
-
-    def get_formaPagoTarjetaMonedero(self):
-        return qsatype.FLUtil.quickSqlSelect("tpv_datosgenerales", "pagotr", "1=1")

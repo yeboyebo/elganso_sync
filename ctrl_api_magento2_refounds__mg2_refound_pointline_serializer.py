@@ -26,7 +26,7 @@ class Mg2RefoundPointLineSerializer(Mg2RefoundLineSerializer):
         self.set_string_relation("codcomanda", "codcomanda", max_characters=12)
 
         self.set_data_value("cantdevuelta", 0)
-        self.set_data_value("cantidad", self.get_cantidad())
+
 
         self.set_data_value("ivaincluido", True)
         self.set_data_relation("iva", "iva")
@@ -37,15 +37,29 @@ class Mg2RefoundPointLineSerializer(Mg2RefoundLineSerializer):
         pvpUnitarioIva = (parseFloat(self.init_data["points_used"])) * self.init_data["tasaconv"]
         pvpSinDtoIva = pvpUnitarioIva
         pvpTotalIva = pvpUnitarioIva
+        cant_linea = self.get_cantidad()
 
-        if self.init_data["tipo_linea"] == "PuntosNegativos":
+        if str(self.init_data["tipo_linea"]) == "PuntosPositivos":
+            cant_linea = cant_linea * (-1)
+            pvpUnitario = pvpUnitario  * (-1)
+            pvpUnitarioIva = pvpUnitarioIva  * (-1)
+        else:
+            pvpSinDto = pvpSinDto * (-1)
+            pvpTotal = pvpTotal * (-1)
+            pvpSinDtoIva = pvpSinDtoIva * (-1)
+            pvpTotalIva = pvpTotalIva * (-1)
+            pvpUnitario = pvpUnitario  * (-1)
+            pvpUnitarioIva = pvpUnitarioIva  * (-1)
+
+        """if self.init_data["tipo_linea"] == "PuntosNegativos":
             pvpSinDto = pvpSinDto * (-1)
             pvpTotal = pvpTotal * (-1)
             pvpSinDtoIva = pvpUnitarioIva * (-1)
             pvpTotalIva = pvpUnitarioIva * (-1)
             pvpUnitario = pvpUnitario * (-1)
-            pvpUnitarioIva = pvpUnitarioIva * (-1)
+            pvpUnitarioIva = pvpUnitarioIva * (-1)"""
 
+        self.set_data_value("cantidad", cant_linea)
         self.set_data_value("pvpunitario", pvpUnitario)
         self.set_data_value("pvpsindto", pvpSinDto)
         self.set_data_value("pvptotal", pvpTotal)
@@ -72,7 +86,7 @@ class Mg2RefoundPointLineSerializer(Mg2RefoundLineSerializer):
         return 1
 
     def crear_registro_puntos(self):
-        canPuntos = parseFloat(self.init_data["discount_refunded"])
+        canPuntos = parseFloat(self.init_data["points_used"])
         if self.init_data["tipo_linea"] == "PuntosNegativos":
             canPuntos = canPuntos * (-1)
 

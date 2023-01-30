@@ -11,6 +11,7 @@ from controllers.api.magento2.refounds.serializers.mg2_refound_payment_serialize
 from controllers.api.magento2.refounds.serializers.mg2_idlecommerce_serializer import Mg2IdlEcommerce
 from controllers.api.magento2.refounds.serializers.mg2_idlecommercedevoluciones_serializer import Mg2IdlEcommerceDevoluciones
 from controllers.api.magento2.refounds.serializers.mg2_refound_expensesline_serializer import Mg2RefoundExpensesLineSerializer
+from controllers.api.magento2.refounds.serializers.mg2_refound_tarjetaregaloline_serializer import Mg2RefoundTarjetaMonederoSerializer
 
 
 class Mg2RefoundsSerializer(DefaultSerializer):
@@ -96,6 +97,7 @@ class Mg2RefoundsSerializer(DefaultSerializer):
             self.crear_registros_puntos(iva)
             self.crear_registros_vales(iva)
             self.crear_registros_gastosenvio(iva)
+            self.crear_registros_tarjetamonedero(iva)
 
             self.data["children"]["cashcount"] = False
             self.data["children"]["creditmemo"] = False
@@ -169,9 +171,14 @@ class Mg2RefoundsSerializer(DefaultSerializer):
         region = self.init_data["pickup_address"]["region"]
         codDivisa = str(self.init_data["currency"])
 
-        totalIva = parseFloat(self.init_data["tax_refunded"]) * self.init_data["tasaconv"]
-        totalVenta = parseFloat(self.init_data["total_refunded"]) * self.init_data["tasaconv"]
-        totalNeto = totalVenta - totalIva
+        iva = 0
+        for line in self.init_data["items_refunded"]:
+            iva = parseFloat(line["tax_percent"])
+
+        #totalIva = parseFloat(self.init_data["tax_refunded"]) * self.init_data["tasaconv"]
+        totalVenta = parseFloat(self.init_data["total_refunded"]) * parseFloat(self.init_data["tasaconv"])
+        totalNeto = round(parseFloat(totalVenta / ((100 + iva) / 100)), 2)
+        totalIva = parseFloat(totalVenta - totalNeto)
 
         if "items_requested" in self.init_data:
             totalNeto = 0
@@ -357,7 +364,7 @@ class Mg2RefoundsSerializer(DefaultSerializer):
         new_init_data.update({
             "codcomanda": self.data["codigo"],
             "iva": iva,
-            "tipo_linea": "ValesPositivos"
+            "tipo_linea": "ValesNegativos"
         })
         linea_vale = Mg2RefoundVoucherLineSerializer().serialize(new_init_data)
         self.data["children"]["lines"].append(linea_vale)
@@ -367,7 +374,7 @@ class Mg2RefoundsSerializer(DefaultSerializer):
             new_init_data.update({
                 "codcomanda": self.data["codigo"],
                 "iva": iva,
-                "tipo_linea": "ValesNegativos"
+                "tipo_linea": "ValesPositivos"
             })
             linea_vale = Mg2RefoundVoucherLineSerializer().serialize(new_init_data)
             self.data["children"]["lines"].append(linea_vale)
@@ -454,22 +461,9 @@ class Mg2RefoundsSerializer(DefaultSerializer):
 
         if "payments" not in self.data["children"]:
             self.data["children"]["payments"] = []
+        
         pago_web = Mg2RefoundPaymentSerializer().serialize(new_init_data)
-
-        if pago_web:
-            self.data["children"]["payments"].append(pago_web)
-
-        if "tarjeta_monedero" in self.init_data:
-            if "importe_gastado" in self.init_data["tarjeta_monedero"]:
-                if float(self.init_data["tarjeta_monedero"]["importe_gastado"]) > 0:
-                    new_init_data.update({
-                        "cod_uso": str(self.init_data["tarjeta_monedero"]["cod_uso"]),
-                        "importe_gastado": parseFloat(self.init_data["tarjeta_monedero"]["importe_gastado"]) * -1
-                    })
-                    pago_tarjeta_monedero = Mg2RefoundPaymentSerializer().serialize(new_init_data)
-                    self.data["children"]["payments"].append(pago_tarjeta_monedero)
-                    if not self.crear_movimiento_tarjeta_monedero():
-                        return False
+        self.data["children"]["payments"].append(pago_web)
 
         if "items_requested" in self.init_data:
             new_init_data = self.init_data.copy()
@@ -794,3 +788,40 @@ class Mg2RefoundsSerializer(DefaultSerializer):
             return False
 
         return True
+
+    def crear_registros_tarjetamonedero(self, iva):
+
+
+        if "tarjeta_monedero" in self.init_data:
+            if "importe_gastado" in self.init_data["tarjeta_monedero"]:
+                if float(self.init_data["tarjeta_monedero"]["importe_gastado"]) > 0:
+                    new_init_data = self.init_data.copy()
+                    new_init_data.update({
+                        "cod_uso": str(self.init_data["tarjeta_monedero"]["cod_uso"]),
+                        "importe_gastado": parseFloat(self.init_data["tarjeta_monedero"]["importe_gastado"]) * -1,
+                        "codcomanda": self.data["codigo"],
+                        "iva": iva,
+                        "tipo_linea": "tarjetaMonederoNegativos"
+
+                    })
+                    pago_tarjeta_monedero = Mg2RefoundTarjetaMonederoSerializer().serialize(new_init_data)
+                    self.data["children"]["lines"].append(pago_tarjeta_monedero)
+                    
+                    if "items_requested" in self.init_data:
+                        new_init_data = self.init_data.copy()
+                        new_init_data.update({
+                            "cod_uso": str(self.init_data["tarjeta_monedero"]["cod_uso"]),
+                        "importe_gastado": parseFloat(self.init_data["tarjeta_monedero"]["importe_gastado"]),
+                        "codcomanda": self.data["codigo"],
+                        "iva": iva,
+                        "tipo_linea": "tarjetaMonederoPositivo"
+                        })
+                        pago_tarjeta_monedero = Mg2RefoundTarjetaMonederoSerializer().serialize(new_init_data)
+                        self.data["children"]["lines"].append(pago_tarjeta_monedero)
+                    else:
+                        if not self.crear_movimiento_tarjeta_monedero():
+                            return False
+
+        return True
+
+         
