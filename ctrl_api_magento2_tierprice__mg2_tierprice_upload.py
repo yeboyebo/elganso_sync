@@ -32,12 +32,12 @@ class Mg2TierpriceUpload(TierpriceUpload):
             price = self.get_tierprice_serializer().serialize(data[idx])
             new_tierprice.append(price)
             if not idObjeto:
-                idObjeto = str(data[idx]["ls.id"])
-                self._ssw = str(data[idx]["ls.id"])
+                idObjeto = str(data[idx]["id"])
+                self._ssw = str(data[idx]["id"])
 
-            if str(data[idx]["ls.id"]) != idObjeto:
-                idObjeto = str(data[idx]["ls.id"])
-                self._ssw += "," + str(data[idx]["ls.id"])
+            if str(data[idx]["id"]) != idObjeto:
+                idObjeto = str(data[idx]["id"])
+                self._ssw += "," + str(data[idx]["id"])
 
         if not new_tierprice:
             return False
@@ -60,7 +60,7 @@ class Mg2TierpriceUpload(TierpriceUpload):
                 ### self.send_request("post", url=tierprice_url.format("fr"), data=json.dumps(data))
                 ### self.send_request("post", url=tierprice_url.format("en"), data=json.dumps(data))
                 ## result = self.send_request("post", url=delete_tierprice_url.format("es"), data=json.dumps(data))
-                print("RESULT: ", str(result))
+                print("RESULT: ", result)
             except Exception as e:
                 # print(str(e))
                 # print("exception")
@@ -69,20 +69,12 @@ class Mg2TierpriceUpload(TierpriceUpload):
 
         return data
 
-    def get_db_data(self):
-        codplan = qsatype.FLUtil.sqlSelect("eg_planprecios p INNER JOIN eg_articulosplan ap ON p.codplan = ap.codplan INNER JOIN atributosarticulos at ON ap.referencia = at.referencia INNER JOIN eg_tiendasplanprecios tp ON p.codplan = tp.codplan INNER JOIN mg_storeviews mg ON tp.codtienda = mg.egcodtiendarebajas INNER JOIN lineassincro_catalogo ls ON (p.codplan = ls.idobjeto AND at.referencia || '-' || at.talla || '-' || mg.idwebsite = ls.descripcion) LEFT JOIN eg_gruposclientesplanprecios gc on p.codplan = tp.codplan", "p.codplan", "ls.sincronizado = FALSE AND ls.tiposincro = 'Planificador Precios' AND (p.desde < CURRENT_DATE OR (p.desde = CURRENT_DATE AND p.horadesde <= CURRENT_TIME)) AND ap.activo GROUP BY p.codplan ORDER BY p.desde, p.horadesde limit 1")
-        
-        if not codplan:
-            return []
-        
-        limitConsulta = qsatype.FLUtil.sqlSelect("eg_gruposclientesplanprecios","CASE WHEN count(*) = 0 THEN 1000 ELSE count(*) * 1000 END","codplan = '" + codplan + "'")
-    
+    def get_db_data(self):    
         body = []
         q = qsatype.FLSqlQuery()
-        q.setSelect("ls.id, at.referencia, at.talla, ap.pvp, p.desde || ' ' || p.horadesde, ap.activo, p.hasta || ' ' || p.horahasta, mg.idwebsite, p.elgansociety, gc.codgrupo")
-        q.setFrom("eg_planprecios p INNER JOIN eg_articulosplan ap ON p.codplan = ap.codplan INNER JOIN atributosarticulos at ON ap.referencia = at.referencia INNER JOIN eg_tiendasplanprecios tp ON p.codplan = tp.codplan INNER JOIN mg_storeviews mg ON tp.codtienda = mg.egcodtiendarebajas INNER JOIN lineassincro_catalogo ls ON (p.codplan = ls.idobjeto AND at.referencia || '-' || at.talla || '-' || mg.idwebsite = ls.descripcion) LEFT JOIN eg_gruposclientesplanprecios gc on p.codplan = tp.codplan")
-
-        q.setWhere("p.codplan = '" + str(codplan) + "' AND ls.sincronizado = FALSE AND ls.tiposincro = 'Planificador Precios' AND (p.desde < CURRENT_DATE OR (p.desde = CURRENT_DATE AND p.horadesde <= CURRENT_TIME)) AND ap.activo GROUP BY ls.id,at.referencia, at.talla, ap.pvp, p.desde || ' ' || p.horadesde, p.hasta || ' ' || p.horahasta, mg.idwebsite, ap.activo, p.elgansociety, gc.codgrupo ORDER BY ls.id LIMIT " + str(limitConsulta))
+        q.setSelect("id, referencia, talla, pvp, website, codgrupo")
+        q.setFrom("lineassincro_planpreciosmagento")
+        q.setWhere("sincronizado = FALSE AND activo AND (desde < CURRENT_DATE OR (desde = CURRENT_DATE AND horadesde <= CURRENT_TIME)) ORDER BY id LIMIT 1000")
         
         print("CONSULTA: ", q.sql())
 
@@ -104,7 +96,7 @@ class Mg2TierpriceUpload(TierpriceUpload):
             self.log("Error", "No se pudo sincronizar las líneas de planificador: {})".format(self._ssw))
             return self.small_sleep
 
-        qsatype.FLSqlQuery().execSql("UPDATE lineassincro_catalogo SET sincronizado = TRUE WHERE id IN ({})".format(self._ssw))
+        qsatype.FLSqlQuery().execSql("UPDATE lineassincro_planpreciosmagento SET sincronizado = TRUE WHERE id IN ({})".format(self._ssw))
 
         self.log("Exito", "Lineas de planificador sincronizadas correctamente {}".format(self._ssw))
 

@@ -32,12 +32,12 @@ class Mg2DeleteTierPriceUpload(TierpriceUpload):
             price = self.get_delete_tierprice_serializer().serialize(data[idx])
             new_delete_tierprice.append(price)
             if not idObjeto:
-                idObjeto = str(data[idx]["ls.id"])
-                self._ssw = str(data[idx]["ls.id"])
+                idObjeto = str(data[idx]["id"])
+                self._ssw = str(data[idx]["id"])
 
-            if str(data[idx]["ls.id"]) != idObjeto:
-                idObjeto = str(data[idx]["ls.id"])
-                self._ssw += "," + str(data[idx]["ls.id"])
+            if str(data[idx]["id"]) != idObjeto:
+                idObjeto = str(data[idx]["id"])
+                self._ssw += "," + str(data[idx]["id"])
 
         if not new_delete_tierprice:
             return False
@@ -51,45 +51,26 @@ class Mg2DeleteTierPriceUpload(TierpriceUpload):
 
         for idx in range(len(data["prices"])):
             del data["prices"][idx]["children"]
+
         if data:
             result = True
             try:
                 print("DATA: ", json.dumps(data))
-                print("URL: ", delete_tierprice_url)
+                print("URL: ", delete_tierprice_url.format("es"))
                 result = self.send_request("post", url=delete_tierprice_url.format("es"), data=json.dumps(data))
-                ### self.send_request("post", url=delete_tierprice_url.format("fr"), data=json.dumps(data))
-                ### self.send_request("post", url=delete_tierprice_url.format("en"), data=json.dumps(data))
-                ## result = self.send_request("post", url=delete_tierprice_url.format("es"), data=json.dumps(data))
                 print("RESULT: ", str(result))
             except Exception as e:
-                # print(str(e))
-                # print("exception")
                 print(str(e))
                 self.error = True
 
         return data
 
-    def get_db_data(self):
-        '''body = []
-
-        q = qsatype.FLSqlQuery()
-        q.setSelect("ls.id, at.referencia, at.talla, ap.pvp, p.desde || ' ' || p.horadesde, ap.activo, p.hasta || ' ' || p.horahasta, mg.idwebsite, p.elgansociety")
-        q.setFrom("eg_planprecios p INNER JOIN eg_articulosplan ap ON p.codplan = ap.codplan INNER JOIN atributosarticulos at ON ap.referencia = at.referencia INNER JOIN eg_tiendasplanprecios tp ON p.codplan = tp.codplan INNER JOIN mg_storeviews mg ON tp.codtienda = mg.egcodtiendarebajas INNER JOIN lineassincro_catalogo ls ON (p.codplan = ls.idobjeto AND at.referencia || '-' || at.talla || '-' || mg.idmagento = ls.descripcion)")
-        q.setWhere("ls.sincronizado = FALSE AND ls.tiposincro = 'Eliminar Planificador' AND (p.hasta < CURRENT_DATE OR (p.hasta = CURRENT_DATE AND p.horahasta <= CURRENT_TIME)) GROUP BY ls.id,at.referencia, at.talla, ap.pvp, p.desde || ' ' || p.horadesde, p.hasta || ' ' || p.horahasta, mg.idwebsite, ap.activo, p.elgansociety ORDER BY ls.id LIMIT 2000")'''
-        
-        codplan = qsatype.FLUtil.sqlSelect("eg_planprecios p INNER JOIN eg_articulosplan ap ON p.codplan = ap.codplan INNER JOIN atributosarticulos at ON ap.referencia = at.referencia INNER JOIN eg_tiendasplanprecios tp ON p.codplan = tp.codplan INNER JOIN mg_storeviews mg ON tp.codtienda = mg.egcodtiendarebajas INNER JOIN lineassincro_catalogo ls ON (p.codplan = ls.idobjeto AND at.referencia || '-' || at.talla || '-' || mg.idwebsite = ls.descripcion) LEFT JOIN eg_gruposclientesplanprecios gc on p.codplan = tp.codplan", "p.codplan", "ls.sincronizado = FALSE AND ls.tiposincro = 'Eliminar Planificador' AND (p.hasta < CURRENT_DATE OR (p.hasta = CURRENT_DATE AND p.horahasta <= CURRENT_TIME)) AND ap.activo GROUP BY p.codplan ORDER BY p.hasta, p.horahasta limit 1")
-        
-        if not codplan:
-            return []
-        
-        limitConsulta = qsatype.FLUtil.sqlSelect("eg_gruposclientesplanprecios","CASE WHEN count(*) = 0 THEN 1000 ELSE count(*) * 1000 END","codplan = '" + codplan + "'")
-    
+    def get_db_data(self):    
         body = []
         q = qsatype.FLSqlQuery()
-        q.setSelect("ls.id, at.referencia, at.talla, ap.pvp, p.desde || ' ' || p.horadesde, ap.activo, p.hasta || ' ' || p.horahasta, mg.idwebsite, p.elgansociety, gc.codgrupo")
-        q.setFrom("eg_planprecios p INNER JOIN eg_articulosplan ap ON p.codplan = ap.codplan INNER JOIN atributosarticulos at ON ap.referencia = at.referencia INNER JOIN eg_tiendasplanprecios tp ON p.codplan = tp.codplan INNER JOIN mg_storeviews mg ON tp.codtienda = mg.egcodtiendarebajas INNER JOIN lineassincro_catalogo ls ON (p.codplan = ls.idobjeto AND at.referencia || '-' || at.talla || '-' || mg.idwebsite = ls.descripcion) LEFT JOIN eg_gruposclientesplanprecios gc on p.codplan = tp.codplan")
-
-        q.setWhere("p.codplan = '" + str(codplan) + "' AND ls.sincronizado = FALSE AND ls.tiposincro = 'Eliminar Planificador' AND (p.hasta < CURRENT_DATE OR (p.hasta = CURRENT_DATE AND p.horahasta <= CURRENT_TIME)) AND ap.activo GROUP BY ls.id,at.referencia, at.talla, ap.pvp, p.desde || ' ' || p.horadesde, p.hasta || ' ' || p.horahasta, mg.idwebsite, ap.activo, p.elgansociety, gc.codgrupo ORDER BY ls.id LIMIT " + str(limitConsulta))
+        q.setSelect("id, referencia, talla, pvp, website, codgrupo")
+        q.setFrom("lineassincro_eliminarplanpreciosmagento")
+        q.setWhere("sincronizado = FALSE AND (hasta < CURRENT_DATE OR (hasta = CURRENT_DATE AND horahasta <= CURRENT_TIME)) ORDER BY id LIMIT 1000")
         
         print("CONSULTA: ", q.sql())
 
@@ -111,7 +92,7 @@ class Mg2DeleteTierPriceUpload(TierpriceUpload):
             self.log("Error", "No se pudo eliminar las líneas de planificador: {})".format(self._ssw))
             return self.small_sleep
 
-        qsatype.FLSqlQuery().execSql("UPDATE lineassincro_catalogo SET sincronizado = TRUE WHERE id IN ({})".format(self._ssw))
+        qsatype.FLSqlQuery().execSql("UPDATE lineassincro_eliminarplanpreciosmagento SET sincronizado = TRUE WHERE id IN ({})".format(self._ssw))
 
         self.log("Exito", "Lineas de planificador eliminadas correctamente {}".format(self._ssw))
 

@@ -84,7 +84,7 @@ class Mg2RefoundVoucherLineSerializer(Mg2RefoundLineSerializer):
     def crear_registro_movvale(self):
         importe = parseFloat(self.init_data["vale_total"])
 
-        if self.init_data["tipo_linea"] == "ValesPositivos":
+        if self.init_data["tipo_linea"] == "ValesNegativos":
             importe = importe * (-1)
 
         curMovVale = qsatype.FLSqlCursor("tpv_movivale")
