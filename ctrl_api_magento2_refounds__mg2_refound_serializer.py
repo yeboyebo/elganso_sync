@@ -96,7 +96,7 @@ class Mg2RefoundsSerializer(DefaultSerializer):
             self.crear_registros_descuentos(iva)
             self.crear_registros_puntos(iva)
             self.crear_registros_vales(iva)
-            self.crear_registros_gastosenvio(iva)
+            # self.crear_registros_gastosenvio(iva)
             self.crear_registros_tarjetamonedero(iva)
 
             self.data["children"]["cashcount"] = False
@@ -436,6 +436,12 @@ class Mg2RefoundsSerializer(DefaultSerializer):
                         codtiendaentrega = self.init_data["codtiendaentrega"]
                         if not self.crear_viaje_recogidatienda(self.data["codigo"], codtiendaentrega):
                             raise NameError("Error al crear el viaje de recogida en tienda.")
+
+        if "gastos_envio" in self.init_data:
+            if "importe_gastosenvio" in self.init_data["gastos_envio"]:
+                if float(self.init_data["gastos_envio"]["importe_gastosenvio"]) > 0:
+                    self.crear_comanda_gastosenvio()
+
         return True
 
     def crear_pagos_devolucionweb(self, arqueo_web, codigo):
@@ -828,4 +834,169 @@ class Mg2RefoundsSerializer(DefaultSerializer):
 
         return True
 
-         
+    def crear_comanda_gastosenvio(self):
+        idtpv_comanda = self.crear_cabecera_comanda_gastosenvio()
+        if not idtpv_comanda:
+            return False
+        self.crear_lineas_comanda_gastosenvio(idtpv_comanda)
+        self.crear_pagos_comanda_gastosenvio(idtpv_comanda)
+
+        return True
+
+    def crear_cabecera_comanda_gastosenvio(self):
+        cif = self.init_data["cif"][:20] if self.init_data["cif"] and self.init_data["cif"] != "" else ""
+        if not cif or cif == "":
+            cif = "-"
+
+        nombreCliente = str(self.init_data["pickup_address"]["firstname"])
+
+        direccion = self.init_data["pickup_address"]["street"]
+        dirNum = self.init_data["pickup_address"]["number"]
+        if str(dirNum) == "None":
+            dirNum = ""
+
+        codpostal = str(self.init_data["pickup_address"]["postcode"])
+        codComandaDevol = "WEB" + str(self.init_data["increment_id"])
+        city = self.init_data["pickup_address"]["city"]
+        codpais = qsatype.FLUtil.quickSqlSelect("tpv_comandas", "codpais", "codigo = '" + str(codComandaDevol) + "'")
+        telefonofac = self.init_data["phone"]
+        if "phone" in self.init_data["pickup_address"]:
+            telefonofac = self.init_data["pickup_address"]["phone"]
+        codpago = self.get_codpago(str(self.init_data["payment_method"]))
+        email = self.init_data["email"]
+        region = self.init_data["pickup_address"]["region"]
+        codDivisa = str(self.init_data["currency"])
+
+        iva = parseFloat(self.init_data["gastos_envio"]["iva"])
+        totalVenta = parseFloat(self.init_data["gastos_envio"]["importe_gastosenvio"])
+        totalNeto = round(parseFloat(totalVenta / ((100 + iva) / 100)), 2)
+        totalIva = parseFloat(totalVenta - totalNeto)
+
+        curComanda = qsatype.FLSqlCursor("tpv_comandas")
+        curComanda.setModeAccess(curComanda.Insert)
+        curComanda.setActivatedCommitActions(False)
+        curComanda.refreshBuffer()
+        curComanda.setValueBuffer("codigo", "WGE" + qsatype.FactoriaModulos.get("flfactppal").iface.cerosIzquierda(str(self.init_data["rma_id"]), 9))
+        curComanda.setValueBuffer("email", "")
+        curComanda.setValueBuffer("codserie", self.get_codserie(codpais, self.init_data["pickup_address"]["postcode"]))
+        curComanda.setValueBuffer("codejercicio", self.get_codejercicio(str(qsatype.Date())))
+        curComanda.setValueBuffer("codcomandadevol", "")
+        curComanda.setValueBuffer("codtpv_puntoventa", self.get_puntoventa())
+        curComanda.setValueBuffer("codtpv_agente", "0350")
+        curComanda.setValueBuffer("codalmacen", "AWEB")
+        curComanda.setValueBuffer("codtienda", self.get_codtienda())
+        curComanda.setValueBuffer("fecha", str(qsatype.Date())[:10])
+        curComanda.setValueBuffer("hora", self.get_hora(str(qsatype.Date())))
+        curComanda.setValueBuffer("nombrecliente", nombreCliente[:100] if nombreCliente else nombreCliente)
+        curComanda.setValueBuffer("cifnif", cif)
+        curComanda.setValueBuffer("dirtipovia", "")
+        curComanda.setValueBuffer("direccion", direccion[:100] if direccion else direccion)
+        curComanda.setValueBuffer("dirnum", dirNum[:100] if dirNum else dirNum)
+        curComanda.setValueBuffer("dirotros", "")
+        curComanda.setValueBuffer("codpostal", codpostal[:10] if codpostal else codpostal)
+        curComanda.setValueBuffer("ciudad", city[:100] if city else city)
+        curComanda.setValueBuffer("provincia", region[:100] if region else region)
+        curComanda.setValueBuffer("telefono1", telefonofac[:30] if telefonofac else telefonofac)
+        curComanda.setValueBuffer("codpais", codpais)
+        curComanda.setValueBuffer("codpago", codpago[:10] if codpago else codpago)
+        curComanda.setValueBuffer("coddivisa", codDivisa)
+        curComanda.setValueBuffer("tasaconv", 1)
+        curComanda.setValueBuffer("email", email[:100] if email else email)
+        curComanda.setValueBuffer("neto", totalNeto)
+        curComanda.setValueBuffer("totaliva", totalIva)
+        curComanda.setValueBuffer("total", totalVenta)
+        curComanda.setValueBuffer("codtarjetapuntos", self.get_codtarjetapuntos())
+        curComanda.setValueBuffer("ptesincrofactura", False)
+        curComanda.setValueBuffer("egcodfactura", "")
+        curComanda.setValueBuffer("tipodoc", "VENTA")
+        curComanda.setValueBuffer("estado", "Cerrada")
+        curComanda.setValueBuffer("pagado", totalVenta)
+        curComanda.setValueBuffer("egcodfactura", self.get_codfactura())
+        curComanda.setValueBuffer("ptesincrofactura", True)
+        if not curComanda.commitBuffer():
+            return False
+
+        return curComanda.valueBuffer("idtpv_comanda")
+
+    def crear_lineas_comanda_gastosenvio(self, idtpv_comanda):
+        iva = parseFloat(self.init_data["gastos_envio"]["iva"])
+
+        codigo = "WGE" + qsatype.FactoriaModulos.get("flfactppal").iface.cerosIzquierda(str(self.init_data["rma_id"]), 9)
+        curLineasComanda = qsatype.FLSqlCursor("tpv_lineascomanda")
+        curLineasComanda.setModeAccess(curLineasComanda.Insert)
+        curLineasComanda.setActivatedCommitActions(False)
+        curLineasComanda.refreshBuffer()
+        curLineasComanda.setValueBuffer("codtienda", "AWEB")
+        curLineasComanda.setValueBuffer("referencia", "0000ATEMP00001")
+        curLineasComanda.setValueBuffer("descripcion", "MANIPULACIÓN Y ENVIO" + " WDV2" + qsatype.FactoriaModulos.get("flfactppal").iface.cerosIzquierda(str(self.init_data["rma_id"]), 8))
+        curLineasComanda.setValueBuffer("barcode", "8433613403654")
+        curLineasComanda.setValueBuffer("codimpuesto", "GEN")
+        curLineasComanda.setValueBuffer("codcomanda", codigo)
+
+        iva = parseFloat(self.init_data["gastos_envio"]["iva"])
+        totalVenta = parseFloat(self.init_data["gastos_envio"]["importe_gastosenvio"])
+        totalNeto = round(parseFloat(totalVenta / ((100 + iva) / 100)), 2)
+
+        curLineasComanda.setValueBuffer("cantidad", 1)
+        curLineasComanda.setValueBuffer("cantdevuelta", 0)
+        curLineasComanda.setValueBuffer("pvpunitario", totalNeto)
+        curLineasComanda.setValueBuffer("pvpsindto", totalNeto)
+        curLineasComanda.setValueBuffer("pvptotal", totalNeto)
+        curLineasComanda.setValueBuffer("pvpunitarioiva", totalVenta)
+        curLineasComanda.setValueBuffer("pvpsindtoiva", totalVenta)
+        curLineasComanda.setValueBuffer("pvptotaliva", totalVenta)
+        curLineasComanda.setValueBuffer("iva", iva)
+        curLineasComanda.setValueBuffer("ivaincluido", True)
+        curLineasComanda.setValueBuffer("idsincro", codigo + "_" + str(curLineasComanda.valueBuffer("idtpv_linea")))
+        curLineasComanda.setValueBuffer("idtpv_comanda", idtpv_comanda)
+        if not curLineasComanda.commitBuffer():
+            return False
+
+        return True
+
+
+    def crear_pagos_comanda_gastosenvio(self, idtpv_comanda):
+        
+        iva = parseFloat(self.init_data["gastos_envio"]["iva"])
+        idarqueo = qsatype.FLUtil.sqlSelect("tpv_arqueos", "idtpv_arqueo", "codtienda = '{}' AND diadesde >= '{}' AND idasiento IS NULL ORDER BY diadesde ASC".format(self.get_codtienda(),str(qsatype.Date())[:10]))
+
+        codigo = "WGE" + qsatype.FactoriaModulos.get("flfactppal").iface.cerosIzquierda(str(self.init_data["rma_id"]), 9)
+        curPagosComanda = qsatype.FLSqlCursor("tpv_pagoscomanda")
+        curPagosComanda.setModeAccess(curPagosComanda.Insert)
+        curPagosComanda.setActivatedCommitActions(False)
+        curPagosComanda.refreshBuffer()
+        curPagosComanda.setValueBuffer("anulado", False)
+        curPagosComanda.setValueBuffer("ptepuntos", False)
+        curPagosComanda.setValueBuffer("editable", True)
+        curPagosComanda.setValueBuffer("nogenerarasiento", True)
+        curPagosComanda.setValueBuffer("estado", "Pagado")
+        curPagosComanda.setValueBuffer("codtienda", self.get_codtienda())
+        curPagosComanda.setValueBuffer("codtpv_agente", "0350")
+        curPagosComanda.setValueBuffer("codtpv_puntoventa", self.get_puntoventa())
+        curPagosComanda.setValueBuffer("fecha", str(qsatype.Date())[:10])
+        curPagosComanda.setValueBuffer("idtpv_arqueo", idarqueo)
+        curPagosComanda.setValueBuffer("idtpv_comanda", idtpv_comanda)
+        curPagosComanda.setValueBuffer("codcomanda", codigo)
+        curPagosComanda.setValueBuffer("importe", parseFloat(self.init_data["gastos_envio"]["importe_gastosenvio"]))
+        curPagosComanda.setValueBuffer("codpago", self.get_codpago(str(self.init_data["gastos_envio"]["metodo_pago"])))
+        curPagosComanda.setValueBuffer("idsincro", codigo + "_" + str(curPagosComanda.valueBuffer("idpago")))
+        if not curPagosComanda.commitBuffer():
+            return False
+
+
+        return True
+
+    def get_codfactura(self):
+        prefix = "AWEBX"
+        ultima_factura = None
+
+        id_ultima = qsatype.FLUtil.sqlSelect("tpv_comandas", "egcodfactura", "egcodfactura LIKE '{}%' ORDER BY egcodfactura DESC".format(prefix))
+
+        if id_ultima:
+            ultima_factura = parseInt(str(id_ultima)[-(12 - len(prefix)):])
+        else:
+            ultima_factura = 0
+
+        ultima_factura = ultima_factura + 1
+
+        return "{}{}".format(prefix, qsatype.FactoriaModulos.get("flfactppal").iface.cerosIzquierda(str(ultima_factura), 12 - len(prefix)))
