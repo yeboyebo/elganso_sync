@@ -99,6 +99,11 @@ class Mg2RefoundsSerializer(DefaultSerializer):
             # self.crear_registros_gastosenvio(iva)
             self.crear_registros_tarjetamonedero(iva)
 
+            if "gastos_envio" in self.init_data:
+                if "importe_gastosenvio" in self.init_data["gastos_envio"]:
+                    if float(self.init_data["gastos_envio"]["importe_gastosenvio"]) > 0:
+                        self.crear_comanda_gastosenvio()
+
             self.data["children"]["cashcount"] = False
             self.data["children"]["creditmemo"] = False
             if str(self.init_data["status"]) == "creditmemo":
@@ -436,11 +441,6 @@ class Mg2RefoundsSerializer(DefaultSerializer):
                         codtiendaentrega = self.init_data["codtiendaentrega"]
                         if not self.crear_viaje_recogidatienda(self.data["codigo"], codtiendaentrega):
                             raise NameError("Error al crear el viaje de recogida en tienda.")
-
-        if "gastos_envio" in self.init_data:
-            if "importe_gastosenvio" in self.init_data["gastos_envio"]:
-                if float(self.init_data["gastos_envio"]["importe_gastosenvio"]) > 0:
-                    self.crear_comanda_gastosenvio()
 
         return True
 
