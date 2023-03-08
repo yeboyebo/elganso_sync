@@ -36,7 +36,7 @@ class elganso_sync(interna):
                     return {"Error": "Formato Incorrecto", "status": 0}
     
                 q = qsatype.FLSqlQuery()
-                q.setSelect(u"codactivacion, saldoinicial, saldopendiente, coddivisa, venta, email, emailregalo, activo")
+                q.setSelect(u"codactivacion, saldoinicial, saldopendiente, coddivisa, venta, email, emailregalo, activo, codtienda")
                 q.setFrom(u"eg_tarjetamonedero")
                 q.setWhere(ustr(u"coduso = '", params['codUso'], u"'"))
 
@@ -51,9 +51,34 @@ class elganso_sync(interna):
                
                 if q.value("activo") is False:
                     return {"Error": "La Tarjeta monedero no está activa", "status": 1}
+                    
+                pais = "ES"
+                if q.value("codtienda") == "AWEB":
+                    pais = qsatype.FLUtil.sqlSelect(u"tpv_comandas", u"codpais", ustr(u"codigo = '", q.value("venta"), u"'"))
+                else:
+                    empresaTarjeta = qsatype.FLUtil.sqlSelect(u"tpv_tiendas", u"idempresa", ustr(u"codtienda = '", q.value("codtienda"), u"'"))
+                    pais = qsatype.FLUtil.sqlSelect(u"empresa", u"codpais", ustr(u"id = ", empresaTarjeta))
+                    
+                if pais == "ES":
+                    provinciaTarjeta = ""
+                    if q.value("codtienda") == "AWEB":
+                        provinciaTarjeta = qsatype.FLUtil.sqlSelect(u"tpv_comandas", u"idprovincia", ustr(u"codigo = '", q.value("venta"), u"'"))
+                        if(str(provinciaTarjeta) == "43"):
+                            provinciaTarjeta = "38"
+                        elif(str(provinciaTarjeta) == "38"):
+                            provinciaTarjeta = "37"
+                    else:
+                        provinciaTienda = qsatype.FLUtil.sqlSelect(u"tpv_tiendas", u"idprovincia", ustr(u"codtienda = '", q.value("codtienda"), u"'"))
+                        provinciaTarjeta = qsatype.FLUtil.sqlSelect(u"provincias", u"codigo", ustr(u"idprovincia = ", provinciaTienda))
+                        
+                    if provinciaTarjeta == "38":
+                        pais = "ES_CN"
+                        
+                    if provinciaTarjeta == "35":
+                        pais = "ES_CN"
 
   
-                return {"saldoTarjeta": q.value("saldoinicial"), "saldoPendiente": q.value("saldopendiente"), "divisa": q.value("coddivisa"), "venta": q.value("venta"), "email": q.value("email"), "emailregalo": q.value("emailregalo"), "activo": q.value("activo")}
+                return {"saldoTarjeta": q.value("saldoinicial"), "saldoPendiente": q.value("saldopendiente"), "divisa": q.value("coddivisa"), "venta": q.value("venta"), "email": q.value("email"), "emailregalo": q.value("emailregalo"), "activo": q.value("activo"), "pais": pais}
                
                 
             else:
