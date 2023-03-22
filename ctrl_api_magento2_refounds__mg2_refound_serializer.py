@@ -101,8 +101,9 @@ class Mg2RefoundsSerializer(DefaultSerializer):
 
             if "gastos_envio" in self.init_data:
                 if "importe_gastosenvio" in self.init_data["gastos_envio"]:
-                    if float(self.init_data["gastos_envio"]["importe_gastosenvio"]) > 0:
-                        self.crear_comanda_gastosenvio()
+                    if str(self.init_data["gastos_envio"]["importe_gastosenvio"]) != "None":
+                        if float(self.init_data["gastos_envio"]["importe_gastosenvio"]) > 0:
+                            self.crear_comanda_gastosenvio()
 
             self.data["children"]["cashcount"] = False
             self.data["children"]["creditmemo"] = False
