@@ -48,7 +48,7 @@ class AzListOrderItemsResultGet(DownloadSync, ABC):
             "SellerId": self.driver.azMerchant,
             "SignatureVersion": "2",
             "AWSAccessKeyId": self.driver.azAccessKey,
-            "Timestamp": (datetime.now() + timedelta(seconds=time.timezone)).strftime('%Y-%m-%dT%H:%M:%SZ'),
+            "Timestamp": (datetime.now() + timedelta(hours=-2)).strftime('%Y-%m-%dT%H:%M:%SZ'),
             "Version": "2013-09-01",
             "SignatureMethod": "HmacSHA256",
             "AmazonOrderId": idamazon
