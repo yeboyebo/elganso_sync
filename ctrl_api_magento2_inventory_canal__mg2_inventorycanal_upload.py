@@ -81,7 +81,7 @@ class Mg2InventoryCanalUpload(InventoryUpload):
         q = qsatype.FLSqlQuery()
         q.setSelect("ssw.idss, ssw.barcode, ssw.codcanalweb, aa.referencia, aa.talla, st.idstockmagento")
         q.setFrom("eg_sincrostockwebcanalweb ssw INNER JOIN atributosarticulos aa ON ssw.barcode = aa.barcode INNER JOIN mg_storeviews st ON ssw.codcanalweb = st.codcanalweb")
-        q.setWhere("(NOT ssw.sincronizado OR ssw.sincronizado = false) GROUP BY ssw.idss, ssw.barcode, ssw.codcanalweb, aa.referencia, aa.talla, st.idstockmagento ORDER BY ssw.fecha desc, ssw.hora desc, ssw.idss LIMIT 50")
+        q.setWhere("(NOT ssw.sincronizado OR ssw.sincronizado = false) AND st.activo GROUP BY ssw.idss, ssw.barcode, ssw.codcanalweb, aa.referencia, aa.talla, st.idstockmagento ORDER BY ssw.fecha desc, ssw.hora desc, ssw.idss LIMIT 50")
 
         q.exec_()
 

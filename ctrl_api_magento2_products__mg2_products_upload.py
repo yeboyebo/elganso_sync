@@ -336,7 +336,7 @@ class Mg2ProductsUpload(ProductsUpload):
 
     def after_sync(self, response_data=None):
         qsatype.FLSqlQuery().execSql("UPDATE lineassincro_catalogo SET sincronizado = TRUE WHERE id = {}".format(self.idlinea))
-        qsatype.FLSqlQuery().execSql("UPDATE articulostarifas SET horamod = CURRENT_TIME, fechamod = CURRENT_DATE, sincronizado = FALSE WHERE codtarifa in (select t.codtarifa from mg_websites w inner join mg_storeviews st on w.codwebsite = st.codwebsite inner join tarifas t on t.codtarifa = st.codtarifa group by t.codtarifa) AND referencia = '{}'".format(self.referencia))
+        qsatype.FLSqlQuery().execSql("UPDATE articulostarifas SET horamod = CURRENT_TIME, fechamod = CURRENT_DATE, sincronizado = FALSE WHERE codtarifa in (select t.codtarifa from mg_websites w inner join mg_storeviews st on w.codwebsite = st.codwebsite inner join tarifas t on t.codtarifa = st.codtarifa WHERE st.activo group by t.codtarifa) AND referencia = '{}'".format(self.referencia))
 
         qsatype.FLSqlQuery().execSql("UPDATE eg_sincrostockwebcanalweb set sincronizado = false where sincronizado = true AND barcode in (select barcode from atributosarticulos where referencia = '" + self.referencia + "')")
         
