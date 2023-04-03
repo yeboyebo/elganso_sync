@@ -808,6 +808,9 @@ class Mg2OrdersSerializer(DefaultSerializer):
             if item["cantidad"] > 1:
                 for i in range(item["cantidad"]):
                     sku = item["sku"]
+                    referencia = self.get_referencia(item["sku"])
+                    if referencia == "0000ATEMP11111":
+                        sku = "0000ATEMP11111-TU"
                     cantidad = 1
                     barcode = self.get_barcode(item["sku"])
                     iva = item["iva"]
@@ -815,7 +818,6 @@ class Mg2OrdersSerializer(DefaultSerializer):
                     ivaincluido = item["ivaincluido"]
                     pvpunitarioiva = item["pvpunitarioiva"]
                     pvpsindtoiva = item["pvpsindtoiva"] / item["cantidad"]
-
                     recogidatienda = self.get_recogidatienda()
                     if recogidatienda:
                         if qsatype.FLUtil.quickSqlSelect("stocks", "idstock", "barcode = '{}' AND disponible >= {} AND codalmacen = '{}'".format(barcode, item["cantidad"], str(self.init_data["shipping_address"]["lastname"]))):
@@ -826,6 +828,10 @@ class Mg2OrdersSerializer(DefaultSerializer):
                     else:
                         aItems.append({"sku": sku, "cantidad": cantidad, "iva": iva, "pvptotaliva": pvptotaliva, "ivaincluido": ivaincluido, "pvpunitarioiva": pvpunitarioiva, "pvpsindtoiva": pvpsindtoiva, "barcode": barcode})
             else:
+                referencia = self.get_referencia(item["sku"])
+                if referencia == "0000ATEMP11111":
+                    sku = "0000ATEMP11111-TU"
+                    item["sku"] = sku
                 item["barcode"] = self.get_barcode(item["sku"])
                 recogidatienda = self.get_recogidatienda()
                 if recogidatienda:
