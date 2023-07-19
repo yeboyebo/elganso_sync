@@ -19,3 +19,19 @@ class Mg2Payment(AQModel):
         self.dump_to_cursor()
         idsincro = qsatype.FactoriaModulos.get("formRecordtpv_pagoscomanda").iface.pub_commonCalculateField("idsincro", self.cursor)
         self.set_string_value("idsincro", idsincro, max_characters=30)
+        self.crear_registro_movivale(self.cursor, parent_cursor)
+
+    def crear_registro_movivale(self, cursor, parent_cursor):
+        if str(cursor.valueBuffer("codpago")) != "VAL":
+            return True
+
+        curMoviVale = qsatype.FLSqlCursor("tpv_movivale")
+        curMoviVale.setModeAccess(curMoviVale.Insert)
+        curMoviVale.refreshBuffer()
+        curMoviVale.setValueBuffer("refvale", cursor.valueBuffer("refvale"))
+        curMoviVale.setValueBuffer("idsincropago", qsatype.FactoriaModulos.get("formRecordtpv_pagoscomanda").iface.pub_commonCalculateField("idsincro", cursor))
+        curMoviVale.setValueBuffer("total", 0)
+
+        if not curMoviVale.commitBuffer():
+            return False
+        return True

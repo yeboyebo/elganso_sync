@@ -260,7 +260,7 @@ class elganso_sync(interna):
         if "codtarjetapuntos" in params:
             q.setWhere("codtarjetapuntos = '" + str(params['codtarjetapuntos']) + "'")
         else:
-            q.setWhere("email = '" + str(params['email']) + "'")
+            q.setWhere("email = '" + str(params['email']) + "' limit 1")
 
         if not q.exec_():
             return False
@@ -269,10 +269,14 @@ class elganso_sync(interna):
             return False
 
         while q.next():
-
             curTpvTarjetas.select("codtarjetapuntos = '" + q.value("codtarjetapuntos") + "'")
             if not curTpvTarjetas.first():
                 return False
+                
+            idMovPuntos = qsatype.FLUtil.sqlSelect("tpv_movpuntos", "idmovpuntos", "canpuntos = " + params['canpuntos'] + " AND operacion = '" + str(params['operacion']) + "'")
+            
+            if idMovPuntos:
+                return True
 
             curTpvTarjetas.setModeAccess(curTpvTarjetas.Edit)
             curTpvTarjetas.refreshBuffer()
@@ -348,6 +352,9 @@ class elganso_sync(interna):
                 existe_tarjeta = qsatype.FLUtil.sqlSelect(u"tpv_tarjetaspuntos", u"codtarjetapuntos", ustr(u"email = '", email, u"'"))
 
                 if not existe_tarjeta:
+                    if qsatype.FLUtil.sqlSelect(u"eg_logtarjetasweb", u"email", ustr(u"email = '", email, u"'")):
+                        if not qsatype.FLUtil.sqlSelect(u"eg_logtarjetasweb", "procesado", ustr(u"email = '", email, u"'")):
+                            return {"Error": "Petición realizada, pendiente de creación", "status": 2}
                     return {"Error": "No se ha encontrado la tarjeta.", "status": 1}
 
                 es_empleado = qsatype.FLUtil.sqlSelect(u"tpv_tarjetaspuntos", u"deempleado", ustr(u"email = '", email, u"'"))

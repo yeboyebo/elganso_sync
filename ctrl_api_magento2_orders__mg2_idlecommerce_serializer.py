@@ -12,6 +12,10 @@ class Mg2IdlEcommerce(DefaultSerializer):
             if str(self.init_data["imagen_recoger"]) != "None" and self.init_data["imagen_recoger"] != None and self.init_data["imagen_recoger"] != False:
                 metodoEnvio = "i4seur_31_2"""
 
+        if "rma_replace_id" in self.init_data:
+            if str(self.init_data["rma_replace_id"]) != "None" and self.init_data["rma_replace_id"] != None and self.init_data["rma_replace_id"] != False:
+                metodoEnvio = "i4seur_31_2"
+
         transIDL = qsatype.FLUtil.sqlSelect("metodosenvio_transportista", "transportista", "LOWER(metodoenviomg) = '" + metodoEnvio + "' OR UPPER(metodoenviomg) = '" + metodoEnvio + "' OR metodoenviomg = '" + metodoEnvio + "'")
 
         if not transIDL:
@@ -64,7 +68,13 @@ class Mg2IdlEcommerce(DefaultSerializer):
                 self.set_data_relation("urlimagen", "imagen_recoger")
                 # self.set_string_value("urlimagen", str(self.init_data["imagen_recoger"]))
         else:
-            self.set_string_value("tipo", 'VENTA')
+            if "rma_replace_id" in self.init_data:
+                if str(self.init_data["rma_replace_id"]) != "None" and self.init_data["rma_replace_id"] != None and self.init_data["rma_replace_id"] != False:
+                    self.set_string_value("tipo", 'CAMBIO')
+                else:
+                    self.set_string_value("tipo", 'VENTA')
+            else:
+                self.set_string_value("tipo", 'VENTA')
 
         self.set_string_value("transportista", str(transIDL))
         self.set_string_value("metodoenvioidl", str(metodoIDL))

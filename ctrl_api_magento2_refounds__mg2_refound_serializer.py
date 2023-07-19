@@ -59,12 +59,16 @@ class Mg2RefoundsSerializer(DefaultSerializer):
                 raise NameError("Error. No viene el nodo items_refunded en el JSON")
 
             iva = 0
-
+            es_cambio = False
+            if str(self.init_data["payment_method"]) == "free":
+                es_cambio = True
             for line in self.init_data["items_refunded"]:
                 line.update({
                     "codcomanda": codigo,
                     "tipo_linea": "refounded",
-                    "tasaconv": tasaconv
+                    "tasaconv": tasaconv,
+                    "es_cambio": es_cambio,
+                    "increment_id": self.init_data["increment_id"]
                 })
 
                 if "codtiendaentrega" in self.init_data:
@@ -77,7 +81,7 @@ class Mg2RefoundsSerializer(DefaultSerializer):
                 self.data["children"]["lines"].append(line_data)
                 iva = line["tax_percent"]
 
-            if "items_requested" in self.init_data:
+            """if "items_requested" in self.init_data:
                 for linea in self.init_data["items_requested"]:
                     linea.update({
                         "codcomanda": codigo,
@@ -85,7 +89,7 @@ class Mg2RefoundsSerializer(DefaultSerializer):
                         "tasaconv": tasaconv
                     })
                     line_data = Mg2RefoundLineSerializer().serialize(linea)
-                    self.data["children"]["lines"].append(line_data)
+                    self.data["children"]["lines"].append(line_data)"""
 
             if "codtiendaentrega" in self.init_data:
                 if str(self.init_data["codtiendaentrega"]) != "AWEB":
@@ -93,11 +97,12 @@ class Mg2RefoundsSerializer(DefaultSerializer):
                         if str(self.init_data["numero_seguimiento"]) != "None" and str(self.init_data["numero_seguimiento"]) != "":
                             self.crearSeguimientoEnvio(codigo)
 
-            self.crear_registros_descuentos(iva)
-            self.crear_registros_puntos(iva)
-            self.crear_registros_vales(iva)
-            # self.crear_registros_gastosenvio(iva)
-            self.crear_registros_tarjetamonedero(iva)
+            if not es_cambio:
+                self.crear_registros_descuentos(iva)
+                self.crear_registros_puntos(iva)
+                self.crear_registros_vales(iva)
+                self.crear_registros_gastosenvio(iva)
+                self.crear_registros_tarjetamonedero(iva)
 
             if "gastos_envio" in self.init_data:
                 if "importe_gastosenvio" in self.init_data["gastos_envio"]:
@@ -181,15 +186,22 @@ class Mg2RefoundsSerializer(DefaultSerializer):
         for line in self.init_data["items_refunded"]:
             iva = parseFloat(line["tax_percent"])
 
-        #totalIva = parseFloat(self.init_data["tax_refunded"]) * self.init_data["tasaconv"]
+        es_cambio = False
+        if str(self.init_data["payment_method"]) == "free":
+            es_cambio = True
+
         totalVenta = parseFloat(self.init_data["total_refunded"]) * parseFloat(self.init_data["tasaconv"])
+        if es_cambio:
+           totalVenta = self.get_totalventapedido()
+        print("////////////**********TOTALVENTA: ", totalVenta)
+        #totalIva = parseFloat(self.init_data["tax_refunded"]) * self.init_data["tasaconv"]
         totalNeto = round(parseFloat(totalVenta / ((100 + iva) / 100)), 2)
         totalIva = parseFloat(totalVenta - totalNeto)
 
-        if "items_requested" in self.init_data:
+        """if "items_requested" in self.init_data:
             totalNeto = 0
             totalIva = 0
-            totalVenta = 0
+            totalVenta = 0"""
 
         self.set_string_value("codserie", self.get_codserie(codpais, self.init_data["pickup_address"]["postcode"]))
         self.set_string_value("codejercicio", self.get_codejercicio(str(qsatype.Date())))
@@ -217,6 +229,7 @@ class Mg2RefoundsSerializer(DefaultSerializer):
         self.set_string_value("email", email[:100] if email else email)
         self.set_string_value("neto", totalNeto * (-1))
         self.set_string_value("totaliva", totalIva * (-1))
+        print("////////////**********TOTALVENTA 1: ", totalVenta)
         self.set_string_value("total", totalVenta * (-1))
         self.set_string_value("codtarjetapuntos", self.get_codtarjetapuntos(), max_characters=15)
         self.set_string_value("ptesincrofactura", False)
@@ -332,7 +345,7 @@ class Mg2RefoundsSerializer(DefaultSerializer):
         linea_descuento = Mg2RefoundDiscountLineSerializer().serialize(new_init_data)
         self.data["children"]["lines"].append(linea_descuento)
 
-        if "items_requested" in self.init_data:
+        """if "items_requested" in self.init_data:
             new_init_data = self.init_data.copy()
             new_init_data.update({
                 "codcomanda": self.data["codigo"],
@@ -340,7 +353,7 @@ class Mg2RefoundsSerializer(DefaultSerializer):
                 "tipo_linea": "BonoNegativo"
             })
             linea_descuento = Mg2RefoundDiscountLineSerializer().serialize(new_init_data)
-            self.data["children"]["lines"].append(linea_descuento)
+            self.data["children"]["lines"].append(linea_descuento)"""
 
     def crear_registros_puntos(self, iva):
 
@@ -354,7 +367,7 @@ class Mg2RefoundsSerializer(DefaultSerializer):
         linea_puntos = Mg2RefoundPointLineSerializer().serialize(new_init_data)
         self.data["children"]["lines"].append(linea_puntos)
 
-        if "items_requested" in self.init_data:
+        """if "items_requested" in self.init_data:
             new_init_data = self.init_data.copy()
             new_init_data.update({
                 "codcomanda": self.data["codigo"],
@@ -362,7 +375,7 @@ class Mg2RefoundsSerializer(DefaultSerializer):
                 "tipo_linea": "PuntosNegativos"
             })
             linea_puntos = Mg2RefoundPointLineSerializer().serialize(new_init_data)
-            self.data["children"]["lines"].append(linea_puntos)
+            self.data["children"]["lines"].append(linea_puntos)"""
 
     def crear_registros_vales(self, iva):
 
@@ -375,7 +388,7 @@ class Mg2RefoundsSerializer(DefaultSerializer):
         linea_vale = Mg2RefoundVoucherLineSerializer().serialize(new_init_data)
         self.data["children"]["lines"].append(linea_vale)
 
-        if "items_requested" in self.init_data:
+        """if "items_requested" in self.init_data:
             new_init_data = self.init_data.copy()
             new_init_data.update({
                 "codcomanda": self.data["codigo"],
@@ -383,7 +396,7 @@ class Mg2RefoundsSerializer(DefaultSerializer):
                 "tipo_linea": "ValesPositivos"
             })
             linea_vale = Mg2RefoundVoucherLineSerializer().serialize(new_init_data)
-            self.data["children"]["lines"].append(linea_vale)
+            self.data["children"]["lines"].append(linea_vale)"""
 
     def cerrar_devolucionweb(self, codigo):
 
@@ -422,17 +435,17 @@ class Mg2RefoundsSerializer(DefaultSerializer):
 
         idFactura = qsatype.FLUtil.sqlSelect("tpv_comandas", "idfactura", "codigo = '" + str(codigo) + "'")
 
-        if (not idFactura or str(idFactura) == "None" or idFactura == 0) and (not "items_requested" in self.init_data):
+        if (not idFactura or str(idFactura) == "None" or idFactura == 0):
             self.set_string_value("ptesincrofactura", True)
             self.set_string_value("fecha", str(qsatype.Date())[:10])
 
         self.set_string_value("estado", 'Cerrada')
         self.set_string_value("editable", True)
 
-        if "items_requested" in self.init_data:
+        """if "items_requested" in self.init_data:
             self.set_string_value("pagado", "0")
         else:
-            self.set_string_value("pagado", float(self.init_data["total_pay"] * self.init_data["tasaconv"]) * (-1))
+            self.set_string_value("pagado", float(self.init_data["total_pay"] * self.init_data["tasaconv"]) * (-1))"""
 
         if self.init_data["status"] == "creditmemo":
             if str(self.init_data["store_id"]) == "13":
@@ -455,14 +468,19 @@ class Mg2RefoundsSerializer(DefaultSerializer):
                     tasaconv = 1
 
         self.init_data["tasaconv"] = tasaconv
-
+        es_cambio = False
+        if str(self.init_data["payment_method"]) == "free":
+            es_cambio = True
         new_init_data = self.init_data.copy()
         new_init_data.update(
             {"idarqueo": arqueo_web["idtpv_arqueo"],
             "tipo_pago": "Negativo",
             "codcomanda": codigo,
             "codtienda": self.get_codtienda(),
-            "puntoventa": self.get_puntoventa()
+            "puntoventa": self.get_puntoventa(),
+            "es_cambio": es_cambio,
+            "items_refunded": self.init_data["items_refunded"],
+            "increment_id": self.init_data["increment_id"]
             }
         )
 
@@ -472,7 +490,7 @@ class Mg2RefoundsSerializer(DefaultSerializer):
         pago_web = Mg2RefoundPaymentSerializer().serialize(new_init_data)
         self.data["children"]["payments"].append(pago_web)
 
-        if "items_requested" in self.init_data:
+        """if "items_requested" in self.init_data:
             new_init_data = self.init_data.copy()
             new_init_data.update(
                 {"idarqueo": arqueo_web["idtpv_arqueo"],
@@ -483,7 +501,7 @@ class Mg2RefoundsSerializer(DefaultSerializer):
                 }
             )
             pago_web = Mg2RefoundPaymentSerializer().serialize(new_init_data)
-            self.data["children"]["payments"].append(pago_web)
+            self.data["children"]["payments"].append(pago_web)"""
 
 
 
@@ -571,9 +589,9 @@ class Mg2RefoundsSerializer(DefaultSerializer):
         self.data["children"]["idl_ecommerce_devolucion"] = idl_ecommerce_devolucion
 
         excluir_idl = False
-        if "items_requested" in self.init_data:
+        """if "items_requested" in self.init_data:
             idl_ecommerce = Mg2IdlEcommerce().serialize(new_init_data)
-            self.data["children"]["idl_ecommerce"] = idl_ecommerce
+            self.data["children"]["idl_ecommerce"] = idl_ecommerce"""
 
         return True
 
@@ -694,7 +712,7 @@ class Mg2RefoundsSerializer(DefaultSerializer):
         linea_gastosenvio = Mg2RefoundExpensesLineSerializer().serialize(new_init_data)
         self.data["children"]["lines"].append(linea_gastosenvio)
 
-        if "items_requested" in self.init_data:
+        """if "items_requested" in self.init_data:
             new_init_data = self.init_data.copy()
             new_init_data.update({
                 "codcomanda": self.data["codigo"],
@@ -702,7 +720,7 @@ class Mg2RefoundsSerializer(DefaultSerializer):
                 "tipo_linea": "GastosPositivos"
             })
             linea_gastosenvio = Mg2RefoundExpensesLineSerializer().serialize(new_init_data)
-            self.data["children"]["lines"].append(linea_gastosenvio)
+            self.data["children"]["lines"].append(linea_gastosenvio)"""
 
     def get_codtarjetapuntos(self):
         codtarjetapuntos = qsatype.FLUtil.quickSqlSelect("tpv_comandas", "codtarjetapuntos", "codigo = '{}'".format("WEB" + str(self.init_data["increment_id"])))
@@ -818,7 +836,7 @@ class Mg2RefoundsSerializer(DefaultSerializer):
                     pago_tarjeta_monedero = Mg2RefoundTarjetaMonederoSerializer().serialize(new_init_data)
                     self.data["children"]["lines"].append(pago_tarjeta_monedero)
                     
-                    if "items_requested" in self.init_data:
+                    """if "items_requested" in self.init_data:
                         new_init_data = self.init_data.copy()
                         new_init_data.update({
                             "cod_uso": str(self.init_data["tarjeta_monedero"]["cod_uso"]),
@@ -831,6 +849,8 @@ class Mg2RefoundsSerializer(DefaultSerializer):
                         self.data["children"]["lines"].append(pago_tarjeta_monedero)
                     else:
                         if not self.crear_movimiento_tarjeta_monedero():
+                            return False"""
+                    if not self.crear_movimiento_tarjeta_monedero():
                             return False
 
         return True
@@ -1001,3 +1021,13 @@ class Mg2RefoundsSerializer(DefaultSerializer):
         ultima_factura = ultima_factura + 1
 
         return "{}{}".format(prefix, qsatype.FactoriaModulos.get("flfactppal").iface.cerosIzquierda(str(ultima_factura), 12 - len(prefix)))
+
+    def get_totalventapedido(self):
+        importe = 0
+        codComandaDevol = "WEB" + str(self.init_data["increment_id"])
+        idtpv_comanda = qsatype.FLUtil.sqlSelect("tpv_comandas", "idtpv_comanda", "codigo = '{}'".format(codComandaDevol))
+        for linea in self.init_data["items_refunded"]:
+            importe += parseFloat(qsatype.FLUtil.quickSqlSelect("tpv_lineascomanda", "pvpunitarioiva", "idtpv_comanda = {} AND barcode = '{}'".format(idtpv_comanda, self.get_barcode(linea["sku"])))) * parseFloat(linea["qty"])
+
+        print("//////****************Importe: ", importe)
+        return importe

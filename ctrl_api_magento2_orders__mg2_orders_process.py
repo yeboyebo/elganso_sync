@@ -61,7 +61,17 @@ class Mg2OrdersProcess(DownloadSync):
             # cuerpolog = cuerpolog.replace("True", "\"True\"")
 
             datajson = json.loads(str(cuerpolog))
-            aData.append(datajson)
+
+            if "rma_replace_id" in datajson:
+                if str(datajson["rma_replace_id"]) != "" and str(datajson["rma_replace_id"]) != "None":
+                    rma_id =  "WDV2" + qsatype.FactoriaModulos.get("flfactppal").iface.cerosIzquierda(str(datajson["rma_replace_id"]), 8)
+                    print("RMA_ID: ", rma_id)
+                    if qsatype.FLUtil.sqlSelect("tpv_comandas", "idtpv_comanda", "codigo = '{}'".format(rma_id)):
+                        aData.append(datajson)
+                else:
+                    aData.append(datajson)
+            else:
+                aData.append(datajson)
 
         return aData
 

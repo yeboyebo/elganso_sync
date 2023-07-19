@@ -27,7 +27,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
         self.barcodes_lineas = ""
         self.barcodes_con_stock = 0
         #self.dame_almacenes(self.init_data)
-        
+
         if not self.actualizar_items_lineas():
             raise NameError("Error al actualizar el items de las lineas.")
             return False
@@ -94,6 +94,15 @@ class Mg2OrdersSerializer(DefaultSerializer):
             iva = 0
             ivaLinea = 0
 
+            distinto_iva = False
+            iva_item = ""
+            for item in self.init_data["items"]:
+                if iva_item == "":
+                    iva_item = item["iva"]
+                if iva_item != item["iva"]:
+                    distinto_iva = True
+
+
             if "lines" not in self.data["children"]:
                 self.data["children"]["lines"] = []
 
@@ -105,12 +114,17 @@ class Mg2OrdersSerializer(DefaultSerializer):
                 return False
 
             ivaInformado = False
-
+            es_cambio = False
+            if "rma_replace_id" in self.init_data:
+                if str(self.init_data["rma_replace_id"]) != "" and str(self.init_data["rma_replace_id"]) != "None":
+                    es_cambio = True
             for item in self.init_data["items"]:
                 item.update({
                     "codcomanda": self.data["codigo"],
                     "tasaconv": tasaconv,
-                    "store_id": self.init_data["store_id"]
+                    "store_id": self.init_data["store_id"],
+                    "es_cambio": es_cambio,
+                    "rma_replace_id": "WDV2" + qsatype.FactoriaModulos.get("flfactppal").iface.cerosIzquierda(str(self.init_data["rma_replace_id"]), 8)
                 })
 
                 line_data = Mg2OrderLineSerializer().serialize(item)
@@ -145,10 +159,15 @@ class Mg2OrdersSerializer(DefaultSerializer):
 
             # iva = self.init_data["items"][-1]["iva"]
             total = round(parseFloat((self.init_data["grand_total"]) * tasaconv), 2)
+            if es_cambio:
+                total = self.get_totalventapedido()
+                self.set_string_value("codcomandadevol", "WDV2" + qsatype.FactoriaModulos.get("flfactppal").iface.cerosIzquierda(str(self.init_data["rma_replace_id"]), 8), max_characters=15)
             importe_monedero = 0
             neto = round(parseFloat(total / ((100 + iva) / 100)), 2)
             total_iva = total - neto
-
+            if distinto_iva:
+                total_iva = parseFloat(self.init_data["tax_amount"]) * tasaconv
+                neto = total - total_iva
             # self.set_data_relation("total", "grand_total")
             # self.set_data_relation("pagado", "grand_total")
 
@@ -228,13 +247,24 @@ class Mg2OrdersSerializer(DefaultSerializer):
                 new_data.update({
                     "codtienda": self.get_codtienda()
                 })
+
+            refvale = ""
+            es_cambio = False
+            if "rma_replace_id" in self.init_data:
+                if str(self.init_data["rma_replace_id"]) != "" and str(self.init_data["rma_replace_id"]) != "None":
+                    es_cambio = True
+
             arqueo_web = Mg2CashCountSerializer().serialize(new_data)
             new_data = self.data.copy()
             new_data.update({
                 "idarqueo": arqueo_web["idtpv_arqueo"],
                 "tasaconv": tasaconv,
                 "codtienda": self.get_codtienda(),
-                "total": round(parseFloat((self.init_data["grand_total"]) * tasaconv), 2)
+                "total": round(parseFloat((self.init_data["grand_total"]) * tasaconv), 2),
+                "refvale": refvale,
+                "es_cambio": es_cambio,
+                "items": self.init_data["items"],
+                "rma_replace_id": "WDV2" + qsatype.FactoriaModulos.get("flfactppal").iface.cerosIzquierda(str(self.init_data["rma_replace_id"]), 8)
             })
 
             pago_web = Mg2PaymentSerializer().serialize(new_data)
@@ -485,6 +515,10 @@ class Mg2OrdersSerializer(DefaultSerializer):
 
     def distribucion_almacenes(self):
         jsonDatos = self.init_data
+
+        if "rma_replace_id" in self.init_data:
+            if str(self.init_data["rma_replace_id"]) != "" and str(self.init_data["rma_replace_id"]) != "None":
+                return True
 
         codpago = self.get_codpago()
         if str(codpago) == "CREE":
@@ -871,3 +905,12 @@ class Mg2OrdersSerializer(DefaultSerializer):
         cadena = cadena.replace("\t", "")
         cadena = " ".join( cadena.split() )
         return cadena
+
+    def get_totalventapedido(self):
+        importe = 0
+        codComandaDevol = "WDV2" + qsatype.FactoriaModulos.get("flfactppal").iface.cerosIzquierda(str(self.init_data["rma_replace_id"]), 8)
+        idtpv_comanda = qsatype.FLUtil.sqlSelect("tpv_comandas", "idtpv_comanda", "codigo = '{}'".format(codComandaDevol))
+        for linea in self.init_data["items"]:
+            importe += parseFloat(qsatype.FLUtil.quickSqlSelect("tpv_lineascomanda", "pvpunitarioiva", "idtpv_comanda = {} AND (referencia IN (SELECT referencia from articulos where referenciaconfigurable IN (select referenciaconfigurable FROM articulos where referencia = '{}')) OR referencia = '{}')".format(idtpv_comanda, self.get_referencia(linea["sku"]), self.get_referencia(linea["sku"])))) * parseFloat(linea["cantidad"])
+
+        return importe

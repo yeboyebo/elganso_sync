@@ -14,7 +14,7 @@ class ProductSerializer(DefaultSerializer):
 
         self.set_string_relation("Product//DescriptionData//Title", "lsc.descripcion")
         self.set_string_value("Product//DescriptionData//Brand", "El Ganso")
-        self.set_string_relation("Product//DescriptionData//Description", "a.mgdescripcion", max_characters=None)
+        self.set_string_relation("Product//DescriptionData//Description", "a.mgdescripcion", max_characters=2000)
 
         self.set_string_value("Product//DescriptionData//Manufacturer", "El Ganso (ELGBO)")
         self.set_string_value("Product//DescriptionData//ItemType", "flat-sheets")
@@ -55,7 +55,7 @@ class ProductSerializer(DefaultSerializer):
             self.set_string_value("Product//ProductData//Clothing//AgeRangeDescription", edad)
 
             if self.init_data['f.codfamiliaaz'] == 'Socks' or self.init_data['f.codfamiliaaz'] == 'Dress' or self.init_data['f.codfamiliaaz'] == 'Sweater' or self.init_data['f.codfamiliaaz'] == 'Kurta' or self.init_data['f.codfamiliaaz'] == 'Coat' or self.init_data['f.codfamiliaaz'] == 'Tunic' or self.init_data['f.codfamiliaaz'] == 'Underpants' or self.init_data['f.codfamiliaaz'] == 'Sweatshirt' or self.init_data['f.codfamiliaaz'] == 'Pajamas' or self.init_data['f.codfamiliaaz'] == 'Suit' or self.init_data['f.codfamiliaaz'] == 'Robe' or self.init_data['f.codfamiliaaz'] == 'Tights' or self.init_data['f.codfamiliaaz'] == 'Blazer' or self.init_data['f.codfamiliaaz'] == 'TrackSuit' or self.init_data['f.codfamiliaaz'] == 'Vest' or self.init_data['f.codfamiliaaz'] == 'SalwarSuitSet':
-                if edad != "Infantil" and self.init_data['f.codfamiliaaz'] != 'Socks' and self.init_data['f.codfamiliaaz'] != 'Vest' and self.init_data['f.codfamiliaaz'] != 'Coat':
+                if edad != "Infantil" and self.init_data['f.codfamiliaaz'] != 'Socks' and self.init_data['f.codfamiliaaz'] != 'Vest' and self.init_data['f.codfamiliaaz'] != 'Coat' and self.init_data['f.codfamiliaaz'] != 'Underpants':
                     self.set_string_value("Product//ProductData//Clothing//ApparelBodyType", "regular")
                     self.set_string_value("Product//ProductData//Clothing//ApparelHeightType", "regular")
                 self.set_string_value("Product//ProductData//Clothing//ApparelSize", self.get_apparel_size(self.init_data["ta.codgrupotalla"], self.init_data["aa.talla"]))
@@ -116,8 +116,14 @@ class ProductSerializer(DefaultSerializer):
                 return "x_l"
             if talla == "XXL":
                 return "xx_l"
+            if talla == "XXXL":
+                return "3x_l"
             if talla == "XS":
                 return "x_s"
+            if talla == "XXS":
+                return "xx_s"
+            if talla == "XXXS":
+                return "3x_s"
             return talla.lower()
         else:
             return "one_size"

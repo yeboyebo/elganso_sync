@@ -59,7 +59,12 @@ class AzImageBackgroundUpload(UploadSync, ABC):
 
         for d in data:
             print(d['serialized'])
+            print(str(self.driver.apiBgImageNewUrl))
+            print(str(d['name']))
+            
             image_path = '{}{}'.format(self.driver.apiBgImagePath, d['name'])
+            
+            print(str(image_path))
 
             if not path.isfile(image_path):
                 response = requests.post(

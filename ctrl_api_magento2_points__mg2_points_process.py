@@ -49,8 +49,8 @@ class Mg2PointsProcess(DownloadSync):
             cuerpolog = cuerpolog.replace("['", "[\"")
             cuerpolog = cuerpolog.replace("']", "\"]")
             cuerpolog = cuerpolog.replace("'", " ")
-            cuerpolog = cuerpolog.replace("False", "\"False\"")
-            cuerpolog = cuerpolog.replace("True", "\"True\"")
+            # cuerpolog = cuerpolog.replace("False", "\"False\"")
+            # cuerpolog = cuerpolog.replace("True", "\"True\"")
             datajson = json.loads(str(cuerpolog))
 
             # print(str(cuerpolog))

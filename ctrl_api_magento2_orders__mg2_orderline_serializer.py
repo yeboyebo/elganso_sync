@@ -27,13 +27,21 @@ class Mg2OrderLineSerializer(DefaultSerializer):
 
         tasaconv = self.init_data["tasaconv"]
 
-        pvpunitarioiva = round(parseFloat(self.init_data["pvpunitarioiva"] * tasaconv), 2)
+        """pvpunitarioiva = round(parseFloat(self.init_data["pvpunitarioiva"] * tasaconv), 2)
         pvpsindtoiva = round(parseFloat(self.init_data["pvpsindtoiva"] * tasaconv), 2)
         pvptotaliva = round(parseFloat(self.init_data["pvptotaliva"] * tasaconv), 2)
 
         pvpunitario = parseFloat(pvpunitarioiva / ((100 + iva) / 100))
         pvpsindto = parseFloat(pvpsindtoiva / ((100 + iva) / 100))
-        pvptotal = parseFloat(pvptotaliva / ((100 + iva) / 100))
+        pvptotal = parseFloat(pvptotaliva / ((100 + iva) / 100))"""
+
+        pvpunitarioiva = self.get_damepreciopedido("pvpunitarioiva")
+        pvpsindtoiva = self.get_damepreciopedido("pvpsindtoiva")
+        pvptotaliva = self.get_damepreciopedido("pvptotaliva")
+
+        pvpunitario = self.get_damepreciopedido("pvpunitario")
+        pvpsindto = self.get_damepreciopedido("pvpsindto")
+        pvptotal = self.get_damepreciopedido("pvptotal")
 
         self.set_data_value("cantdevuelta", 0)
         self.set_data_value("cantidad", self.get_cantidad())
@@ -136,3 +144,46 @@ class Mg2OrderLineSerializer(DefaultSerializer):
                 raise NameError("Error. Se ha indicado una referencia con varias tallas asociadas, revisar JSON")
 
         return True
+
+    def get_damepreciopedido(self, tipoPrecio):
+
+        cant = self.get_cantidad()
+        tasaconv = self.init_data["tasaconv"]
+        iva = self.init_data["iva"]
+        if not iva or iva == "":
+            iva = 0
+        pvpunitarioiva = round(parseFloat(self.init_data["pvpunitarioiva"] * tasaconv), 2)
+        pvpsindtoiva = round(parseFloat(self.init_data["pvpsindtoiva"] * tasaconv), 2)
+        pvptotaliva = round(parseFloat(self.init_data["pvptotaliva"] * tasaconv), 2)
+
+        pvpunitario = parseFloat(pvpunitarioiva / ((100 + iva) / 100))
+        pvpsindto = parseFloat(pvpsindtoiva / ((100 + iva) / 100))
+        pvptotal = parseFloat(pvptotaliva / ((100 + iva) / 100))
+
+        if self.init_data["es_cambio"] == False:
+            if tipoPrecio == "pvpunitario":
+                pvpunitarioiva = round(parseFloat(self.init_data["pvpunitarioiva"] * tasaconv), 2)
+                return parseFloat(pvpunitarioiva / ((100 + iva) / 100))  
+            elif tipoPrecio == "pvpsindto":
+                pvpsindtoiva = round(parseFloat(self.init_data["pvpsindtoiva"] * tasaconv), 2)
+                return parseFloat(pvpsindtoiva / ((100 + iva) / 100))
+            elif tipoPrecio == "pvptotal":
+                pvptotaliva = round(parseFloat(self.init_data["pvptotaliva"] * tasaconv), 2)
+                return parseFloat(pvptotaliva / ((100 + iva) / 100))
+            elif tipoPrecio == "pvpunitarioiva":
+                return round(parseFloat(self.init_data["pvpunitarioiva"] * tasaconv), 2)
+            elif tipoPrecio == "pvpsindtoiva":
+                return round(parseFloat(self.init_data["pvpsindtoiva"] * tasaconv), 2)
+            elif tipoPrecio == "pvptotaliva":
+                return round(parseFloat(self.init_data["pvptotaliva"] * tasaconv), 2)
+        else:
+            codComandaDevol = str(self.init_data["rma_replace_id"])
+            idtpv_comanda = qsatype.FLUtil.sqlSelect("tpv_comandas", "idtpv_comanda", "codigo = '{}'".format(codComandaDevol))
+            if tipoPrecio == "pvpunitario":
+                return parseFloat(qsatype.FLUtil.quickSqlSelect("tpv_lineascomanda", "pvpunitario", "idtpv_comanda = {} AND (referencia IN (SELECT referencia from articulos where referenciaconfigurable IN (select referenciaconfigurable FROM articulos where referencia = '{}')) OR referencia = '{}')".format(idtpv_comanda, self.get_referencia(), self.get_referencia())))
+            elif tipoPrecio == "pvpsindto" or tipoPrecio == "pvptotal":
+                return parseFloat(qsatype.FLUtil.quickSqlSelect("tpv_lineascomanda", "pvpunitario", "idtpv_comanda = {} AND (referencia IN (SELECT referencia from articulos where referenciaconfigurable IN (select referenciaconfigurable FROM articulos where referencia = '{}')) OR referencia = '{}')".format(idtpv_comanda, self.get_referencia(), self.get_referencia()))) * cant
+            elif tipoPrecio == "pvpunitarioiva":
+                return parseFloat(qsatype.FLUtil.quickSqlSelect("tpv_lineascomanda", "pvpunitarioiva", "idtpv_comanda = {} AND (referencia IN (SELECT referencia from articulos where referenciaconfigurable IN (select referenciaconfigurable FROM articulos where referencia = '{}')) OR referencia = '{}')".format(idtpv_comanda, self.get_referencia(), self.get_referencia())))
+            elif tipoPrecio == "pvpsindtoiva" or tipoPrecio == "pvptotaliva":
+                return parseFloat(qsatype.FLUtil.quickSqlSelect("tpv_lineascomanda", "pvpunitarioiva", "idtpv_comanda = {} AND (referencia IN (SELECT referencia from articulos where referenciaconfigurable IN (select referenciaconfigurable FROM articulos where referencia = '{}')) OR referencia = '{}')".format(idtpv_comanda, self.get_referencia(), self.get_referencia()))) * cant
