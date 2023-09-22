@@ -1415,6 +1415,14 @@
             {
                 "name": "ctrl_api_magento2_refounds__mg2_refound_tarjetaregaloline_serializer.py",
                 "path": "controllers/api/magento2/refounds/serializers/"
+            },
+            {
+                "name": "model_flfactalma__lineassincro_catalogo.py",
+                "path": "models/flfactalma/"
+            },
+            {
+                "name": "model_flfactalma__lineassincro_catalogo_def.py",
+                "path": "models/flfactalma/"
             }
         ],
         "deleteFile": [],
