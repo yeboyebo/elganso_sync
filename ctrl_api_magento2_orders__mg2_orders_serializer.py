@@ -844,7 +844,8 @@ class Mg2OrdersSerializer(DefaultSerializer):
                     sku = item["sku"]
                     referencia = self.get_referencia(item["sku"])
                     if referencia == "0000ATEMP11111":
-                        sku = "0000ATEMP11111-TU"
+                        item["sku"] = "0000ATEMP11111-TU"
+                        item["sku"] = sku
                     cantidad = 1
                     barcode = self.get_barcode(item["sku"])
                     iva = item["iva"]

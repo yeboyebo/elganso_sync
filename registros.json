@@ -184,6 +184,13 @@
         },
         {
             "type": "insertAfterNode",
+            "path": "/flfact_tpv/eg_seguimientoenvios",
+            "value": {
+                "eg_logpedidosb2b": null
+            }
+        },
+        {
+            "type": "insertAfterNode",
             "path": "/flfactalma/articulos",
             "value": {
                 "atributosarticulos": null

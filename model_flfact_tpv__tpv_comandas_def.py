@@ -116,6 +116,45 @@ class elganso_sync(flfact_tpv):
             return {"Error": "Petición Incorrecta", "status": 0}
         return False
 
+    def elganso_sync_eglogpedidosb2b(self, params):
+        print("ENTRA")
+        try:
+            if "auth" not in self.params:
+                self.params = syncppal.iface.get_param_sincro('apipass')
+            if "passwd" in params and params['passwd'] == self.params['auth']:
+                print(1)
+                if "order" not in params:
+                    return {"Error": "Formato Incorrecto. No viene informado el parametro order", "status": 0}
+                print(2)
+                if "increment_id" not in params['order']:
+                    return {"Error": "Formato Incorrecto. No viene el parametro increment_id dentro de order", "status": 0}
+
+                existe_pedido = qsatype.FLUtil.quickSqlSelect("eg_logpedidosb2b", "increment_id", "increment_id = '{}'".format(str(params["order"]["increment_id"])))
+                if existe_pedido:
+                    return True
+
+                curLogPedidoB2b = qsatype.FLSqlCursor("eg_logpedidosb2b")
+                curLogPedidoB2b.setModeAccess(curLogPedidoB2b.Insert)
+                curLogPedidoB2b.refreshBuffer()
+                curLogPedidoB2b.setValueBuffer("procesado", False)
+                curLogPedidoB2b.setValueBuffer("fechaalta", str(qsatype.Date())[:10])
+                curLogPedidoB2b.setValueBuffer("horaalta", str(qsatype.Date())[-8:])
+                curLogPedidoB2b.setValueBuffer("increment_id", str(params["order"]["increment_id"]))
+                curLogPedidoB2b.setValueBuffer("codpedido", "")
+                curLogPedidoB2b.setValueBuffer("cuerpolog", str(params["order"]))
+                curLogPedidoB2b.setValueBuffer("estadopedidomagento", "")
+
+                if not curLogPedidoB2b.commitBuffer():
+                    return False
+                return True
+            else:
+                return {"Error": "Petición Incorrecta", "status": 10}
+        except Exception as e:
+            print(e)
+            qsatype.debug(ustr(u"Error inesperado", e))
+            return {"Error": "Petición Incorrecta", "status": 0}
+        return False
+
     def __init__(self, context=None):
         super().__init__(context)
 
@@ -127,4 +166,7 @@ class elganso_sync(flfact_tpv):
 
     def consultasaft(self, params):
         return self.ctx.elganso_sync_consultasaft(params)
+
+    def eglogpedidosb2b(self, params):
+        return self.ctx.elganso_sync_eglogpedidosb2b(params)
 

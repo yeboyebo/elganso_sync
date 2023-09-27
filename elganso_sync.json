@@ -1423,6 +1423,14 @@
             {
                 "name": "model_flfactalma__lineassincro_catalogo_def.py",
                 "path": "models/flfactalma/"
+            },
+            {
+                "name": "model_flfact_tpv__eg_logpedidosb2b.py",
+                "path": "models/flfact_tpv/"
+            },
+            {
+                "name": "model_flfact_tpv__eg_logpedidosb2b_def.py",
+                "path": "models/flfact_tpv/"
             }
         ],
         "deleteFile": [],

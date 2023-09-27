@@ -177,6 +177,13 @@
         },
         {
             "type": "insertAfterNode",
+            "path": "/models/flfact_tpv/eg_seguimientoenvios",
+            "value": {
+                "eg_logpedidosb2b": null
+            }
+        },
+        {
+            "type": "insertAfterNode",
             "path": "/models/flfactalma/lineasregstocks",
             "value": {
                 "movistock": null
