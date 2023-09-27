@@ -58,7 +58,7 @@ class AzOrdersResultGet(DownloadSync, ABC):
         if fecha and fecha != "None" and fecha != "":
             self.fecha_sincro = fecha
         else:
-            self.fecha_sincro = "2020-12-21T00:00:01Z"
+            self.fecha_sincro = "2023-08-07T00:00:01Z"
 
         return self.fecha_sincro
 

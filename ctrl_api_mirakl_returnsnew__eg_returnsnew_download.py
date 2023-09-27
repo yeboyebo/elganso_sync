@@ -33,7 +33,7 @@ class EgMiraklReturnsNewDownload(ReturnsDownload):
         if fecha and fecha != "None" and fecha != "":
             self.fecha_sincro = fecha
         else:
-            self.fecha_sincro = "2020-11-03T00:00:01Z"
+            self.fecha_sincro = "2023-06-26T00:00:01Z"
 
 
         # Tmp. Para pruebas. Quitar en producción
@@ -130,41 +130,28 @@ class EgMiraklReturnsNewDownload(ReturnsDownload):
         return True
 
     def masAccionesProcessData(self, eciweb_data):
-        print("*************masAccionesProcessData")
         eciweb_data["datosdevol"] = json.loads(json.dumps(eciweb_data["datosdevol"]))
-        print("*************masAccionesProcessData 1")
         return_data = self.get_return_serializer().serialize(eciweb_data)
-        print("*************masAccionesProcessData 2")
         if not return_data:
             return False
-        print("*************masAccionesProcessData 3")
         return_data["valdemoro"] = False
         objReturn = EgReturn(return_data)
-        print("*************masAccionesProcessData 4")
         objReturn.save()
-        print("*************masAccionesProcessData 5")
         idtpvDevol = objReturn.cursor.valueBuffer("idtpv_comanda")
-        print("*************masAccionesProcessData 6")
         codComandaDevol = qsatype.FLUtil.quickSqlSelect("tpv_comandas", "codcomandadevol", "idtpv_comanda = '{}'".format(idtpvDevol))
-        print("*************masAccionesProcessData 7")
         idtpvVenta = qsatype.FLUtil.quickSqlSelect("tpv_comandas", "idtpv_comanda", "codigo = '{}'".format(codComandaDevol))
-        print("*************masAccionesProcessData 8")
         qL = qsatype.FLSqlQuery()
         qL.setSelect("barcode, cantidad")
         qL.setFrom("tpv_lineascomanda")
         qL.setWhere("idtpv_comanda = {}".format(idtpvDevol))
-        print("*************masAccionesProcessData 9")
         if not qL.exec_():
             self.log("Error. Fallo la query al obtener los datos de devolución {}".format(idtpvDevol), "egmiraklreturns")
             return False
 
         while qL.first():
-            print("*************masAccionesProcessData 10")
             cantDev = qsatype.FLUtil.sqlSelect("tpv_lineascomanda", "cantdevuelta", "idtpv_comanda = {} AND barcode = '{}'".format(idtpvVenta, qL.value("barcode"))) + (int(qL.value("cantidad")) * -1)
-            print("*************masAccionesProcessData 11")
             if not qsatype.FLUtil.sqlUpdate("tpv_lineascomanda", ["cantdevuelta"], [cantDev], "idtpv_comanda = {} AND barcode = '{}'".format(idtpvVenta, qL.value("barcode"))):
                 return False
-        print("*************masAccionesProcessData 12")
         return objReturn.cursor.valueBuffer("idtpv_comanda")
 
     def get_return_serializer(self):
@@ -187,12 +174,12 @@ class EgMiraklReturnsNewDownload(ReturnsDownload):
         fecha1Seg = fechaSeg + timedelta(seconds=1)
         hora = str(fecha1Seg)[11:19]
 
-        idsincro = qsatype.FLUtil.sqlSelect("tpv_fechasincrotienda", "id", "esquema = '{}' AND codtienda = '{}'".format(esquema, codtienda))
-
-        if idsincro:
-            qsatype.FLSqlQuery().execSql("UPDATE tpv_fechasincrotienda SET fechasincro = '{}', horasincro = '{}' WHERE id = {}".format(fecha, hora, idsincro))
-        else:
-            qsatype.FLSqlQuery().execSql("INSERT INTO tpv_fechasincrotienda (codtienda, esquema, fechasincro, horasincro) VALUES ('{}', '{}', '{}', '{}')".format(codtienda, esquema, fecha, hora))
+        #idsincro = qsatype.FLUtil.sqlSelect("tpv_fechasincrotienda", "id", "esquema = '{}' AND codtienda = '{}'".format(esquema, codtienda))
+        qsatype.FLSqlQuery().execSql("UPDATE tpv_fechasincrotienda SET fechasincro = '{}', horasincro = '{}' WHERE esquema = '{}' AND codtienda = '{}'".format(fecha, hora, esquema, codtienda))
+        # if idsincro:
+            # qsatype.FLSqlQuery().execSql("UPDATE tpv_fechasincrotienda SET fechasincro = '{}', horasincro = '{}' WHERE id = {}".format(fecha, hora, idsincro))
+        # else:
+            # qsatype.FLSqlQuery().execSql("INSERT INTO tpv_fechasincrotienda (codtienda, esquema, fechasincro, horasincro) VALUES ('{}', '{}', '{}', '{}')".format(codtienda, esquema, fecha, hora))
 
         return True
 
