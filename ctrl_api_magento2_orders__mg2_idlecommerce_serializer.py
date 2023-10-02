@@ -69,7 +69,7 @@ class Mg2IdlEcommerce(DefaultSerializer):
                 # self.set_string_value("urlimagen", str(self.init_data["imagen_recoger"]))
         else:
             if "rma_replace_id" in self.init_data:
-                if str(self.init_data["rma_replace_id"]) != "None" and self.init_data["rma_replace_id"] != None and self.init_data["rma_replace_id"] != False:
+                if str(self.init_data["rma_replace_id"]) != "None" and self.init_data["rma_replace_id"] != None and self.init_data["rma_replace_id"] != False and self.init_data["rma_replace_id"] != "":
                     self.set_string_value("tipo", 'CAMBIO')
                 else:
                     self.set_string_value("tipo", 'VENTA')

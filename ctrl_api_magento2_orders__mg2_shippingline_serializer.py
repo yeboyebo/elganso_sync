@@ -7,11 +7,11 @@ from controllers.base.default.serializers.default_serializer import DefaultSeria
 class Mg2ShippingLineSerializer(DefaultSerializer):
 
     def get_data(self):
-        street = self.init_data["shipping_address"]["street"].split("\n")
-        dirtipoviaenv = street[0] if len(street) >= 1 else ""
-        direccionenv = street[1] if len(street) >= 2 else ""
-        dirnumenv = street[2] if len(street) >= 3 else ""
-        dirotrosenv = street[3] if len(street) >= 4 else ""
+
+        dirtipoviaenv = ""
+        direccionenv = self.init_data["shipping_address"]["street"]
+        dirnumenv = ""
+        dirotrosenv = ""
         direccionenv = self.get_formateaCadena(direccionenv)
 
         self.set_string_value("mg_dirtipoviaenv", dirtipoviaenv, max_characters=100)

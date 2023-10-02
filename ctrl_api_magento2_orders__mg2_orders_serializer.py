@@ -119,13 +119,21 @@ class Mg2OrdersSerializer(DefaultSerializer):
                 if str(self.init_data["rma_replace_id"]) != "" and str(self.init_data["rma_replace_id"]) != "None":
                     es_cambio = True
             for item in self.init_data["items"]:
-                item.update({
-                    "codcomanda": self.data["codigo"],
-                    "tasaconv": tasaconv,
-                    "store_id": self.init_data["store_id"],
-                    "es_cambio": es_cambio,
-                    "rma_replace_id": "WDV2" + qsatype.FactoriaModulos.get("flfactppal").iface.cerosIzquierda(str(self.init_data["rma_replace_id"]), 8)
-                })
+                if es_cambio:
+                    item.update({
+                        "codcomanda": self.data["codigo"],
+                        "tasaconv": tasaconv,
+                        "store_id": self.init_data["store_id"],
+                        "es_cambio": es_cambio,
+                        "rma_replace_id": "WDV2" + qsatype.FactoriaModulos.get("flfactppal").iface.cerosIzquierda(str(self.init_data["rma_replace_id"]), 8)
+                    })
+                else:
+                    item.update({
+                        "codcomanda": self.data["codigo"],
+                        "tasaconv": tasaconv,
+                        "store_id": self.init_data["store_id"],
+                        "es_cambio": es_cambio
+                    })
 
                 line_data = Mg2OrderLineSerializer().serialize(item)
                 self.data["children"]["lines"].append(line_data)
@@ -206,11 +214,10 @@ class Mg2OrdersSerializer(DefaultSerializer):
             nombrecliente = "{} {}".format(self.init_data["billing_address"]["firstname"], self.init_data["billing_address"]["lastname"])
             self.set_string_value("nombrecliente", nombrecliente, max_characters=100)
 
-            street = self.init_data["billing_address"]["street"].split("\n")
-            dirtipovia = street[0] if len(street) >= 1 else ""
-            direccion = street[1] if len(street) >= 2 else ""
-            dirnum = street[2] if len(street) >= 3 else ""
-            dirotros = street[3] if len(street) >= 4 else ""
+            dirtipovia = ""
+            direccion = self.init_data["billing_address"]["street"]
+            dirnum = ""
+            dirotros = ""
 
             self.set_string_value("dirtipovia", self.get_formateaCadena(dirtipovia), max_characters=100)
             self.set_string_value("direccion", self.get_formateaCadena(direccion), max_characters=100)
@@ -256,16 +263,27 @@ class Mg2OrdersSerializer(DefaultSerializer):
 
             arqueo_web = Mg2CashCountSerializer().serialize(new_data)
             new_data = self.data.copy()
-            new_data.update({
-                "idarqueo": arqueo_web["idtpv_arqueo"],
-                "tasaconv": tasaconv,
-                "codtienda": self.get_codtienda(),
-                "total": round(parseFloat((self.init_data["grand_total"]) * tasaconv), 2),
-                "refvale": refvale,
-                "es_cambio": es_cambio,
-                "items": self.init_data["items"],
-                "rma_replace_id": "WDV2" + qsatype.FactoriaModulos.get("flfactppal").iface.cerosIzquierda(str(self.init_data["rma_replace_id"]), 8)
-            })
+            if es_cambio:
+                new_data.update({
+                    "idarqueo": arqueo_web["idtpv_arqueo"],
+                    "tasaconv": tasaconv,
+                    "codtienda": self.get_codtienda(),
+                    "total": round(parseFloat((self.init_data["grand_total"]) * tasaconv), 2),
+                    "refvale": refvale,
+                    "es_cambio": es_cambio,
+                    "items": self.init_data["items"],
+                    "rma_replace_id": "WDV2" + qsatype.FactoriaModulos.get("flfactppal").iface.cerosIzquierda(str(self.init_data["rma_replace_id"]), 8)
+                })
+            else:
+                 new_data.update({
+                    "idarqueo": arqueo_web["idtpv_arqueo"],
+                    "tasaconv": tasaconv,
+                    "codtienda": self.get_codtienda(),
+                    "total": round(parseFloat((self.init_data["grand_total"]) * tasaconv), 2),
+                    "refvale": refvale,
+                    "es_cambio": es_cambio,
+                    "items": self.init_data["items"]
+                })
 
             pago_web = Mg2PaymentSerializer().serialize(new_data)
             idl_ecommerce = Mg2IdlEcommerce().serialize(new_init_data)
@@ -844,7 +862,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
                     sku = item["sku"]
                     referencia = self.get_referencia(item["sku"])
                     if referencia == "0000ATEMP11111":
-                        item["sku"] = "0000ATEMP11111-TU"
+                        sku = "0000ATEMP11111-TU"
                         item["sku"] = sku
                     cantidad = 1
                     barcode = self.get_barcode(item["sku"])
