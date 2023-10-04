@@ -534,6 +534,10 @@ class Mg2OrdersSerializer(DefaultSerializer):
     def distribucion_almacenes(self):
         jsonDatos = self.init_data
 
+        if self.esCeutaMelilla():
+            print("///////////////***********************************ES CEUTA o Melilla")
+            return True
+
         if "rma_replace_id" in self.init_data:
             if str(self.init_data["rma_replace_id"]) != "" and str(self.init_data["rma_replace_id"]) != "None":
                 return True
@@ -933,3 +937,10 @@ class Mg2OrdersSerializer(DefaultSerializer):
             importe += parseFloat(qsatype.FLUtil.quickSqlSelect("tpv_lineascomanda", "pvpunitarioiva", "idtpv_comanda = {} AND (referencia IN (SELECT referencia from articulos where referenciaconfigurable IN (select referenciaconfigurable FROM articulos where referencia = '{}')) OR referencia = '{}')".format(idtpv_comanda, self.get_referencia(linea["sku"]), self.get_referencia(linea["sku"])))) * parseFloat(linea["cantidad"])
 
         return importe
+
+    def esCeutaMelilla(self):
+        if str(self.init_data["shipping_address"]["region_id"]) != "None":
+            if str(self.init_data["shipping_address"]["region_id"]) == "145" or str(self.init_data["shipping_address"]["region_id"]) == "163":
+                return True
+        
+        return False
