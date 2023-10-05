@@ -1431,6 +1431,18 @@
             {
                 "name": "model_flfact_tpv__eg_logpedidosb2b_def.py",
                 "path": "models/flfact_tpv/"
+            },
+            {
+                "name": "ctrl_api_magento2_prerebajas__upload.py",
+                "path": "controllers/api/magento2/prerebajas/"
+            },
+            {
+                "name": "ctrl_api_magento2_prerebajas__simple_prerebajas_serializer.py",
+                "path": "controllers/api/magento2/prerebajas/serializers/"
+            },
+            {
+                "name": "ctrl_api_magento2_prerebajas__mg2_prerebajas_upload.py",
+                "path": "controllers/api/magento2/prerebajas/controllers/"
             }
         ],
         "deleteFile": [],

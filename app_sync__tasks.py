@@ -78,6 +78,7 @@ from controllers.api.magento2.directorders_pending.controllers.mg2_directorders_
 from controllers.api.magento2.look.controllers.mg2_look_upload import Mg2LookUpload
 from controllers.api.magento2.tierprice_app.controllers.mg2_tierprice_app_upload import Mg2TierpriceAppUpload
 from controllers.api.magento2.delete_tierprice_app.controllers.mg2_delete_tierprice_app_upload import Mg2DeleteTierPriceAppUpload
+from controllers.api.magento2.prerebajas.controllers.mg2_prerebajas_upload import Mg2PrerebajasUpload
 
 sync_object_dict = {
     "stock_upload": {
@@ -267,6 +268,9 @@ sync_object_dict = {
     },
     "mg2_delete_tierprice_app_upload": {
         "sync_object": Mg2DeleteTierPriceAppUpload
+    },
+    "mg2_prerebajas_upload": {
+        "sync_object": Mg2PrerebajasUpload
     }
 }
 
