@@ -1568,6 +1568,10 @@
             {
                 "name": "ctrl_base_magento2_products__product_link_serializer.py",
                 "path": "controllers/base/magento2/products/serializers/"
+            },
+            {
+                "name": "ctrl_base_default_controllers__default_sync.py",
+                "path": "controllers/base/default/controllers/"
             }
         ]
     }
