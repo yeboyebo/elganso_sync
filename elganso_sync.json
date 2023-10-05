@@ -1443,6 +1443,10 @@
             {
                 "name": "ctrl_api_magento2_prerebajas__mg2_prerebajas_upload.py",
                 "path": "controllers/api/magento2/prerebajas/controllers/"
+            },
+            {
+                "name": "ctrl_api_amazon_returns__az_returns_getOld.py",
+                "path": "controllers/api/amazon/returns/controllers/"
             }
         ],
         "deleteFile": [],
@@ -1572,6 +1576,10 @@
             {
                 "name": "ctrl_base_default_controllers__default_sync.py",
                 "path": "controllers/base/default/controllers/"
+            },
+            {
+                "name": "ctrl_base_magento2_orders__order_serializer.py",
+                "path": "controllers/base/magento2/orders/serializers/"
             }
         ]
     }
