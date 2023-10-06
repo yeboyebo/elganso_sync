@@ -1580,6 +1580,14 @@
             {
                 "name": "ctrl_base_magento2_orders__order_serializer.py",
                 "path": "controllers/base/magento2/orders/serializers/"
+            },
+            {
+                "name": "model_flfactppal__clientes_def.py",
+                "path": "models/flfactppal/"
+            },
+            {
+                "name": "model_flfactppal__clientes.py",
+                "path": "models/flfactppal/"
             }
         ]
     }

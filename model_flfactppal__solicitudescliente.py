@@ -20,6 +20,10 @@ class elganso_sync_solicitudescliente(interna_solicitudescliente, helpers.MixinC
     class Meta:
         proxy = True
 
+    @helpers.decoradores.csr()
+    def crearsolicitudcliente(params):
+        return form.iface.crearsolicitudcliente(params)
+
 
 # @class_declaration solicitudescliente #
 class solicitudescliente(elganso_sync_solicitudescliente, helpers.MixinConAcciones):
