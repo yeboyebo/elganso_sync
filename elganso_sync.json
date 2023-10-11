@@ -1447,6 +1447,10 @@
             {
                 "name": "ctrl_api_amazon_returns__az_returns_getOld.py",
                 "path": "controllers/api/amazon/returns/controllers/"
+            },
+            {
+                "name": "ctrl_api_magento2_prerebajas__configurable_prerebajas_serializer.py",
+                "path": "controllers/api/magento2/prerebajas/serializers/"
             }
         ],
         "deleteFile": [],
