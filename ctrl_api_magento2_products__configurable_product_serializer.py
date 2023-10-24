@@ -49,7 +49,8 @@ class ConfigurableProductSerializer(DefaultSerializer):
             {"attribute_code": "color", "value": self.get_init_value("ic.indicecommunity")},
             {"attribute_code": "product_tag", "value": "98"},
             {"attribute_code": "season", "value": self.get_dametemporada()},
-            {"attribute_code": "default_color", "value": self.get_init_value("ic.indicecommunity")}
+            {"attribute_code": "default_color", "value": self.get_init_value("ic.indicecommunity")},
+            {"attribute_code": "producto_asociado", "value": self.get_init_value("a.referenciaportatraje")}
         ]
 
         talla_modelo = self.get_init_value("a.mgtallamodelo")

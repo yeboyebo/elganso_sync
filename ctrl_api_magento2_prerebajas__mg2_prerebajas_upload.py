@@ -82,7 +82,8 @@ class Mg2PrerebajasUpload(ProductsUpload):
         
         for idx in range(len(data["promoPrices"])):
             del data["promoPrices"][idx]["children"]
-
+        print("DATA: " + json.dumps(data))
+        print("URL: " + product_url)
         try:
             self.send_request("post", url=product_url, data=json.dumps(data))
         except Exception as e:

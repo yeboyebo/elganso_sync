@@ -21,6 +21,8 @@ class Mg2OrdersSerializer(DefaultSerializer):
     cod_almacenes = ""
     barcodes_lineas = ""
     barcodes_con_stock = 0
+    hay_portatraje = False
+    refs_portatraje_pedido = ""
     def get_data(self):
         increment = str(self.init_data["increment_id"])
         self.cod_almacenes = ""
@@ -134,8 +136,10 @@ class Mg2OrdersSerializer(DefaultSerializer):
                         "store_id": self.init_data["store_id"],
                         "es_cambio": es_cambio
                     })
-
+                
+                
                 line_data = Mg2OrderLineSerializer().serialize(item)
+
                 self.data["children"]["lines"].append(line_data)
 
                 ivaLinea = item["iva"]
@@ -592,6 +596,9 @@ class Mg2OrdersSerializer(DefaultSerializer):
                     linea["emailtienda"] = almacen["emailtienda"]
                     break
 
+        if self.hay_portatraje:
+            self.estableceAlmacenPortatraje(lineas_data)
+
         return True
 
     def dame_almacenes(self, jsonDatos):
@@ -630,6 +637,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
             return True
         
         ref_regalo = qsatype.FLUtil.quickSqlSelect("param_parametros", "valor", "nombre = 'ART_REGALOWEB'")
+        ref_portatrajes = qsatype.FLUtil.quickSqlSelect("param_parametros", "valor", "nombre = 'ART_PORTATRAJES'")
         
         aRegalo = ref_regalo.split(",")
         paramRegalo = False
@@ -637,6 +645,14 @@ class Mg2OrdersSerializer(DefaultSerializer):
             paramRegalo = True
             
         esRegalo = False
+
+        aPortatrajes = ref_portatrajes.split(",")
+        self.hay_portatraje = False
+        if len(aPortatrajes) > 0:
+            self.hay_portatraje = True
+            
+        
+        esPortatraje = False
         
         lineas_data = self.init_data["items"]
         
@@ -644,6 +660,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
         lineas = {}
         for linea_data in lineas_data:
             esRegalo = False
+            esPortatraje = False
             referencia = self.get_referencia(linea_data["sku"])
             
             if paramRegalo:
@@ -651,7 +668,16 @@ class Mg2OrdersSerializer(DefaultSerializer):
                     if str(aRegalo[i][1:-1]) == str(referencia):
                         esRegalo = True
 
-            if not esRegalo:
+            if self.hay_portatraje:
+                for i in range(len(aPortatrajes)):
+                    if str(aPortatrajes[i][1:-1]) == str(referencia):
+                        if self.refs_portatraje_pedido == "":
+                            self.refs_portatraje_pedido = "'" + str(referencia) + "'"
+                        else:
+                            self.refs_portatraje_pedido += ",'" + str(referencia) + "'"
+                        esPortatraje = True
+
+            if not esRegalo and not esPortatraje:
                 barcode = self.get_barcode(linea_data["sku"])
                 if "almacen" not in linea_data:
                     barcodes.append(barcode)
@@ -731,7 +757,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
                     "disponibles": jBarcodes
                 })
 
-        self.barcodes_con_stock = qsatype.FLUtil.quickSqlSelect("atributosarticulos", "COUNT(*)", "barcode IN (SELECT barcode FROM stocks WHERE disponible > 0 AND codalmacen IN ({}) AND barcode IN ({}) AND referencia NOT IN ({}) GROUP BY barcode)".format(self.cod_almacenes, self.barcodes_lineas, ref_regalo))
+        self.barcodes_con_stock = qsatype.FLUtil.quickSqlSelect("atributosarticulos", "COUNT(*)", "barcode IN (SELECT barcode FROM stocks WHERE disponible > 0 AND codalmacen IN ({}) AND barcode IN ({}) AND referencia NOT IN ({}) AND referencia NOT IN ({}) GROUP BY barcode)".format(self.cod_almacenes, self.barcodes_lineas, ref_regalo, ref_portatrajes))
 
         return almacenes
 
@@ -944,3 +970,43 @@ class Mg2OrdersSerializer(DefaultSerializer):
                 return True
         
         return False
+
+    def estableceAlmacenPortatraje(self, lineas_data):
+        fam_portatrajes = qsatype.FLUtil.quickSqlSelect("param_parametros", "valor", "nombre = 'FAM_PORTATRAJES'")
+        art_portatrajes = qsatype.FLUtil.quickSqlSelect("param_parametros", "valor", "nombre = 'ART_PORTATRAJES'")
+        art_encontrado = False
+        codalmacen = False
+        emailtienda = False
+        for item in self.init_data["items"]:
+            if not art_encontrado:
+                if qsatype.FLUtil.quickSqlSelect("articulos", "referencia", "referencia = '{}' AND codfamilia IN ({}) AND referencia NOT IN ({})".format(self.get_referencia(item["sku"]), fam_portatrajes, art_portatrajes)):
+                    if "almacen" in item:
+                        art_encontrado = True
+                        codalmacen = item["almacen"]
+                        emailtienda = item["emailtienda"]
+                    else:
+                        return True
+
+        if not art_encontrado:
+            for item in self.init_data["items"]:
+                if not codalmacen:
+                    if qsatype.FLUtil.quickSqlSelect("articulos", "referencia", "referencia = '{}' AND referencia NOT IN ({})".format(self.get_referencia(item["sku"]), self.refs_portatraje_pedido)):
+                        print("encuentra un articulo")
+                        if "almacen" in item:
+                            codalmacen = item["almacen"]
+                            emailtienda = item["emailtienda"]
+
+        aItems = []
+        if codalmacen:
+            for item in self.init_data["items"]:
+                if qsatype.FLUtil.quickSqlSelect("articulos", "referencia", "referencia = '{}' AND referencia IN ({})".format(self.get_referencia(item["sku"]), self.refs_portatraje_pedido)):
+                    item["almacen"] = codalmacen
+                    item["emailtienda"] = emailtienda
+                
+                aItems.append(item)
+            self.init_data["items"] = aItems
+        
+        return True
+
+
+        
