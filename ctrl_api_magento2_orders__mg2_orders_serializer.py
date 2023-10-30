@@ -972,14 +972,13 @@ class Mg2OrdersSerializer(DefaultSerializer):
         return False
 
     def estableceAlmacenPortatraje(self, lineas_data):
-        fam_portatrajes = qsatype.FLUtil.quickSqlSelect("param_parametros", "valor", "nombre = 'FAM_PORTATRAJES'")
         art_portatrajes = qsatype.FLUtil.quickSqlSelect("param_parametros", "valor", "nombre = 'ART_PORTATRAJES'")
         art_encontrado = False
         codalmacen = False
         emailtienda = False
         for item in self.init_data["items"]:
             if not art_encontrado:
-                if qsatype.FLUtil.quickSqlSelect("articulos", "referencia", "referencia = '{}' AND codfamilia IN ({}) AND referencia NOT IN ({})".format(self.get_referencia(item["sku"]), fam_portatrajes, art_portatrajes)):
+                if qsatype.FLUtil.quickSqlSelect("articulos", "referencia", "referencia = '{}' AND portatrajes AND referencia NOT IN ({})".format(self.get_referencia(item["sku"]), art_portatrajes)):
                     if "almacen" in item:
                         art_encontrado = True
                         codalmacen = item["almacen"]
