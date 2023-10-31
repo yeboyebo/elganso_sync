@@ -45,7 +45,7 @@ class Mg2RefoundsProcess(DownloadSync):
             cuerpolog = cuerpolog.replace("']", "\"]")
             cuerpolog = cuerpolog.replace("'", " ")
             cuerpolog = cuerpolog.replace("False", "\"False\"")
-            #cuerpolog = cuerpolog.replace("True", "\"True\"")
+            # cuerpolog = cuerpolog.replace("True", "\"True\"")
             cuerpolog = cuerpolog.replace("\\xa0", " ")
             cuerpolog = cuerpolog.replace("\\xad", "")
             cuerpolog = cuerpolog.replace("\\x81", "")

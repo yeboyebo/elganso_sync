@@ -22,12 +22,12 @@ class Mg2RefoundLineSerializer(DefaultSerializer):
         self.set_string_relation("codcomanda", "codcomanda", max_characters=15)
 
         cant = parseFloat(self.init_data["qty"])
-        pvpunitario = self.get_damepreciopedido("pvpunitario")
-        pvpsindto = self.get_damepreciopedido("pvpsindto")
-        pvptotal = self.get_damepreciopedido("pvptotal")
-        pvpunitarioiva = self.get_damepreciopedido("pvpunitarioiva")
-        pvpsindtoiva = self.get_damepreciopedido("pvpsindtoiva")
-        pvptotaliva = self.get_damepreciopedido("pvptotaliva")
+        pvpunitario = parseFloat(self.init_data["price"]) * self.init_data["tasaconv"]
+        pvpsindto = parseFloat(self.init_data["price"]) * self.init_data["tasaconv"] * cant
+        pvptotal = parseFloat(self.init_data["price"]) * self.init_data["tasaconv"] * cant
+        pvpunitarioiva = parseFloat(self.init_data["original_price"]) * self.init_data["tasaconv"]
+        pvpsindtoiva = parseFloat(self.init_data["original_price"]) * self.init_data["tasaconv"] * cant
+        pvptotaliva = parseFloat(self.init_data["row_total_incl_tax"]) * self.init_data["tasaconv"]
 
         if self.init_data["tipo_linea"] == "refounded":
             pvpsindto = pvpsindto * (-1)
@@ -112,30 +112,3 @@ class Mg2RefoundLineSerializer(DefaultSerializer):
 
     def get_cantidad(self):
         return self.init_data["cantidad"]
-
-    def get_damepreciopedido(self, tipoPrecio):
-
-        cant = parseFloat(self.init_data["qty"])
-        if self.init_data["es_cambio"] == False:
-            if tipoPrecio == "pvpunitario":
-                return parseFloat(self.init_data["price"]) * self.init_data["tasaconv"]   
-            elif tipoPrecio == "pvpsindto" or tipoPrecio == "pvptotal":
-                return parseFloat(self.init_data["price"]) * self.init_data["tasaconv"] * cant
-            elif tipoPrecio == "pvpunitarioiva":
-                return parseFloat(self.init_data["original_price"]) * self.init_data["tasaconv"]
-            elif tipoPrecio == "pvpsindtoiva":
-                return parseFloat(self.init_data["original_price"]) * self.init_data["tasaconv"] * cant
-            elif tipoPrecio == "pvptotaliva":
-                return parseFloat(self.init_data["row_total_incl_tax"]) * self.init_data["tasaconv"]
-        else:
-            codComandaDevol = "WEB" + str(self.init_data["increment_id"])
-            idtpv_comanda = qsatype.FLUtil.sqlSelect("tpv_comandas", "idtpv_comanda", "codigo = '{}'".format(codComandaDevol))
-            if tipoPrecio == "pvpunitario":
-                return parseFloat(qsatype.FLUtil.quickSqlSelect("tpv_lineascomanda", "pvpunitario", "idtpv_comanda = {} AND barcode = '{}'".format(idtpv_comanda, self.get_barcode())))
-            elif tipoPrecio == "pvpsindto" or tipoPrecio == "pvptotal":
-                return parseFloat(qsatype.FLUtil.quickSqlSelect("tpv_lineascomanda", "pvpunitario", "idtpv_comanda = {} AND barcode = '{}'".format(idtpv_comanda, self.get_barcode()))) * cant
-            elif tipoPrecio == "pvpunitarioiva":
-                return parseFloat(qsatype.FLUtil.quickSqlSelect("tpv_lineascomanda", "pvpunitarioiva", "idtpv_comanda = {} AND barcode = '{}'".format(idtpv_comanda, self.get_barcode())))
-            elif tipoPrecio == "pvpsindtoiva" or tipoPrecio == "pvptotaliva":
-                return parseFloat(qsatype.FLUtil.quickSqlSelect("tpv_lineascomanda", "pvpunitarioiva", "idtpv_comanda = {} AND barcode = '{}'".format(idtpv_comanda, self.get_barcode()))) * cant
-       
