@@ -648,7 +648,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
 
         aPortatrajes = ref_portatrajes.split(",")
         self.hay_portatraje = False
-        if len(aPortatrajes) > 0:
+        if len(aPortatrajes) > 0 and str(ref_portatrajes) != "''":
             self.hay_portatraje = True
             
         
@@ -972,6 +972,10 @@ class Mg2OrdersSerializer(DefaultSerializer):
         return False
 
     def estableceAlmacenPortatraje(self, lineas_data):
+
+        if self.refs_portatraje_pedido == "":
+            return True
+
         art_portatrajes = qsatype.FLUtil.quickSqlSelect("param_parametros", "valor", "nombre = 'ART_PORTATRAJES'")
         art_encontrado = False
         codalmacen = False
