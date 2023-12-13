@@ -1451,6 +1451,14 @@
             {
                 "name": "ctrl_api_magento2_prerebajas__configurable_prerebajas_serializer.py",
                 "path": "controllers/api/magento2/prerebajas/serializers/"
+            },
+            {
+                "name": "model_flfact_tpv__vp_articulosprivalia.py",
+                "path": "models/flfact_tpv/"
+            },
+            {
+                "name": "model_flfact_tpv__vp_articulosprivalia_def.py",
+                "path": "models/flfact_tpv/"
             }
         ],
         "deleteFile": [],
