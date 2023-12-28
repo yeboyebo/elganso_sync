@@ -16,7 +16,6 @@ class SimpleProductSerializer(DefaultSerializer):
         talla = self.get_init_value("aa.talla")
         self.set_string_relation("product//name", "a.descripcion")
         self.set_string_relation("product//weight", "a.peso")
-        self.set_string_relation("product//price", "a.pvp")
 
         self.set_string_value("product//sku", self.get_sku())
         self.set_string_value("product//attribute_set_id", "4")
@@ -25,6 +24,7 @@ class SimpleProductSerializer(DefaultSerializer):
 
         if str(sincronizadoprevio) == "None":
             self.set_string_value("product//status", "1")
+            self.set_string_relation("product//price", "a.pvp")
             if talla == "TU":
                 self.set_string_value("product//status", "2")
 

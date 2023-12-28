@@ -31,12 +31,13 @@ class InventorySerializer(DefaultSerializer):
         cant_disponible = qsatype.FLUtil.sqlSelect("stocks s LEFT JOIN param_parametros p ON 'RSTOCK_' || s.codalmacen = p.nombre", "COALESCE(SUM(CASE WHEN (s.disponible-COALESCE(CAST(p.valor as integer),0)) > 0 THEN (s.disponible-COALESCE(CAST(p.valor as integer),0)) ELSE 0 END), 0)", "s.barcode = '" + barcode + "' and s.codalmacen IN (" + almacenes + ")")
 
         status = 0
+        tallas_agotadas = 0
         if cant_disponible > 0:
             status = 1
+        else:
+            tallas_agotadas = qsatype.FLUtil.sqlSelect("stocks s LEFT JOIN param_parametros p ON 'RSTOCK_' || s.codalmacen = p.nombre", "CASE WHEN (COALESCE(SUM(CASE WHEN (s.disponible-COALESCE(CAST(p.valor as integer),0)) > 0 THEN (s.disponible-COALESCE(CAST(p.valor as integer),0)) ELSE 0 END), 0)) > 0 THEN 0 ELSE 1 END", "s.referencia = '" + str(linea["aa.referencia"]) + "' and s.codalmacen IN (" + almacenes + ")")
 
         self.set_string_value("quantity", cant_disponible)
         self.set_string_value("status", status)
+        self.set_string_value("tallas_agotadas", int(tallas_agotadas))
         return True
-
-
-

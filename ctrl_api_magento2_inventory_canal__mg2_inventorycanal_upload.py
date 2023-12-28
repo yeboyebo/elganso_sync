@@ -80,8 +80,8 @@ class Mg2InventoryCanalUpload(InventoryUpload):
 
         q = qsatype.FLSqlQuery()
         q.setSelect("ssw.idss, ssw.barcode, ssw.codcanalweb, aa.referencia, aa.talla, st.idstockmagento")
-        q.setFrom("eg_sincrostockwebcanalweb ssw INNER JOIN atributosarticulos aa ON ssw.barcode = aa.barcode INNER JOIN articulos a on aa.referencia = a.referencia INNER JOIN mg_storeviews st ON ssw.codcanalweb = st.codcanalweb INNER JOIN lineassincro_catalogo l on a.referencia =  l.idobjeto")
-        q.setWhere("NOT a.nostock AND l.website = 'MG2' and l.tiposincro = 'Enviar productos' AND (NOT ssw.sincronizado OR ssw.sincronizado = false) AND st.activo GROUP BY ssw.idss, ssw.barcode, ssw.codcanalweb, aa.referencia, aa.talla, st.idstockmagento ORDER BY ssw.fecha desc, ssw.hora desc, ssw.idss LIMIT 50")
+        q.setFrom("mg_storeviews st INNER JOIN eg_sincrostockwebcanalweb ssw ON st.codcanalweb = ssw.codcanalweb INNER JOIN atributosarticulos aa ON ssw.barcode = aa.barcode INNER JOIN articulos a ON aa.referencia = a.referencia INNER JOIN eg_urlsimagenesarticulosmgt i ON a.referencia = i.referencia")
+        q.setWhere("st.activo AND NOT a.nostock AND (NOT ssw.sincronizado OR ssw.sincronizado = false) AND i.urls IS NOT NULL GROUP BY ssw.idss, ssw.barcode, ssw.codcanalweb, aa.referencia, aa.talla, st.idstockmagento ORDER BY ssw.fecha desc, ssw.hora desc, ssw.idss LIMIT 50")
 
         q.exec_()
 

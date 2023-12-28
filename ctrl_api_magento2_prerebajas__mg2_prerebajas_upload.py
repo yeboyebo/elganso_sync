@@ -20,8 +20,9 @@ class Mg2PrerebajasUpload(ProductsUpload):
 
         self.set_sync_params(self.get_param_sincro('mg2'))
 
-        self.small_sleep = 2
+        self.small_sleep = 1
         self.cod_plan = ""
+        self.sku = ""
         self.stores_id = []
 
     def get_db_data(self):
@@ -34,7 +35,8 @@ class Mg2PrerebajasUpload(ProductsUpload):
         s = qsatype.FLSqlQuery()
         s.setSelect("at.referencia,at.talla,pr.pvp,pr.desde,mg.idmagento")
         s.setFrom("lineassincro_planpreciosprerebajas pr INNER JOIN atributosarticulos at ON pr.sku = at.referencia INNER JOIN eg_tiendasplanprecios t ON pr.codplan = t.codplan INNER JOIN mg_storeviews mg ON mg.egcodtiendarebajas = t.codtienda")
-        s.setWhere("pr.codplan = '{}' GROUP BY at.referencia,at.talla,pr.pvp,pr.desde,mg.idmagento ORDER BY at.referencia, mg.idmagento".format(self.cod_plan))
+        # s.setWhere("pr.codplan = '{}' GROUP BY at.referencia,at.talla,pr.pvp,pr.desde,mg.idmagento ORDER BY at.referencia, mg.idmagento".format(self.cod_plan))
+        s.setWhere("pr.sincronizado = false AND pr.codplan = '" + str(self.cod_plan) + "' AND pr.sku in (SELECT sku from lineassincro_planpreciosprerebajas WHERE codplan = '" + str(self.cod_plan) + "' AND sincronizado = false ORDER BY sku LIMIT 1) GROUP BY at.referencia,at.talla,pr.pvp,pr.desde,mg.idmagento ORDER BY at.referencia, mg.idmagento")
         s.exec_()
 
         body = self.fetch_query(s)
@@ -52,6 +54,7 @@ class Mg2PrerebajasUpload(ProductsUpload):
         referencia = ""
         store_id = ""
         for row in data:
+            self.sku = row["at.referencia"]
             if referencia == "":
                 referencia = row["at.referencia"]
                 store_id = row["mg.idmagento"]
@@ -85,7 +88,10 @@ class Mg2PrerebajasUpload(ProductsUpload):
         print("DATA: " + json.dumps(data))
         print("URL: " + product_url)
         try:
-            self.send_request("post", url=product_url, data=json.dumps(data))
+            result = self.send_request("post", url=product_url, data=json.dumps(data))
+            print(str(result))
+            if(str(result) == "False"):
+                self.error = True
         except Exception as e:
             print("exception")
             self.error = True
@@ -95,11 +101,11 @@ class Mg2PrerebajasUpload(ProductsUpload):
     def after_sync(self, response_data=None):
         
         if self.error:
-            self.log("Error", "No se pudo sincronizar las Pre-rebajas del planificador: {})".format(self.cod_plan))
+            self.log("Error", "No se pudo sincronizar las Pre-rebajas del planificador: " + str(self.cod_plan) + " y ref.:" + str(self.sku) + ")")
             return self.small_sleep
 
-        qsatype.FLSqlQuery().execSql("UPDATE lineassincro_planpreciosprerebajas SET sincronizado = TRUE WHERE codplan = '{}'".format(self.cod_plan))
+        qsatype.FLSqlQuery().execSql("UPDATE lineassincro_planpreciosprerebajas SET sincronizado = TRUE WHERE codplan = '" + str(self.cod_plan) + "' AND sku = '" + str(self.sku) + "'")
 
-        self.log("Exito", "Plan Precios PreRebajas {} sincronizados correctamente.".format(self.cod_plan))
+        self.log("Exito", "Plan Precios PreRebajas " + str(self.cod_plan) + " y ref.: " + str(self.sku) + " sincronizado correctamente.")
 
         return self.small_sleep
