@@ -24,6 +24,7 @@ class Mg2PrerebajasUpload(ProductsUpload):
         self.cod_plan = ""
         self.sku = ""
         self.stores_id = []
+        self.articulos_sin_sincronizar = ""
 
     def get_db_data(self):
         body = []
@@ -35,8 +36,8 @@ class Mg2PrerebajasUpload(ProductsUpload):
         s = qsatype.FLSqlQuery()
         s.setSelect("at.referencia,at.talla,pr.pvp,pr.desde,mg.idmagento")
         s.setFrom("lineassincro_planpreciosprerebajas pr INNER JOIN atributosarticulos at ON pr.sku = at.referencia INNER JOIN eg_tiendasplanprecios t ON pr.codplan = t.codplan INNER JOIN mg_storeviews mg ON mg.egcodtiendarebajas = t.codtienda")
-        # s.setWhere("pr.codplan = '{}' GROUP BY at.referencia,at.talla,pr.pvp,pr.desde,mg.idmagento ORDER BY at.referencia, mg.idmagento".format(self.cod_plan))
-        s.setWhere("pr.sincronizado = false AND pr.codplan = '" + str(self.cod_plan) + "' AND pr.sku in (SELECT sku from lineassincro_planpreciosprerebajas WHERE codplan = '" + str(self.cod_plan) + "' AND sincronizado = false ORDER BY sku LIMIT 1) GROUP BY at.referencia,at.talla,pr.pvp,pr.desde,mg.idmagento ORDER BY at.referencia, mg.idmagento")
+        s.setWhere("pr.codplan = '{}' AND (pr.descripcionsincro IS NULL OR pr.descripcionsincro = '') GROUP BY at.referencia,at.talla,pr.pvp,pr.desde,mg.idmagento ORDER BY at.referencia, mg.idmagento".format(self.cod_plan))
+        # s.setWhere("pr.sincronizado = false AND pr.codplan = '" + str(self.cod_plan) + "' AND pr.sku in (SELECT sku from lineassincro_planpreciosprerebajas WHERE codplan = '" + str(self.cod_plan) + "' AND sincronizado = false ORDER BY sku LIMIT 1) GROUP BY at.referencia,at.talla,pr.pvp,pr.desde,mg.idmagento ORDER BY at.referencia, mg.idmagento")
         s.exec_()
 
         body = self.fetch_query(s)
@@ -89,7 +90,22 @@ class Mg2PrerebajasUpload(ProductsUpload):
         print("URL: " + product_url)
         try:
             result = self.send_request("post", url=product_url, data=json.dumps(data))
+            """result = {
+                "result": True,
+                "mssg": "{\"articulos_sincronizados\":\"Se han sincronizado 14 referencias\",\"articulos_no_existentes_en_magento\":[\"NOEXIST\",\"NOEXIST\"]}"
+            }"""
             print(str(result))
+            print(str(result["result"]))
+            articulos_sincro = json.loads(result["mssg"])
+            print(str(articulos_sincro["articulos_no_existentes_en_magento"]))  
+            print(len(articulos_sincro["articulos_no_existentes_en_magento"]))  
+            for articulo in range(len(articulos_sincro["articulos_no_existentes_en_magento"])):
+                print(articulo)
+                if self.articulos_sin_sincronizar == "":
+                    self.articulos_sin_sincronizar = "'" + articulos_sincro["articulos_no_existentes_en_magento"][articulo] + "'"
+                else:
+                    self.articulos_sin_sincronizar += ",'" + articulos_sincro["articulos_no_existentes_en_magento"][articulo] + "'"
+            print(self.articulos_sin_sincronizar)
             if(str(result) == "False"):
                 self.error = True
         except Exception as e:
@@ -104,7 +120,8 @@ class Mg2PrerebajasUpload(ProductsUpload):
             self.log("Error", "No se pudo sincronizar las Pre-rebajas del planificador: " + str(self.cod_plan) + " y ref.:" + str(self.sku) + ")")
             return self.small_sleep
 
-        qsatype.FLSqlQuery().execSql("UPDATE lineassincro_planpreciosprerebajas SET sincronizado = TRUE WHERE codplan = '" + str(self.cod_plan) + "' AND sku = '" + str(self.sku) + "'")
+        qsatype.FLSqlQuery().execSql("UPDATE lineassincro_planpreciosprerebajas SET sincronizado = TRUE, descripcionsincro = 'CORRECTO' WHERE codplan = '" + str(self.cod_plan) + "' AND sku IN ('" + str(self.sku) + "') AND sku NOT IN (" + str(self.articulos_sin_sincronizar) + ")")
+        qsatype.FLSqlQuery().execSql("UPDATE lineassincro_planpreciosprerebajas SET descripcionsincro = 'No existe en Magento' WHERE codplan = '" + str(self.cod_plan) + "' AND sku IN (" + str(self.articulos_sin_sincronizar) + ")")
 
         self.log("Exito", "Plan Precios PreRebajas " + str(self.cod_plan) + " y ref.: " + str(self.sku) + " sincronizado correctamente.")
 

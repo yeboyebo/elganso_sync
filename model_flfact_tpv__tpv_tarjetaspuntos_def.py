@@ -272,7 +272,8 @@ class elganso_sync(interna):
             curTpvTarjetas.select("codtarjetapuntos = '" + q.value("codtarjetapuntos") + "'")
             if not curTpvTarjetas.first():
                 return False
-                
+            
+            params["saldo"] = q.value("saldopuntos")
             idMovPuntos = qsatype.FLUtil.sqlSelect("tpv_movpuntos", "idmovpuntos", "canpuntos = " + params['canpuntos'] + " AND operacion = '" + str(params['operacion']) + "'")
             
             if idMovPuntos:
