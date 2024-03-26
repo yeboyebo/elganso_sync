@@ -443,6 +443,8 @@ class Mg2RefoundsSerializer(DefaultSerializer):
                         if not self.crear_viaje_recogidatienda(self.data["codigo"], codtiendaentrega):
                             raise NameError("Error al crear el viaje de recogida en tienda.")
 
+        self.crear_registro_puntos(codigo)
+
         return True
 
     def crear_pagos_devolucionweb(self, arqueo_web, codigo):
@@ -1001,3 +1003,91 @@ class Mg2RefoundsSerializer(DefaultSerializer):
         ultima_factura = ultima_factura + 1
 
         return "{}{}".format(prefix, qsatype.FactoriaModulos.get("flfactppal").iface.cerosIzquierda(str(ultima_factura), 12 - len(prefix)))
+
+    def crear_registro_puntos(self, codigo):
+
+        if "points_used" in self.init_data:
+            if parseFloat(self.init_data["points_used"]) != 0:
+                curMP = qsatype.FLSqlCursor("tpv_movpuntos")
+                curMP.setModeAccess(curMP.Insert)
+                # curMP.setActivatedCommitActions(False)
+                curMP.refreshBuffer()
+                curMP.setValueBuffer("codtarjetapuntos", str(self.get_codtarjetapuntos()))
+                curMP.setValueBuffer("fecha", str(qsatype.Date())[:10])
+                curMP.setValueBuffer("fechamod", str(qsatype.Date())[:10])
+                curMP.setValueBuffer("horamod", self.get_hora(str(qsatype.Date())))
+                curMP.setValueBuffer("canpuntos", parseFloat(self.init_data["points_used"]))
+                curMP.setValueBuffer("operacion", codigo)
+                curMP.setValueBuffer("sincronizado", False)
+                curMP.setValueBuffer("codtienda", "AWEB")
+
+                if not qsatype.FactoriaModulos.get('flfact_tpv').iface.controlIdSincroMovPuntos(curMP):
+                    return False
+
+                if not curMP.commitBuffer():
+                    return False
+
+        if "points_earn" in self.init_data:
+            if parseFloat(self.init_data["points_earn"]) != 0:
+                curMP = qsatype.FLSqlCursor("tpv_movpuntos")
+                curMP.setModeAccess(curMP.Insert)
+                # curMP.setActivatedCommitActions(False)
+                curMP.refreshBuffer()
+                curMP.setValueBuffer("codtarjetapuntos", str(self.get_codtarjetapuntos()))
+                curMP.setValueBuffer("fecha", str(qsatype.Date())[:10])
+                curMP.setValueBuffer("fechamod", str(qsatype.Date())[:10])
+                curMP.setValueBuffer("horamod", self.get_hora(str(qsatype.Date())))
+                curMP.setValueBuffer("canpuntos", parseFloat(self.init_data["points_earn"]) * (-1))
+                curMP.setValueBuffer("operacion", codigo)
+                curMP.setValueBuffer("sincronizado", False)
+                curMP.setValueBuffer("codtienda", "AWEB")
+
+                if not qsatype.FactoriaModulos.get('flfact_tpv').iface.controlIdSincroMovPuntos(curMP):
+                    return False
+
+                if not curMP.commitBuffer():
+                    return False
+
+        if "items_requested" in self.init_data:
+            if "points_used" in self.init_data:
+                if parseFloat(self.init_data["points_used"]) != 0:
+                    curMP = qsatype.FLSqlCursor("tpv_movpuntos")
+                    curMP.setModeAccess(curMP.Insert)
+                    # curMP.setActivatedCommitActions(False)
+                    curMP.refreshBuffer()
+                    curMP.setValueBuffer("codtarjetapuntos", str(self.get_codtarjetapuntos()))
+                    curMP.setValueBuffer("fecha", str(qsatype.Date())[:10])
+                    curMP.setValueBuffer("fechamod", str(qsatype.Date())[:10])
+                    curMP.setValueBuffer("horamod", self.get_hora(str(qsatype.Date())))
+                    curMP.setValueBuffer("canpuntos", parseFloat(self.init_data["points_used"]) * (-1))
+                    curMP.setValueBuffer("operacion", codigo)
+                    curMP.setValueBuffer("sincronizado", False)
+                    curMP.setValueBuffer("codtienda", "AWEB")
+
+                    if not qsatype.FactoriaModulos.get('flfact_tpv').iface.controlIdSincroMovPuntos(curMP):
+                        return False
+
+                    if not curMP.commitBuffer():
+                        return False
+
+            if "points_earn" in self.init_data:
+                if parseFloat(self.init_data["points_earn"]) != 0:
+                    curMP = qsatype.FLSqlCursor("tpv_movpuntos")
+                    curMP.setModeAccess(curMP.Insert)
+                    # curMP.setActivatedCommitActions(False)
+                    curMP.refreshBuffer()
+                    curMP.setValueBuffer("codtarjetapuntos", str(self.get_codtarjetapuntos()))
+                    curMP.setValueBuffer("fecha", str(qsatype.Date())[:10])
+                    curMP.setValueBuffer("fechamod", str(qsatype.Date())[:10])
+                    curMP.setValueBuffer("horamod", self.get_hora(str(qsatype.Date())))
+                    curMP.setValueBuffer("canpuntos", parseFloat(self.init_data["points_earn"]))
+                    curMP.setValueBuffer("operacion", codigo)
+                    curMP.setValueBuffer("sincronizado", False)
+                    curMP.setValueBuffer("codtienda", "AWEB")
+
+                    if not qsatype.FactoriaModulos.get('flfact_tpv').iface.controlIdSincroMovPuntos(curMP):
+                        return False
+
+                    if not curMP.commitBuffer():
+                        return False
+

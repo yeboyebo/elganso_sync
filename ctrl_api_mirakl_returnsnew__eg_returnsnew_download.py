@@ -33,7 +33,7 @@ class EgMiraklReturnsNewDownload(ReturnsDownload):
         if fecha and fecha != "None" and fecha != "":
             self.fecha_sincro = fecha
         else:
-            self.fecha_sincro = "2023-06-26T00:00:01Z"
+            self.fecha_sincro = "2024-01-26T00:00:01Z"
 
 
         # Tmp. Para pruebas. Quitar en producción

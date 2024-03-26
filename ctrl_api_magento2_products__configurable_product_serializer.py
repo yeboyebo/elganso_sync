@@ -26,7 +26,7 @@ class ConfigurableProductSerializer(DefaultSerializer):
 
         if str(sincronizadoprevio) == "None":
             self.set_string_value("product//status", "2")
-            self.set_string_relation("product//price", "a.pvp")
+        self.set_string_relation("product//price", "a.pvp")
 
         large_description = self.get_init_value("a.mgdescripcion")
         if large_description is False or large_description == "" or large_description is None or str(large_description) == "None":

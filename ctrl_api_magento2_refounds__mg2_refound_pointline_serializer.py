@@ -86,6 +86,7 @@ class Mg2RefoundPointLineSerializer(Mg2RefoundLineSerializer):
         return 1
 
     def crear_registro_puntos(self):
+        return True
         canPuntos = parseFloat(self.init_data["points_used"])
         if self.init_data["tipo_linea"] == "PuntosNegativos":
             canPuntos = canPuntos * (-1)

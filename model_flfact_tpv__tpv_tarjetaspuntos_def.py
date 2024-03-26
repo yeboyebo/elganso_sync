@@ -344,27 +344,31 @@ class elganso_sync(interna):
 
     def elganso_sync_consultapuntos(self, params):
         try:
+            # return {"Error": "Ahora no es posible realizar la consulta de puntos", "status": 0}
+            # print("entro en consultapuntos: " + str(qsatype.Date()))
             if "passwd" in params and params["passwd"] == self.params['auth']:
 
                 if "email" not in params:
                     return {"Error": "Formato Incorrecto", "status": 0}
-                email = params['email']
-
-                existe_tarjeta = qsatype.FLUtil.sqlSelect(u"tpv_tarjetaspuntos", u"codtarjetapuntos", ustr(u"email = '", email, u"'"))
+                email = str(params['email']).lower()
+                # print("saldo de consultapuntos: " + str(email))
+                existe_tarjeta = qsatype.FLUtil.sqlSelect(u"tpv_tarjetaspuntos", u"codtarjetapuntos", ustr(u"lower(email) = '", email, u"'"))
 
                 if not existe_tarjeta:
-                    if qsatype.FLUtil.sqlSelect(u"eg_logtarjetasweb", u"email", ustr(u"email = '", email, u"'")):
-                        if not qsatype.FLUtil.sqlSelect(u"eg_logtarjetasweb", "procesado", ustr(u"email = '", email, u"'")):
+                    if qsatype.FLUtil.sqlSelect(u"eg_logtarjetasweb", u"email", ustr(u"lower(email) = '", email, u"'")):
+                        if not qsatype.FLUtil.sqlSelect(u"eg_logtarjetasweb", "procesado", ustr(u"lower(email) = '", email, u"'")):
                             return {"Error": "Petición realizada, pendiente de creación", "status": 2}
                     return {"Error": "No se ha encontrado la tarjeta.", "status": 1}
 
-                es_empleado = qsatype.FLUtil.sqlSelect(u"tpv_tarjetaspuntos", u"deempleado", ustr(u"email = '", email, u"'"))
-                es_dtoespecial = qsatype.FLUtil.sqlSelect(u"tpv_tarjetaspuntos", u"dtoespecial", ustr(u"email = '", email, u"'"))
+                es_empleado = qsatype.FLUtil.sqlSelect(u"tpv_tarjetaspuntos", u"deempleado", ustr(u"lower(email) = '", email, u"' AND codtarjetapuntos = '", existe_tarjeta, u"'"))
+                es_dtoespecial = qsatype.FLUtil.sqlSelect(u"tpv_tarjetaspuntos", u"dtoespecial", ustr(u"lower(email) = '", email, u"' AND codtarjetapuntos = '", existe_tarjeta, u"'"))
                 dtopor = ""
                 if es_dtoespecial:
-                    dtopor = qsatype.FLUtil.sqlSelect(u"tpv_tarjetaspuntos", u"dtopor", ustr(u"email = '", email, u"'"))
+                    dtopor = qsatype.FLUtil.sqlSelect(u"tpv_tarjetaspuntos", u"dtopor", ustr(u"lower(email) = '", email, u"' AND codtarjetapuntos = '", existe_tarjeta, u"'"))
 
-                saldopuntos = qsatype.FLUtil.sqlSelect(u"tpv_tarjetaspuntos", u"saldopuntos", ustr(u"email = '", email, u"'"))
+                saldopuntos = qsatype.FLUtil.sqlSelect(u"tpv_tarjetaspuntos", u"saldopuntos", ustr(u"lower(email) = '", email, u"' AND codtarjetapuntos = '", existe_tarjeta, u"'"))
+                
+                # print("saldo de consultapuntos: " + str(qsatype.Date()))
                 return {"saldoPuntos": saldopuntos, "email": email, "codtarjetapuntos": existe_tarjeta, "esempleado": es_empleado, "esdtoespecial": es_dtoespecial, "dtopor": dtopor}
             else:
                 return {"Error": "Petición Incorrecta", "status": -1}
@@ -379,9 +383,9 @@ class elganso_sync(interna):
 
                 if "email" not in params:
                     return {"Error": "Formato Incorrecto", "status": 0}
-                email = params['email']
+                email = str(params['email']).lower()
 
-                existe_tarjeta = qsatype.FLUtil.sqlSelect(u"tpv_tarjetaspuntos", u"codtarjetapuntos", ustr(u"email = '", email, u"'"))
+                existe_tarjeta = qsatype.FLUtil.sqlSelect(u"tpv_tarjetaspuntos", u"codtarjetapuntos", ustr(u"lower(email) = '", email, u"'"))
 
                 if not existe_tarjeta:
                     return {"Error": "No se ha encontrado la tarjeta.", "status": 1}
@@ -389,7 +393,7 @@ class elganso_sync(interna):
                 q = qsatype.FLSqlQuery()
                 q.setSelect("m.idmovpuntos, m.operacion, m.fecha, m.canpuntos")
                 q.setFrom("tpv_tarjetaspuntos t inner join tpv_movpuntos m on t.codtarjetapuntos = m.codtarjetapuntos")
-                q.setWhere("t.email = '" + email + "' order by fecha,idmovpuntos")
+                q.setWhere("lower(t.email) = '" + email + "' AND t.codtarjetapuntos = '" + existe_tarjeta + "' order by fecha,idmovpuntos")
 
                 if not q.exec_():
                     return False
