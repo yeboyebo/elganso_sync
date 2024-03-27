@@ -35,7 +35,7 @@ class AzFeedResultGet(AzFeedsUpload, ABC):
         q = qsatype.FLSqlQuery()
         q.setSelect("idamazon")
         q.setFrom("az_logamazon")
-        q.setWhere("NOT procesadoaz ORDER BY fecha, hora LIMIT 1")
+        q.setWhere("NOT procesadoaz AND idamazon <> '-' ORDER BY fecha, hora LIMIT 1")
 
         return q
 
