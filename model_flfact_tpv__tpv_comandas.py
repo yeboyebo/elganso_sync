@@ -29,3 +29,7 @@ class elganso_sync_tpv_comandas(flfact_tpv_tpv_comandas, helpers.MixinConAccione
     def eglogpedidosb2b(params):
         return form.iface.eglogpedidosb2b(params)
 
+    @helpers.decoradores.csr()
+    def actualizarestadopaack(params):
+        return form.iface.actualizarestadopaack(params)
+

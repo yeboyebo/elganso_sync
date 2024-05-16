@@ -155,6 +155,43 @@ class elganso_sync(flfact_tpv):
             return {"Error": "Petición Incorrecta", "status": 0}
         return False
 
+    def elganso_sync_actualizarestadopaack(self, params):
+        print("ENTRA")
+        try:
+            if "auth" not in self.params:
+                self.params = syncppal.iface.get_param_sincro('apipass')
+            if "passwd" in params and params['passwd'] == self.params['auth']:
+                print(1)
+                if "numseguimiento" not in params:
+                    return {"Error": "Formato Incorrecto. No viene informado el parametro order", "status": 0}
+                print(2)
+                if "increment_id" not in params:
+                    return {"Error": "Formato Incorrecto. No viene el parametro increment_id dentro de order", "status": 0}
+
+                cod_documento = "WEB" + params["increment_id"]
+                print(cod_documento)
+                curSeguimientoEnvio = qsatype.FLSqlCursor("eg_seguimientoenvios")
+                curSeguimientoEnvio.select("coddocumento = '" + cod_documento + "' AND numseguimiento = '" + params["numseguimiento"] + "'")
+                if curSeguimientoEnvio.first():
+                    curSeguimientoEnvio.setModeAccess(curSeguimientoEnvio.Edit)
+                    curSeguimientoEnvio.refreshBuffer()
+                    curSeguimientoEnvio.setValueBuffer("informadocompleto", False)
+                    curSeguimientoEnvio.setValueBuffer("entregadomrw", True)
+                    curSeguimientoEnvio.setValueBuffer("fechaentregamrw", str(qsatype.Date())[:10])
+                    curSeguimientoEnvio.setValueBuffer("horaentregamrw", str(qsatype.Date())[-8:])
+                    if not curSeguimientoEnvio.commitBuffer():
+                        return {"Error": "Petición Incorrecta. No se ha podido guardar el registro", "status": 10}
+                else:
+                    return {"Error": "Petición Incorrecta. No se ha encontrado al registro", "status": 10}
+                return True
+            else:
+                return {"Error": "Petición Incorrecta", "status": 10}
+        except Exception as e:
+            print(e)
+            qsatype.debug(ustr(u"Error inesperado", e))
+            return {"Error": "Petición Incorrecta", "status": 0}
+        return False
+
     def __init__(self, context=None):
         super().__init__(context)
 
@@ -169,4 +206,7 @@ class elganso_sync(flfact_tpv):
 
     def eglogpedidosb2b(self, params):
         return self.ctx.elganso_sync_eglogpedidosb2b(params)
+
+    def actualizarestadopaack(self, params):
+        return self.ctx.elganso_sync_actualizarestadopaack(params)
 

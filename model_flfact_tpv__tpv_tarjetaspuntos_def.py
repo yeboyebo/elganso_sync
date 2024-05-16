@@ -260,7 +260,7 @@ class elganso_sync(interna):
         if "codtarjetapuntos" in params:
             q.setWhere("codtarjetapuntos = '" + str(params['codtarjetapuntos']) + "'")
         else:
-            q.setWhere("email = '" + str(params['email']) + "' limit 1")
+            q.setWhere("lower(email) = '" + str(params['email']).lower() + "' limit 1")
 
         if not q.exec_():
             return False
