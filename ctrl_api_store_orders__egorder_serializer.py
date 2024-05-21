@@ -35,6 +35,13 @@ class EgStoreOrderSerializer(DefaultSerializer):
             for field in motivo:
                 motivo[field] = self.format_value(field, motivo[field])
 
+        for datosenvio in self.init_data["datosenvio"]:
+            del datosenvio["iddatosenviocomanda"]
+
+            for field in datosenvio:
+                datosenvio[field] = self.format_value(field, datosenvio[field])
+
+
         self.set_string_value("datos", self.init_data, max_characters=None, skip_replace=True)
         self.set_string_value("estado", "PTE")
         self.set_string_value("fecha", qsatype.FactoriaModulos.get('flfactppal').iface.pub_dameFechaActual())

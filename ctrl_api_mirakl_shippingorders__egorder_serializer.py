@@ -260,7 +260,7 @@ class EgOrderSerializer(DefaultSerializer):
         q = qsatype.FLSqlQuery()
         q.setSelect(u"a.codpais, a.email, a.codalmacen, ac.porcentajeteorico, ac.importeventas")
         q.setFrom(u"almacenes a INNER JOIN almacenescanalweb ac ON a.codalmacen = ac.codalmacen")
-        q.setWhere(u"a.codalmacen IN ('" + almacenes_sincro_mk + "') ORDER BY ac.prioridadcanalweb")
+        q.setWhere(u"a.codalmacen IN ('" + almacenes_sincro_mk + "') AND ac.codcanalweb = 'WBNC' and ac.porcentajeteorico > 0 ORDER BY ac.prioridadcanalweb")
 
         q.exec_()
         print(q.sql())
