@@ -366,7 +366,7 @@ class elganso_sync(interna):
                 if es_dtoespecial:
                     dtopor = qsatype.FLUtil.sqlSelect(u"tpv_tarjetaspuntos", u"dtopor", ustr(u"lower(email) = '", email, u"' AND codtarjetapuntos = '", existe_tarjeta, u"'"))
 
-                saldopuntos = qsatype.FLUtil.sqlSelect(u"tpv_tarjetaspuntos", u"saldopuntos", ustr(u"lower(email) = '", email, u"' AND codtarjetapuntos = '", existe_tarjeta, u"'"))
+                saldopuntos = qsatype.FLUtil.sqlSelect(u"tpv_tarjetaspuntos", u"ROUND(CAST(saldopuntos AS NUMERIC),2)", ustr(u"lower(email) = '", email, u"' AND codtarjetapuntos = '", existe_tarjeta, u"'"))
                 
                 # print("saldo de consultapuntos: " + str(qsatype.Date()))
                 return {"saldoPuntos": saldopuntos, "email": email, "codtarjetapuntos": existe_tarjeta, "esempleado": es_empleado, "esdtoespecial": es_dtoespecial, "dtopor": dtopor}
