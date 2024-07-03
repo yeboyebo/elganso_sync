@@ -24,7 +24,8 @@ class Mg2PrerebajasUpload(ProductsUpload):
         self.cod_plan = ""
         self.sku = ""
         self.stores_id = []
-        self.articulos_sin_sincronizar = ""
+        self.articulos_no_existentes = ""
+        self.articulos_fallo_guardar = ""
 
     def get_db_data(self):
         body = []
@@ -55,15 +56,22 @@ class Mg2PrerebajasUpload(ProductsUpload):
         referencia = ""
         store_id = ""
         for row in data:
-            self.sku = row["at.referencia"]
             if referencia == "":
                 referencia = row["at.referencia"]
                 store_id = row["mg.idmagento"]
                 new_rebaja.append(self.get_configurable_prerebajas_serializer().serialize(row))
+                if self.sku == "":
+                    self.sku = "'" + row["at.referencia"] + "'"
+                else:
+                    self.sku += ",'" + row["at.referencia"] + "'"
 
             if referencia != row["at.referencia"]:
                 referencia = row["at.referencia"]
                 new_rebaja.append(self.get_configurable_prerebajas_serializer().serialize(row))
+                if self.sku == "":
+                    self.sku = "'" + row["at.referencia"] + "'"
+                else:
+                    self.sku += ",'" + row["at.referencia"] + "'"
             else:
                 if store_id != row["mg.idmagento"]:
                     new_rebaja.append(self.get_configurable_prerebajas_serializer().serialize(row))
@@ -86,26 +94,25 @@ class Mg2PrerebajasUpload(ProductsUpload):
         
         for idx in range(len(data["promoPrices"])):
             del data["promoPrices"][idx]["children"]
-        print("DATA: " + json.dumps(data))
-        print("URL: " + product_url)
+
         try:
             result = self.send_request("post", url=product_url, data=json.dumps(data))
-            """result = {
-                "result": True,
-                "mssg": "{\"articulos_sincronizados\":\"Se han sincronizado 14 referencias\",\"articulos_no_existentes_en_magento\":[\"NOEXIST\",\"NOEXIST\"]}"
-            }"""
-            print(str(result))
-            print(str(result["result"]))
+ 
             articulos_sincro = json.loads(result["mssg"])
-            print(str(articulos_sincro["articulos_no_existentes_en_magento"]))  
-            print(len(articulos_sincro["articulos_no_existentes_en_magento"]))  
-            for articulo in range(len(articulos_sincro["articulos_no_existentes_en_magento"])):
-                print(articulo)
-                if self.articulos_sin_sincronizar == "":
-                    self.articulos_sin_sincronizar = "'" + articulos_sincro["articulos_no_existentes_en_magento"][articulo] + "'"
-                else:
-                    self.articulos_sin_sincronizar += ",'" + articulos_sincro["articulos_no_existentes_en_magento"][articulo] + "'"
-            print(self.articulos_sin_sincronizar)
+            if "articulos_no_existentes_en_magento" in articulos_sincro:
+                for articulo in range(len(articulos_sincro["articulos_no_existentes_en_magento"])):
+                    if self.articulos_no_existentes == "":
+                        self.articulos_no_existentes = "'" + articulos_sincro["articulos_no_existentes_en_magento"][articulo] + "'"
+                    else:
+                        self.articulos_no_existentes += ",'" + articulos_sincro["articulos_no_existentes_en_magento"][articulo] + "'"
+
+            if "articulos_fallo_guardar" in articulos_sincro:
+                for articulo in range(len(articulos_sincro["articulos_fallo_guardar"])):
+                    if self.articulos_fallo_guardar == "":
+                        self.articulos_fallo_guardar = "'" + articulos_sincro["articulos_fallo_guardar"][articulo] + "'"
+                    else:
+                        self.articulos_fallo_guardar += ",'" + articulos_sincro["articulos_fallo_guardar"][articulo] + "'"
+                    
             if(str(result) == "False"):
                 self.error = True
         except Exception as e:
@@ -115,14 +122,19 @@ class Mg2PrerebajasUpload(ProductsUpload):
         return True
 
     def after_sync(self, response_data=None):
-        
+
         if self.error:
             self.log("Error", "No se pudo sincronizar las Pre-rebajas del planificador: " + str(self.cod_plan) + " y ref.:" + str(self.sku) + ")")
             return self.small_sleep
 
-        qsatype.FLSqlQuery().execSql("UPDATE lineassincro_planpreciosprerebajas SET sincronizado = TRUE, descripcionsincro = 'CORRECTO' WHERE codplan = '" + str(self.cod_plan) + "' AND sku IN ('" + str(self.sku) + "') AND sku NOT IN (" + str(self.articulos_sin_sincronizar) + ")")
-        qsatype.FLSqlQuery().execSql("UPDATE lineassincro_planpreciosprerebajas SET descripcionsincro = 'No existe en Magento' WHERE codplan = '" + str(self.cod_plan) + "' AND sku IN (" + str(self.articulos_sin_sincronizar) + ")")
+        qsatype.FLSqlQuery().execSql("UPDATE lineassincro_planpreciosprerebajas SET sincronizado = TRUE, descripcionsincro = 'CORRECTO' WHERE codplan = '" + str(self.cod_plan) + "' AND sku IN (" + str(self.sku) + ")")
 
-        self.log("Exito", "Plan Precios PreRebajas " + str(self.cod_plan) + " y ref.: " + str(self.sku) + " sincronizado correctamente.")
+        if str(self.articulos_no_existentes) != "":
+            qsatype.FLSqlQuery().execSql("UPDATE lineassincro_planpreciosprerebajas SET descripcionsincro = 'Articulo no existe en Magento' WHERE codplan = '" + str(self.cod_plan) + "' AND sku IN (" + str(self.articulos_no_existentes) + ")")
+        
+        if str(self.articulos_fallo_guardar) != "":
+            qsatype.FLSqlQuery().execSql("UPDATE lineassincro_planpreciosprerebajas SET descripcionsincro = 'Fallo al guardar el articulo' WHERE codplan = '" + str(self.cod_plan) + "' AND sku IN (" + str(self.articulos_fallo_guardar) + ")")
+
+        self.log("Exito", "Plan Precios PreRebajas " + str(self.cod_plan) + " sincronizado correctamente.")
 
         return self.small_sleep
