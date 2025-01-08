@@ -18,7 +18,7 @@ class Mg2DeleteTierPriceUpload(TierpriceUpload):
         self.delete_tierprice_test_url = delete_tierprice_params['test_url']
 
         self.set_sync_params(self.get_param_sincro('mg2'))
-        self.small_sleep = 1
+        self.small_sleep = 3
 
     def get_data(self):
         data = self.get_db_data()
@@ -55,9 +55,9 @@ class Mg2DeleteTierPriceUpload(TierpriceUpload):
         if data:
             result = True
             try:
-                print("DATA: ", json.dumps(data))
-                print("URL: ", delete_tierprice_url.format("es"))
-                result = self.send_request("post", url=delete_tierprice_url.format("es"), data=json.dumps(data))
+                #print("DATA: ", json.dumps(data))
+                #print("URL: ", delete_tierprice_url.format("es"))
+                result = self.send_request("post", url=delete_tierprice_url.format("all"), data=json.dumps(data))
                 print("RESULT: ", str(result))
             except Exception as e:
                 print(str(e))
@@ -70,9 +70,9 @@ class Mg2DeleteTierPriceUpload(TierpriceUpload):
         q = qsatype.FLSqlQuery()
         q.setSelect("id, referencia, talla, pvp, website, codgrupo")
         q.setFrom("lineassincro_eliminarplanpreciosmagento")
-        q.setWhere("sincronizado = FALSE AND (hasta < CURRENT_DATE OR (hasta = CURRENT_DATE AND horahasta <= CURRENT_TIME)) ORDER BY id LIMIT 1000")
+        q.setWhere("sincronizado = FALSE AND (hasta < CURRENT_DATE OR (hasta = CURRENT_DATE AND horahasta <= CURRENT_TIME)) AND codplan || website || codgrupo IN (SELECT l.codplan || l.website || l.codgrupo FROM lineassincro_eliminarplanpreciosmagento l WHERE l.sincronizado = FALSE AND (l.hasta < CURRENT_DATE OR (l.hasta = CURRENT_DATE AND l.horahasta <= CURRENT_TIME)) group by l.codplan || l.website || l.codgrupo order by l.codplan || l.website || l.codgrupo desc LIMIT 1) ORDER BY website, codplan, codgrupo, referencia, id LIMIT 200")
         
-        print("CONSULTA: ", q.sql())
+        # print("CONSULTA: ", q.sql())
 
         q.exec_()
 
@@ -87,7 +87,7 @@ class Mg2DeleteTierPriceUpload(TierpriceUpload):
         return DeleteTierpriceSerializer()
 
     def after_sync(self, response_data=None):
-        print("SSW: ", self._ssw)
+        # print("SSW: ", self._ssw)
         if self.error:
             self.log("Error", "No se pudo eliminar las líneas de planificador: {})".format(self._ssw))
             return self.small_sleep

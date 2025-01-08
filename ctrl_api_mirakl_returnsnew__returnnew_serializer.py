@@ -25,7 +25,7 @@ class ReturnNewSerializer(DefaultSerializer):
         if not qC.first():
             syncppal.iface.log("Error. No se encontró la venta original para {}".format(self.init_data["idventaweb"]), "egmiraklreturns")
             return False
-
+        print("llega al serializer")
         codigo = self.get_codigo()
         self.set_string_value("codigo", codigo, max_characters=15)
 

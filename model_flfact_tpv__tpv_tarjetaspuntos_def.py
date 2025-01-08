@@ -230,7 +230,12 @@ class elganso_sync(interna):
                     return {"Error": "Formato Incorrecto. Falta la operacion en los parametros", "status": -1}
                 if "canpuntos" not in params:
                     return {"Error": "Formato Incorrecto. Falta la cantidad de puntos en los parametros", "status": -1}
-
+                
+                #print(str(params['operacion'])[3:len(str(params['operacion']))])
+                
+                #if str(params['operacion'])[0:3] != "WEB" and str(params['operacion'])[0:3] != "WDV":
+                    #return {"Error": "Operación Incorrecta.", "status": -1}
+                
                 params['saldo'] = 0
                 if not self.acumularPuntosOperacionesMagento(params):
                     return False
@@ -253,6 +258,7 @@ class elganso_sync(interna):
         return True
 
     def elganso_sync_acumularPuntosOperacionesMagento(self, params):
+        
         curTpvTarjetas = qsatype.FLSqlCursor("tpv_tarjetaspuntos")
         q = qsatype.FLSqlQuery()
         q.setSelect("codtarjetapuntos, saldopuntos")
@@ -274,7 +280,7 @@ class elganso_sync(interna):
                 return False
             
             params["saldo"] = q.value("saldopuntos")
-            idMovPuntos = qsatype.FLUtil.sqlSelect("tpv_movpuntos", "idmovpuntos", "canpuntos = " + params['canpuntos'] + " AND operacion = '" + str(params['operacion']) + "'")
+            idMovPuntos = qsatype.FLUtil.sqlSelect("tpv_movpuntos", "idmovpuntos", "canpuntos = " + str(params['canpuntos']) + " AND operacion = '" + str(params['operacion']) + "'")
             
             if idMovPuntos:
                 return True
@@ -379,6 +385,7 @@ class elganso_sync(interna):
 
     def elganso_sync_consultamovimientospuntos(self, params):
         try:
+            # return {"Error": "Ahora no es posible realizar la consulta de movimientos de puntos", "status": 0}
             if "passwd" in params and params["passwd"] == self.params['auth']:
 
                 if "email" not in params:
@@ -413,6 +420,76 @@ class elganso_sync(interna):
             qsatype.debug(ustr(u"Error inesperado consulta de puntos: ", e))
             return {"Error": params, "status": -2}
         return False
+
+    def elganso_sync_creartarjetafidelizacion(self, params):
+        try:
+            if "passwd" in params and params["passwd"] == self.params['auth']:
+                if "email" not in params:
+                    return {"Error": "No se ha introducido el email de la Tarjeta.", "status": 0}
+
+                if "codtarjetapuntos" not in params:
+                    return {"Error": "No se ha encontrado el código de la Tarjeta.", "status": 0}
+                
+                email = str(params['email']).lower()
+                cifnif = str(params['cifnif']).lower()
+                telefono = str(params['telefono']).lower()
+
+                existe_tarjeta_email = qsatype.FLUtil.sqlSelect("tpv_tarjetaspuntos", "codtarjetapuntos", "LOWER(email) = '" + str(email) + "' AND codtarjetapuntos <> '" + str(params['codtarjetapuntos']) + "'")
+                if existe_tarjeta_email:
+                    return {"Error": "Ya existe la tarjeta " + existe_tarjeta_email + " con el email " + str(email) + " en Central.", "status": 0}
+
+                existe_tarjeta_cifnif = qsatype.FLUtil.sqlSelect("tpv_tarjetaspuntos", "codtarjetapuntos", "((lower(cifnif) = '" + cifnif + "') OR ('0' || lower(cifnif) = '" + cifnif + "')) AND codtarjetapuntos <> '" + str(params['codtarjetapuntos']) + "'")
+                if existe_tarjeta_cifnif:
+                    return {"Error": "Ya existe la tarjeta " + existe_tarjeta_cifnif + " con el cifnif " + str(cifnif) + " en Central.", "status": 0}
+
+                existe_tarjeta_telefono = qsatype.FLUtil.sqlSelect("tpv_tarjetaspuntos", "codtarjetapuntos", "lower(telefono) = '" + telefono + "' AND codtarjetapuntos <> '" + str(params['codtarjetapuntos']) + "'")
+                if existe_tarjeta_telefono:
+                    return {"Error": "Ya existe la tarjeta " + existe_tarjeta_telefono + " con el telefono " + str(telefono) + " en Central.", "status": 0}
+
+                curTpvTarjetas = qsatype.FLSqlCursor("tpv_tarjetaspuntos")
+                curTpvTarjetas.setModeAccess(curTpvTarjetas.Insert)
+                curTpvTarjetas.setActivatedCommitActions(False)
+                curTpvTarjetas.refreshBuffer()
+                curTpvTarjetas.setValueBuffer("direccion", params['direccion']);
+                curTpvTarjetas.setValueBuffer("sexo", params['sexo']);
+                curTpvTarjetas.setValueBuffer("fechanacimiento", params['fechanacimiento']);
+                curTpvTarjetas.setValueBuffer("codbarrastarjeta", params['codtarjetapuntos']);
+                curTpvTarjetas.setValueBuffer("dtoespecial", params['dtoespecial']);
+                curTpvTarjetas.setValueBuffer("horaalta", params['horaalta']);
+                curTpvTarjetas.setValueBuffer("horamod", params['horamod']);
+                curTpvTarjetas.setValueBuffer("activa", True);
+                curTpvTarjetas.setValueBuffer("codtarjetapuntos", params['codtarjetapuntos']);
+                curTpvTarjetas.setValueBuffer("codpais", params['codpais']);
+                curTpvTarjetas.setValueBuffer("email", email);
+                curTpvTarjetas.setValueBuffer("saldopuntos", 0);
+                curTpvTarjetas.setValueBuffer("cifnif", params['cifnif']);
+                curTpvTarjetas.setValueBuffer("dtopor", params['dtopor']);
+                curTpvTarjetas.setValueBuffer("topemensual", params['topemensual']);
+                curTpvTarjetas.setValueBuffer("deempleado", params['deempleado']);
+                curTpvTarjetas.setValueBuffer("eg_emailbienvenida", False);
+                curTpvTarjetas.setValueBuffer("nombre", params['nombre']);
+                curTpvTarjetas.setValueBuffer("anulada", params['anulada']);
+                curTpvTarjetas.setValueBuffer("telefono", params['telefono']);
+                curTpvTarjetas.setValueBuffer("suscritocrm", True);
+                curTpvTarjetas.setValueBuffer("saldopuntossinc", 0);
+                curTpvTarjetas.setValueBuffer("fechaalta", params['fechaalta']);
+                curTpvTarjetas.setValueBuffer("codpostal", params['codpostal']);
+                curTpvTarjetas.setValueBuffer("fechamod", params['fechamod']);
+                curTpvTarjetas.setValueBuffer("ciudad", params['ciudad']);
+                curTpvTarjetas.setValueBuffer("sincronizada", True);
+                curTpvTarjetas.setValueBuffer("idusuarioalta", params['idusuarioalta']);
+                curTpvTarjetas.setValueBuffer("provincia", params['provincia']);
+                curTpvTarjetas.setValueBuffer("idprovincia", params['idprovincia']);
+
+                if not curTpvTarjetas.commitBuffer():
+                    return {"Error": "No se ha podido crear la Tarjeta de Fidelizacion en Central. Contacte con Soporte.", "status": 0}
+
+                return {"CodTarjetaPuntos": params['codtarjetapuntos']}
+
+        except Exception as e:
+            return {"Error": "Error inesperado al crear la Tarjeta de Fidelizacion", "status": -2}
+
+        return True
 
     def __init__(self, context=None):
         super().__init__(context)
@@ -449,6 +526,9 @@ class elganso_sync(interna):
 
     def consultamovimientospuntos(self, params):
         return self.ctx.elganso_sync_consultamovimientospuntos(params)
+
+    def creartarjetafidelizacion(self, params):
+        return self.ctx.elganso_sync_creartarjetafidelizacion(params)
 
 
 # @class_declaration head #

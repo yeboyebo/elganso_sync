@@ -48,6 +48,10 @@ class elganso_sync_tpv_tarjetaspuntos(interna_tpv_tarjetaspuntos, helpers.MixinC
     def consultamovimientospuntos(params):
         return form.iface.consultamovimientospuntos(params)
 
+    @helpers.decoradores.csr()
+    def creartarjetafidelizacion(params):
+        return form.iface.creartarjetafidelizacion(params)
+
 
 # @class_declaration tpv_tarjetaspuntos #
 class tpv_tarjetaspuntos(elganso_sync_tpv_tarjetaspuntos, helpers.MixinConAcciones):

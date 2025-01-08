@@ -125,6 +125,7 @@ class AzReturnsResultGet(DownloadSync, ABC):
 
         if self.idamazon:
             self.log("Exito", "Las siguientes devoluciones se han sincronizado correctamente: {}".format(self.idamazon))
+            return self.small_sleep
         else:
             self.log("Exito", "No hay datos que sincronizar")
 

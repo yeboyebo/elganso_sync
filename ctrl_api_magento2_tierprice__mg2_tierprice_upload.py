@@ -56,7 +56,7 @@ class Mg2TierpriceUpload(TierpriceUpload):
             try:
                 print("DATA: ", json.dumps(data))
                 print("URL: ", tierprice_url.format("es"))
-                result = self.send_request("post", url=tierprice_url.format("es"), data=json.dumps(data))
+                result = self.send_request("post", url=tierprice_url.format("all"), data=json.dumps(data))
                 ### self.send_request("post", url=tierprice_url.format("fr"), data=json.dumps(data))
                 ### self.send_request("post", url=tierprice_url.format("en"), data=json.dumps(data))
                 ## result = self.send_request("post", url=delete_tierprice_url.format("es"), data=json.dumps(data))
@@ -74,9 +74,9 @@ class Mg2TierpriceUpload(TierpriceUpload):
         q = qsatype.FLSqlQuery()
         q.setSelect("id, referencia, talla, pvp, website, codgrupo")
         q.setFrom("lineassincro_planpreciosmagento")
-        q.setWhere("sincronizado = FALSE AND activo AND (desde < CURRENT_DATE OR (desde = CURRENT_DATE AND horadesde <= CURRENT_TIME)) ORDER BY id LIMIT 1000")
+        q.setWhere("sincronizado = FALSE AND activo AND (desde < CURRENT_DATE OR (desde = CURRENT_DATE AND horadesde <= CURRENT_TIME)) AND codplan || website || codgrupo IN (SELECT l.codplan || l.website || l.codgrupo FROM lineassincro_planpreciosmagento l WHERE l.sincronizado = FALSE AND l.activo AND (l.desde < CURRENT_DATE OR (l.desde = CURRENT_DATE AND l.horadesde <= CURRENT_TIME)) group by l.codplan || l.website || l.codgrupo order by l.codplan || l.website || l.codgrupo desc LIMIT 1) ORDER BY website, codplan, codgrupo, referencia, id LIMIT 200")
         
-        print("CONSULTA: ", q.sql())
+        #print("CONSULTA: ", q.sql())
 
         q.exec_()
 

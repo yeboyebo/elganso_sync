@@ -1600,6 +1600,10 @@
             {
                 "name": "model_flfactppal__clientes.py",
                 "path": "models/flfactppal/"
+            },
+            {
+                "name": "ctrl_base_mirakl_orders__order_shippingline_serializer.py",
+                "path": "controllers/base/mirakl/orders/serializers/"
             }
         ]
     }

@@ -11,13 +11,15 @@ class Mg2DiscountUnknownLineSerializer(Mg2OrderLineSerializer):
 
     def get_data(self):
         tasaconv = self.init_data["tasaconv"]
-
+        print("////////////////////////////////////////////1")
         dto = 0
         if "discount_amount" in self.init_data:
             dto = self.init_data["discount_amount"]
+        print("////////////////////////////////////////////1")
 
         if not dto or dto == 0 or dto == "0.0000" or dto == "0.00":
             return False
+        print("////////////////////////////////////////////1")
 
         importe_puntos = 0
         if "puntos_gastados" in self.init_data:

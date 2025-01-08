@@ -35,7 +35,7 @@ class EgMiraklReturnsNewDownload(ReturnsDownload):
         else:
             self.fecha_sincro = "2024-01-26T00:00:01Z"
 
-
+        #print("Fecha Sincro: " + self.fecha_sincro)
         # Tmp. Para pruebas. Quitar en producción
         # self.fecha_sincro = "2021-08-30T00:00:01Z"
         result = self.send_request("get", url=returns_url.format(self.fecha_sincro))
@@ -56,17 +56,25 @@ class EgMiraklReturnsNewDownload(ReturnsDownload):
                     continue
 
                 bodyMensaje = str(data["body"])
-                print("*******BODYMENSAJE 1******: ", bodyMensaje)
+                # print("*******BODYMENSAJE 1******: ", bodyMensaje)
                 bodyMensaje = bodyMensaje.replace("\"", "__aqcomillas__")
                 bodyMensaje = bodyMensaje.replace("'", "\"")
                 bodyMensaje = bodyMensaje.replace("__aqcomillas__", "'")
                 mensajeDevol = json.loads(bodyMensaje)
-                fecha = data["date_created"]
+                fecha = str(data["date_created"])[0:19] + "Z"
+                data["date_created"] = fecha
+                #print("Fecha JSON: " + fecha)
                 if self.fecha_sincro != "":
                     if fecha > self.fecha_sincro:
                         self.fecha_sincro = fecha
                 else:
                     self.fecha_sincro = fecha
+                #print("Fecha JSON 2: " + self.fecha_sincro)
+                if "message" not in mensajeDevol:
+                    continue
+                if "type" not in mensajeDevol['message']:
+                    continue
+                        
                 tipoMsg = str(mensajeDevol['message']['type'])
                 if tipoMsg != "R10" and tipoMsg != "R02":
                     continue
@@ -74,6 +82,7 @@ class EgMiraklReturnsNewDownload(ReturnsDownload):
                 if self.process_data(data):
                     self.success_data.append(data)
             except Exception as e:
+                print("exception")
                 self.sync_error(data, e)
 
         if not self.guarda_fechasincrotienda(self.esquema, self.codtienda):
@@ -90,7 +99,7 @@ class EgMiraklReturnsNewDownload(ReturnsDownload):
         if not data:
             self.error_data.append(data)
             return False
-
+        #print("PROCESS_DATA: " + str(data))
         idComandaO = qsatype.FLUtil.quickSqlSelect("ew_ventaseciweb", "idtpv_comanda", "idweb = '{}'".format(data["order_id"]))
 
         bodyMensaje = str(data["body"])
@@ -99,6 +108,7 @@ class EgMiraklReturnsNewDownload(ReturnsDownload):
         bodyMensaje = bodyMensaje.replace("'", "\"")
         bodyMensaje = bodyMensaje.replace("__aqcomillas__", "'")
         mensajeDevol = json.loads(bodyMensaje)
+        
         for devolucion in mensajeDevol['message']['returns']:
             barcode = str(devolucion["ean"])
             cantidad = float(devolucion["quantity"])
@@ -107,6 +117,24 @@ class EgMiraklReturnsNewDownload(ReturnsDownload):
                 cantDev = 0
 
             if cantDev >= cantidad:
+                idComanda = qsatype.FLUtil.quickSqlSelect("ew_ventaseciweb v inner join tpv_comandas c on v.idtpv_comanda = c.idtpv_comanda inner join tpv_lineascomanda l on c.idtpv_comanda = l.idtpv_comanda inner join tpv_comandas c2 on c.codigo = c2.codcomandadevol inner join tpv_lineascomanda l2 on c2.idtpv_comanda = l2.idtpv_comanda and l.barcode = l2.barcode left join ew_devolucioneseciweb d on c2.idtpv_comanda = d.idtpv_comanda", "l2.idtpv_comanda", "v.idweb = '{}' AND d.idventaweb IS NULL".format(str(data["order_id"])))
+                
+                # select c2.codigo, l2.idtpv_comanda from ew_ventaseciweb v inner join tpv_comandas c on v.idtpv_comanda = c.idtpv_comanda inner join tpv_lineascomanda l on c.idtpv_comanda = l.idtpv_comanda inner join tpv_comandas c2 on c.codigo = c2.codcomandadevol inner join tpv_lineascomanda l2 on c2.idtpv_comanda = l2.idtpv_comanda and l.barcode = l2.barcode left join ew_devolucioneseciweb d on c2.idtpv_comanda = d.idtpv_comanda where v.idweb = '00100900698008920240714121918_1-A' and d.idventaweb is null;
+                    
+                if idComanda:                    
+                    if str(idComanda) != "None":
+                        # print(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: " + str(data["order_id"]) + " idComanda:" + str(idComanda))
+                        data["valdemoro"] = False
+                        eciweb_data = DevolucioneseciwebSerializer().serialize(data)
+
+                        eciweb_data["idtpv_comanda"] = idComanda
+                        eciweb_data["datosdevol"] = data["body"]
+
+                        devoleciweb = EwDevolucioneseciweb(eciweb_data)
+                        devoleciweb.save()
+                    
+                        return True
+                
                 self.log("Error", "La línea con barcode {} de la venta {} ya ha sido procesada".format(barcode, data["order_id"]))
                 return False
 
@@ -168,11 +196,14 @@ class EgMiraklReturnsNewDownload(ReturnsDownload):
         return self.large_sleep
 
     def guarda_fechasincrotienda(self, esquema, codtienda):
+        print("guarda")
         fecha = str(self.fecha_sincro)[:10]
 
         fechaSeg = datetime.strptime(self.fecha_sincro, '%Y-%m-%dT%H:%M:%SZ')
-        fecha1Seg = fechaSeg + timedelta(seconds=1)
-        hora = str(fecha1Seg)[11:19]
+        #fecha1Seg = fechaSeg + timedelta(seconds=1)
+        fecha5Minutos = fechaSeg - timedelta(minutes=5)
+        
+        hora = str(fecha5Minutos)[11:19]
 
         #idsincro = qsatype.FLUtil.sqlSelect("tpv_fechasincrotienda", "id", "esquema = '{}' AND codtienda = '{}'".format(esquema, codtienda))
         qsatype.FLSqlQuery().execSql("UPDATE tpv_fechasincrotienda SET fechasincro = '{}', horasincro = '{}' WHERE esquema = '{}' AND codtienda = '{}'".format(fecha, hora, esquema, codtienda))

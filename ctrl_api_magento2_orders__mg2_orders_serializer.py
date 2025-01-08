@@ -553,6 +553,19 @@ class Mg2OrdersSerializer(DefaultSerializer):
         if self.barcodes_lineas == "":
             return True
 
+        soloIdl = "True"
+        paisEnv = jsonDatos["shipping_address"]["country_id"]
+        print("paisEnv: " + paisEnv)
+        aPaisesUE = ['AT','BE','BG','CZ','DE','DK','EE','FI','FR','GG','GR','HR','HU','IE','IT','JE','LI','LT','LU','LV','MC','NL','NO','PL','PT','RO','SE','SI','SK','SM','ES']
+
+        for pais in aPaisesUE:
+            if pais == paisEnv:
+                soloIdl = "False"
+        print("========================================================== soloIdl: " + str(soloIdl))
+        
+        if str(soloIdl) == "True":
+            return True
+
         almacenes = self.dame_almacenes(jsonDatos)
 
         def puntua_combinacion(combinacion):
@@ -605,6 +618,19 @@ class Mg2OrdersSerializer(DefaultSerializer):
         codpago = self.get_codpago()
         if str(codpago) == "CREE":
             return True
+            
+        """soloIdl = "True"
+        paisEnv = jsonDatos["shipping_address"]["country_id"]
+        print("paisEnv: " + paisEnv)
+        aPaisesUE = ['AT','BE','BG','CZ','DE','DK','EE','FI','FR','GG','GR','HR','HU','IE','IT','JE','LI','LT','LU','LV','MC','NL','NO','PL','PT','RO','SE','SI','SK','SM','ES']
+
+        for pais in aPaisesUE:
+            if pais == paisEnv:
+                soloIdl = "False"
+        print("========================================================== soloIdl: " + str(soloIdl))
+        
+        if soloIdl == "True":
+            return True"""
 
         oCanales = json.loads(qsatype.FLUtil.sqlSelect("param_parametros", "valor", "nombre = 'CANALES_WEB'"))
         almacenes = ""
