@@ -1005,6 +1005,14 @@ class Mg2RefoundsSerializer(DefaultSerializer):
         return "{}{}".format(prefix, qsatype.FactoriaModulos.get("flfactppal").iface.cerosIzquierda(str(ultima_factura), 12 - len(prefix)))
 
     def crear_registro_puntos(self, codigo):
+        tasaconv = 1
+        divisa = str(self.init_data["currency"])
+
+        if divisa:
+            if divisa != "None" and divisa == "CLP":
+                tasaconv = qsatype.FLUtil.quickSqlSelect("divisas", "tasaconv", "coddivisa = '{}'".format(divisa))
+                if not tasaconv:
+                    tasaconv = 1
 
         if "points_used" in self.init_data:
             if parseFloat(self.init_data["points_used"]) != 0:
@@ -1016,7 +1024,7 @@ class Mg2RefoundsSerializer(DefaultSerializer):
                 curMP.setValueBuffer("fecha", str(qsatype.Date())[:10])
                 curMP.setValueBuffer("fechamod", str(qsatype.Date())[:10])
                 curMP.setValueBuffer("horamod", self.get_hora(str(qsatype.Date())))
-                curMP.setValueBuffer("canpuntos", parseFloat(self.init_data["points_used"]))
+                curMP.setValueBuffer("canpuntos", parseFloat(self.init_data["points_used"]) * tasaconv)
                 curMP.setValueBuffer("operacion", codigo)
                 curMP.setValueBuffer("sincronizado", False)
                 curMP.setValueBuffer("codtienda", "AWEB")
@@ -1080,7 +1088,7 @@ class Mg2RefoundsSerializer(DefaultSerializer):
                     curMP.setValueBuffer("fecha", str(qsatype.Date())[:10])
                     curMP.setValueBuffer("fechamod", str(qsatype.Date())[:10])
                     curMP.setValueBuffer("horamod", self.get_hora(str(qsatype.Date())))
-                    curMP.setValueBuffer("canpuntos", parseFloat(self.init_data["points_earn"]))
+                    curMP.setValueBuffer("canpuntos", parseFloat(self.init_data["points_earn"])  * tasaconv)
                     curMP.setValueBuffer("operacion", codigo)
                     curMP.setValueBuffer("sincronizado", False)
                     curMP.setValueBuffer("codtienda", "AWEB")

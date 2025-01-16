@@ -38,6 +38,7 @@ from controllers.api.mirakl.returnsvaldemoro.controllers.eg_returnsvaldemoro_dow
 from controllers.api.mirakl.returnsvaldemoroid.controllers.eg_returnsvaldemoroid_download import EgMiraklReturnsValdemoroIdDownload
 from controllers.api.mirakl.offersdate.controllers.eg_offersdate_upload import EgMiraklOffersDateUpload
 from controllers.api.mirakl.returnsnew.controllers.eg_returnsnew_download import EgMiraklReturnsNewDownload
+from controllers.api.mirakl.returns_id.controllers.eg_returnsid_download import EgMiraklReturnsIdDownload
 
 # Amazon
 from controllers.api.amazon.products.controllers.az_products_upload import AzProductsUpload
@@ -182,6 +183,9 @@ sync_object_dict = {
     },
     "mirakl_returnsnew_download": {
         "sync_object": EgMiraklReturnsNewDownload
+    },
+    "mirakl_returnsid_download": {
+        "sync_object": EgMiraklReturnsIdDownload
     },
     "amazon_feedresult_process": {
         "sync_object": AzFeedResultProcess

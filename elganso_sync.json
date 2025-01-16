@@ -1459,6 +1459,14 @@
             {
                 "name": "model_flfact_tpv__vp_articulosprivalia_def.py",
                 "path": "models/flfact_tpv/"
+            },
+            {
+                "name": "ctrl_api_mirakl_returns_id__download.py",
+                "path": "controllers/api/mirakl/returns_id/"
+            },
+            {
+                "name": "ctrl_api_mirakl_returns_id__eg_returnsid_download.py",
+                "path": "controllers/api/mirakl/returns_id/controllers/"
             }
         ],
         "deleteFile": [],

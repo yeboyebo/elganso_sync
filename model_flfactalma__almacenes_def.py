@@ -118,28 +118,31 @@ class elganso_sync(flfactalma):
             if "auth" not in self.params:
                 self.params = syncppal.iface.get_param_sincro('apipass')
             if "passwd" in params and params['passwd'] == self.params['auth']:
-                if "sku" not in params:
-                    return {"Error": "Formato Incorrecto. Falta el parámetro sku", "status": 10}
+                if "sku" not in params and "skus" not in params:
+                    return {"Error": "Formato Incorrecto. Falta el parámetro sku o skus si es array", "status": 10}
+                referencias = ""
+                if "sku" in params:
+                    splitted_sku = str(params["sku"]).split("-")
 
-                splitted_sku = str(params["sku"]).split("-")
+                    if len(splitted_sku) > 0:
+                        referencias = referencias + str(splitted_sku[0]) + "','"
 
-                referencia = ""
-                talla = "TU"
+                if "skus" in params:
+                    for idx in range(len(params["skus"])):
+                        sku = params["skus"][idx]
+                        splitted_sku = str(sku).split("-")
 
-                if len(splitted_sku) == 2:
-                    referencia = str(splitted_sku[0])
-                    talla = str(splitted_sku[1])
-                elif len(splitted_sku) == 1:
-                    referencia = str(splitted_sku[0])
-                else:
-                    return {"Error": "Formato del SKU incorrecto", "status": 2}
+                        if len(splitted_sku) > 0:
+                            referencias = referencias + str(splitted_sku[0]) + "','"
 
+                if referencias == "":
+                    return {"Error": "Formato SKU no localizado", "status": 2}
 
                 q = qsatype.FLSqlQuery()
                 q.setSelect("referencia,talla,disponible")
                 q.setFrom("stocks")
                 #q.setWhere("referencia = '" + referencia + "' AND talla <> '" + talla + "' AND codalmacen = 'AWEB' AND disponible > 0 ")
-                q.setWhere("referencia = '" + referencia + "' AND codalmacen = 'AWEB' AND disponible > 0 ")
+                q.setWhere("referencia IN ('" + referencias + "') AND referencia <> '' AND codalmacen = 'AWEB' AND disponible > 0 ORDER BY referencia, talla")
 
                 if not q.exec_():
                     return {"Error": "Error en la consulta", "status": -1}
