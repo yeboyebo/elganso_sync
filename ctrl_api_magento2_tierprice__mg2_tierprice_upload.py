@@ -62,9 +62,9 @@ class Mg2TierpriceUpload(TierpriceUpload):
                 ## result = self.send_request("post", url=delete_tierprice_url.format("es"), data=json.dumps(data))
                 print("RESULT: ", result)
             except Exception as e:
-                # print(str(e))
-                # print("exception")
-                # print(json.dumps(e))
+                print(str(e))
+                print("exception")
+                #print(json.dumps(e))
                 self.error = True
 
         return data

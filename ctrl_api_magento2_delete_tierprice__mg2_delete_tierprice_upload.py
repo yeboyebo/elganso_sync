@@ -70,7 +70,7 @@ class Mg2DeleteTierPriceUpload(TierpriceUpload):
         q = qsatype.FLSqlQuery()
         q.setSelect("id, referencia, talla, pvp, website, codgrupo")
         q.setFrom("lineassincro_eliminarplanpreciosmagento")
-        q.setWhere("sincronizado = FALSE AND (hasta < CURRENT_DATE OR (hasta = CURRENT_DATE AND horahasta <= CURRENT_TIME)) AND codplan || website || codgrupo IN (SELECT l.codplan || l.website || l.codgrupo FROM lineassincro_eliminarplanpreciosmagento l WHERE l.sincronizado = FALSE AND (l.hasta < CURRENT_DATE OR (l.hasta = CURRENT_DATE AND l.horahasta <= CURRENT_TIME)) group by l.codplan || l.website || l.codgrupo order by l.codplan || l.website || l.codgrupo desc LIMIT 1) ORDER BY website, codplan, codgrupo, referencia, id LIMIT 200")
+        q.setWhere("sincronizado = FALSE AND (hasta < CURRENT_DATE OR (hasta = CURRENT_DATE AND horahasta <= CURRENT_TIME)) AND codplan || website || codgrupo IN (SELECT l.codplan || l.website || l.codgrupo FROM lineassincro_eliminarplanpreciosmagento l WHERE l.sincronizado = FALSE AND (l.hasta < CURRENT_DATE OR (l.hasta = CURRENT_DATE AND l.horahasta <= CURRENT_TIME)) group by l.codplan || l.website || l.codgrupo order by l.codplan || l.website || l.codgrupo desc LIMIT 1) ORDER BY website, codplan, codgrupo, referencia, id LIMIT 1000")
         
         # print("CONSULTA: ", q.sql())
 

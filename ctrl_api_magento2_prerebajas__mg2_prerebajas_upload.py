@@ -37,8 +37,8 @@ class Mg2PrerebajasUpload(ProductsUpload):
         s = qsatype.FLSqlQuery()
         s.setSelect("at.referencia,at.talla,pr.pvp,pr.desde,mg.idmagento")
         s.setFrom("lineassincro_planpreciosprerebajas pr INNER JOIN atributosarticulos at ON pr.sku = at.referencia INNER JOIN eg_tiendasplanprecios t ON pr.codplan = t.codplan INNER JOIN mg_storeviews mg ON mg.egcodtiendarebajas = t.codtienda")
-        s.setWhere("pr.codplan = '{}' AND (pr.descripcionsincro IS NULL OR pr.descripcionsincro = '') GROUP BY at.referencia,at.talla,pr.pvp,pr.desde,mg.idmagento ORDER BY at.referencia, mg.idmagento".format(self.cod_plan))
-        # s.setWhere("pr.sincronizado = false AND pr.codplan = '" + str(self.cod_plan) + "' AND pr.sku in (SELECT sku from lineassincro_planpreciosprerebajas WHERE codplan = '" + str(self.cod_plan) + "' AND sincronizado = false ORDER BY sku LIMIT 1) GROUP BY at.referencia,at.talla,pr.pvp,pr.desde,mg.idmagento ORDER BY at.referencia, mg.idmagento")
+        # s.setWhere("pr.codplan = '{}' AND (pr.descripcionsincro IS NULL OR pr.descripcionsincro = '') GROUP BY at.referencia,at.talla,pr.pvp,pr.desde,mg.idmagento ORDER BY at.referencia, mg.idmagento".format(self.cod_plan))
+        s.setWhere("pr.sincronizado = false AND pr.codplan = '" + str(self.cod_plan) + "' AND pr.sku in (SELECT sku from lineassincro_planpreciosprerebajas WHERE codplan = '" + str(self.cod_plan) + "' AND sincronizado = false ORDER BY sku LIMIT 50) GROUP BY at.referencia,at.talla,pr.pvp,pr.desde,mg.idmagento ORDER BY at.referencia, mg.idmagento")
         s.exec_()
 
         body = self.fetch_query(s)

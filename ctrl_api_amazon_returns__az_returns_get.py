@@ -36,7 +36,7 @@ class AzReturnsResultGet(DownloadSync, ABC):
         q = qsatype.FLSqlQuery()
         q.setSelect("id, xmlreport")
         q.setFrom("az_solicitudesreportsdevoluciones")
-        q.setWhere("xmlreport IS NOT NULL AND reportdocumentidprocesado = TRUE AND xmlprocesado = FALSE ORDER BY id LIMIT 1")
+        q.setWhere("xmlreport IS NOT NULL AND reportdocumentidprocesado = TRUE AND xmlprocesado = FALSE AND xmlreport LIKE '%return_details%' ORDER BY id LIMIT 1")
 
         q.exec_()
 
@@ -59,13 +59,13 @@ class AzReturnsResultGet(DownloadSync, ABC):
     def process_all_data(self, all_data):
         if all_data == []:
             self.log("Exito", "No hay datos que sincronizar")
-            return False
+            return True
 
         response = xml2dict(bytes(all_data, 'utf-8'))
 
         if not hasattr(response.Message.return_details, 'amazon_rma_id'):
             self.log("Exito", "No hay datos que sincronizar")
-            return False
+            return True
 
         for devolucion in response.Message.return_details:
             idAmazon = qsatype.FLUtil.sqlSelect("az_ventasamazon", "idamazon", "idamazon = '{}'".format(devolucion.order_id))
@@ -121,7 +121,8 @@ class AzReturnsResultGet(DownloadSync, ABC):
         return ReturnSerializer()
 
     def after_sync(self):
-        qsatype.FLSqlQuery().execSql("UPDATE az_solicitudesreportsdevoluciones SET xmlprocesado = TRUE WHERE id IN ({})".format(self.ids))
+        if str(self.ids) != "":
+            qsatype.FLSqlQuery().execSql("UPDATE az_solicitudesreportsdevoluciones SET xmlprocesado = TRUE WHERE id IN ({})".format(self.ids))
 
         if self.idamazon:
             self.log("Exito", "Las siguientes devoluciones se han sincronizado correctamente: {}".format(self.idamazon))

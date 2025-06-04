@@ -71,8 +71,6 @@ class Mg2OrderLineSerializer(DefaultSerializer):
                         self.init_data["almacen"] = "AANT"
                         self.init_data["emailtienda"] = qsatype.FLUtil.quickSqlSelect("almacenes", "email", "codalmacen = '{}'".format("AANT"))
                     else:
-                        raise NameError("VIENE SIN ALMACEN.")
-                        return False
                         self.init_data["almacen"] = "ACHI"
                         self.init_data["emailtienda"] = qsatype.FLUtil.quickSqlSelect("almacenes", "email", "codalmacen = '{}'".format("ACHI"))
                     linea_ecommerce_excluida = Mg2LineaEcommerceExcluidaSerializer().serialize(self.init_data)

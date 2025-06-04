@@ -178,8 +178,9 @@ class EgMiraklReturnsNewDownload(ReturnsDownload):
 
         while qL.first():
             cantDev = qsatype.FLUtil.sqlSelect("tpv_lineascomanda", "cantdevuelta", "idtpv_comanda = {} AND barcode = '{}'".format(idtpvVenta, qL.value("barcode"))) + (int(qL.value("cantidad")) * -1)
-            if not qsatype.FLUtil.sqlUpdate("tpv_lineascomanda", ["cantdevuelta"], [cantDev], "idtpv_comanda = {} AND barcode = '{}'".format(idtpvVenta, qL.value("barcode"))):
-                return False
+            qsatype.FLSqlQuery().execSql("UPDATE tpv_lineascomanda SET cantdevuelta = '{}' WHERE idtpv_comanda = {} AND barcode = '{}'".format(cantDev, idtpvVenta, qL.value("barcode")))
+            """if not qsatype.FLUtil.sqlUpdate("tpv_lineascomanda", ["cantdevuelta"], [cantDev], "idtpv_comanda = {} AND barcode = '{}'".format(idtpvVenta, qL.value("barcode"))):
+                return False"""
         return objReturn.cursor.valueBuffer("idtpv_comanda")
 
     def get_return_serializer(self):

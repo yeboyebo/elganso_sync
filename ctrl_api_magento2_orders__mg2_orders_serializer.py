@@ -556,7 +556,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
         soloIdl = "True"
         paisEnv = jsonDatos["shipping_address"]["country_id"]
         print("paisEnv: " + paisEnv)
-        aPaisesUE = ['AT','BE','BG','CZ','DE','DK','EE','FI','FR','GG','GR','HR','HU','IE','IT','JE','LI','LT','LU','LV','MC','NL','NO','PL','PT','RO','SE','SI','SK','SM','ES']
+        aPaisesUE = ['AT','BE','BG','CZ','DE','DK','EE','FI','FR','GG','GR','HR','HU','IE','IT','JE','LI','LT','LU','LV','MC','NL','NO','PL','PT','RO','SE','SI','SK','SM','ES','CL']
 
         for pais in aPaisesUE:
             if pais == paisEnv:
