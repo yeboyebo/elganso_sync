@@ -95,7 +95,7 @@ class Mg2RefoundsSerializer(DefaultSerializer):
 
             self.crear_registros_descuentos(iva)
             self.crear_registros_puntos(iva)
-            self.crear_registros_vales(iva)
+            self.crear_registros_vales(iva, False)
             self.crear_registros_gastosenvio(iva)
             self.crear_registros_tarjetamonedero(iva)
 
@@ -364,13 +364,14 @@ class Mg2RefoundsSerializer(DefaultSerializer):
             linea_puntos = Mg2RefoundPointLineSerializer().serialize(new_init_data)
             self.data["children"]["lines"].append(linea_puntos)
 
-    def crear_registros_vales(self, iva):
+    def crear_registros_vales(self, iva, crear_movimiento_vale):
 
         new_init_data = self.init_data.copy()
         new_init_data.update({
             "codcomanda": self.data["codigo"],
             "iva": iva,
-            "tipo_linea": "ValesNegativos"
+            "tipo_linea": "ValesNegativos",
+            "crear_movimiento_vale": crear_movimiento_vale
         })
         linea_vale = Mg2RefoundVoucherLineSerializer().serialize(new_init_data)
         self.data["children"]["lines"].append(linea_vale)
@@ -380,7 +381,8 @@ class Mg2RefoundsSerializer(DefaultSerializer):
             new_init_data.update({
                 "codcomanda": self.data["codigo"],
                 "iva": iva,
-                "tipo_linea": "ValesPositivos"
+                "tipo_linea": "ValesPositivos",
+                "crear_movimiento_vale": crear_movimiento_vale
             })
             linea_vale = Mg2RefoundVoucherLineSerializer().serialize(new_init_data)
             self.data["children"]["lines"].append(linea_vale)
@@ -409,7 +411,8 @@ class Mg2RefoundsSerializer(DefaultSerializer):
 
         self.data.update({
             "fecha": qsatype.Date(),
-            "codtienda": codtienda
+            "codtienda": codtienda,
+            "codigo": codigo
         })
         arqueo_web = Mg2CashCountSerializer().serialize(self.data)
 
@@ -444,6 +447,7 @@ class Mg2RefoundsSerializer(DefaultSerializer):
                             raise NameError("Error al crear el viaje de recogida en tienda.")
 
         self.crear_registro_puntos(codigo)
+        self.crear_registros_vales(False, True)
 
         return True
 
@@ -1098,4 +1102,3 @@ class Mg2RefoundsSerializer(DefaultSerializer):
 
                     if not curMP.commitBuffer():
                         return False
-

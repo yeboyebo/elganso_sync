@@ -15,6 +15,7 @@ from models.flfact_tpv.objects.ew_devolucioneseciweb_raw import EwDevolucionesec
 class EgMiraklReturnsIdDownload(ReturnsDownload):
 
     id_mirakl = ""
+    es_valdemoro = False
     def __init__(self, params=None):
         super().__init__("egmiraklreturnsid", params)
 
@@ -27,6 +28,9 @@ class EgMiraklReturnsIdDownload(ReturnsDownload):
     def get_data(self):
         returns_url = self.returns_url if self.driver.in_production else self.returns_test_url
         self.id_mirakl = qsatype.FLUtil.sqlSelect("eg_devolucioneseciwebptesincronizar", "idmirakl", "sincronizada = FALSE ORDER BY id")
+        if self.id_mirakl:
+            self.es_valdemoro = qsatype.FLUtil.sqlSelect("eg_devolucioneseciwebptesincronizar", "valdemoro", "idmirakl = '" + self.id_mirakl + "'")
+
         print(self.id_mirakl)
         result = self.send_request("get", url=returns_url.format(self.id_mirakl))
         return result
@@ -155,8 +159,11 @@ class EgMiraklReturnsIdDownload(ReturnsDownload):
 
         while qL.first():
             cantDev = qsatype.FLUtil.sqlSelect("tpv_lineascomanda", "cantdevuelta", "idtpv_comanda = {} AND barcode = '{}'".format(idtpvVenta, qL.value("barcode"))) + (int(qL.value("cantidad")) * -1)
-            if not qsatype.FLUtil.sqlUpdate("tpv_lineascomanda", ["cantdevuelta"], [cantDev], "idtpv_comanda = {} AND barcode = '{}'".format(idtpvVenta, qL.value("barcode"))):
-                return False
+            qsatype.FLSqlQuery().execSql("UPDATE tpv_lineascomanda SET cantdevuelta = '{}' WHERE idtpv_comanda = {} AND barcode = '{}'".format(cantDev, idtpvVenta, qL.value("barcode")))
+           
+            """if not qsatype.FLUtil.sqlUpdate("tpv_lineascomanda", ["cantdevuelta"], [cantDev], "idtpv_comanda = {} AND barcode = '{}'".format(idtpvVenta, qL.value("barcode"))):
+                print("ENTRA EN ESTE FALSE")
+                return False"""
         return objReturn.cursor.valueBuffer("idtpv_comanda")
 
     def get_return_serializer(self):
@@ -165,6 +172,10 @@ class EgMiraklReturnsIdDownload(ReturnsDownload):
     def after_sync(self):
 
         qsatype.FLSqlQuery().execSql("UPDATE eg_devolucioneseciwebptesincronizar SET sincronizada = TRUE WHERE idmirakl = '{}'".format(self.id_mirakl))
+
+        if self.es_valdemoro == True:
+            self.es_valdemoro = False
+            qsatype.FLSqlQuery().execSql("UPDATE ew_devolucioneseciweb SET valdemoro = TRUE WHERE idventaweb = '{}'".format(self.id_mirakl))
 
         if self.success_data:
             self.log("Exito", "Las siguientes devoluciones se han sincronizado correctamente: {}".format(self.id_mirakl))
