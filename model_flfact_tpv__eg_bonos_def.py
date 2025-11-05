@@ -38,7 +38,7 @@ class elganso_sync(interna):
                 q.setTablesList(u"eg_bonos")
                 q.setSelect(u"codbono, venta, email")
                 q.setFrom(u"eg_bonos")
-                q.setWhere("venta like '%FIDELIZACION%' AND email = '" + params["email"].lower() + "'")
+                q.setWhere("(venta like '%FIDELIZACION%' OR venta like '%NEWSLETTER%') AND email = '" + params["email"].lower() + "'")
                 if not q.exec_():
                     return {"Error": "Bono incorrecto", "status": -1}
                 if q.size() == 0:
@@ -328,10 +328,13 @@ class elganso_sync(interna):
                 q.setTablesList(u"eg_cupones")
                 q.setSelect(u"codcupon, esdescuento, artregalo, dtopor, email, fechaexpiracion, activo, cuponmagento")
                 q.setFrom(u"eg_cupones")
-                q.setWhere(ustr(u"email = '", params['email'].lower(), u"' AND activo AND cuponmagento = '", params['promo'].lower() ,"' AND fechaexpiracion > CURRENT_DATE"))
+                q.setWhere(ustr(u"lower(email) = '", params['email'].lower(), u"' AND activo AND lower(cuponmagento) = '", params['promo'].lower() ,"' AND fechaexpiracion > CURRENT_DATE"))
+                
+                # print(str(q.sql()))
                 if not q.exec_():
                     return {"Error": "Cupón incorrecto", "status": -1}
                 if q.next():
+                    # print(str(q.value("codcupon")))
                     codCupon = q.value("codcupon")
                     activo = q.value("activo")
                     email = q.value("email")
@@ -345,7 +348,7 @@ class elganso_sync(interna):
                         return {"cupon": codCupon, "status": 1, "tipo": "DESCUENTO", "descuento": dtoPor}
 
                     return {"cupon": codCupon, "status": 1, "tipo": "ARTICULO_REGALO", "articulo": artRegalo + "FI"}
-
+                # print("Continua")
                 '''
                 valor = qsatype.FLUtil.sqlSelect(u"param_parametros", u"valor", ustr(u"nombre = 'CUPONES'"))
 

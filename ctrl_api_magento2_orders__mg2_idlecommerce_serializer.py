@@ -16,14 +16,16 @@ class Mg2IdlEcommerce(DefaultSerializer):
             if str(self.init_data["rma_replace_id"]) != "None" and self.init_data["rma_replace_id"] != None and self.init_data["rma_replace_id"] != False:
                 metodoEnvio = "i4seur_31_2"
 
-        # transIDL = qsatype.FLUtil.sqlSelect("metodosenvio_transportista", "transportista", "LOWER(metodoenviomg) = '" + metodoEnvio + "' OR UPPER(metodoenviomg) = '" + metodoEnvio + "' OR metodoenviomg = '" + metodoEnvio + "'")
-        # metodoIDL = qsatype.FLUtil.sqlSelect("metodosenvio_transportista", "metodoenvioidl", "LOWER(metodoenviomg) = '" + metodoEnvio + "' OR UPPER(metodoenviomg) = '" + metodoEnvio + "' OR metodoenviomg = '" + metodoEnvio + "'")
+        transIDL = qsatype.FLUtil.sqlSelect("metodosenvio_transportista", "transportista", "LOWER(metodoenviomg) = '" + metodoEnvio + "' OR UPPER(metodoenviomg) = '" + metodoEnvio + "' OR metodoenviomg = '" + metodoEnvio + "'")
+        metodoIDL = qsatype.FLUtil.sqlSelect("metodosenvio_transportista", "metodoenvioidl", "LOWER(metodoenviomg) = '" + metodoEnvio + "' OR UPPER(metodoenviomg) = '" + metodoEnvio + "' OR metodoenviomg = '" + metodoEnvio + "'")
 
-        transIDL = "GLS"
-        metodoIDL = "76 3"
-        if "country_id" in self.init_data["shipping_address"]:
-            if str(self.init_data["shipping_address"]["country_id"]) == "ES":    
-                metodoIDL = "37"
+        #transIDL = "GLS"
+        #metodoIDL = "76 3"
+        if transIDL == "GLS":
+            metodoIDL = "76 3"
+            if "country_id" in self.init_data["shipping_address"]:
+                if str(self.init_data["shipping_address"]["country_id"]) == "ES":    
+                    metodoIDL = "37 18"
         
         esRecogidaTienda = qsatype.FLUtil.sqlSelect("metodosenvio_transportista", "recogidaentienda", "LOWER(metodoenviomg) = '" + metodoEnvio + "' OR UPPER(metodoenviomg) = '" + metodoEnvio + "' OR metodoenviomg = '" + metodoEnvio + "'")
 

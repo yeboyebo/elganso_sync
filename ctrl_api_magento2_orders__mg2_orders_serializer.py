@@ -741,14 +741,18 @@ class Mg2OrdersSerializer(DefaultSerializer):
 
             porcentaje_almacen = parseFloat(almacen["porcentaje_teorico"]) - parseFloat(porcentaje_tienda_real)
             if almacen["source_code"] == "AWEB":
-                porcentaje_almacen = 1
+                porcentaje_almacen = 10
             # pedidos_almacen = qsatype.FLUtil.quickSqlSelect("eg_lineasecommerceexcluidas e INNER JOIN tpv_comandas c ON e.codcomanda = c.codigo", "COUNT(*)", "e.codalmacen = '" + almacen["source_code"] + "' AND c.fecha = CURRENT_DATE")
             pedidos_almacen = qsatype.FLUtil.quickSqlSelect("tpv_comandas", "COUNT(*)", "fecha = CURRENT_DATE AND (codigo like 'WEB%' or codigo like 'AEVV%' or codigo like 'VPFR%' or codigo like 'PRIV%') and codtienda in ('AWEB','AWCL','VPFR','PRIV','AEVV') and idtpv_comanda in (select c.idtpv_comanda from eg_lineasecommerceexcluidas le inner join tpv_lineascomanda l on le.idtpv_linea = l.idtpv_linea inner join tpv_comandas c on (l.idtpv_comanda = c.idtpv_comanda and le.codcomanda = c.codigo) WHERE le.codalmacen = '" + almacen["source_code"] + "' and c.fecha = CURRENT_DATE AND (c.codigo like 'WEB%' or c.codigo like 'AEVV%' or c.codigo like 'VPFR%' or c.codigo like 'PRIV%') and c.codtienda in ('AWEB','AWCL','VPFR','PRIV','AEVV') group by c.idtpv_comanda)")
 
+            filtro_articulo = str(qsatype.FLUtil.sqlSelect("param_parametros", "valor", "nombre = 'FA_" + almacen["source_code"] + "'"))
+            if not filtro_articulo or filtro_articulo == "None" or filtro_articulo == "":
+                continue
+
             q = qsatype.FLSqlQuery()
             q.setSelect(u"barcode, disponible")
-            q.setFrom(u"stocks")
-            q.setWhere(u"codalmacen = '" + almacen["source_code"] + "' AND barcode IN ('" + "', '".join(barcodes) + "') ORDER BY barcode")
+            q.setFrom(u"stocks s INNER JOIN articulos a ON s.referencia = a.referencia")
+            q.setWhere(u"codalmacen = '" + almacen["source_code"] + "' AND barcode IN ('" + "', '".join(barcodes) + "') AND " + filtro_articulo + " ORDER BY barcode")
 
             q.exec_()
 
@@ -759,7 +763,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
             cant_disponible = 0
             hay_disponible = False
             while q.next():
-                cant_disponible = q.value("disponible")
+                cant_disponible = qsatype.FLUtil.sqlSelect("stocks s LEFT JOIN param_parametros p ON 'RSTOCK_' || s.codalmacen = p.nombre", "COALESCE(SUM(CASE WHEN (s.disponible-COALESCE(CAST(p.valor as integer),0)) > 0 THEN (s.disponible-COALESCE(CAST(p.valor as integer),0)) ELSE 0 END), 0)", "s.barcode = '" + q.value("barcode") + "' and s.codalmacen IN ('" + almacen["source_code"] + "')")
                 if cant_disponible <= 0:
                     continue
                 hay_disponible = True
@@ -782,9 +786,12 @@ class Mg2OrdersSerializer(DefaultSerializer):
                     "bajo_limite": (int(limite_pedido_minimo)-int(pedidos_almacen)) / int(limite_pedido_minimo),
                     "disponibles": jBarcodes
                 })
+                #self.barcodes_con_stock = qsatype.FLUtil.quickSqlSelect("atributosarticulos", "COUNT(*)", "barcode IN (SELECT barcode FROM stocks WHERE disponible > 0 AND codalmacen IN ({}) AND barcode IN ({}) AND referencia NOT IN ({}) AND referencia NOT IN ({}) GROUP BY barcode)".format(self.cod_almacenes, self.barcodes_lineas, ref_regalo, ref_portatrajes))
+
+                #return almacenes
 
         self.barcodes_con_stock = qsatype.FLUtil.quickSqlSelect("atributosarticulos", "COUNT(*)", "barcode IN (SELECT barcode FROM stocks WHERE disponible > 0 AND codalmacen IN ({}) AND barcode IN ({}) AND referencia NOT IN ({}) AND referencia NOT IN ({}) GROUP BY barcode)".format(self.cod_almacenes, self.barcodes_lineas, ref_regalo, ref_portatrajes))
-
+        print("////////////***************ALMACENES: " + str(almacenes))
         return almacenes
 
     def clave_disponible(self, almacen, barcode):
@@ -843,7 +850,19 @@ class Mg2OrdersSerializer(DefaultSerializer):
 
     def puntos_cantidad_almacenes(self, combinacion, almacenes):
         max_puntos = len(almacenes)
-        puntos = len(almacenes) - len(combinacion) + 1
+        
+        num_lineas = len(self.init_data["items"])
+        print("NUMERO LINEAS: " + str(num_lineas))
+        i = 1
+        if(num_lineas > 4):
+            if len(combinacion) < 3:
+                if "AWEB" in combinacion:
+                    i = 2.1
+        '''for almacen in combinacion:
+            if almacen == "AWEB" AND len(combinacion) < 3:
+                i = 2.1'''
+
+        puntos = len(almacenes) - len(combinacion) + i
         result = puntos * 10 / max_puntos
         return result
 

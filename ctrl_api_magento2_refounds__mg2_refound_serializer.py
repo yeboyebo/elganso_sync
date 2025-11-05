@@ -388,6 +388,13 @@ class Mg2RefoundsSerializer(DefaultSerializer):
             self.data["children"]["lines"].append(linea_vale)
 
     def cerrar_devolucionweb(self, codigo):
+        if "codtiendaentrega" in self.init_data:
+            if str(self.init_data["codtiendaentrega"]) != "AWEB":
+                idComandaPago = qsatype.FLUtil.sqlSelect("tpv_comandas c INNER JOIN tpv_pagoscomanda p ON c.idtpv_comanda = p.idtpv_comanda", "p.idtpv_comanda", "c.codigo = '" + str(codigo) + "'")
+                if idComandaPago:
+                    self.crear_registro_puntos(codigo)
+                    raise NameError("La devolucion ya ha sido procesada en una tienda.")
+                    return False
 
         idComandaPago = qsatype.FLUtil.sqlSelect("tpv_comandas c INNER JOIN tpv_pagoscomanda p ON c.idtpv_comanda = p.idtpv_comanda", "p.idtpv_comanda", "c.codigo = '" + str(codigo) + "'")
         if idComandaPago:
@@ -798,7 +805,7 @@ class Mg2RefoundsSerializer(DefaultSerializer):
         if not curTarjeta.commitBuffer():
             return False
 
-        if not qsatype.FLUtil.execSql(ustr(u"UPDATE eg_tarjetamonedero SET saldoconsumido = CASE WHEN (SELECT SUM(importe) FROM eg_movitarjetamonedero WHERE idtarjeta = eg_tarjetamonedero.idtarjeta) IS NULL THEN 0 ELSE (SELECT SUM(importe) FROM eg_movitarjetamonedero WHERE idtarjeta = eg_tarjetamonedero.idtarjeta) END WHERE idtarjeta = {}".format(str(id_tarjeta)))):
+        if not qsatype.FLUtil.execSql(ustr(u"UPDATE eg_tarjetamonedero SET saldoconsumido = CASE WHEN (SELECT SUM(importe) FROM eg_movitarjetamonedero WHERE idtarjeta = eg_tarjetamonedero.idtarjeta) IS NULL THEN 0 ELSE (SELECT SUM(importe) FROM eg_movitarjetamonedero WHERE idtarjeta = eg_tarjetamonedero.idtarjeta) * (-1) END WHERE idtarjeta =  {}".format(str(id_tarjeta)))):
             return False
 
         if not qsatype.FLUtil.execSql(ustr(u"UPDATE eg_tarjetamonedero SET saldopendiente = CASE WHEN (saldoinicial - saldoconsumido) IS NULL THEN 0 ELSE (saldoinicial - saldoconsumido) END, fechamod = CURRENT_DATE, horamod = CURRENT_TIME WHERE idtarjeta = {}".format(str(id_tarjeta)))):
@@ -1009,6 +1016,10 @@ class Mg2RefoundsSerializer(DefaultSerializer):
         return "{}{}".format(prefix, qsatype.FactoriaModulos.get("flfactppal").iface.cerosIzquierda(str(ultima_factura), 12 - len(prefix)))
 
     def crear_registro_puntos(self, codigo):
+
+        if qsatype.FLUtil.quickSqlSelect("tpv_movpuntos", "operacion", "operacion = '{}'".format(codigo)):
+            return True
+
         tasaconv = 1
         divisa = str(self.init_data["currency"])
 

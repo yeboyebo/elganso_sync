@@ -36,6 +36,8 @@ class Mg2InventoryCanalUpload(InventoryUpload):
         for idx in range(len(data)):
             datos["linea"] = data[idx]
             inventory = self.get_inventorycanal_serializer().serialize(datos)
+            if not inventory:
+                continue
             new_inventory.append(inventory)
             
             '''inventory_default = inventory.copy()
@@ -81,7 +83,7 @@ class Mg2InventoryCanalUpload(InventoryUpload):
         q = qsatype.FLSqlQuery()
         q.setSelect("ssw.idss, ssw.barcode, ssw.codcanalweb, aa.referencia, aa.talla, st.idstockmagento")
         q.setFrom("mg_storeviews st INNER JOIN eg_sincrostockwebcanalweb ssw ON st.codcanalweb = ssw.codcanalweb INNER JOIN atributosarticulos aa ON ssw.barcode = aa.barcode INNER JOIN articulos a ON aa.referencia = a.referencia INNER JOIN eg_urlsimagenesarticulosmgt i ON a.referencia = i.referencia")
-        q.setWhere("st.activo AND NOT a.nostock AND (NOT ssw.sincronizado OR ssw.sincronizado = false) AND i.urls IS NOT NULL GROUP BY ssw.idss, ssw.barcode, ssw.codcanalweb, aa.referencia, aa.talla, st.idstockmagento ORDER BY ssw.fecha desc, ssw.hora desc, ssw.idss LIMIT 20")
+        q.setWhere("st.activo AND NOT a.nostock AND (NOT ssw.sincronizado OR ssw.sincronizado = false) AND i.urls IS NOT NULL GROUP BY ssw.idss, ssw.barcode, ssw.codcanalweb, aa.referencia, aa.talla, st.idstockmagento ORDER BY ssw.fecha desc, ssw.hora desc, ssw.idss LIMIT 50")
 
         q.exec_()
 
