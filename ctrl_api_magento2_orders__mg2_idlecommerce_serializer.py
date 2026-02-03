@@ -25,7 +25,8 @@ class Mg2IdlEcommerce(DefaultSerializer):
             metodoIDL = "76 3"
             if "country_id" in self.init_data["shipping_address"]:
                 if str(self.init_data["shipping_address"]["country_id"]) == "ES":    
-                    metodoIDL = "37 18"
+                    #metodoIDL = "37 18"
+                    metodoIDL = "96 18"
         
         esRecogidaTienda = qsatype.FLUtil.sqlSelect("metodosenvio_transportista", "recogidaentienda", "LOWER(metodoenviomg) = '" + metodoEnvio + "' OR UPPER(metodoenviomg) = '" + metodoEnvio + "' OR metodoenviomg = '" + metodoEnvio + "'")
 

@@ -26,7 +26,7 @@ class InventorySerializer(DefaultSerializer):
                                 almacenes = "'" + almacen + "'"
                             else:
                                 almacenes += ",'" + almacen + "'"
-        
+
         if almacenes == "":
             return False
         

@@ -193,7 +193,7 @@ class elganso_sync(interna):
                 if "importeVenta" not in params or "codigoVenta" not in params or "divisa" not in params or "email" not in params:
                     return {"Error": "Formato Incorrecto", "status": -1}
 
-                if params['divisa'] != "EUR" and params['divisa'] != "GBP":
+                if params['divisa'] != "EUR" and params['divisa'] != "GBP" and params['divisa'] != "CLP":
                     return {"Error": "Formato divisa incorrecto", "status": -1}
 
                 observaciones = ""

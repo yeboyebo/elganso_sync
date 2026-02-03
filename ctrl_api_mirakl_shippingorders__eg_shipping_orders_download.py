@@ -13,6 +13,8 @@ class EgMiraklShippingOrdersDownload(ShippingOrdersDownload):
         self.shipping_test_url = shipping_params['test_url']
 
         self.set_sync_params(self.get_param_sincro('mirakl'))
+        
+        self.small_sleep = 10
 
     def get_order_serializer(self):
         return EgOrderSerializer()

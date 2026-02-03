@@ -593,7 +593,8 @@ class Mg2OrdersSerializer(DefaultSerializer):
 
         combinaciones_ordenadas = sorted(combinaciones, key=puntua_combinacion, reverse=True)
         mejor_combinacion = combinaciones_ordenadas[0]
-        #print(str(combinaciones_ordenadas))
+        print(str(combinaciones_ordenadas))
+        print("*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*")
         print("MEJOR COMBINACION: ", str(mejor_combinacion))
         lineas_data = jsonDatos["items"]
         disponibles = self.disponibles_x_almacen(mejor_combinacion)
@@ -654,7 +655,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
         q = qsatype.FLSqlQuery()
         q.setSelect(u"a.codpais, a.email, a.codalmacen, ac.porcentajeteorico, ac.importeventas")
         q.setFrom(u"almacenes a INNER JOIN almacenescanalweb ac ON a.codalmacen = ac.codalmacen")
-        q.setWhere(u"a.codalmacen IN (" + almacenes + ") AND ac.codcanalweb = '" + codcanalweb + "' ORDER BY ac.prioridadcanalweb")
+        q.setWhere(u"a.codalmacen IN (" + almacenes + ") AND ac.codcanalweb = '" + codcanalweb + "' ORDER BY ac.prioridadcanalweb ASC, ac.porcentajeteorico DESC, ac.importeventas ASC")
 
         q.exec_()
         # print(q.sql())
@@ -724,10 +725,15 @@ class Mg2OrdersSerializer(DefaultSerializer):
         indice_limite = 0
 
         importe_total_ventas = parseFloat(qsatype.FLUtil.quickSqlSelect("almacenescanalweb", "SUM(importeventas)", "codcanalweb = '" + codcanalweb + "'"))
-
+        j = 0
+        numlineas = len(self.init_data["items"])
+        print("numlineas: " + str(numlineas))
+        
         for indice, almacen in enumerate(jsonDatos["almacenes"]):
             limite_pedido_minimo = qsatype.FLUtil.quickSqlSelect("param_parametros", "valor", "nombre = 'LPEDIDO_" + almacen["source_code"] + "'")
-            if not limite_pedido_minimo:
+            print("limite pedido minimo: " + str(limite_pedido_minimo))
+            print("almacen: " + str(almacen["source_code"]))
+            if not limite_pedido_minimo or str(limite_pedido_minimo) == "0" or str(almacen["source_code"]) == "AWEB":
                 limite_pedido_minimo = 1000
 
             importe_total_ventas_almacen = parseFloat(qsatype.FLUtil.quickSqlSelect("almacenescanalweb", "importeventas", "codalmacen = '" + almacen["source_code"] + "' AND codcanalweb = '" + codcanalweb + "'"))
@@ -736,7 +742,6 @@ class Mg2OrdersSerializer(DefaultSerializer):
             if parseFloat(importe_total_ventas) != 0:
                 porcentaje_tienda_real = (parseFloat(importe_total_ventas_almacen) * 100) / parseFloat(importe_total_ventas)
 
-            
             prioridad_almacen = (len(jsonDatos["almacenes"]) - indice) / len(jsonDatos["almacenes"])
 
             porcentaje_almacen = parseFloat(almacen["porcentaje_teorico"]) - parseFloat(porcentaje_tienda_real)
@@ -752,7 +757,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
             q = qsatype.FLSqlQuery()
             q.setSelect(u"barcode, disponible")
             q.setFrom(u"stocks s INNER JOIN articulos a ON s.referencia = a.referencia")
-            q.setWhere(u"codalmacen = '" + almacen["source_code"] + "' AND barcode IN ('" + "', '".join(barcodes) + "') AND " + filtro_articulo + " ORDER BY barcode")
+            q.setWhere(u"codalmacen = '" + almacen["source_code"] + "' AND barcode IN ('" + "', '".join(barcodes) + "') AND " + filtro_articulo + " ORDER BY barcode, disponible")
 
             q.exec_()
 
@@ -770,6 +775,7 @@ class Mg2OrdersSerializer(DefaultSerializer):
                 jBarcodes[q.value("barcode")] = cant_disponible
 
             if hay_disponible:
+                j = j+1
                 if self.cod_almacenes == "":
                     self.cod_almacenes = "'" + almacen["source_code"] + "'"
                 else:
@@ -785,10 +791,34 @@ class Mg2OrdersSerializer(DefaultSerializer):
                     "codpais": almacen["country_id"],
                     "bajo_limite": (int(limite_pedido_minimo)-int(pedidos_almacen)) / int(limite_pedido_minimo),
                     "disponibles": jBarcodes
-                })
-                #self.barcodes_con_stock = qsatype.FLUtil.quickSqlSelect("atributosarticulos", "COUNT(*)", "barcode IN (SELECT barcode FROM stocks WHERE disponible > 0 AND codalmacen IN ({}) AND barcode IN ({}) AND referencia NOT IN ({}) AND referencia NOT IN ({}) GROUP BY barcode)".format(self.cod_almacenes, self.barcodes_lineas, ref_regalo, ref_portatrajes))
+                })   
+                
+                '''self.barcodes_con_stock = qsatype.FLUtil.quickSqlSelect("atributosarticulos", "COUNT(*)", "barcode IN (SELECT barcode FROM stocks WHERE disponible > 0 AND codalmacen IN ({}) AND barcode IN ({}) AND referencia NOT IN ({}) AND referencia NOT IN ({}) GROUP BY barcode)".format(self.cod_almacenes, self.barcodes_lineas, ref_regalo, ref_portatrajes))
+                return almacenes'''
 
-                #return almacenes
+                if j >= 5 and numlineas >= 5:
+                    self.barcodes_con_stock = qsatype.FLUtil.quickSqlSelect("atributosarticulos", "COUNT(*)", "barcode IN (SELECT barcode FROM stocks WHERE disponible > 0 AND codalmacen IN ({}) AND barcode IN ({}) AND referencia NOT IN ({}) AND referencia NOT IN ({}) GROUP BY barcode)".format(self.cod_almacenes, self.barcodes_lineas, ref_regalo, ref_portatrajes))
+                    print("////////////***************ALMACENES j5 l5: " + str(almacenes))
+
+                    return almacenes
+
+                if j >= 10 and numlineas >= 4:
+                    self.barcodes_con_stock = qsatype.FLUtil.quickSqlSelect("atributosarticulos", "COUNT(*)", "barcode IN (SELECT barcode FROM stocks WHERE disponible > 0 AND codalmacen IN ({}) AND barcode IN ({}) AND referencia NOT IN ({}) AND referencia NOT IN ({}) GROUP BY barcode)".format(self.cod_almacenes, self.barcodes_lineas, ref_regalo, ref_portatrajes))
+                    print("////////////***************ALMACENES j10 l4: " + str(almacenes))
+
+                    return almacenes
+
+                if j >= 15 and numlineas >= 3:
+                    self.barcodes_con_stock = qsatype.FLUtil.quickSqlSelect("atributosarticulos", "COUNT(*)", "barcode IN (SELECT barcode FROM stocks WHERE disponible > 0 AND codalmacen IN ({}) AND barcode IN ({}) AND referencia NOT IN ({}) AND referencia NOT IN ({}) GROUP BY barcode)".format(self.cod_almacenes, self.barcodes_lineas, ref_regalo, ref_portatrajes))
+                    print("////////////***************ALMACENES j15 l3: " + str(almacenes))
+
+                    return almacenes
+
+                if j >= 20 and numlineas >= 2:
+                    self.barcodes_con_stock = qsatype.FLUtil.quickSqlSelect("atributosarticulos", "COUNT(*)", "barcode IN (SELECT barcode FROM stocks WHERE disponible > 0 AND codalmacen IN ({}) AND barcode IN ({}) AND referencia NOT IN ({}) AND referencia NOT IN ({}) GROUP BY barcode)".format(self.cod_almacenes, self.barcodes_lineas, ref_regalo, ref_portatrajes))
+                    print("////////////***************ALMACENES j20 l2: " + str(almacenes))
+
+                    return almacenes
 
         self.barcodes_con_stock = qsatype.FLUtil.quickSqlSelect("atributosarticulos", "COUNT(*)", "barcode IN (SELECT barcode FROM stocks WHERE disponible > 0 AND codalmacen IN ({}) AND barcode IN ({}) AND referencia NOT IN ({}) AND referencia NOT IN ({}) GROUP BY barcode)".format(self.cod_almacenes, self.barcodes_lineas, ref_regalo, ref_portatrajes))
         print("////////////***************ALMACENES: " + str(almacenes))
